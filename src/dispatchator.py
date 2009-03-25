@@ -1,0 +1,806 @@
+#!/usr/bin/env python
+################################################################################
+#
+# ConfigMgr Data Consistancy dispatchator
+# Copyright (C) 2007-2009 CS-SI
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+################################################################################
+
+"""
+This module is in charge of controling all the deployement/validation process
+of a new configuration.
+
+This is the module to call as a main end-user command line (see --help)
+"""
+
+import locale
+import fcntl
+import traceback
+import os
+import sys
+import Queue # Requires: python >= 2.5
+from optparse import OptionParser
+import syslog
+from threading import Thread
+import shutil
+
+import conf
+import generator
+from lib.application import Application, ApplicationError
+from lib.systemcommand import SystemCommand, SystemCommandError
+from lib import ConfMgrError
+from lib.server import ServerFactory, ServerError
+from lib import dispatchmodes
+
+
+class DispatchatorError(ConfMgrError):
+    """The exception type raised by instances of Dispatchator"""
+
+    def __init__(self, value):
+        """
+        @param value: A message explaining this exception.
+        @type  value: C{str}
+        """
+        ConfMgrError.__init__(self, value)
+        self.value = value
+
+    def __str__(self):
+        """
+        String representation of an instance of this exception.
+        @rtype: C{str}.
+        """
+        return repr("DispatchatorError : "+self.value)
+
+class Dispatchator(object):
+    """
+    Dispatch the configurations files for all the applications
+
+    @ivar mServers: servers that will be used for operations
+    @type mServers: C{list} of L{Server<lib.server.Server>}
+    @ivar mApplications: applications deployed on L{mServers}
+    @type mApplications: C{list} of L{Application<lib.application.Application>}
+    @ivar mModeForce: defines if the --force option is set
+    @type mModeForce: C{boolean}
+    @ivar mAppsList: list of all the applications contained in the configuration.
+    @type mAppsList: C{list} of C{str}
+    """
+
+    def __init__(self):
+        self.mServers = []
+        self.mApplications = []
+        self.setModeForce(False)
+        self.mAppsList = []
+        # initialize applications
+        self.listApps()
+        self.sortApplication()
+
+
+    def getAppsList(self):
+        """
+        @returns: L{mAppsList}
+        """
+        return self.mAppsList
+
+    def getServersList(self):
+        """
+        @returns: The names of the servers
+        @rtype:   C{list} of C{str}
+        """
+        return [ s.getName() for s in self.getServers() ]
+
+    def getServers(self):
+        """
+        @returns: L{mServers}
+        """
+        return self.mServers
+
+    def getApplications(self):
+        """
+        @returns: L{mApplications}
+        """
+        return self.mApplications
+
+    def getModeForce(self): 
+        """
+        @returns: L{mModeForce}
+        """
+        return self.mModeForce
+
+    def setAppsList(self, iAppsList):
+        """
+        Mutator on L{mAppsList}
+        @type iAppsList: C{list} of C{str}
+        """
+        self.mAppsList = iAppsList
+
+    def setServers(self, iServers):
+        """
+        Mutator on L{mServers}
+        @type iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        self.mServers = iServers
+
+    def setApplications(self, iApplications):
+        """
+        Mutator on L{mApplications}
+        @type iApplications: C{list} of L{Application
+            <lib.application.Application>}
+        """
+        self.mApplications = iApplications
+
+    def setModeForce(self, iBool):
+        """
+        Mutator on L{mModeForce}
+        @type iBool: C{boolean}
+        """
+        self.mModeForce = iBool    
+
+    # methods
+    def restrict(self, servers):
+        """
+        Restrict applications and servers to the ones given as arguments.
+        @note: This method has to be implemented by subclasses
+        @param servers: Server names.
+        @type  servers: C{list} of C{str}
+        """
+        pass
+
+    def addApplication(self, iApp):
+        """
+        Appends an Application to the list of Applications.
+        @type iApp: L{Application<lib.application.Application>}
+        """
+        self.mAppsList.append(iApp)
+
+    def createCommand(self, iCommandStr):
+        """
+        Create a new system command
+        @param iCommandStr: Command to execute
+        @type  iCommandStr: C{str}
+        @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
+        """
+        return SystemCommand(iCommandStr)
+
+    def listApps(self):
+        """
+        Get all applications from configuration, and fill the L{mApplications}
+        variable.
+        """
+        apps = set()
+        for appnames in conf.appsByAppGroups.values():
+            for appname in appnames:
+                apps.add(appname)
+        _applications = []
+        for appname in apps:
+            if not conf.apps.has_key(appname):
+                raise DispatchatorError("%s unknown" % appname)
+            _AppConfig = conf.apps[appname]
+            _App = Application(appname)
+            _App.setServers(
+                self.buildServersFrom(
+                    self.getServersForApp(_App)
+                    )
+                )
+            _applications.append(_App)
+        self.setApplications(_applications)
+
+    def getServersForApp(self, app):
+        """
+        Get the list of server names for this application.
+        @note: To be implemented by subclasses.
+        @param app: Application to analyse
+        @type  app: L{Application<lib.application.Application>}
+        @return: Server names for this application
+        @rtype: C{list} of C{str}
+        """
+        pass
+
+    def buildServersFrom(self, iServers):
+        """
+        Builds and returns a list of servers objects.
+        @param iServers: List of server names to build from
+        @type  iServers: C{list} of C{str}
+        @rtype: C{list} of L{Server<lib.server.Server>}
+        """
+        _servers = []
+        serverfactory = ServerFactory()
+        for _srv in iServers:
+            _srvobj = serverfactory.makeServer(_srv)
+            _servers.append(_srvobj)
+        return _servers
+
+    def sortApplication(self):
+        """
+        Sorts our applications by priority. The sorting is done in-place in the
+        L{mAppsList} variable.
+        """       
+        self.getAppsList().sort(reverse=True,
+                    cmp=lambda x,y: cmp(x.getPriority(), y.getPriority()))
+
+    #Generate Configuration
+    def generateConfig(self):
+        """
+        Generate the configuration files for the servers, using the
+        L{generator} module.
+        """
+        # generate conf files
+        gendir = os.path.join(conf.libDir, "deploy")
+        shutil.rmtree(gendir)
+        result = generator.generate(gendir)
+        if not result:
+            raise DispatchatorError("Can't generate configuration")
+
+    def saveToConfig(self):
+        """
+        Generate, validate and commit the last revision of the files via SVN
+        """
+        #Generate Configuration
+        self.generateConfig()
+
+        #Validate Configuration
+        for _App in self.getApplications():
+            _App.validate(os.path.join(conf.libDir, "deploy"))
+        syslog.syslog(syslog.LOG_INFO, "Validation Successful\n")
+
+        #Commit Configuration
+        self.commitLastRevision()
+        syslog.syslog(syslog.LOG_INFO, "Commit Successful\n")
+
+    def commitLastRevision(self):
+        """
+        Commit the last revision of the files via SVN
+        @return: the number of the revision
+        @rtype: C{int}
+        """
+        if not conf.svnRepository:
+            syslog.syslog(syslog.LOG_WARNING,
+                    "Not committing because the svnRepository configuration "
+                   +"parameter is empty\n")
+            return 0
+        _cmd = "svn ci "
+        if conf.svnUsername and conf.svnPassword: # TODO: escape password
+            _cmd += "--username %s --password %s " % \
+                    (conf.svnUsername, conf.svnPassword)
+        _cmd += "-m 'Auto generate configuration %s' %s" % \
+                (conf.confDir, conf.confDir)
+        _command = self.createCommand(_cmd)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError("Can't execute the request to commit %s "
+                                    % conf.confDir
+                                   +"revision. REASON: %s" % e.value)
+        return self.getLastRevision()
+
+    def getLastRevision(self):
+        """
+        Get the last revision of the files via SVN
+        @return: the number of the current revision
+        @rtype: C{int}
+        """
+        res = 0
+        if not conf.svnRepository:
+            return res
+        # <code> UNIX only
+        # TODO: use svn info --xml and parse it
+        _command = self.createCommand("LANG=C LC_ALL=C svn info -r HEAD %s" % 
+                                     conf.svnRepository)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError("Can't execute the request to get the "
+                                   +"current revision.REASON %s" % e.value)
+
+        lines = _command.getResult().split("\n")
+        for line in lines:
+            if line.startswith("Revision: "):    
+                rev = line.strip().split(": ")[1]
+                res = locale.atoi(rev)
+                break 
+        return res
+
+    def updateLocalCopy(self, iRevision):
+        """
+        Updates the local copy of the repository
+        @param iRevision: SVN revision to update to
+        @type  iRevision: C{int}
+        """
+        if not conf.svnRepository:
+            syslog.syslog(syslog.LOG_WARNING,
+                    "Not updating because the svnRepository configuration "
+                   +"parameter is empty")
+            return 0
+        _cmd = "svn up "
+        if conf.svnUsername and conf.svnPassword: # TODO: escape password
+            _cmd += "--username %s --password %s " % \
+                    (conf.svnUsername, conf.svnPassword)
+        _cmd += "-r %d %s" % (iRevision, conf.confDir)
+        _command = self.createCommand(_cmd)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError("Can't execute the request to update the "
+                                   +"local copy. COMMAND %s FAILED. REASON: %s"
+                                   % (_cmd, e.value) )
+
+    def manageReturnQueue(self):
+        """
+        Manage the data in the return queue. Syslogs all the items.
+        @rtype: C{int}
+        """
+        _result = True # we suppose there is no error (empty queue)
+        while not self.returnsQueue.empty(): # syslog each item of the queue
+            _result = False
+            _error = self.returnsQueue.get()
+            syslog.syslog(syslog.LOG_ERR, "%s" %(_error))
+        return _result
+
+    def actionThread(self, iAction, iServers):
+        """
+        Implementation of a thread 
+        @param iAction: Function to execute in the thread
+        @type  iAction: callable
+        @param iServers: List of servers, will be passed to the iAction
+            function as second argument
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        # get the object from Queue
+        _object = self.commandsQueue.get()
+        # does the action on this server
+        try:
+            iAction(_object, iServers)
+        except ConfMgrError, e: # if it fails
+            self.returnsQueue.put(e.value)
+        self.commandsQueue.task_done()
+
+    # files deployment       
+
+    #def needForDeployment(self): # TODO: it seems not to be used anywhere...
+    #    """
+    #    Prints a list of servers that need a new deployment
+    #    """
+    #    _revision = self.getLastRevision()
+    #    for _srv in self.getServers():
+    #        try:
+    #            _srv.updateRevisionManager()
+    #            _srv.getRevisionManager().setSubversion(_revision)
+    #            if _srv.needsDeployment():
+    #                print "Server %s should be deployed. %d/%d" % \
+    #                      (_srv.getName(), 
+    #                       _srv.getRevisionManager().getDeployed(),
+    #                       _revision)
+    #        except Exception, e:
+    #            syslog.syslog(syslog.LOG_WARNING,
+    #                    "needForDeployment failed: %s" % str(e))
+
+    def deploysOnServers(self, iServers, iRevision):
+        """
+        Deploys the config files to the servers belonging to iServers
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        @param iRevision: SVN revision number
+        @type  iRevision: C{int}
+        """
+        try:
+            if len(iServers) > 0:
+                ## update the local files
+                self.updateLocalCopy(iRevision)
+                ## generate the deployment directory
+                self.generateConfig()
+                self.threadedDeployFiles(iServers, iRevision)
+        except DispatchatorError, e:
+            raise e
+
+    def threadedDeployFiles(self, iServers, iRevision):
+        """
+        Deploy the files to each server of iServers. One thread is created for
+        each server
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        @param iRevision: SVN revision number
+        @type  iRevision: C{int}
+        """
+        self.commandsQueue = Queue.Queue()
+        self.returnsQueue = Queue.Queue()
+        for _srv in iServers:
+            self.commandsQueue.put(_srv)
+            _thread = Thread(target=self.serverDeployFiles, args=[iRevision])
+            _thread.start()
+        self.commandsQueue.join()
+        _result = self.manageReturnQueue()
+        if not _result:
+            raise DispatchatorError("The configurations files have not been "
+                                   +"transfered on every server. See above "
+                                   +"for more information.")
+
+    def serverDeployFiles(self, iRevision):
+        """
+        Method called by L{threadedDeployFiles} to deploy the files in the
+        specified SVN revision
+        @param iRevision: SVN revision number
+        @type  iRevision: C{int}
+        """
+        _srv = self.commandsQueue.get()
+        try:
+            _srv.deploy(iRevision)
+        except ConfMgrError, e: # if it fails
+            self.returnsQueue.put(e.value)
+        self.commandsQueue.task_done()
+
+    #  configuration qualification    
+    def qualifyOnServers(self, iServers):
+        """
+        Qualify applications on the specified servers list
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        # qualify applications on those servers
+        for _app in self.getApplications():
+            _app.qualifyServers(iServers)
+
+    def deploy(self):
+        """
+        Does a full deployment: deploy files, qualify files
+        """
+        _servers = []
+        _revision = self.getLastRevision() # get the last revision on SVN
+        # 1 - build a list of servers that requires deployment
+        if self.getModeForce() == False: 
+            for _srv in self.getServers():
+                _srv.updateRevisionManager()
+                _srv.getRevisionManager().setSubversion(_revision)
+                if _srv.needsDeployment():
+                    _servers.append(_srv)
+            if len(_servers) <= 0:
+                syslog.syslog(syslog.LOG_INFO, "All servers are up-to-date. "
+                                              +"Nothing to do.")    
+        else: # by default, takes all the servers  
+            _servers = self.getServers()
+        # 2 - deploy on those servers
+        self.deploysOnServers(_servers, _revision)
+        # 3 - qualify deployed configurations
+        self.qualifyOnServers(_servers)
+
+    def startOrStopApplications(self, fAction, fArgs, iErrorMessage):
+        """
+        Does a start or a stop action depending on the method fAction
+        @param fAction: method to call
+        @type  fAction: callable
+        @param fArgs: list of arguments for the function
+        @type  fArgs: list
+        @param iErrorMessage: message if the function fails
+        @type  iErrorMessage: C{str}
+        """
+        _result = True
+        _Apps = self.getApplications()
+        _CurrentLevel = 0
+
+        if (len(_Apps) > 0 ):
+            _application = _Apps[0]
+            _CurrentLevel = _application.getPriority()
+
+            self.commandsQueue = Queue.Queue()
+            self.returnsQueue = Queue.Queue()
+            for _application in _Apps:
+                if (_application.getPriority() == _CurrentLevel):
+                    # fill the application queue
+                    self.commandsQueue.put(_application)
+                    _thread = Thread(target=fAction, args=fArgs)
+                    _thread.start()
+
+                else:
+                    # wait until the queue is empty
+                    self.commandsQueue.join()
+                    _CurrentLevel = _application.getPriority()
+
+                    # fill the application queue
+                    self.commandsQueue.put(_application)
+
+                    _thread = Thread(target=fAction, args=fArgs)
+                    _thread.start()
+            # wait until the queue is empty
+            self.commandsQueue.join()
+
+            _result = self.manageReturnQueue()
+            if (_result == False) :
+                raise DispatchatorError(iErrorMessage)
+
+    def applicationStop(self, iApplication, iServers):
+        """
+        Stops iApplication on each server in iServers
+        @param iApplication: application to stop
+        @type  iApplication: L{Application<lib.application.Application>}
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        iApplication.stopOn(iServers)
+
+    def stopThread(self, iServers):
+        """
+        Thread method to stop an application on a servers list
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        self.actionThread(self.applicationStop, iServers)
+
+    def applicationStart(self, iApplication, iServers):
+        """
+        Starts the given application on each server in iServers
+        @param iApplication: application to start
+        @type  iApplication: L{Application<lib.application.Application>}
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        iApplication.startOn(iServers) 
+
+    def startThread(self, iServers):
+        """
+        Starts the next application on each server in iServers
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """ 
+        self.actionThread(self.applicationStart, iServers)
+
+    def switchDirectoriesOn(self, iServers):
+        """
+        Switch directories prod->old and new->prod, but only on servers that
+        require it (except in force mode)
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        self.threadedSwitchDirectories(iServers)
+
+
+    def threadedSwitchDirectories(self, iServers):
+        """
+        Executes a thread for each server in iServers. Each thread will switch
+        directories on the appropriate server.
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        self.commandsQueue = Queue.Queue()
+        self.returnsQueue = Queue.Queue()
+        for _srv in iServers:
+            self.commandsQueue.put(_srv)
+            _thread = Thread(target=self.serverSwitchDirectories)
+            _thread.start()
+        self.commandsQueue.join()
+        _result = self.manageReturnQueue()
+        if not _result:
+            raise DispatchatorError("Switch directories was not successful "
+                                   +"on each server.")
+
+    def serverSwitchDirectories(self):
+        """
+        Calls switchDirectories() on the first server in the commandsQueue
+        """
+        _srv = self.commandsQueue.get()
+        try:
+            _srv.switchDirectories()
+        except ConfMgrError, e: # if it fails
+            self.returnsQueue.put(e.value)
+        self.commandsQueue.task_done()
+
+    def restart(self):
+        """Does a full restart on all the servers"""
+        _servers = []
+        _revision = self.getLastRevision() # get the last revision on SVN
+        # 1 - build a list of servers that requires restart
+        if self.getModeForce() == False: 
+            for _srv in self.getServers():
+                _srv.updateRevisionManager()
+                _srv.getRevisionManager().setSubversion(_revision)
+                if _srv.needsRestart():
+                    _servers.append(_srv)
+                if _srv.needsDeployment():
+                    syslog.syslog(syslog.LOG_INFO,
+                            "Server %s should be deployed." % _srv.getName())
+            if len(_servers) <= 0:
+                syslog.syslog(syslog.LOG_INFO,
+                        "All servers are up-to-date. No restart needed.")    
+        else: # by default, takes all the servers  
+            _servers = self.getServers()
+        # do the operations
+        self.restartServers(_servers)
+
+    def restartServers(self, iServers):
+        """
+        Restart all the specified servers
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        self.stopApplicationsOn(iServers)
+        self.switchDirectoriesOn(iServers)
+        self.startApplicationsOn(iServers)
+
+    def stopApplications(self):
+        """Stops all the applications on all the servers"""
+        self.stopApplicationsOn(self.getServers())
+
+    def stopApplicationsOn(self, iServers):
+        """
+        Stop all the application on the specified servers
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        if len(iServers) > 0:
+            _servers = []
+            for _srv in iServers:
+                _servers.append(_srv)
+            self.startOrStopApplications(self.stopThread, [_servers],
+                                        "Stop applications failed\n")
+
+    def startApplications(self):
+        """Starts all the applications on all the servers"""
+        self.startApplicationsOn(self.getServers())
+
+    def startApplicationsOn(self, iServers):
+        """
+        Starts all the application on the servers in iServers
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        """
+        if len(iServers) > 0:
+            _servers = []
+            for _srv in iServers:
+                _servers.append(_srv)
+            self.startOrStopApplications(self.startThread, [_servers],
+                                        "Start applications failed\n")
+
+    # Undo
+    def undo(self):
+        """Performs an "undo" on the configuration files"""
+        for _srv in self.getServers():
+            try:
+                _srv.undo()
+            except ServerError, se:
+                syslog.syslog(syslog.LOG_ERR, str(se))
+
+
+    def printState(self):
+        """Prints a summary"""
+        _revision = self.getLastRevision()
+        print("Current revision in the repository : %d"%(_revision))
+        for _srv in self.getServers():
+            try:
+                _srv.updateRevisionManager()
+                _srv.getRevisionManager().setSubversion(_revision)
+                _deploymentStr = ""
+                _restartStr = ""
+                if _srv.needsDeployment():
+                    _deploymentStr = "(should be deployed)"
+                if _srv.needsRestart():
+                    _restartStr = "(should restart)"
+                print "Revisions for server %s : %s%s%s" % \
+                      (_srv.getName(), str(_srv.getRevisionManager()),
+                       _deploymentStr, _restartStr)
+            except Exception, e:
+                syslog.syslog(syslog.LOG_WARNING,
+                        "Cannot get revision for server: %s. " % _srv.getName()
+                       +"REASON : %s" % str(e))
+
+
+
+def main():
+    """Parses the commandline and starts the requested actions"""    
+
+    parser = OptionParser() # options and arguments parser
+    # declare all options
+    parser.add_option("-f", "--force", action="store_true", dest="force",
+                      help="Force the immediate execution of the command. "
+                          +"Do not wait. Bypass all checks.")
+    parser.add_option("-c", "--commit", action="store_true",
+                      dest="saveToConfig", help="Commits a new configuration.")
+    parser.add_option("-d", "--deploy", action="store_true", dest="deploy",
+                      help="Deploys the configuration on each server if this "
+                          +"configuration has changed.")
+    parser.add_option("-r", "--restart", action="store_true", dest="restart",
+                      help="Restart all the applications if a new "
+                          +"configuration has been deployed. "
+                          +"(stop, refactor, start)")
+    parser.add_option("-x", "--stop", action="store_true", dest="stop",
+                      help="Stop all the applications.")
+    parser.add_option("-s", "--start", action="store_true", dest="start",
+                      help="Start all the applications.")
+    parser.add_option("-u", "--undo", action="store_true", dest="undo",
+                      help="Deploys the previously installed configuration. "
+                          +"2 consecutives undo will return to the "
+                          +"configuration that was installed before the "
+                          +"first undo (ie. redo). Cannot be used with any "
+                          +"other option. Should be followed by the restart "
+                          +"command.")
+    parser.add_option("-i", "--info", action="store_true", dest="info",
+                      help="Prints a summary of the actual configuration.")
+    parser.add_option("-n", "--dry-run", action="store_true", dest="simulate",
+                      help="Simulate only, no copy will be actually made.")
+
+
+    # parse the command line
+    (options, args) = parser.parse_args()
+
+    try:
+        conf.loadConf()
+    except Exception,e :
+        syslog.syslog(syslog.LOG_ERR, "Cannot load the conf.")
+        syslog.syslog(syslog.LOG_ERR, str(e) )
+        sys.exit(-1)
+
+    _dispatchator = dispatchmodes.getinstance()
+
+    # Limit the server list to the ones on the command line
+    _dispatchator.restrict(args)
+
+    # Handle command-line options
+    if (options.simulate):
+        conf.simulate = True
+
+    if (options.force):
+        _dispatchator.setModeForce(True)
+
+    if ( len(_dispatchator.getServers()) <= 0):
+        syslog.syslog(syslog.LOG_WARNING, "No server to manage.")
+    else:
+
+        # if "restart" is selected, then all the corresponding actions are
+        # selected too
+        if (options.restart):
+            parser.values.restart = True
+            parser.values.stop = True
+            parser.values.start = True
+
+
+        # executes all requested commands
+        try:
+            if options.info:
+                _dispatchator.printState()
+            if options.undo:
+                _dispatchator.undo()
+            if options.saveToConfig:
+                _dispatchator.saveToConfig()
+            if options.deploy:     
+                _dispatchator.deploy()
+            if options.restart:
+                _dispatchator.restart()
+            else:
+                if options.stop:
+                    _dispatchator.stopApplications()
+                if options.start:
+                    _dispatchator.startApplications()
+        except (DispatchatorError, ApplicationError), e:
+            syslog.syslog(syslog.LOG_ERR, "%s"%(e.value))
+
+if __name__ == "__main__":
+    syslog.openlog('Dispatchator' , syslog.LOG_PERROR)
+    syslog.syslog(syslog.LOG_INFO, "Dispatchator Begin")
+
+    f = open(conf.lockFile,'a+')
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except Exception, e:
+        syslog.syslog(syslog.LOG_ERR,
+                "Can't obtain lock on lockfile. Dispatchator already "
+               +"running ? REASON : %s" % str(e))
+        sys.exit(1)
+    try:
+        main()
+    except Exception, e:
+        syslog.syslog(syslog.LOG_ERR, "Execution error.REASON : %s" % str(e))
+        lines = traceback.format_exc().split("\n")
+        for line in lines:
+            syslog.syslog(syslog.LOG_ERR, line)
+    syslog.syslog(syslog.LOG_INFO, "Dispatchator End")    
+
+
+# vim:set expandtab tabstop=4 shiftwidth=4:

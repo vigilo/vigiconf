@@ -1,0 +1,3 @@
+The configuration in this directory should be managed in SVN
+The address of the SVN repository could be something like:
+http://supserver.example.com/svn/vigilo/trunk/conf.d/

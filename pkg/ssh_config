@@ -1,0 +1,6 @@
+# SSH config file for remote deployment
+# This file is part of the Enterprise Edition
+StrictHostKeyChecking no
+IdentityFile /var/lib/confmgr/db/confmgr.key
+UserKnownHostsFile /var/lib/confmgr/db/known_hosts
+HashKnownHosts yes

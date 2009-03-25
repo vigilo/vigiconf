@@ -1,0 +1,5 @@
+- Séparer dans deux modules différents du SVN
+- Améliorer le Discoverator en utilisant nmap
+- Tests unitaires pour chaque Test dispo
+- Passer la déclaration des hôtes et des modèles d'hôtes en XML
+- Passer le confmgr.conf en fichier INI avec ConfigParser

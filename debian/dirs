@@ -1,0 +1,9 @@
+usr/bin
+usr/sbin
+usr/share/confmgr
+var/lib/confmgr/deploy
+var/lib/confmgr/db
+var/lib/confmgr/revisions
+etc/confmgr/conf.d
+etc/confmgr/templates
+var/lock/confmgr

@@ -1,0 +1,13 @@
+Source: vigilo-confmgr
+Section: vigilo
+Priority: extra
+Maintainer: Aurélien BOMPARD <aurelien.bompard@c-s.fr>
+Build-Depends: debhelper (>= 5), dpatch
+Standards-Version: 3.7.2
+
+Package: vigilo-confmgr
+Architecture: all
+Depends: python2.5, perl, subversion, openssh-client, tar, sec
+Description: Configuration manager for the supervision system
+ This program generates and pushes the configuration for the
+ applications used in the supervision system.

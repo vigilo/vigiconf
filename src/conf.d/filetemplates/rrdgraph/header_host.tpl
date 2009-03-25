@@ -1,0 +1,4 @@
+# confid:%(confid)s
+
+hostscfg = {}
+

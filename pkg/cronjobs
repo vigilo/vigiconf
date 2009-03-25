@@ -1,0 +1,5 @@
+#
+# Regular cron jobs for the confmgr package
+#
+#55 * * * *	confmgr		/usr/bin/confmgr -d > /dev/null 2>&1
+#00 * * * *	confmgr		/usr/bin/confmgr -r > /dev/null 2>&1

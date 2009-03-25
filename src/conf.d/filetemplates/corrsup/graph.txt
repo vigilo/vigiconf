@@ -1,0 +1,8 @@
+lienWAN=and(fwpix.Host,un_des_routeurs,modemadsl.Host),virtual
+fwpix.Host=weight=100
+un_des_routeurs=or(routeur12000.Host,routeur2600.Host,routeur7600.Host),virtual,hide_this_impact
+routeur12000.Host=and(switch6500.Host)
+routeur2600.Host=and(switch6500.Host)
+routeur7600.Host=and(switch6500.Host)
+modemadsl.Host=weight=20
+switch6500.Host=weight=100
