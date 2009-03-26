@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ################################################################################
 #
 # ConfigMgr Data Consistancy dispatchator

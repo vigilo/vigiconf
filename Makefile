@@ -1,11 +1,10 @@
 NAME = confmgr
-CONFDIR = /etc/vigilo-$(NAME)
+CONFDIR = /etc/$(NAME)
 BINDIR = /usr/bin
 SBINDIR = /usr/sbin
 DATADIR = /usr/share/vigilo-$(NAME)
 LOCALSTATEDIR = /var/lib/vigilo-$(NAME)
 LOCKDIR = /var/lock/vigilo-$(NAME)
-DOCDIR = /usr/share/doc/vigilo-$(NAME)
 DESTDIR = 
 
 all:
@@ -22,6 +21,7 @@ install:
 	for file in src/*.py; do \
 		install -p -m 644 $$file $(DESTDIR)$(DATADIR)/`basename $$file` ;\
 	done
+	chmod +x $(DESTDIR)$(DATADIR)/{dispatchator.py,debug.py,discoverator.py}
 	for dir in lib generators tests validation; do \
 		cp -pr src/$$dir $(DESTDIR)$(DATADIR)/ ;\
 	done
@@ -29,11 +29,11 @@ install:
 	-mkdir -p $(DESTDIR)$(CONFDIR)/{conf.d,new,prod}
 	# Don't overwrite
 	[ -f $(DESTDIR)$(CONFDIR)/$(NAME).conf ] || \
-		install -p -m 640 $(NAME).conf $(DESTDIR)$(CONFDIR)/$(NAME).conf
+		install -p -m 640 src/$(NAME).conf $(DESTDIR)$(CONFDIR)/$(NAME).conf
 	# Overwrite this one, it's our examples
 	-[ -d $(DESTDIR)$(CONFDIR)/conf.d.example ] && \
 		rm -rf $(DESTDIR)$(CONFDIR)/conf.d.example
-	cp -pr conf.d $(DESTDIR)$(CONFDIR)/conf.d.example
+	cp -pr src/conf.d $(DESTDIR)$(CONFDIR)/conf.d.example
 	mv -f $(DESTDIR)$(CONFDIR)/conf.d.example/README.source $(DESTDIR)$(CONFDIR)/conf.d/
 	## Cleanup
 	find $(DESTDIR)$(DATADIR) $(DESTDIR)$(CONFDIR)/conf.d.example -type d -name .svn -exec rm -rf {} \;
@@ -68,18 +68,16 @@ install_permissions:
 
 clean:
 	find $(CURDIR) -name "*.pyc" -exec rm {} \;
+	find $(CURDIR) -name "*~" -exec rm {} \;
 
 apidoc: doc/apidoc/index.html
-doc/apidoc/index.html: $(wildcard *.py) lib generators
+doc/apidoc/index.html: $(wildcard src/*.py) src/lib src/generators
 	rm -rf $(CURDIR)/doc/apidoc
 	PYTHONPATH=. VIGICONF_MAINCONF="./$(NAME)-test.conf" epydoc -o $(dir $@) -v --name Vigilo --url http://www.projet-vigilo.org \
 		--docformat=epytext --graph=all $^
-install_docs: doc/apidoc/index.html
-	mkdir -p $(DESTDIR)$(DOCDIR)
-	cp -pr -m 755 doc/apidoc $(DESTDIR)$(DOCDIR)/
 
 lint: $(wildcard *.py) lib generators
 	pylint $^
 
-.PHONY: all tarball clean install apidoc lint install_users install install_permissions install_docs
+.PHONY: all tarball clean install apidoc lint install_users install install_permissions
 
