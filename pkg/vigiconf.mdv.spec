@@ -28,7 +28,7 @@ applications used in the supervision system.
 This application is part of the Vigilo Project <http://vigilo-project.org>
 
 %prep
-%setup -q -n ConfMgr
+%setup -q -n vigiconf
 
 
 %install
@@ -36,19 +36,14 @@ rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT INITCONFDIR=/etc/sysconfig install 
 make DESTDIR=$RPM_BUILD_ROOT INITCONFDIR=/etc/sysconfig install_docs
 
+
 %pre
-echo "Creating the confmgr user..." >/dev/null 2>&1
 groupadd confmgr >/dev/null 2>&1 || :
 useradd -s /bin/bash -m -d /home/confmgr -g confmgr -c 'ConfMgr user' confmgr >/dev/null 2>&1 || :
 
 
-%post
-
-%preun
-
-%postun
-
 %clean
+rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
