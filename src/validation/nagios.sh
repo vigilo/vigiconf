@@ -23,6 +23,8 @@ if [ -e /usr/sbin/nagios2 ]; then
     nver=2
 elif [ -e /usr/sbin/nagios3 ]; then
     nver=3
+elif [ -e /usr/sbin/nagios ]; then
+    nver=""
 else
     echo "Can't find the nagios version"
     exit 1
