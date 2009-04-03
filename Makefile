@@ -36,7 +36,8 @@ install:
 	cp -pr src/conf.d $(DESTDIR)$(CONFDIR)/conf.d.example
 	mv -f $(DESTDIR)$(CONFDIR)/conf.d.example/README.source $(DESTDIR)$(CONFDIR)/conf.d/
 	## Cleanup
-	find $(DESTDIR)$(DATADIR) $(DESTDIR)$(CONFDIR)/conf.d.example -type d -name .svn -exec rm -rf {} \;
+	find $(DESTDIR)$(CONFDIR)/conf.d.example -type d -name .svn -print | xargs rm -rf
+	find $(DESTDIR)$(DATADIR)/conf.d.example -type d -name .svn -print | xargs rm -rf
 	## Var data
 	-mkdir -p $(DESTDIR)$(LOCALSTATEDIR)/{db,deploy,revisions}
 	-mkdir -p $(DESTDIR)/var/lock/vigilo-$(NAME)

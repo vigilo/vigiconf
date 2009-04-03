@@ -59,7 +59,7 @@ define command{
 }
 define command{
 	command_name            Collector
-	command_line            /usr/lib/nagios/plugins/Collector -H '$HOSTNAME$' -p /etc/confmgr/prod/collector
+	command_line            /usr/lib/nagios/plugins/Collector -H '$HOSTNAME$' 
 }
 define command{
 	command_name            check_dummy
