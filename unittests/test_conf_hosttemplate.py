@@ -119,6 +119,20 @@ class HostTemplates(unittest.TestCase):
         assert intftests == [ "eth0", "eth1"], \
                 "multiple inheritance does not work (%s)" % str(intftests)
 
+    def test_deepcopy(self):
+        """
+        If the template data from the parent is not copied with
+        copy.deepcopy(), then the child's template data will propagate back
+        into the parent
+        """
+        self.tpl.add_attribute("TestAttr1", "TestVal")
+        tpl2 = HostTemplate("testtpl2", "testtpl1")
+        tpl2.add_attribute("TestAttr2", "TestVal")
+        # Reload the templates
+        conf.hosttemplatefactory.load_templates()
+        assert not conf.hosttemplatefactory.templates["testtpl1"]["attributes"].has_key("TestAttr2"), \
+                "inheritence taints parent templates"
+
     def test_defined_templates(self):
         conf.hosttemplatefactory.load_templates()
         for tpl in conf.hosttemplatefactory.templates.keys():

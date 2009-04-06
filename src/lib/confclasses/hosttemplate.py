@@ -21,6 +21,7 @@ This module contains the classes needed to handle host templates
 """
 
 import os
+import copy
 
 import conf
 import lib.external.topsort as topsort
@@ -169,13 +170,13 @@ class HostTemplateFactory(object):
         for tplname in testdeps:
             if not templates_save[tplname].has_key("parent"):
                 # No parent, copy it back untouched
-                self.templates[tplname] = templates_save[tplname]
+                self.templates[tplname] = copy.deepcopy(templates_save[tplname])
                 continue
             parent = templates_save[tplname]["parent"]
             if not isinstance(parent, list): # Convert to list
                 parent = [ parent, ]
             # Start by copying the first parent
-            self.templates[tplname] = self.templates[parent[0]].copy()
+            self.templates[tplname] = copy.deepcopy(self.templates[parent[0]])
             # Next, extend with the other parents (if any)
             for p in parent[1:]:
                 self.templates[tplname]["groups"].extend(
