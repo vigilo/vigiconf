@@ -22,6 +22,7 @@ This module contains the classes needed to handle host templates
 
 import os
 import copy
+from xml.etree import ElementTree as ET # Python 2.5
 
 import conf
 import lib.external.topsort as topsort
@@ -43,13 +44,24 @@ class HostTemplate(object):
         self.htf = conf.hosttemplatefactory
         self.name = name
         self.htf.templates[self.name] = {
+                "parent": [],
                 "tests": [],
                 "groups": [],
                 "attributes": {},
             }
-        self.parent = parent
         if parent:
-            self.htf.templates[self.name]["parent"] = parent
+            self.add_parent(parent)
+
+    def add_parent(self, p):
+        """
+        Add a parent for this template
+
+        @ivar p: the name of the parent host template
+        @type p: C{str} or C{list} of C{str}
+        """
+        if not isinstance(p, list): # convert to list
+            p = [p,]
+        self.htf.templates[self.name]["parent"].extend(p)
 
     def add_test(self, testname, **args):
         """
@@ -138,10 +150,46 @@ class HostTemplateFactory(object):
             if not os.path.exists(pathdir):
                 continue
             for tplfile in os.listdir(pathdir):
-                if not tplfile.endswith(".py") or tplfile.startswith("__"):
+                if not tplfile.endswith(".xml") or tplfile.startswith("__"):
                     continue
-                execfile(os.path.join(pathdir, tplfile), globals())
+                self.__loadtemplate(os.path.join(pathdir, tplfile))
         self.apply_inheritance()
+
+    def __loadtemplate(self, source):
+        """
+        Load a template from XML
+        """
+        cur_tpl = None
+        for event, elem in ET.iterparse(source, events=("start", "end")):
+            if event == "start":
+                if elem.tag == "template":
+                    cur_tpl = HostTemplate(elem.attrib["name"])
+            else:
+                if elem.tag == "parent":
+                    cur_tpl.add_parent(self.__getname(elem))
+                elif elem.tag == "attribute":
+                    cur_tpl.add_attribute(elem.attrib["name"], elem.attrib["value"])
+                elif elem.tag == "group":
+                    cur_tpl.add_group(self.__getname(elem))
+                elif elem.tag == "test":
+                    testname = elem.attrib["testname"]
+                    del elem.attrib["testname"]
+                    cur_tpl.add_test(testname, **elem.attrib)
+                elif elem.tag == "template":
+                    cur_tpl = None
+                    elem.clear()
+
+    def __getname(self, elem):
+        """
+        Extract the name attribute from an XML element. If it does not exist,
+        use the contained text.
+        """
+        if elem.attrib.has_key("name"):
+            v = elem.attrib["name"]
+        elif elem.text:
+            v = elem.text.strip()
+        return v
+
 
     def apply_inheritance(self):
         """
@@ -168,7 +216,7 @@ class HostTemplateFactory(object):
         ## now copy back the templates to self.templates, starting with the
         ## parent if necessary
         for tplname in testdeps:
-            if not templates_save[tplname].has_key("parent"):
+            if not templates_save[tplname]["parent"]:
                 # No parent, copy it back untouched
                 self.templates[tplname] = copy.deepcopy(templates_save[tplname])
                 continue
