@@ -20,7 +20,7 @@ class Dispatchator(unittest.TestCase):
         conf.templatesDir = "../src/conf.d/filetemplates"
         conf.dataDir = "../src"
         # Prepare necessary directories
-        self.tmpdir = tempfile.mkdtemp()
+        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
         conf.libDir = self.tmpdir
         self.basedir = os.path.join(self.tmpdir, "deploy")
         os.mkdir(self.basedir)

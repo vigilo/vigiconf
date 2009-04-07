@@ -12,6 +12,7 @@ import unittest
 
 curdir = os.path.abspath(os.path.dirname(__file__))
 os.chdir(curdir)
+os.environ["VIGICONF_MAINCONF"] = "../src/confmgr-test.conf"
 
 import sys
 sys.path.insert(0, "../src")

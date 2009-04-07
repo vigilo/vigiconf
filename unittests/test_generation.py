@@ -19,7 +19,7 @@ class Generator(unittest.TestCase):
         conf.templatesDir = "../src/conf.d/filetemplates"
         conf.dataDir = "../src"
         ## Prepare temporary directory
-        self.tmpdir = tempfile.mkdtemp()
+        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
         # Prepare generation
         conf.libDir = self.tmpdir
         self.basedir = os.path.join(self.tmpdir, "deploy")

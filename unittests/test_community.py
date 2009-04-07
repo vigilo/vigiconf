@@ -35,7 +35,7 @@ class EnterpriseEdition(unittest.TestCase):
         conf.dataDir = "../src"
         conf.simulate = True
         ## Prepare temporary directory
-        self.tmpdir = tempfile.mkdtemp()
+        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
         # Prepare generation
         conf.libDir = self.tmpdir
         self.basedir = os.path.join(self.tmpdir, "deploy")
@@ -93,7 +93,7 @@ class EnterpriseEdition(unittest.TestCase):
         """ServerFactory must return ServerRemote instances for
            non-local hostnames"""
         ## Prepare temporary directory
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = tempfile.mkdtemp(dir="/dev/shm")
         # Declare temp dir
         conf.libDir = tmpdir
         # Create a dummy ssh_config file
@@ -118,7 +118,7 @@ class CommunityEdition(unittest.TestCase):
         conf.dataDir = "../src"
         conf.simulate = True
         ## Prepare temporary directory
-        self.tmpdir = tempfile.mkdtemp()
+        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
         # Prepare generation
         conf.libDir = self.tmpdir
         self.basedir = os.path.join(self.tmpdir, "deploy")
