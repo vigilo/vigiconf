@@ -84,11 +84,11 @@ class CollectorTpl(Templator):
                 if jobtype == 'perfData': # for the storeme server
                     tplvars['reRouteFor'] = "{server => '%s', " \
                                             % self.mapping[forHost]['storeme'] \
-                                            +"port =>%d}" % 50001
+                                            +"port =>%s}" % 50001
                 else: # service check result => forHost's spoolme server
                     tplvars['reRouteFor'] = "{server => '%s', " \
                                             % self.mapping[forHost]['nagios'] \
-                                            +"port =>%d, " % 50000 \
+                                            +"port =>%s, " % 50000 \
                                             +"host => '%s', " % forHost \
                                             +"service => '%s'}" \
                                             % jobdata['reRouteFor']['service']
