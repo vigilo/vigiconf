@@ -252,6 +252,7 @@ Data Model
 import glob
 import sys
 import os
+from xml.etree import ElementTree as ET # Python 2.5
 
 from lib.confclasses.graph import Graph
 from lib.confclasses.host import Host
@@ -260,7 +261,6 @@ from lib.confclasses.test import Test, TestFactory
 
 
 __docformat__ = "epytext"
-confid = "$Rev: 1767 $"[6:-2]
 
 
 def loadConf():
@@ -274,8 +274,8 @@ def loadConf():
     hosttemplatefactory = HostTemplateFactory()
     # Create an instance of TestFactory and only use this one
     testfactory = TestFactory()
-
-    for confsubdir in [ "general", "hosts" ]:
+    # General configuration
+    for confsubdir in [ "general", ]:
         try:
             files = glob.glob(os.path.join(confDir, confsubdir, "*.py"))
             #print files
@@ -285,6 +285,48 @@ def loadConf():
         except Exception,e:
             sys.stderr.write("Error while parsing %s: %s\n"%(fileF, str(e)))
             raise e
+    # Parse hosts
+    try:
+        for root, dirs, files in os.walk(os.path.join(confDir, "hosts")):
+            for file in files:
+                if not file.endswith(".xml"):
+                    continue
+                loadhosts(os.path.join(root, file))
+                #print "Sucessfully parsed %s" % os.path.join(root, file)
+            for dir in dirs: # Don't visit subversion/CVS directories
+                if dir.startswith("."):
+                    dirs.remove(dir)
+                if dir == "CVS":
+                    dirs.remove("CVS")
+    except Exception,e:
+        sys.stderr.write("Error while parsing %s: %s\n"%(fileF, str(e)))
+        raise e
+
+
+def __getname(elem):
+    if elem.attrib.has_key("name"):
+        v = elem.attrib["name"]
+    elif elem.text:
+        v = elem.text.strip()
+    return v
+
+def loadhosts(source):
+    cur_host = None
+    for event, elem in ET.iterparse(source, events=("start", "end")):
+        if event == "start":
+            if elem.tag == "host":
+                cur_host = Host(elem.attrib["name"],
+                                elem.attrib["ip"],
+                                elem.attrib["group"])
+        else:
+            if elem.tag == "template":
+                cur_host.apply_template(__getname(elem))
+            elif elem.tag == "test":
+                testname = elem.attrib["testname"]
+                del elem.attrib["testname"]
+                cur_host.add_test(testname, **elem.attrib)
+            elif elem.tag == "host":
+                elem.clear()
 
 
 # Initialize global paths
@@ -311,6 +353,7 @@ notificationServers = {}
 defaultNotificationServer = "127.0.0.1:50003"
 mode = "onedir"
 #mode = "byday"
+confid = ""
 
 # Initialize global objects
 hosttemplatefactory = None

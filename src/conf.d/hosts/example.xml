@@ -1,0 +1,12 @@
+<host name="testserver1" ip="192.168.1.1" group="Servers">
+    <template name="linux"/>
+    <test testname="Interface" label="eth0" name="eth0" warn="10,20" crit="30,40"/>
+    <test testname="Interface" label="eth1" name="eth1"/>
+    <test testname="Interface" label="eth1" name="eth1"/>
+    <metroservice service="Traffic in eth1" rrd="ineth1" warn="10" crit="20"/>
+    <tag service="Host" name="important" value="2"/>
+    <test testname="UpTime"/>
+    <tag service="UpTime" name="security" value="1"/>
+    <trap service="test.add_trap" key="test.name" value="test.label"/>
+    <group name="Linux servers"/>
+</host>

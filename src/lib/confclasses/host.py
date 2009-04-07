@@ -84,15 +84,15 @@ class Host(object):
         """
         return getattr( self, attribute, default )
 
-    def add_test(self, test_name, **kw):
+    def add_test(self, testname, **kw):
         """
         Add a test to this host, with the provided arguments
-        @param test_name: the name of the test
-        @type  test_name: C{str}
+        @param testname: the name of the test
+        @type  testname: C{str}
         @param kw: the test arguments
         @type  kw: C{dict}
         """
-        conf.testfactory.add_test(self, test_name, **kw)
+        conf.testfactory.add_test(self, testname, **kw)
 
     def get_testnames(self):
         """
