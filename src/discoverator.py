@@ -128,14 +128,14 @@ class Discoverator(object):
             if detected:
                 if detected is True:
                     self.tests.append({"class": test,
-                                    "name": test.__name__,
-                                   })
+                                       "name": test.__name__,
+                                      })
                 elif isinstance(detected, list):
                     for arglist in detected:
                         self.tests.append({"class": test,
-                                        "name": test.__name__,
-                                        "args": arglist,
-                                       })
+                                           "name": test.__name__,
+                                           "args": arglist,
+                                          })
 
     def find_hclasses(self):
         """Get the host classes"""
