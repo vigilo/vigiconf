@@ -1,25 +1,24 @@
-%define	name	vigilo-confmgr
-%define	version	1.35
+%define name    vigilo-confmgr
+%define version 1.35
 %define release 1
 
-Name:		%{name}
-Summary:	Configuration manager for the supervision system
-Version:	%{version}
-Release:	%{release}
-Source0:	vigiconf.tar.bz2
-
-Group:		System/Servers
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-build
-License:	GPLv2
-#Copyright:	CS-SI
-Requires:	python >= 2.5
-Requires:	perl
-Requires:	subversion
-Requires:	openssh-clients
-Requires:	tar
-Requires:	sec
-Buildrequires:	graphviz
-Buildarch:	noarch
+Name:       %{name}
+Summary:    Configuration manager for the supervision system
+Version:    %{version}
+Release:    %{release}
+Source0:    vigiconf.tar.bz2
+URL:        http://www.projet-vigilo.org
+Group:      System/Servers
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
+License:    GPLv2
+Requires:   python >= 2.5
+Requires:   perl
+Requires:   subversion
+Requires:   openssh-clients
+Requires:   tar
+Requires:   sec
+Buildrequires: graphviz
+Buildarch:  noarch
 
 %description
 Configuration manager for the supervision system
