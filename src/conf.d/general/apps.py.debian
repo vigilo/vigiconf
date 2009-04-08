@@ -3,8 +3,8 @@ apps = {
                    'priority' : 3,
                    'validationMethod' :  '',
                    'qualificationMethod' : './validation/nagios.sh',
-                   'startMethod' : '/etc/init.d/nagios start',
-                   'stopMethod' : '/etc/init.d/nagios stop ; (while : ; do pgrep nagios >/dev/null || break; sleep 1;done)'
+                   'startMethod' : '/etc/init.d/nagios3 start',
+                   'stopMethod' : '/etc/init.d/nagios3 stop ; (while : ; do pgrep nagios3 >/dev/null || break; sleep 1;done)'
                    },
     'corrtrap'    : { 
                    'priority' : 3,
@@ -45,7 +45,7 @@ apps = {
                    'priority' : -1,
                    'validationMethod' :  '',
                    'qualificationMethod' : '',
-                   'startMethod' : '/etc/init.d/httpd reload',
+                   'startMethod' : '/etc/init.d/apache2 reload',
                    'stopMethod' : ''
                    },
     'collector'    : { 
@@ -80,7 +80,7 @@ apps = {
                    'priority' : -1,
                    'validationMethod' :  './validation/rrdgraph.sh',
                    'qualificationMethod' : './validation/rrdgraph.sh',
-                   'startMethod' : '/etc/init.d/httpd reload',
+                   'startMethod' : '/etc/init.d/apache2 reload',
                    'stopMethod' : ''
                    },
     'reportingv2' : {
@@ -112,6 +112,6 @@ appsByAppGroups = {
 }
 
 
-confid = "$Rev$"[6:-2]
+confid = "$Rev: 68 $"[6:-2]
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
