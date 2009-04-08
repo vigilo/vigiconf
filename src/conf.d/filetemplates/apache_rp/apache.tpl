@@ -1,3 +1,9 @@
+<Proxy /vigilo/*>
+    Order deny,allow
+    Allow from all
+#    Allow from .your-domain.com
+    Deny from all
+</Proxy>
 <Location /vigilo/supnavigator/%(server)s/>
         ProxyPass http://%(server)s/
         ProxyPassReverse http://%(server)s/

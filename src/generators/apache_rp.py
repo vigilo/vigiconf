@@ -33,17 +33,18 @@ class ApacheRPTpl(Templator):
         templates = self.loadTemplates("apache_rp")
         seenServers = {}
         for ventilation in self.mapping.values():
-            if 'apacheRP' in ventilation :
-                for i in ('nagios','storeme'):
-                    if i in ventilation and ventilation[i] not in seenServers:
-                        seenServers[ventilation[i]] = 1
-                        filename = "%s/%s/apacheRP.conf" \
-                                   % (self.baseDir,ventilation['apacheRP'])
-                        if not os.path.exists(filename):
-                            self.templateCreate(filename, "# confid:%s\n",
-                                                          conf.confid)
-                        self.templateAppend(filename, templates["apache"],
-                                            {'server': ventilation[i]} )
+            if 'apacheRP' not in ventilation :
+                continue
+            for i in ('nagios','storeme'):
+                if i in ventilation and ventilation[i] not in seenServers:
+                    seenServers[ventilation[i]] = 1
+                    filename = "%s/%s/apacheRP.conf" \
+                               % (self.baseDir,ventilation['apacheRP'])
+                    if not os.path.exists(filename):
+                        self.templateCreate(filename, templates["header"],
+                                                      conf.confid)
+                    self.templateAppend(filename, templates["apache"],
+                                        {'server': ventilation[i]} )
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

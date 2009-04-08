@@ -1,3 +1,7 @@
 The configuration in this directory should be managed in SVN
 The address of the SVN repository could be something like:
 http://supserver.example.com/svn/vigilo/trunk/conf.d/
+
+Then activate the Rev keyword on the file conf.d/general/apps.py by the
+following command:
+svn propset svn:keywords Rev conf.d/general/apps.py
