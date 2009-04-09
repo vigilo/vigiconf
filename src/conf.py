@@ -288,22 +288,27 @@ def loadConf():
     # Parse hosts
     try:
         for root, dirs, files in os.walk(os.path.join(confDir, "hosts")):
-            for file in files:
-                if not file.endswith(".xml"):
+            for f in files:
+                if not f.endswith(".xml"):
                     continue
-                loadhosts(os.path.join(root, file))
+                loadhosts(os.path.join(root, f))
                 #print "Sucessfully parsed %s" % os.path.join(root, file)
-            for dir in dirs: # Don't visit subversion/CVS directories
-                if dir.startswith("."):
-                    dirs.remove(dir)
-                if dir == "CVS":
+            for d in dirs: # Don't visit subversion/CVS directories
+                if d.startswith("."):
+                    dirs.remove(d)
+                if d == "CVS":
                     dirs.remove("CVS")
     except Exception,e:
-        sys.stderr.write("Error while parsing %s: %s\n"%(fileF, str(e)))
+        sys.stderr.write("Error while parsing %s: %s\n"%(f, str(e)))
         raise e
 
 
 def __getname(elem):
+    """
+    Returns the name attribute if it exists, the content text otherwise
+    @param elem: The element to examine
+    @type  elem: Element from C{ElementTree}
+    """
     if elem.attrib.has_key("name"):
         v = elem.attrib["name"]
     elif elem.text:
@@ -311,6 +316,11 @@ def __getname(elem):
     return v
 
 def loadhosts(source):
+    """
+    Load a Host from an XML file
+    param source: an XML file (or stream)
+    type  source: C{str} or C{file}
+    """
     cur_host = None
     for event, elem in ET.iterparse(source, events=("start", "end")):
         if event == "start":
