@@ -73,11 +73,12 @@ clean:
 apidoc: doc/apidoc/index.html
 doc/apidoc/index.html: $(wildcard src/*.py) src/lib src/generators
 	rm -rf $(CURDIR)/doc/apidoc
-	PYTHONPATH=. VIGICONF_MAINCONF="./$(NAME)-test.conf" epydoc -o $(dir $@) -v --name Vigilo --url http://www.projet-vigilo.org \
-		--docformat=epytext --graph=all $^
+	PYTHONPATH=src VIGICONF_MAINCONF="$(CURDIR)/src/$(NAME)-test.conf" \
+		epydoc -o $(dir $@) -v --name Vigilo --url http://www.projet-vigilo.org \
+		--docformat=epytext $^
 
-lint: $(wildcard *.py) lib generators
-	pylint $^
+lint: $(wildcard src/*.py) src/lib src/generators
+	PYTHONPATH=src pylint $^
 
 .PHONY: all tarball clean install apidoc lint install_users install install_permissions
 

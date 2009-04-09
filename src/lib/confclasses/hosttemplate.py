@@ -56,8 +56,8 @@ class HostTemplate(object):
         """
         Add a parent for this template
 
-        @ivar p: the name of the parent host template
-        @type p: C{str} or C{list} of C{str}
+        @param p: the name of the parent host template
+        @type  p: C{str} or C{list} of C{str}
         """
         if not isinstance(p, list): # convert to list
             p = [p,]
