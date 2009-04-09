@@ -54,8 +54,7 @@ class Dispatchator(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
-        # Cannot use shutil.rmtree because some files belong to root (created with sudo)
-        os.system("sudo rm -rf "+self.tmpdir)
+        shutil.rmtree(self.tmpdir)
 
     def test_deploy(self):
         """Globally test the deployment"""

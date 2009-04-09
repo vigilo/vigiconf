@@ -31,7 +31,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_rrd_service_INTF(self):
         """Test for the add_rrd_service function in the Interface test"""
-        self.host.add_test( "Interface", label="eth0", name="eth0", warn=(10,20), crit=(30,40) )
+        self.host.add_test( "Interface", label="eth0", name="eth0", warn="10,20", crit="30,40" )
         assert conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]["command"] == \
                 "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/aW5ldGgw 10 30 8", \
                 "add_rrd_service does not work in Interface (in) test"
