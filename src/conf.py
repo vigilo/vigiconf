@@ -318,8 +318,8 @@ def __getname(elem):
 def loadhosts(source):
     """
     Load a Host from an XML file
-    param source: an XML file (or stream)
-    type  source: C{str} or C{file}
+    @param source: an XML file (or stream)
+    @type  source: C{str} or C{file}
     """
     cur_host = None
     for event, elem in ET.iterparse(source, events=("start", "end")):
