@@ -158,6 +158,8 @@ class HostTemplateFactory(object):
     def __loadtemplate(self, source):
         """
         Load a template from XML
+        @param source: an XML file (or stream)
+        @type  source: C{str} or C{file}
         """
         cur_tpl = None
         for event, elem in ET.iterparse(source, events=("start", "end")):
@@ -172,8 +174,8 @@ class HostTemplateFactory(object):
                 elif elem.tag == "group":
                     cur_tpl.add_group(self.__getname(elem))
                 elif elem.tag == "test":
-                    testname = elem.attrib["testname"]
-                    del elem.attrib["testname"]
+                    testname = elem.attrib["name"]
+                    del elem.attrib["name"]
                     cur_tpl.add_test(testname, **elem.attrib)
                 elif elem.tag == "template":
                     cur_tpl = None
@@ -181,8 +183,9 @@ class HostTemplateFactory(object):
 
     def __getname(self, elem):
         """
-        Extract the name attribute from an XML element. If it does not exist,
-        use the contained text.
+        Returns the name attribute if it exists, the content text otherwise
+        @param elem: The element to examine
+        @type  elem: Element from C{ElementTree}
         """
         if elem.attrib.has_key("name"):
             v = elem.attrib["name"]

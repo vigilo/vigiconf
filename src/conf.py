@@ -332,8 +332,8 @@ def loadhosts(source):
             if elem.tag == "template":
                 cur_host.apply_template(__getname(elem))
             elif elem.tag == "test":
-                testname = elem.attrib["testname"]
-                del elem.attrib["testname"]
+                testname = elem.attrib["name"]
+                del elem.attrib["name"]
                 cur_host.add_test(testname, **elem.attrib)
             elif elem.tag == "host":
                 elem.clear()

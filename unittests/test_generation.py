@@ -40,7 +40,7 @@ class Generator(unittest.TestCase):
     def test_generation(self):
         """Globally test the generation"""
         # Fill with random definitions...
-        self.host.add_test("Interface", label="eth1", name="eth1")
+        self.host.add_test("Interface", label="eth1", ifname="eth1")
         self.host.add_rrd_service("Traffic in eth1", "ineth1", 10, 20)
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
@@ -54,7 +54,7 @@ class Generator(unittest.TestCase):
 
     def test_add_rrd_service_nagios(self):
         """Test for the add_rrd_service method"""
-        self.host.add_test("Interface", label="eth1", name="eth1")
+        self.host.add_test("Interface", label="eth1", ifname="eth1")
         self.host.add_rrd_service("Traffic in eth1", "ineth1", 10, 20)
         generator.generate(self.basedir)
         nagiosconf = os.path.join(self.basedir,
