@@ -1,8 +1,16 @@
+<?xml version="1.0"?>
 <host name="testserver1" ip="192.168.1.1" group="Servers">
     <template name="linux"/>
-    <test name="Interface" label="eth0" ifname="eth0" warn="10,20" crit="30,40"/>
-    <test name="Interface" label="eth1" ifname="eth1"/>
-    <test name="Interface" label="eth1" ifname="eth1"/>
+    <test name="Interface">
+        <arg name="label">eth0</arg>
+        <arg name="ifname">eth0</arg>
+        <arg name="warn">10,20</arg>
+        <arg name="crit">30,40</arg>
+    </test>
+    <test name="Interface">
+        <arg name="label">eth1</arg>
+        <arg name="ifname">eth1</arg>
+    </test>
     <metroservice service="Traffic in eth1" rrd="ineth1" warn="10" crit="20"/>
     <tag service="Host" name="important" value="2"/>
     <test name="UpTime"/>

@@ -1,0 +1,20 @@
+<!ELEMENT templates (template+)>
+<!ELEMENT template (parent|attribute|test|group)*>
+<!ELEMENT parent EMPTY>
+<!ELEMENT attribute EMPTY>
+<!ELEMENT test (arg*)>
+<!ELEMENT arg (#PCDATA)>
+<!ELEMENT group EMPTY>
+
+<!ATTLIST template name CDATA #REQUIRED>
+
+<!ATTLIST parent name CDATA #REQUIRED>
+
+<!ATTLIST attribute name CDATA #REQUIRED>
+<!ATTLIST attribute value CDATA #REQUIRED>
+
+<!ATTLIST test name CDATA #REQUIRED>
+
+<!ATTLIST arg name CDATA #REQUIRED>
+
+<!ATTLIST group name CDATA #REQUIRED>
