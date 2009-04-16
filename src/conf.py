@@ -303,18 +303,6 @@ def loadConf():
         raise e
 
 
-def __getname(elem):
-    """
-    Returns the name attribute if it exists, the content text otherwise
-    @param elem: The element to examine
-    @type  elem: Element from C{ElementTree}
-    """
-    if elem.attrib.has_key("name"):
-        v = elem.attrib["name"]
-    elif elem.text:
-        v = elem.text.strip()
-    return v
-
 def loadhosts(source):
     """
     Load a Host from an XML file
@@ -330,11 +318,13 @@ def loadhosts(source):
                                 elem.attrib["group"])
         else:
             if elem.tag == "template":
-                cur_host.apply_template(__getname(elem))
+                cur_host.apply_template(elem.attrib["name"])
             elif elem.tag == "test":
                 testname = elem.attrib["name"]
-                del elem.attrib["name"]
-                cur_host.add_test(testname, **elem.attrib)
+                args = {}
+                for arg in elem.getchildren():
+                    args[arg.attrib["name"]] = arg.text.strip()
+                cur_host.add_test(testname, **args)
             elif elem.tag == "host":
                 elem.clear()
 

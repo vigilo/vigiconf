@@ -168,31 +168,20 @@ class HostTemplateFactory(object):
                     cur_tpl = HostTemplate(elem.attrib["name"])
             else:
                 if elem.tag == "parent":
-                    cur_tpl.add_parent(self.__getname(elem))
+                    cur_tpl.add_parent(elem.attrib["name"])
                 elif elem.tag == "attribute":
                     cur_tpl.add_attribute(elem.attrib["name"], elem.attrib["value"])
                 elif elem.tag == "group":
-                    cur_tpl.add_group(self.__getname(elem))
+                    cur_tpl.add_group(elem.attrib["name"])
                 elif elem.tag == "test":
                     testname = elem.attrib["name"]
-                    del elem.attrib["name"]
-                    cur_tpl.add_test(testname, **elem.attrib)
+                    args = {}
+                    for arg in elem.getchildren():
+                        args[arg.attrib["name"]] = arg.text.strip()
+                    cur_tpl.add_test(testname, **args)
                 elif elem.tag == "template":
                     cur_tpl = None
                     elem.clear()
-
-    def __getname(self, elem):
-        """
-        Returns the name attribute if it exists, the content text otherwise
-        @param elem: The element to examine
-        @type  elem: Element from C{ElementTree}
-        """
-        if elem.attrib.has_key("name"):
-            v = elem.attrib["name"]
-        elif elem.text:
-            v = elem.text.strip()
-        return v
-
 
     def apply_inheritance(self):
         """
