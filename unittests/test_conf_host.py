@@ -21,23 +21,23 @@ class HostMethods(unittest.TestCase):
         pass
 
 
-    def test_add_rrd_service(self):
-        """Test for the add_rrd_service host method"""
+    def test_add_metro_service(self):
+        """Test for the add_metro_service host method"""
         self.host.add_test("Interface", label="eth1", ifname="eth1")
-        self.host.add_rrd_service("Traffic in eth1", "ineth1", 10, 20)
+        self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         assert conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]["command"] == \
                 "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/aW5ldGgx 10 20 1", \
-                "add_rrd_service does not work"
+                "add_metro_service does not work"
 
-    def test_add_rrd_service_INTF(self):
-        """Test for the add_rrd_service function in the Interface test"""
+    def test_add_metro_service_INTF(self):
+        """Test for the add_metro_service function in the Interface test"""
         self.host.add_test( "Interface", label="eth0", ifname="eth0", warn="10,20", crit="30,40" )
         assert conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]["command"] == \
                 "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/aW5ldGgw 10 30 8", \
-                "add_rrd_service does not work in Interface (in) test"
+                "add_metro_service does not work in Interface (in) test"
         assert conf.hostsConf["testserver1"]["services"]["Traffic out eth0"]["command"] == \
                 "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/b3V0ZXRoMA== 20 40 8", \
-                "add_rrd_service does not work in Interface (out) test"
+                "add_metro_service does not work in Interface (out) test"
 
     def test_add_tag_hosts(self):
         """Test for the add_tag host method"""

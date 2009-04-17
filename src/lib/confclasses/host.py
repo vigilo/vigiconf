@@ -466,13 +466,13 @@ class Host(object):
                 {'name': name, 'perfDataVarName': perfdatavarname,
                  'reRouteFor': reroutefor})
 
-    def add_rrd_service(self, servicename, rrdname, warn, crit, factor=1):
+    def add_metro_service(self, servicename, metroname, warn, crit, factor=1):
         """
         Add a Nagios test on the values stored in a RRD file
         @param servicename: the name of the Nagios service
         @type  servicename: C{str}
-        @param rrdname: the name of the rrd file
-        @type  rrdname: C{str}
+        @param metroname: the name of the metrology datasource (rrd file)
+        @type  metroname: C{str}
         @param warn: the WARNING threshold.
         @type  warn: C{str}
         @param crit: the CRITICAL threshold.
@@ -482,7 +482,7 @@ class Host(object):
         """
         self.add_external_sup_service(servicename,
             "check_nrpe_rerouted!$METROSERVER$!check_rrd!%s/%s %s %s %s" % \
-            (self.name, base64.b64encode(rrdname), warn, crit, factor)
+            (self.name, base64.b64encode(metroname), warn, crit, factor)
         )
 
     def add_tag(self, service, name, value):

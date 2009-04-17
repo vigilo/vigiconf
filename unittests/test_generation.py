@@ -41,7 +41,7 @@ class Generator(unittest.TestCase):
         """Globally test the generation"""
         # Fill with random definitions...
         self.host.add_test("Interface", label="eth1", ifname="eth1")
-        self.host.add_rrd_service("Traffic in eth1", "ineth1", 10, 20)
+        self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                             "GAUGE", label="TestAddCSLabel")
@@ -52,10 +52,10 @@ class Generator(unittest.TestCase):
         # Try the generation
         generator.generate(self.basedir)
 
-    def test_add_rrd_service_nagios(self):
-        """Test for the add_rrd_service method"""
+    def test_add_metro_service_nagios(self):
+        """Test for the add_metro_service method"""
         self.host.add_test("Interface", label="eth1", ifname="eth1")
-        self.host.add_rrd_service("Traffic in eth1", "ineth1", 10, 20)
+        self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         generator.generate(self.basedir)
         nagiosconf = os.path.join(self.basedir,
                                   self.get_supserver(self.host, "nagios"),
@@ -74,7 +74,7 @@ class Generator(unittest.TestCase):
             """ % self.get_supserver(self.host, "storeme").replace(".", "\\."),
             re.MULTILINE | re.VERBOSE)
         assert regexp.search(nagios) is not None, \
-            "add_rrd_service does not generate proper nagios conf"
+            "add_metro_service does not generate proper nagios conf"
 
     def test_add_tag_host(self):
         """Test for the add_tag host method on hosts"""

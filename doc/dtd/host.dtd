@@ -1,8 +1,7 @@
-<!ELEMENT host (template|test|metroservice|tag|trap|group)*>
+<!ELEMENT host (template|test|tag|trap|group)*>
 <!ELEMENT template EMPTY>
 <!ELEMENT test (arg*)>
 <!ELEMENT arg (#PCDATA)>
-<!ELEMENT metroservice EMPTY>
 <!ELEMENT tag EMPTY>
 <!ELEMENT trap EMPTY>
 <!ELEMENT group EMPTY>
@@ -16,11 +15,6 @@
 <!ATTLIST test name CDATA #REQUIRED>
 
 <!ATTLIST arg name CDATA #REQUIRED>
-
-<!ATTLIST metroservice service CDATA #REQUIRED>
-<!ATTLIST metroservice rrd CDATA #REQUIRED>
-<!ATTLIST metroservice warn CDATA #IMPLIED>
-<!ATTLIST metroservice crit CDATA #IMPLIED>
 
 <!ATTLIST tag service CDATA #REQUIRED>
 <!ATTLIST tag name CDATA #REQUIRED>

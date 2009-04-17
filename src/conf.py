@@ -325,6 +325,16 @@ def loadhosts(source):
                 for arg in elem.getchildren():
                     args[arg.attrib["name"]] = arg.text.strip()
                 cur_host.add_test(testname, **args)
+            elif elem.tag == "tag":
+                cur_host.add_tag(elem.attrib["service"],
+                                 elem.attrib["name"],
+                                 elem.attrib["value"])
+            elif elem.tag == "trap":
+                cur_host.add_trap(elem.attrib["service"],
+                                  elem.attrib["key"],
+                                  elem.attrib["value"])
+            elif elem.tag == "group":
+                cur_host.add_group(elem.attrib["name"])
             elif elem.tag == "host":
                 elem.clear()
 

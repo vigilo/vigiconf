@@ -11,7 +11,12 @@
         <arg name="label">eth1</arg>
         <arg name="ifname">eth1</arg>
     </test>
-    <metroservice service="Traffic in eth1" rrd="ineth1" warn="10" crit="20"/>
+    <test name="Metro">
+        <arg name="servicename">Traffic in eth1</arg>
+        <arg name="metroname">ineth1</arg>
+        <arg name="warn">10</arg>
+        <arg name="crit">20</arg>
+    </test>
     <tag service="Host" name="important" value="2"/>
     <test name="UpTime"/>
     <tag service="UpTime" name="security" value="1"/>
