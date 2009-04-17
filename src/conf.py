@@ -319,12 +319,23 @@ def loadhosts(source):
         else:
             if elem.tag == "template":
                 cur_host.apply_template(elem.attrib["name"])
+            elif elem.tag == "class":
+                cur_host.classes.append(elem.attrib["name"])
             elif elem.tag == "test":
                 testname = elem.attrib["name"]
                 args = {}
                 for arg in elem.getchildren():
                     args[arg.attrib["name"]] = arg.text.strip()
                 cur_host.add_test(testname, **args)
+            elif elem.tag == "attribute":
+                value = elem.text
+                items = [ i.text for i in elem.getchildren()
+                                 if i.tag == "item" ]
+                if items:
+                    value = items
+                else:
+                    value = elem.text
+                cur_host.set_attribute(elem.attrib["name"], value)
             elif elem.tag == "tag":
                 cur_host.add_tag(elem.attrib["service"],
                                  elem.attrib["name"],

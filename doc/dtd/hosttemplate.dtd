@@ -1,7 +1,9 @@
 <!ELEMENT templates (template+)>
-<!ELEMENT template (parent|attribute|test|group)*>
+<!ELEMENT template (parent|attribute|class|test|group)*>
 <!ELEMENT parent EMPTY>
-<!ELEMENT attribute EMPTY>
+<!ELEMENT attribute (#PCDATA|item)*>
+<!ELEMENT item (#PCDATA)>
+<!ELEMENT class EMPTY>
 <!ELEMENT test (arg*)>
 <!ELEMENT arg (#PCDATA)>
 <!ELEMENT group EMPTY>
@@ -10,8 +12,9 @@
 
 <!ATTLIST parent name CDATA #REQUIRED>
 
+<!ATTLIST class name CDATA #REQUIRED>
+
 <!ATTLIST attribute name CDATA #REQUIRED>
-<!ATTLIST attribute value CDATA #REQUIRED>
 
 <!ATTLIST test name CDATA #REQUIRED>
 

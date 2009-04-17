@@ -28,6 +28,7 @@ import subprocess
 import re
 import socket
 from optparse import OptionParser
+from xml.etree import ElementTree as ET # Python 2.5
 #from pprint import pprint
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
@@ -208,20 +209,48 @@ class Discoverator(object):
     def declaration(self):
         """Generate the textual declaration for the ConfMgr"""
         self.hclasses.remove("all")
-        decl = ["""h = Host("%s", "%s", "%s", classes=%s)""" \
-                % (self.hostname, self.ipaddr, self.group,
-                   str(list(self.hclasses))) ]
+        decl = ET.Element("host")
+        decl.set("name", self.hostname)
+        decl.set("ip", self.ipaddr)
+        decl.set("group", self.group)
+        for hclass in self.hclasses:
+            _class = ET.SubElement(decl, "class")
+            _class.set("name", hclass)
         for attr, val in self.attributes.iteritems():
-            decl.append('h.add_attribute("%s", %s)' % (attr, str(val)))
+            _attr = ET.SubElement(decl, "attribute")
+            _attr.set("name", attr)
+            if isinstance(val, list):
+                for item in val:
+                    _attr_item = ET.SubElement(_attr, "item")
+                    _attr_item.text = item
+            else:
+                _attr.text = val
         for testdict in self.tests:
-            tmpdecl = 'h.add_test("%s"' % testdict["name"]
+            _test = ET.SubElement(decl, "test")
+            _test.set("name", testdict["name"])
             if testdict.has_key("args"):
                 for arg, val in testdict["args"].iteritems():
-                    tmpdecl += ', %s="%s"' % (arg, val)
-            tmpdecl += ")"
-            decl.append(tmpdecl)
-        return "\n".join(decl)
+                    _arg = ET.SubElement(_test, "arg")
+                    _arg.set("name", arg)
+                    _arg.text = val
+        #tree = ET.ElementTree(decl)
+        return decl
 
+
+def indent(elem, level=0):
+    i = "\n" + level*"    "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "    "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indent(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
 
 
 def main():
@@ -260,7 +289,10 @@ def main():
                               options.community,
                               options.version)
     discoverator.detect()
-    print(discoverator.declaration())
+    elements = discoverator.declaration()
+    indent(elements)
+    print """<?xml version="1.0"?>"""
+    print(ET.tostring(elements))
 
 
 if __name__ == "__main__":

@@ -78,11 +78,24 @@ class Host(object):
 
     def get_attribute(self, attribute, default=False):
         """
-        A very simple wrapper to get a class attribute
+        A very simple wrapper to get an attribute from the
+        host's entry in the hostsConf hashmap.
         @param attribute: the attribute to get
         @param default: default value if the attribute is not found
         """
-        return getattr( self, attribute, default )
+        if conf.hostsConf[self.name].has_key(attribute):
+            return conf.hostsConf[self.name][attribute]
+        else:
+            return default
+
+    def set_attribute(self, attribute, value):
+        """
+        A very simple wrapper to set an attribute in the
+        host's entry in the hostsConf hashmap.
+        @param attribute: the attribute to set
+        @param value: the value to set the attribute to
+        """
+        conf.hostsConf[self.name][attribute] = value
 
     def add_test(self, testname, **kw):
         """

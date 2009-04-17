@@ -169,8 +169,17 @@ class HostTemplateFactory(object):
             else:
                 if elem.tag == "parent":
                     cur_tpl.add_parent(elem.attrib["name"])
+                elif elem.tag == "class":
+                    cur_tpl.classes.append(elem.attrib["name"])
                 elif elem.tag == "attribute":
-                    cur_tpl.add_attribute(elem.attrib["name"], elem.attrib["value"])
+                    value = elem.text
+                    items = [ i.text for i in elem.getchildren()
+                                     if i.tag == "item" ]
+                    if items:
+                        value = items
+                    else:
+                        value = elem.text
+                    cur_tpl.add_attribute(elem.attrib["name"], value)
                 elif elem.tag == "group":
                     cur_tpl.add_group(elem.attrib["name"])
                 elif elem.tag == "test":
