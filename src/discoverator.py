@@ -44,7 +44,12 @@ class Discoverator(object):
     Scan a host or file containing the hosts' SNMP walk to find the host
     classes and the available tests.
     Also extract information about the host (number of CPUs, etc...)
+    @ivar snmpcommand: The system command to scan a host
+    @type snmpcommand: C{str}
     """
+
+    snmpcommand = "snmpwalk -OnQ -c %(community)s -v %(version)s" \
+                 +" \"%(host)s\" .1"
 
     def __init__(self, group=None):
         self.group = group
@@ -92,11 +97,15 @@ class Discoverator(object):
             self.attributes["community"] = community
         if version != "2c":
             self.attributes["snmpVersion"] = version
-        snmpcommand = ["snmpwalk", "-OnQ", "-c", community,
-                       "-v", version, host, ".1"]
+        snmpcommand = self.snmpcommand % {"community": community,
+                                          "version": version,
+                                          "host": host,
+                                         }
         newenv = os.environ.copy()
         newenv["LANG"] = "C"
+        newenv["LC_ALL"] = "C"
         walkprocess = subprocess.Popen(snmpcommand,
+                                       shell=True,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE,
                                        env=newenv)
@@ -110,7 +119,10 @@ class Discoverator(object):
         for line in pout.split("\n"):
             if line.count("=") != 1:
                 continue
-            oid, value = line.strip().split(" = ")
+            linetuple = line.strip().split(" = ")
+            if len(linetuple) != 2:
+                continue
+            oid, value = linetuple
             self.oids[oid] = value
 
     def detect(self):
