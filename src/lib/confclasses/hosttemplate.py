@@ -49,6 +49,8 @@ class HostTemplate(object):
                 "groups": [],
                 "attributes": {},
             }
+        if name != "default":
+            self.add_parent("default")
         if parent:
             self.add_parent(parent)
 
@@ -203,7 +205,9 @@ class HostTemplateFactory(object):
         # Sort the dependencies
         testdeps = []
         for tplname, tpl in self.templates.iteritems():
-            if not tpl.has_key("parent"):
+            if not tpl.has_key("parent") or not tpl["parent"]:
+                # the "default" template is removed from self.templates,
+                # all hosts will automatically add it (in Host.__init__())
                 continue
             if isinstance(tpl["parent"], list):
                 for parent in tpl["parent"]:
@@ -241,6 +245,9 @@ class HostTemplateFactory(object):
                             templates_save[tplname]["tests"])
             self.templates[tplname]["attributes"].update(
                             templates_save[tplname]["attributes"])
+            # Copy the parent list back too, it's not used except by unit tests
+            self.templates[tplname]["parent"].extend(
+                            templates_save[tplname]["parent"])
     
     def apply(self, host, tplname):
         """
