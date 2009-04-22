@@ -138,4 +138,10 @@ class HostTemplates(unittest.TestCase):
         for tpl in conf.hosttemplatefactory.templates.keys():
             self.host.apply_template(tpl)
 
+    def test_parent_default(self):
+        tpl1 = HostTemplate("testtpl2", "testtpl1")
+        assert "default" in conf.hosttemplatefactory.templates["testtpl1"]["parent"], \
+                "The \"default\" template is not automatically added as parent to other templates"
+
+
 # vim:set expandtab tabstop=4 shiftwidth=4:
