@@ -1,5 +1,5 @@
 %define name    vigilo-confmgr
-%define version 1.35
+%define version 1.36
 %define release 1
 
 Name:       %{name}
