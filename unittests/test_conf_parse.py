@@ -1,9 +1,34 @@
 #!/usr/bin/env python
-import sys, os, unittest, tempfile, shutil, glob
+import sys, os, unittest, tempfile, shutil, glob, subprocess
 from pprint import pprint
 
 import conf
 from lib.confclasses.host import Host
+
+
+class ValidateDTD(unittest.TestCase):
+
+    def setUp(self):
+        """Call before every test case."""
+        self.dtddir = "../doc/dtd"
+        self.hdir = "../src/conf.d/hosts"
+        self.htdir = "../src/conf.d/hosttemplates"
+
+    def test_host(self):
+        """Validate the provided hosts against the DTD"""
+        hosts = glob.glob(os.path.join(self.hdir, "*.xml"))
+        for host in hosts:
+            valid = subprocess.call(["xmllint", "--noout", "--dtdvalid",
+                                    os.path.join(self.dtddir, "host.dtd"), host])
+            assert valid == 0, "Validation of host \"%s\" failed" % os.path.basename(host)
+
+    def test_hosttemplate(self):
+        """Validate the provided hosttemplatess against the DTD"""
+        hts = glob.glob(os.path.join(self.htdir, "*.xml"))
+        for ht in hts:
+            valid = subprocess.call(["xmllint", "--noout", "--dtdvalid",
+                                    os.path.join(self.dtddir, "hosttemplate.dtd"), ht])
+            assert valid == 0, "Validation of hosttemplate \"%s\" failed" % os.path.basename(ht)
 
 
 class ParseHost(unittest.TestCase):
