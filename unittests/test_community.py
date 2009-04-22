@@ -92,13 +92,11 @@ class EnterpriseEdition(unittest.TestCase):
     def test_serverfactory_ent(self):
         """ServerFactory must return ServerRemote instances for
            non-local hostnames"""
-        ## Prepare temporary directory
-        tmpdir = tempfile.mkdtemp(dir="/dev/shm")
         # Declare temp dir
-        conf.libDir = tmpdir
+        conf.libDir = self.tmpdir
         # Create a dummy ssh_config file
-        os.mkdir( os.path.join(tmpdir, "db") )
-        ssh_cf = open( os.path.join(tmpdir, "db", "ssh_config"), "w")
+        os.mkdir( os.path.join(self.tmpdir, "db") )
+        ssh_cf = open( os.path.join(self.tmpdir, "db", "ssh_config"), "w")
         ssh_cf.close()
         # Start the actual test
         _serverfactory = ServerFactory()
