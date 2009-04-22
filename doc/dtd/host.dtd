@@ -1,34 +1,29 @@
 <!ELEMENT host (template|class|test|tag|attribute|trap|group)*>
-<!ELEMENT template EMPTY>
-<!ELEMENT class EMPTY>
+    <!ATTLIST host name CDATA #REQUIRED>
+    <!ATTLIST host ip CDATA #REQUIRED>
+    <!ATTLIST host group CDATA #REQUIRED>
+
+<!ELEMENT template (#PCDATA)>
+
+<!ELEMENT class (#PCDATA)>
+
 <!ELEMENT test (arg*)>
+    <!ATTLIST test name CDATA #REQUIRED>
+
 <!ELEMENT arg (#PCDATA)>
+    <!ATTLIST arg name CDATA #REQUIRED>
+
 <!ELEMENT attribute (#PCDATA|item)*>
+    <!ATTLIST attribute name CDATA #REQUIRED>
+
 <!ELEMENT item (#PCDATA)>
-<!ELEMENT tag EMPTY>
-<!ELEMENT trap EMPTY>
-<!ELEMENT group EMPTY>
 
-<!ATTLIST host name CDATA #REQUIRED>
-<!ATTLIST host ip CDATA #REQUIRED>
-<!ATTLIST host group CDATA #REQUIRED>
+<!ELEMENT tag (#PCDATA)>
+    <!ATTLIST tag service CDATA #REQUIRED>
+    <!ATTLIST tag name CDATA #REQUIRED>
 
-<!ATTLIST template name CDATA #REQUIRED>
+<!ELEMENT trap (#PCDATA)>
+    <!ATTLIST trap service CDATA #REQUIRED>
+    <!ATTLIST trap key CDATA #REQUIRED>
 
-<!ATTLIST class name CDATA #REQUIRED>
-
-<!ATTLIST test name CDATA #REQUIRED>
-
-<!ATTLIST arg name CDATA #REQUIRED>
-
-<!ATTLIST attribute name CDATA #REQUIRED>
-
-<!ATTLIST tag service CDATA #REQUIRED>
-<!ATTLIST tag name CDATA #REQUIRED>
-<!ATTLIST tag value CDATA #REQUIRED>
-
-<!ATTLIST trap service CDATA #REQUIRED>
-<!ATTLIST trap key CDATA #REQUIRED>
-<!ATTLIST trap value CDATA #REQUIRED>
-
-<!ATTLIST group name CDATA #REQUIRED>
+<!ELEMENT group (#PCDATA)>

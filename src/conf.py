@@ -313,39 +313,39 @@ def loadhosts(source):
     for event, elem in ET.iterparse(source, events=("start", "end")):
         if event == "start":
             if elem.tag == "host":
-                cur_host = Host(elem.attrib["name"],
-                                elem.attrib["ip"],
-                                elem.attrib["group"])
+                cur_host = Host(elem.attrib["name"].strip(),
+                                elem.attrib["ip"].strip(),
+                                elem.attrib["group"].strip())
         else:
             if elem.tag == "template":
-                cur_host.apply_template(elem.attrib["name"])
+                cur_host.apply_template(elem.text.strip())
             elif elem.tag == "class":
-                cur_host.classes.append(elem.attrib["name"])
+                cur_host.classes.append(elem.text.strip())
             elif elem.tag == "test":
-                testname = elem.attrib["name"]
+                testname = elem.attrib["name"].strip()
                 args = {}
                 for arg in elem.getchildren():
-                    args[arg.attrib["name"]] = arg.text.strip()
+                    args[arg.attrib["name"].strip()] = arg.text.strip()
                 cur_host.add_test(testname, **args)
             elif elem.tag == "attribute":
-                value = elem.text
-                items = [ i.text for i in elem.getchildren()
+                value = elem.text.strip()
+                items = [ i.text.strip() for i in elem.getchildren()
                                  if i.tag == "item" ]
                 if items:
                     value = items
                 else:
-                    value = elem.text
-                cur_host.set_attribute(elem.attrib["name"], value)
+                    value = elem.text.strip()
+                cur_host.set_attribute(elem.attrib["name"].strip(), value)
             elif elem.tag == "tag":
-                cur_host.add_tag(elem.attrib["service"],
-                                 elem.attrib["name"],
-                                 elem.attrib["value"])
+                cur_host.add_tag(elem.attrib["service"].strip(),
+                                 elem.attrib["name"].strip(),
+                                 elem.text.strip())
             elif elem.tag == "trap":
-                cur_host.add_trap(elem.attrib["service"],
-                                  elem.attrib["key"],
-                                  elem.attrib["value"])
+                cur_host.add_trap(elem.attrib["service"].strip(),
+                                  elem.attrib["key"].strip(),
+                                  elem.text.strip())
             elif elem.tag == "group":
-                cur_host.add_group(elem.attrib["name"])
+                cur_host.add_group(elem.text.strip())
             elif elem.tag == "host":
                 elem.clear()
 

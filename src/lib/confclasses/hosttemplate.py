@@ -167,28 +167,28 @@ class HostTemplateFactory(object):
         for event, elem in ET.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "template":
-                    cur_tpl = HostTemplate(elem.attrib["name"])
+                    cur_tpl = HostTemplate(elem.attrib["name"].strip())
             else:
                 if elem.tag == "parent":
-                    cur_tpl.add_parent(elem.attrib["name"])
+                    cur_tpl.add_parent(elem.text.strip())
                 elif elem.tag == "class":
-                    cur_tpl.classes.append(elem.attrib["name"])
+                    cur_tpl.classes.append(elem.text.strip())
                 elif elem.tag == "attribute":
-                    value = elem.text
-                    items = [ i.text for i in elem.getchildren()
+                    value = elem.text.strip()
+                    items = [ i.text.strip() for i in elem.getchildren()
                                      if i.tag == "item" ]
                     if items:
                         value = items
                     else:
-                        value = elem.text
-                    cur_tpl.add_attribute(elem.attrib["name"], value)
+                        value = elem.text.strip()
+                    cur_tpl.add_attribute(elem.attrib["name"].strip(), value)
                 elif elem.tag == "group":
-                    cur_tpl.add_group(elem.attrib["name"])
+                    cur_tpl.add_group(elem.text.strip())
                 elif elem.tag == "test":
-                    testname = elem.attrib["name"]
+                    testname = elem.attrib["name"].strip()
                     args = {}
                     for arg in elem.getchildren():
-                        args[arg.attrib["name"]] = arg.text.strip()
+                        args[arg.attrib["name"].strip()] = arg.text.strip()
                     cur_tpl.add_test(testname, **args)
                 elif elem.tag == "template":
                     cur_tpl = None
