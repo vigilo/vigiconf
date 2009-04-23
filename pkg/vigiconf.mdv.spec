@@ -17,6 +17,7 @@ Requires:   subversion
 Requires:   openssh-clients
 Requires:   tar
 Requires:   sec
+Requires:   xmllint
 Buildrequires: graphviz
 Buildarch:  noarch
 

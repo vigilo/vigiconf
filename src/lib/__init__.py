@@ -39,4 +39,10 @@ class EditionError(ConfMgrError):
     """
     pass
 
+class ParsingError(ConfMgrError):
+    """
+    Exception raised when parsing of the configuration files failed
+    """
+    pass
+
 # vim:set expandtab tabstop=4 shiftwidth=4:

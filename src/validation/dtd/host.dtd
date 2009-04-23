@@ -1,3 +1,5 @@
+<!ELEMENT hosts (host+)>
+
 <!ELEMENT host (template|class|test|tag|attribute|trap|group)*>
     <!ATTLIST host name CDATA #REQUIRED>
     <!ATTLIST host ip CDATA #REQUIRED>

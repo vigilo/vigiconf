@@ -22,9 +22,11 @@ This module contains the classes needed to handle host templates
 
 import os
 import copy
+import subprocess
 from xml.etree import ElementTree as ET # Python 2.5
 
 import conf
+from lib import ParsingError
 import lib.external.topsort as topsort
 
 
@@ -154,10 +156,22 @@ class HostTemplateFactory(object):
             for tplfile in os.listdir(pathdir):
                 if not tplfile.endswith(".xml") or tplfile.startswith("__"):
                     continue
-                self.__loadtemplate(os.path.join(pathdir, tplfile))
+                self.__validate(os.path.join(pathdir, tplfile))
+                self.__load(os.path.join(pathdir, tplfile))
         self.apply_inheritance()
 
-    def __loadtemplate(self, source):
+    def __validate(self, source):
+        """
+        Validate the XML against the DTD using xmllint
+        @param source: an XML file (or stream)
+        @type  source: C{str} or C{file}
+        """
+        dtd = os.path.join(conf.dataDir, "validation", "dtd", "hosttemplate.dtd")
+        result = subprocess.call(["xmllint", "--noout", "--dtdvalid", dtd, source])
+        if result != 0:
+            raise ParsingError("XML validation failed")
+
+    def __load(self, source):
         """
         Load a template from XML
         @param source: an XML file (or stream)

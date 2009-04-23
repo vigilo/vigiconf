@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<hosts>
 <host name="testserver1" ip="192.168.1.1" group="Servers">
     <class>linux</class>
     <class>ucd</class>
@@ -26,3 +27,4 @@
     <trap service="test.add_trap" key="test.name">test.label</trap>
     <group>Linux servers</group>
 </host>
+</hosts>

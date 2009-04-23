@@ -252,8 +252,10 @@ Data Model
 import glob
 import sys
 import os
+import subprocess
 from xml.etree import ElementTree as ET # Python 2.5
 
+from lib import ParsingError
 from lib.confclasses.graph import Graph
 from lib.confclasses.host import Host
 from lib.confclasses.hosttemplate import HostTemplate, HostTemplateFactory
@@ -291,6 +293,7 @@ def loadConf():
             for f in files:
                 if not f.endswith(".xml"):
                     continue
+                validatehost(os.path.join(root, f))
                 loadhosts(os.path.join(root, f))
                 #print "Sucessfully parsed %s" % os.path.join(root, file)
             for d in dirs: # Don't visit subversion/CVS directories
@@ -298,10 +301,22 @@ def loadConf():
                     dirs.remove(d)
                 if d == "CVS":
                     dirs.remove("CVS")
-    except Exception,e:
-        sys.stderr.write("Error while parsing %s: %s\n"%(f, str(e)))
+    except ParsingError, e:
+        sys.stderr.write("Error loading configuration file %s: %s\n"
+                % (f.replace(os.path.join(confDir, "hosts")+"/", ""), str(e)))
         raise e
 
+def validatehost(source):
+    """
+    Validate the XML against the DTD using xmllint
+    @note: this could take time.
+    @param source: an XML file (or stream)
+    @type  source: C{str} or C{file}
+    """
+    dtd = os.path.join(dataDir, "validation", "dtd", "host.dtd")
+    result = subprocess.call(["xmllint", "--noout", "--dtdvalid", dtd, source])
+    if result != 0:
+        raise ParsingError("XML validation failed")
 
 def loadhosts(source):
     """

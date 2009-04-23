@@ -10,7 +10,7 @@ class ValidateDTD(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        self.dtddir = "../doc/dtd"
+        self.dtddir = "../src/validation/dtd"
         self.hdir = "../src/conf.d/hosts"
         self.htdir = "../src/conf.d/hosttemplates"
 
