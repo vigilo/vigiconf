@@ -13,6 +13,9 @@ class HostTemplates(unittest.TestCase):
         """Call before every test case."""
         conf.confDir = "../src/conf.d"
         conf.dataDir = "../src"
+        # We changed the paths, reload the factories
+        conf.hosttemplatefactory.__init__()
+        conf.testfactory.__init__()
         # Load the configuration
         conf.loadConf()
         # We need to load the templates manually because we're adding a new

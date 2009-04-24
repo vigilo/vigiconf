@@ -39,6 +39,9 @@ class EnterpriseEdition(unittest.TestCase):
         # Prepare generation
         conf.libDir = self.tmpdir
         self.basedir = os.path.join(self.tmpdir, "deploy")
+        # We changed the paths, reload the factories
+        conf.hosttemplatefactory.__init__()
+        conf.testfactory.__init__()
         # Load the configuration
         conf.loadConf()
         conf.silent = True
@@ -120,6 +123,9 @@ class CommunityEdition(unittest.TestCase):
         # Prepare generation
         conf.libDir = self.tmpdir
         self.basedir = os.path.join(self.tmpdir, "deploy")
+        # We changed the paths, reload the factories
+        conf.hosttemplatefactory.__init__()
+        conf.testfactory.__init__()
         # Load the configuration
         conf.loadConf()
         conf.silent = True

@@ -12,6 +12,9 @@ class HostMethods(unittest.TestCase):
         """Call before every test case."""
         conf.confDir = "../src/conf.d"
         conf.dataDir = "../src"
+        # We changed the paths, reload the factories
+        conf.hosttemplatefactory.__init__()
+        conf.testfactory.__init__()
         # Load the configuration
         conf.loadConf()
         self.host = Host("testserver1", "192.168.1.1", "Servers")

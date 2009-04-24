@@ -256,10 +256,9 @@ import subprocess
 from xml.etree import ElementTree as ET # Python 2.5
 
 from lib import ParsingError
-from lib.confclasses.graph import Graph
 from lib.confclasses.host import Host
-from lib.confclasses.hosttemplate import HostTemplate, HostTemplateFactory
-from lib.confclasses.test import Test, TestFactory
+from lib.confclasses.hosttemplate import HostTemplateFactory
+from lib.confclasses.test import TestFactory
 
 
 __docformat__ = "epytext"
@@ -270,12 +269,6 @@ def loadConf():
     Load the confDir directory, looking for configuration files.
     @returns: None, but sets global variables as described above.
     """
-
-    global hosttemplatefactory, testfactory
-    # Create an instance of HostTemplateFactory and only use this one
-    hosttemplatefactory = HostTemplateFactory()
-    # Create an instance of TestFactory and only use this one
-    testfactory = TestFactory()
     # General configuration
     for confsubdir in [ "general", ]:
         try:
@@ -391,13 +384,13 @@ mode = "onedir"
 #mode = "byday"
 confid = ""
 
-# Initialize global objects
-hosttemplatefactory = None
-testfactory = None
-
 # Load the global paths
 confFilePath = os.getenv("VIGICONF_MAINCONF", "/etc/confmgr/confmgr.conf")
 execfile(confFilePath, globals())
+
+# Initialize global objects and only use those
+hosttemplatefactory = HostTemplateFactory()
+testfactory = TestFactory()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

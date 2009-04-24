@@ -35,6 +35,9 @@ class Dispatchator(unittest.TestCase):
         os.mkdir( os.path.join(self.basedir, "localhost") )
         revs = open( os.path.join(self.basedir, "localhost", "revisions.txt"), "w")
         revs.close()
+        # We changed the paths, reload the factories
+        conf.hosttemplatefactory.__init__()
+        conf.testfactory.__init__()
         # Load the configuration
         conf.loadConf()
         conf.silent = True

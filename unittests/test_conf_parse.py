@@ -46,6 +46,9 @@ class ParseHost(unittest.TestCase):
                         os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
         conf.confDir = self.tmpdir
+        # We changed the paths, reload the factories
+        conf.hosttemplatefactory.__init__()
+        conf.testfactory.__init__()
         conf.loadConf()
         #shutil.copy(os.path.join(self.testdatadir, "host.xml"), os.path.join(self.tmpdir, "hosts"))
         self.host = open(os.path.join(self.tmpdir, "hosts", "host.xml"), "w")
@@ -250,6 +253,9 @@ class ParseHostTemplate(unittest.TestCase):
         os.mkdir(os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
         conf.confDir = self.tmpdir
+        # We changed the paths, reload the factories
+        conf.hosttemplatefactory.__init__()
+        conf.testfactory.__init__()
         conf.loadConf()
         conf.hosttemplatefactory.path = [os.path.join(self.tmpdir, "hosttemplates"),]
         #shutil.copy(os.path.join(self.testdatadir, "host.xml"), os.path.join(self.tmpdir, "hosts"))
