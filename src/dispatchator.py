@@ -80,8 +80,10 @@ class Dispatchator(object):
     def __init__(self):
         self.mServers = []
         self.mApplications = []
-        self.setModeForce(False)
+        self.mModeForce = False
         self.mAppsList = []
+        self.commandsQueue = None # will be initialized as Queue.Queue later
+        self.returnsQueue = None # will be initialized as Queue.Queue later
         # initialize applications
         self.listApps()
         self.sortApplication()
@@ -487,35 +489,37 @@ class Dispatchator(object):
         _Apps = self.getApplications()
         _CurrentLevel = 0
 
-        if (len(_Apps) > 0 ):
-            _application = _Apps[0]
-            _CurrentLevel = _application.getPriority()
+        if len(_Apps) == 0:
+            return
 
-            self.commandsQueue = Queue.Queue()
-            self.returnsQueue = Queue.Queue()
-            for _application in _Apps:
-                if (_application.getPriority() == _CurrentLevel):
-                    # fill the application queue
-                    self.commandsQueue.put(_application)
-                    _thread = Thread(target=fAction, args=fArgs)
-                    _thread.start()
+        _application = _Apps[0]
+        _CurrentLevel = _application.getPriority()
 
-                else:
-                    # wait until the queue is empty
-                    self.commandsQueue.join()
-                    _CurrentLevel = _application.getPriority()
+        self.commandsQueue = Queue.Queue()
+        self.returnsQueue = Queue.Queue()
+        for _application in _Apps:
+            if (_application.getPriority() == _CurrentLevel):
+                # fill the application queue
+                self.commandsQueue.put(_application)
+                _thread = Thread(target=fAction, args=fArgs)
+                _thread.start()
 
-                    # fill the application queue
-                    self.commandsQueue.put(_application)
+            else:
+                # wait until the queue is empty
+                self.commandsQueue.join()
+                _CurrentLevel = _application.getPriority()
 
-                    _thread = Thread(target=fAction, args=fArgs)
-                    _thread.start()
-            # wait until the queue is empty
-            self.commandsQueue.join()
+                # fill the application queue
+                self.commandsQueue.put(_application)
 
-            _result = self.manageReturnQueue()
-            if (_result == False) :
-                raise DispatchatorError(iErrorMessage)
+                _thread = Thread(target=fAction, args=fArgs)
+                _thread.start()
+        # wait until the queue is empty
+        self.commandsQueue.join()
+
+        _result = self.manageReturnQueue()
+        if (_result == False) :
+            raise DispatchatorError(iErrorMessage)
 
     def applicationStop(self, iApplication, iServers):
         """
@@ -788,19 +792,18 @@ if __name__ == "__main__":
     f = open(conf.lockFile,'a+')
     try:
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except Exception, e:
+    except Exception, exp:
         syslog.syslog(syslog.LOG_ERR,
                 "Can't obtain lock on lockfile. Dispatchator already "
-               +"running ? REASON : %s" % str(e))
+               +"running ? REASON : %s" % str(exp))
         sys.exit(1)
     try:
         main()
-    except Exception, e:
-        syslog.syslog(syslog.LOG_ERR, "Execution error.REASON : %s" % str(e))
-        lines = traceback.format_exc().split("\n")
-        for line in lines:
-            syslog.syslog(syslog.LOG_ERR, line)
-    syslog.syslog(syslog.LOG_INFO, "Dispatchator End")    
+    except Exception, exp:
+        syslog.syslog(syslog.LOG_ERR, "Execution error.REASON : %s" % str(exp))
+        for l in traceback.format_exc().split("\n"):
+            syslog.syslog(syslog.LOG_ERR, l)
+    syslog.syslog(syslog.LOG_INFO, "Dispatchator End")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

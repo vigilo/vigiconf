@@ -110,13 +110,16 @@ class Discoverator(object):
                                        stderr=subprocess.PIPE,
                                        env=newenv)
         pout, perr = walkprocess.communicate()
-        if walkprocess.returncode != 0:
+        if walkprocess.returncode == 127:
+            message = "The \"snmpwalk\" command is not installed."
+            raise DiscoveratorError(message)
+        elif walkprocess.returncode != 0:
             message = "SNMP walk command failed with error status %s " \
                       % walkprocess.returncode \
                      +"and message:\n%s\n" % perr \
-                     +"The command was: %s" % " ".join(snmpcommand)
+                     +"The command was: %s" % snmpcommand
             raise DiscoveratorError(message)
-        for line in pout.split("\n"):
+        for line in pout.split("\n"): # pylint: disable-msg=E1103
             if line.count("=") != 1:
                 continue
             linetuple = line.strip().split(" = ")
@@ -252,6 +255,7 @@ class Discoverator(object):
 def indent(elem, level=0):
     i = "\n" + level*"    "
     if len(elem):
+        # pylint: disable-msg=W0631
         if not elem.text or not elem.text.strip():
             elem.text = i + "    "
         if not elem.tail or not elem.tail.strip():
@@ -281,30 +285,34 @@ def main():
                       help="Default group")
 
     # parse the command line
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args() # pylint: disable-msg=W0612
     if not options.file and not options.host:
         parser.error("You must specify a host or a file")
 
-    discoverator = Discoverator(options.group)
+    try:
+        discoverator = Discoverator(options.group)
 
-    # Handle command-line options
-    if options.file:
-        discoverator.scanfile(options.file)
-    else:
-        if not options.host:
-            parser.error("You must specify a host or a file")
-        if not options.community:
-            options.community = "public"
-        if not options.version:
-            options.version = "2c"
-        discoverator.scanhost(options.host,
-                              options.community,
-                              options.version)
-    discoverator.detect()
-    elements = discoverator.declaration()
-    indent(elements)
-    print """<?xml version="1.0"?>"""
-    print(ET.tostring(elements))
+        # Handle command-line options
+        if options.file:
+            discoverator.scanfile(options.file)
+        else:
+            if not options.host:
+                parser.error("You must specify a host or a file")
+            if not options.community:
+                options.community = "public"
+            if not options.version:
+                options.version = "2c"
+            discoverator.scanhost(options.host,
+                                  options.community,
+                                  options.version)
+        discoverator.detect()
+        elements = discoverator.declaration()
+        indent(elements)
+        print """<?xml version="1.0"?>"""
+        print(ET.tostring(elements))
+    except DiscoveratorError, e:
+        sys.stderr.write(str(e)+"\n")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

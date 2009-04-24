@@ -1,4 +1,8 @@
-#!/usr/bin/python2.5
+#!/usr/bin/python
+
+"""
+This module is used to test the different parts of VigiConf
+"""
 
 import sys
 import os
@@ -9,8 +13,8 @@ def main():
         sys.exit(2)
 
     os.environ["VIGICONF_MAINCONF"] = os.path.join(
-                                        os.path.abspath(os.path.dirname(__file__)),
-                                        "confmgr-test.conf")
+                                    os.path.abspath(os.path.dirname(__file__)),
+                                    "confmgr-test.conf")
 
     module = sys.argv[1]
 
@@ -36,7 +40,7 @@ def main():
         if 0:
             import hotshot, hotshot.stats
             _prof = hotshot.Profile("/tmp/generator.prof")
-            _prof.runcall(generate, _gendir)
+            _prof.runcall(generator.generate, _gendir)
             _prof.close()
             _stats = hotshot.stats.load("/tmp/generator.prof")
             _stats.strip_dirs()

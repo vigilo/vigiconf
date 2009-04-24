@@ -16,12 +16,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
+
+# pylint: disable-msg=E1101
+
 """
 Module in charge of finding the good server to handle a given application 
 for a given host defined in the configuration.
 
 This file is part of the Enterprise Edition
 """
+
 import os.path
 import pickle
 

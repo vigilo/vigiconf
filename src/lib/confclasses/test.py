@@ -72,7 +72,7 @@ class Test(object):
         @type  walk: C{dict}
         """
         if hasattr(self, "detect_snmp"):
-            return self.detect_snmp(walk)
+            return getattr(self, "detect_snmp")(walk)
         return self.detect_oid(walk)
 
     def detect_oid(self, walk):

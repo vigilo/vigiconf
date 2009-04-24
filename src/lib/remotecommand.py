@@ -112,7 +112,7 @@ class RemoteCommand(SystemCommand):
             raise RemoteCommandError("Server name set to None.")
         if len(iServer) == 0:
             raise RemoteCommandError("Server name incorrect (length = 0).")
-        self.mServer = iServer
+        self.mServer = iServer # pylint: disable-msg=W0201
             
     def setUser(self, iUser):
         """
@@ -122,21 +122,21 @@ class RemoteCommand(SystemCommand):
         """
         if(iUser == None):
             iUser = CommandUser()
-        self.mUser = iUser
+        self.mUser = iUser # pylint: disable-msg=W0201
     
     def getServer(self):
         """
         @return: L{iServer}
         @rtype: C{str}
         """
-        return self.mServer
+        return self.mServer # pylint: disable-msg=W0201
         
     def getUser(self):
         """
         @return: L{iUser}
         @rtype: L{CommandUser<lib.remotecommand.CommandUser>}
         """
-        return self.mUser
+        return self.mUser # pylint: disable-msg=W0201
     
     def setCommand(self, iCommand):
         """

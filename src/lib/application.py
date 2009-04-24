@@ -76,8 +76,11 @@ class Application(object):
         @param iName: Application name
         @type  iName: C{str}
         """
-        self.setName(iName)
-        self.setUsername("confmgr")
+        self.mName = iName
+        self.mServersList = None
+        self.mUsername = "confmgr"
+        self.serversQueue = None # will be initialized as Queue.Queue later
+        self.returnsQueue = None # will be initialized as Queue.Queue later
         _AppConfig = conf.apps[iName]
         self.mPriority = _AppConfig['priority']
         self.mStartMethod = _AppConfig['startMethod']
@@ -420,8 +423,8 @@ class Application(object):
         """Stops the applications"""
         result = True
 
-        self.serversQueue = Queue()
-        self.returnsQueue = Queue()
+        self.serversQueue = Queue.Queue()
+        self.returnsQueue = Queue.Queue()
 
         for _server in self.getServers():
             # fill the application queue
