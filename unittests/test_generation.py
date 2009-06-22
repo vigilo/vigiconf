@@ -4,31 +4,23 @@ Test that the generation works properly
 """
 
 import sys, os, unittest, tempfile, shutil, glob, re
-from pprint import pprint
 
 import conf
 import generator
 from lib.confclasses.host import Host
+
+from . import reload_conf, setup_tmpdir
 
 
 class Generator(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        conf.confDir = "../src/conf.d"
-        conf.templatesDir = "../src/conf.d/filetemplates"
-        conf.dataDir = "../src"
-        ## Prepare temporary directory
-        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
-        # Prepare generation
-        conf.libDir = self.tmpdir
+        # Prepare temporary directory
+        self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
-        # We changed the paths, reload the factories
-        conf.hosttemplatefactory.__init__()
-        conf.testfactory.__init__()
-        # Load the configuration
-        conf.loadConf()
-        conf.silent = True
+        conf.hosttemplatefactory.load_templates()
+        reload_conf()
         self.host = Host("testserver1", "192.168.1.1", "Servers")
         self.mapping = generator.getventilation()
 

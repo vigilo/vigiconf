@@ -1,23 +1,18 @@
 #!/usr/bin/env python
 import sys
 import unittest
-#from pprint import pprint
 
 import conf
 from lib.confclasses.host import Host
+
+from . import reload_conf
 
 
 class TestFactory(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        conf.confDir = "../src/conf.d"
-        conf.dataDir = "../src"
-        # We changed the paths, reload the factories
-        conf.hosttemplatefactory.__init__()
-        conf.testfactory.__init__()
-        # Load the configuration
-        conf.loadConf()
+        reload_conf()
         self.host = Host("testserver1", "192.168.1.1", "Servers")
 
     def tearDown(self):

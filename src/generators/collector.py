@@ -36,8 +36,6 @@ class CollectorTpl(Templator):
                 continue
             dirName = "%s/%s/collector" % (self.baseDir,
                                            ventilation['collector'])
-            self.copyFile(conf.templatesDir + "/collector/Functions.pm",
-                          "%s/Functions.pm" % dirName)
             fileName = "%s/%s.pm" % (dirName, hostname)
             h = conf.hostsConf[hostname]
             newhash = h.copy()

@@ -80,5 +80,8 @@ doc/apidoc/index.html: $(wildcard src/*.py) src/lib src/generators
 lint: $(wildcard src/*.py) src/lib src/generators
 	PYTHONPATH=src pylint $^
 
-.PHONY: all tarball clean install apidoc lint install_users install install_permissions
+tests:
+	VIGICONF_MAINCONF=src/confmgr-test.conf nosetests unittests
+
+.PHONY: all tarball clean install apidoc lint install_users install install_permissions tests
 

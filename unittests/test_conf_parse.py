@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 import sys, os, unittest, tempfile, shutil, glob, subprocess
-from pprint import pprint
 
 import conf
 from lib.confclasses.host import Host
 
+from . import reload_conf, setup_tmpdir, setup_path
 
 class ValidateDTD(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        self.dtddir = "../src/validation/dtd"
-        self.hdir = "../src/conf.d/hosts"
-        self.htdir = "../src/conf.d/hosttemplates"
+        self.dtddir = os.path.join(conf.dataDir,"validation","dtd")
+        self.hdir = os.path.join(conf.confDir,"hosts")
+        self.htdir = os.path.join(conf.confDir,"hosttemplates")
 
     def test_host(self):
         """Validate the provided hosts against the DTD"""
@@ -35,11 +35,8 @@ class ParseHost(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        conf.confDir = "../src/conf.d"
-        conf.dataDir = "../src"
-        self.testdatadir = "testdata"
-        ## Prepare temporary directory
-        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
+        # Prepare temporary directory
+        self.tmpdir = setup_tmpdir()
         shutil.copytree(os.path.join(conf.confDir, "general"),
                         os.path.join(self.tmpdir, "general"))
         shutil.copytree(os.path.join(conf.confDir, "hosttemplates"),
@@ -47,14 +44,14 @@ class ParseHost(unittest.TestCase):
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
         conf.confDir = self.tmpdir
         # We changed the paths, reload the factories
-        conf.hosttemplatefactory.__init__()
-        conf.testfactory.__init__()
-        conf.loadConf()
-        #shutil.copy(os.path.join(self.testdatadir, "host.xml"), os.path.join(self.tmpdir, "hosts"))
+        reload_conf()
         self.host = open(os.path.join(self.tmpdir, "hosts", "host.xml"), "w")
 
     def tearDown(self):
         """Call after every test case."""
+        # This has been overwritten in setUp, reset it
+        setup_path()
+        #conf.confDir = os.path.join(os.path.dirname(__file__), "..", "src", "conf.d")
         shutil.rmtree(self.tmpdir)
 
 
@@ -241,11 +238,8 @@ class ParseHostTemplate(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        conf.confDir = "../src/conf.d"
-        conf.dataDir = "../src"
-        self.testdatadir = "testdata"
-        ## Prepare temporary directory
-        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
+        # Prepare temporary directory
+        self.tmpdir = setup_tmpdir()
         shutil.copytree(os.path.join(conf.confDir, "general"),
                         os.path.join(self.tmpdir, "general"))
         #shutil.copytree(os.path.join(conf.confDir, "hosttemplates"),
@@ -254,12 +248,8 @@ class ParseHostTemplate(unittest.TestCase):
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
         conf.confDir = self.tmpdir
         # We changed the paths, reload the factories
-        conf.hosttemplatefactory.__init__()
-        conf.testfactory.__init__()
-        conf.loadConf()
+        reload_conf()
         conf.hosttemplatefactory.path = [os.path.join(self.tmpdir, "hosttemplates"),]
-        #shutil.copy(os.path.join(self.testdatadir, "host.xml"), os.path.join(self.tmpdir, "hosts"))
-        #self.host = open(os.path.join(self.tmpdir, "hosts", "host.xml"), "w")
         self.defaultht = open(os.path.join(self.tmpdir, "hosttemplates", "default.xml"), "w")
         self.defaultht.write('<?xml version="1.0"?>\n<template name="default"></template>')
         self.defaultht.close()
@@ -267,6 +257,8 @@ class ParseHostTemplate(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
+        # This has been overwritten in setUp, reset it
+        setup_path()
         shutil.rmtree(self.tmpdir)
 
 

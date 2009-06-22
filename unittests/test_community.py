@@ -11,7 +11,6 @@ import shutil
 import glob
 import re
 import socket
-from pprint import pprint
 
 import conf
 import generator
@@ -24,27 +23,19 @@ from lib.servertypes.remote import ServerRemote
 from lib.confclasses.host import Host
 from lib import dispatchmodes
 
+from . import reload_conf, setup_tmpdir
+
 
 class EnterpriseEdition(unittest.TestCase):
     """Test the Enterprise Edition aspects"""
 
     def setUp(self):
         """Call before every test case."""
-        conf.confDir = "../src/conf.d"
-        conf.templatesDir = "../src/conf.d/filetemplates"
-        conf.dataDir = "../src"
-        conf.simulate = True
-        ## Prepare temporary directory
-        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
-        # Prepare generation
-        conf.libDir = self.tmpdir
+        # Prepare temporary directory
+        self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
-        # We changed the paths, reload the factories
-        conf.hosttemplatefactory.__init__()
-        conf.testfactory.__init__()
         # Load the configuration
-        conf.loadConf()
-        conf.silent = True
+        reload_conf()
         self.host = Host("testserver1", "192.168.1.1", "Servers")
         # Create appsGroupsByServer mapping (Enterprise Edition)
         conf.appsGroupsByServer = {
@@ -114,21 +105,11 @@ class CommunityEdition(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        conf.confDir = "../src/conf.d"
-        conf.templatesDir = "../src/conf.d/filetemplates"
-        conf.dataDir = "../src"
-        conf.simulate = True
-        ## Prepare temporary directory
-        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
-        # Prepare generation
-        conf.libDir = self.tmpdir
+        # Prepare temporary directory
+        self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
-        # We changed the paths, reload the factories
-        conf.hosttemplatefactory.__init__()
-        conf.testfactory.__init__()
         # Load the configuration
-        conf.loadConf()
-        conf.silent = True
+        reload_conf()
         delattr(conf, "appsGroupsByServer") # Become the Community(tm) :)
         self.host = Host("testserver1", "192.168.1.1", "Servers")
         self.mapping = generator.getventilation()

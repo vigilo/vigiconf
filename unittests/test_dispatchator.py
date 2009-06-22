@@ -4,24 +4,21 @@ Test that the dispatchator works properly
 """
 
 import sys, os, unittest, tempfile, shutil, glob, re
-from pprint import pprint
 
 import conf
 import dispatchator
 from lib.confclasses.host import Host
 from lib import dispatchmodes
 
+from . import reload_conf, setup_tmpdir
+
 
 class Dispatchator(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        conf.confDir = "../src/conf.d"
-        conf.templatesDir = "../src/conf.d/filetemplates"
-        conf.dataDir = "../src"
         # Prepare necessary directories
-        self.tmpdir = tempfile.mkdtemp(dir="/dev/shm")
-        conf.libDir = self.tmpdir
+        self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
         os.mkdir(self.basedir)
         conf.baseConfDir = os.path.join(self.tmpdir, "confmgr-conf")
@@ -36,11 +33,7 @@ class Dispatchator(unittest.TestCase):
         revs = open( os.path.join(self.basedir, "localhost", "revisions.txt"), "w")
         revs.close()
         # We changed the paths, reload the factories
-        conf.hosttemplatefactory.__init__()
-        conf.testfactory.__init__()
-        # Load the configuration
-        conf.loadConf()
-        conf.silent = True
+        reload_conf()
         # Deploy on the localhost only -> switch to Community Edition
         delattr(conf, "appsGroupsByServer")
         self.host = Host("testserver1", "192.168.1.1", "Servers")
@@ -58,6 +51,8 @@ class Dispatchator(unittest.TestCase):
     def tearDown(self):
         """Call after every test case."""
         shutil.rmtree(self.tmpdir)
+        # Restore baseConfDir
+        conf.baseConfDir = "/tmp/confmgr-conf"
 
     def test_deploy(self):
         """Globally test the deployment"""

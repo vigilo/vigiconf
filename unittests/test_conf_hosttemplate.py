@@ -1,23 +1,17 @@
 #!/usr/bin/env python
 import sys, os, unittest, tempfile, shutil, glob
-from pprint import pprint
 
 import conf
 from lib.confclasses.hosttemplate import HostTemplate
 from lib.confclasses.host import Host
 
+from . import reload_conf
 
 class HostTemplates(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        conf.confDir = "../src/conf.d"
-        conf.dataDir = "../src"
-        # We changed the paths, reload the factories
-        conf.hosttemplatefactory.__init__()
-        conf.testfactory.__init__()
-        # Load the configuration
-        conf.loadConf()
+        reload_conf()
         # We need to load the templates manually because we're adding a new
         # HostTemplate by hand. See the first lines of
         # HostTemplateFactory.apply() for details
