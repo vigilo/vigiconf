@@ -81,7 +81,10 @@ lint: $(wildcard src/*.py) src/lib src/generators
 	PYTHONPATH=src pylint $^
 
 tests:
-	VIGICONF_MAINCONF=src/confmgr-test.conf nosetests tests
+	VIGICONF_MAINCONF=src/confmgr-test.conf nosetests --with-coverage --cover-inclusive --cover-erase \
+		$(foreach mod,$(filter-out debug,$(patsubst src/%.py,%,$(wildcard src/*.py))),--cover-package=$(mod)) \
+		--cover-package=lib --cover-package=generators tests
+
 
 .PHONY: all tarball clean install apidoc lint install_users install install_permissions tests
 
