@@ -93,7 +93,7 @@ class RemoteCommand(SystemCommand):
         @type  simulate: boolean
         """
         # private attributes
-        self.mCommandType = ''
+        self.mCommandType = 'shell'
         self.mDestinationStr = ''
         self.mSourceStr = ''
         SystemCommand.__init__(self, iBaseCommand=iBaseCommand,

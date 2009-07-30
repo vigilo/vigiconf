@@ -77,11 +77,11 @@ class ServerRemote(Server):
         # The output is the standard output
         _localCommandStr = "tar -C %s/%s -cf - . " % \
                            (self.getBaseDir(), self.getName())
-        _remoteCommandStr = "\"cd %s && " % conf.baseConfDir \
+        _remoteCommandStr = "cd %s && " % conf.baseConfDir \
                            +"sudo rm -rf new && " \
                            +"sudo mkdir new && cd new && " \
                            +"sudo tar xf - && " \
-                           +"sudo chmod -R o-w *\""
+                           +"sudo chmod -R o-w *"
         
         _localCommand = SystemCommand(_localCommandStr)
         

@@ -13,10 +13,6 @@ define command{
 	command_name    service-notify-corrsup
 	command_line    /usr/bin/printf "%%b" "$TIMET$|$HOSTNAME$|$HOSTADDRESS$|$SERVICEDESC$|$SERVICESTATE$|$SERVICEOUTPUT$\\n" | socat -u - UDP4:%(corrsupServer)s:50002
 }
-define command {
-	command_name    check_nrpe_1arg_timeout
-	command_line    /usr/lib/nagios/plugins/check_nrpe -t 15 -H $HOSTADDRESS$ -c $ARG1$
-}
 define command{
 	command_name	check_http_ars
 	command_line	/usr/lib/nagios/plugins/check_http -H $HOSTADDRESS$ -u /arsys/shared/login.jsp 
@@ -24,6 +20,10 @@ define command{
 define command{
         command_name    check_dhcp_sudo
         command_line    /usr/bin/sudo /usr/lib/nagios/plugins/check_dhcp -s $HOSTADDRESS$
+}
+define command{
+       command_name     check_nrpe
+       command_line     /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -a $ARG2$
 }
 define command {
         command_name    check_nrpe_rerouted
@@ -36,6 +36,10 @@ define command {
 define command {
         command_name    check_nrpe_1arg_nossl
         command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -n -c $ARG1$
+}
+define command {
+	command_name        check_nrpe_1arg_timeout
+	command_line        /usr/lib/nagios/plugins/check_nrpe -t 15 -H $HOSTADDRESS$ -c $ARG1$
 }
 define command{
         command_name    check_proxy_noauth

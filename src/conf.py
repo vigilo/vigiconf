@@ -361,7 +361,7 @@ def loadhosts(source):
 
 # Initialize global paths
 dataDir = "/usr/share/confmgr"
-libDir = "/var/lib/confmgr"
+libDir = "/var/lib/vigilo-confmgr"
 confDir = "/etc/confmgr/conf.d"
 templatesDir = "/etc/confmgr/conf.d/templates"
 baseConfDir = "/etc/confmgr"
