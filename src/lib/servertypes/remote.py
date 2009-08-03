@@ -42,7 +42,7 @@ class ServerRemote(Server):
         if not os.path.exists(ssh_conf_file):
             raise ServerError("Cannot find SSH config file: %s"
                                         % ssh_conf_file)
-        self.mCommandUser = CommandUser("confmgr",
+        self.mCommandUser = CommandUser("vigiconf",
                 os.path.join(conf.libDir, "db", "ssh_config"))
 
         

@@ -9,7 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-BUILDROOT = $(CURDIR)/debian/vigilo-confmgr
+BUILDROOT = $(CURDIR)/debian/vigiconf
 
 build:
 
@@ -48,7 +48,7 @@ binary: install
 	dh_link
 	dh_strip
 	dh_compress
-	dh_fixperms -X /var -X /etc/confmgr/conf.d -X /etc/confmgr/templates -X /etc/confmgr/confmgr.conf
+	dh_fixperms -X /var -X /etc/vigilo-vigiconf/conf.d -X /etc/vigilo-vigiconf/vigiconf.conf
 #	dh_perl
 	dh_makeshlibs
 	dh_installdeb

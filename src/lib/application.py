@@ -78,7 +78,7 @@ class Application(object):
         """
         self.mName = iName
         self.mServersList = None
-        self.mUsername = "confmgr"
+        self.mUsername = "vigiconf"
         self.serversQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
         _AppConfig = conf.apps[iName]

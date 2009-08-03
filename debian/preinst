@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for confmgr
+# preinst script for vigiconf
 #
 # see: dh_installdeb(1)
 
@@ -16,9 +16,9 @@ set -e
 
 case "$1" in
     install|upgrade)
-        echo "Creating the confmgr user..."
-        groupadd confmgr || :
-        useradd -s /bin/bash -m -d /home/confmgr -g confmgr -c 'ConfMgr user' confmgr || :
+        echo "Creating the vigiconf user..."
+        groupadd vigiconf || :
+        useradd -s /bin/bash -m -d /var/lib/vigilo-vigiconf -g vigiconf -c 'VigiConf user' vigiconf || :
     ;;
 
     abort-upgrade)

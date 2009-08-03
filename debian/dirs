@@ -1,9 +1,8 @@
 usr/bin
 usr/sbin
-usr/share/confmgr
-var/lib/confmgr/deploy
-var/lib/confmgr/db
-var/lib/confmgr/revisions
-etc/confmgr/conf.d
-etc/confmgr/templates
-var/lock/confmgr
+usr/share/vigilo-vigiconf
+var/lib/vigilo-vigiconf/deploy
+var/lib/vigilo-vigiconf/db
+var/lib/vigilo-vigiconf/revisions
+etc/vigilo-vigiconf/conf.d
+var/lock/vigilo-vigiconf

@@ -1,12 +1,13 @@
-%define name    vigilo-confmgr
+%define module  vigiconf
+%define name    vigilo-%{module}
 %define version 1.36
-%define release 1
+%define release 2
 
 Name:       %{name}
 Summary:    Configuration manager for the supervision system
 Version:    %{version}
 Release:    %{release}
-Source0:    vigiconf.tar.bz2
+Source0:    %{module}.tar.bz2
 URL:        http://www.projet-vigilo.org
 Group:      System/Servers
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
@@ -17,18 +18,22 @@ Requires:   subversion
 Requires:   openssh-clients
 Requires:   tar
 Requires:   sec
-Requires:   xmllint
-Buildrequires: graphviz
+Requires:   libxml2-utils
+#Buildrequires: graphviz # Documentation generation
 Buildarch:  noarch
 
+# Renamed from vigilo-confmgr
+Obsoletes:  vigilo-confmgr < 1.36-2
+Provides:   vigilo-confmgr = %{version}-%{release}
+
+
 %description
-Configuration manager for the supervision system
 This program generates and pushes the configuration for the
 applications used in the supervision system.
 This application is part of the Vigilo Project <http://vigilo-project.org>
 
 %prep
-%setup -q -n vigiconf
+%setup -q -n %{module}
 
 %build
 
@@ -38,8 +43,8 @@ make DESTDIR=$RPM_BUILD_ROOT install
 
 
 %pre
-groupadd confmgr >/dev/null 2>&1 || :
-useradd -s /bin/bash -m -d /home/confmgr -g confmgr -c 'ConfMgr user' confmgr >/dev/null 2>&1 || :
+groupadd vigiconf >/dev/null 2>&1 || :
+useradd -s /bin/bash -m -d /var/lib/vigilo-vigiconf -g vigiconf -c 'VigiConf user' vigiconf >/dev/null 2>&1 || :
 
 
 %clean
@@ -48,16 +53,19 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc COPYING doc/*
-%{_bindir}/confmgr
-%{_bindir}/discoverator
-%{_sbindir}/dispatchator
-%{_datadir}/vigilo-confmgr/
-%config(noreplace) %attr(-,confmgr,confmgr) %{_sysconfdir}/confmgr/
+%{_bindir}/vigiconf
+%{_bindir}/vigiconf-discoverator
+%{_sbindir}/vigiconf-dispatchator
+%{_datadir}/vigilo-vigiconf/
+%config(noreplace) %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo-vigiconf/
 %config(noreplace) %{_sysconfdir}/cron.d/*
-%attr(-,confmgr,confmgr) /var/lock/vigilo-confmgr/
-%attr(-,confmgr,confmgr) /var/lib/vigilo-confmgr
+%attr(-,vigiconf,vigiconf) /var/lock/vigilo-vigiconf/
+%attr(-,vigiconf,vigiconf) /var/lib/vigilo-vigiconf
 
 
 %changelog
+* Thu Jul 30 2009 Aurelien Bompard <aurelien.bompard@c-s.fr> 1.36-2
+- rename confmgr to vigiconf
+
 * Fri Feb 06 2009 Thomas BURGUIERE <thomas.burguiere@c-s.fr>
 - first creation of the RPM from debian archive

@@ -6,33 +6,34 @@ Nagios :
 Modifier le fichier /etc/nagios3/nagios.cfg (voir le fichier nagios.cfg.diff
 présent dans ce répertoire)
 Copier le fichier en nagios-test.cfg et changer la ligne :
-  cfg_file=/etc/confmgr/prod/nagios.cfg
+  cfg_file=/etc/vigilo-vigiconf/prod/nagios.cfg
 en
-  cfg_file=/etc/confmgr/new/nagios.cfg
+  cfg_file=/etc/vigilo-vigiconf/new/nagios.cfg
 
 
 NDO :
 Mettre en place le lien symbolique :
-  /etc/nagios3/ndomod.cfg -> /etc/confmgr/prod/ndomod.cfg
+  /etc/nagios3/ndomod.cfg -> /etc/vigilo-vigiconf/prod/ndomod.cfg
 (penser à vérifier que ndo2db se lance au démarrage, voir /etc/default/ndoutils)
 
 
 SupNavigator :
 Mettre en place les liens symboliques :
-  /etc/apache2/conf.d/vigilo-supnavigator-proxy.conf -> /etc/confmgr/prod/apacheRP.conf
-  /etc/vigilo-supnavigator/navconf.py -> /etc/confmgr/prod/navconf.py
+  (debian) /etc/apache2/conf.d/vigilo-supnavigator-proxy.conf -> /etc/vigilo-vigiconf/prod/apacheRP.conf
+  (mandriva) /etc/httpd/conf/webapps.d/vigilo-supnavigator-proxy.conf -> /etc/vigilo-vigiconf/prod/apacheRP.conf
+  /etc/vigilo-supnavigator/navconf.py -> /etc/vigilo-vigiconf/prod/navconf.py
 
 
 RRDGraph :
 Mettre en place le lien symbolique :
-  ./vigilo-rrdgraph/rrdgraph.conf.py -> /etc/confmgr/prod/rrdgraph.conf.py
+  /etc/vigilo-rrdgraph/graphs.py -> /etc/vigilo-vigiconf/prod/rrdgraph.conf.py
 
 
 NagVis :
 Mettre en place les liens symboliques :
-  /etc/nagvis/nagvis.ini.php /etc/confmgr/prod/rrdgraph.conf.py
-  /etc/nagvis/maps -> /etc/confmgr/prod/nagvis/maps/
+  /etc/nagvis/nagvis.ini.php /etc/vigilo-vigiconf/prod/rrdgraph.conf.py
+  /etc/nagvis/maps -> /etc/vigilo-vigiconf/prod/nagvis/maps/
 
 StoreMe :
 Mettre en place le lien symbolique :
-  ./vigilo-storeme/storeme.conf.py -> /etc/confmgr/prod/storeme.conf.py
+  /etc/vigilo-storeme/storeme.conf.py -> /etc/vigilo-vigiconf/prod/storeme.conf.py

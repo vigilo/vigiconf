@@ -41,7 +41,7 @@ class NagiosTpl(Templator):
     def generate(self):
         """Generate files"""
         # pre-parse all the nagios-related templates
-        # usually in /etc/confmgr/templates/nagios/*.tpl
+        # usually in /etc/vigilo-vigiconf/templates/nagios/*.tpl
         self.templates = self.loadTemplates("nagios")
         files = {}
         for (hostname, ventilation) in self.mapping.iteritems():

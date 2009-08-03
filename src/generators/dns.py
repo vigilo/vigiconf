@@ -74,7 +74,7 @@ class DnsTpl(Templator):
                     tplval["base"], zone = _result
                     filename_db = "%s/%s/dns/db.%s" \
                                   % (self.baseDir, server, zone)
-                    filename_named = "%s/%s/dns/named.conf.confmgr" \
+                    filename_named = "%s/%s/dns/named.conf.vigiconf" \
                                      % (self.baseDir, server)
                     if not os.path.exists(filename_named):
                         self.templateCreate(filename_named,

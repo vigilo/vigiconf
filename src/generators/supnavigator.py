@@ -58,7 +58,7 @@ class SupNavigatorTpl(Templator):
             
             # Add data for the reports into the file
             # /etc/vigilo-supnavigator/navconf.py using the file
-            # /etc/confmgr/templates/supnavigator/reports.tpl
+            # /etc/vigilo-vigiconf/templates/supnavigator/reports.tpl
             self.templateAppend(fileName,
                                 templates['reports'],
                                 {'name':hostname,

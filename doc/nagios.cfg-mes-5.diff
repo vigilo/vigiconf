@@ -1,53 +1,40 @@
---- nagios.cfg.orig	2008-09-23 12:18:03.000000000 +0200
-+++ nagios.cfg	2008-09-25 15:19:07.000000000 +0200
-@@ -22,7 +22,10 @@
- # Debian uses by default a configuration directory where nagios3-common,
- # other packages and the local admin can dump or link configuration
- # files into.
--cfg_dir=/etc/nagios3/conf.d
-+#cfg_dir=/etc/nagios3/conf.d
+--- /etc/nagios/nagios.cfg.orig	2009-07-31 16:40:11.000000000 +0200
++++ /etc/nagios/nagios.cfg	2009-07-31 16:52:43.000000000 +0200
+@@ -46,16 +46,19 @@
+ #cfg_file=/etc/nagios/objects/printer.cfg
+ 
+ # load configuration files on the fly
+-cfg_dir=/etc/nagios/conf.d
++#cfg_dir=/etc/nagios/conf.d
+ 
+ # You can also tell Nagios to process all config files (with a .cfg
+ # extension) in a particular directory by using the cfg_dir
+ # directive as shown below:
+ 
+-cfg_dir=/etc/nagios/servers
+-cfg_dir=/etc/nagios/printers
+-cfg_dir=/etc/nagios/switches
+-cfg_dir=/etc/nagios/routers
++#cfg_dir=/etc/nagios/servers
++#cfg_dir=/etc/nagios/printers
++#cfg_dir=/etc/nagios/switches
++#cfg_dir=/etc/nagios/routers
 +
-+# ConfigMgr-generated conf file
-+cfg_file=/etc/confmgr/prod/nagios.cfg
- 
- # OBJECT CONFIGURATION FILE(S)
- # These are the object configuration files in which you define hosts,
-@@ -141,7 +144,7 @@
- # you will have to enable this.
- # Values: 0 = disable commands, 1 = enable commands
- 
--check_external_commands=0
-+check_external_commands=1
++# Vigiconf-generated conf file
++cfg_file=/etc/vigilo-vigiconf/prod/nagios.cfg
  
  
- 
-@@ -247,6 +250,7 @@
+ # OBJECT CACHE FILE
+@@ -245,7 +248,7 @@
  
  #broker_module=/somewhere/module1.o
  #broker_module=/somewhere/module2.o arg1 arg2=3 debug=0
-+broker_module=/usr/lib/ndoutils/ndomod-mysql-3x.o config_file=/etc/nagios3/ndomod.cfg
+-
++broker_module=/usr/lib/nagios/brokers/ndomod.o config_file=/etc/nagios/ndomod.cfg
  
  
- 
-@@ -275,7 +279,7 @@
- # If you want messages logged to the syslog facility, as well as the
- # Nagios log file set this option to 1.  If not, set it to 0.
- 
--use_syslog=1
-+use_syslog=0
- 
- 
- 
-@@ -320,7 +324,7 @@
- # statistics reporting, you do not need to enable this option.  In
- # this case, set the value to 0.
- 
--log_initial_states=0
-+log_initial_states=1
- 
- 
- 
-@@ -340,7 +344,7 @@
+ # LOG ROTATION METHOD
+@@ -338,7 +341,7 @@
  # this value to 0.  If passive checks should be logged, set
  # this value to 1.
  
@@ -56,7 +43,7 @@
  
  
  
-@@ -381,7 +385,7 @@
+@@ -379,7 +382,7 @@
  # program start time that an initial check of all services should
  # be completed.  Default is 30 minutes.
  
@@ -65,16 +52,7 @@
  
  
  
-@@ -422,7 +426,7 @@
- # program start time that an initial check of all hosts should
- # be completed.  Default is 30 minutes.
- 
--max_host_check_spread=30
-+max_host_check_spread=5
- 
- 
- 
-@@ -442,7 +446,7 @@
+@@ -440,7 +443,7 @@
  # This is the frequency (in seconds!) that Nagios will process
  # the results of host and service checks.
  
@@ -83,7 +61,7 @@
  
  
  
-@@ -601,8 +605,8 @@
+@@ -607,8 +610,8 @@
  # ocsp command, and performance data commands.  All values are in
  # seconds.
  
@@ -94,7 +72,7 @@
  event_handler_timeout=30
  notification_timeout=30
  ocsp_timeout=5
-@@ -721,7 +725,7 @@
+@@ -752,7 +755,7 @@
  # on what aggressive host check is or check out the source code in
  # base/checks.c
  
@@ -103,7 +81,7 @@
  
  
  
-@@ -798,7 +802,7 @@
+@@ -829,7 +832,7 @@
  # performance data.
  # Values: 1 = process performance data, 0 = do not process performance data
  
@@ -112,7 +90,7 @@
  
  
  
-@@ -982,7 +986,7 @@
+@@ -1013,7 +1016,7 @@
  # check the "freshness" of service check results.  If you have
  # disabled service freshness checking, this option has no effect.
  
@@ -121,7 +99,7 @@
  
  
  
-@@ -993,7 +997,7 @@
+@@ -1024,7 +1027,7 @@
  # manner.
  # Values: 1 = enabled freshness checking, 0 = disable freshness checking
  
@@ -130,7 +108,7 @@
  
  
  
-@@ -1002,7 +1006,7 @@
+@@ -1033,7 +1036,7 @@
  # check the "freshness" of host check results.  If you have
  # disabled host freshness checking, this option has no effect.
  
@@ -139,7 +117,7 @@
  
  
  
-@@ -1029,7 +1033,7 @@
+@@ -1060,7 +1063,7 @@
  # Values: 1 = enable flap detection
  #         0 = disable flap detection (default)
  
@@ -148,11 +126,11 @@
  
  
  
-@@ -1054,7 +1058,7 @@
+@@ -1085,7 +1088,7 @@
  #	strict-iso8601	(YYYY-MM-DDTHH:MM:SS)
  #
  
--date_format=iso8601
+-date_format=us
 +date_format=euro
  
  

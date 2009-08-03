@@ -21,10 +21,6 @@ define command{
         command_name    check_dhcp_sudo
         command_line    /usr/bin/sudo /usr/lib/nagios/plugins/check_dhcp -s $HOSTADDRESS$
 }
-define command{
-       command_name     check_nrpe
-       command_line     /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -a $ARG2$
-}
 define command {
         command_name    check_nrpe_rerouted
         command_line    /usr/lib/nagios/plugins/check_nrpe -H $ARG1$ -c $ARG2$ -a $ARG3$
@@ -55,11 +51,11 @@ define command{
 }
 define command{
         command_name    process-service-perfdata
-        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/confmgr/prod/perfdata/ -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
+        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/vigilo-vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
 }
 define command{
         command_name    process-host-perfdata
-        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/confmgr/prod/perfdata/ -H '$HOSTNAME$' -s 'HOST' -a '$HOSTSTATE$' -t '$LASTHOSTCHECK$' -v '$HOSTPERFDATA$'
+        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/vigilo-vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s 'HOST' -a '$HOSTSTATE$' -t '$LASTHOSTCHECK$' -v '$HOSTPERFDATA$'
 }
 define command{
 	command_name            Collector

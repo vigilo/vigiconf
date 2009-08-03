@@ -2,13 +2,13 @@
 
 dir=@DATADIR@
 
-if [ "`whoami`" != "confmgr" ]; then
-	echo "I must be run by the 'confmgr' user !"
+if [ "`whoami`" != "vigiconf" ]; then
+	echo "I must be run by the 'vigiconf' user !"
 	exit 1
 fi
 
 function usage() {
-	echo "Usage: confmgr <generator|validator|dispatchator|conf|ventilator>"
+	echo "Usage: vigiconf <generator|validator|dispatchator|conf|ventilator>"
 	exit 2
 }
 

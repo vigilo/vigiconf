@@ -21,7 +21,7 @@ class Dispatchator(unittest.TestCase):
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
         os.mkdir(self.basedir)
-        conf.baseConfDir = os.path.join(self.tmpdir, "confmgr-conf")
+        conf.baseConfDir = os.path.join(self.tmpdir, "vigiconf-conf")
         os.mkdir(conf.baseConfDir)
         for dir in [ "new", "old", "prod" ]:
             os.mkdir( os.path.join(conf.baseConfDir, dir) )
@@ -52,7 +52,7 @@ class Dispatchator(unittest.TestCase):
         """Call after every test case."""
         shutil.rmtree(self.tmpdir)
         # Restore baseConfDir
-        conf.baseConfDir = "/tmp/confmgr-conf"
+        conf.baseConfDir = "/tmp/vigiconf-conf"
 
     def test_deploy(self):
         """Globally test the deployment"""

@@ -1,10 +1,11 @@
-NAME = confmgr
-CONFDIR = /etc/$(NAME)
+NAME = vigiconf
+PKGNAME = vigilo-$(NAME)
+CONFDIR = /etc/$(PKGNAME)
 BINDIR = /usr/bin
 SBINDIR = /usr/sbin
-DATADIR = /usr/share/vigilo-$(NAME)
-LOCALSTATEDIR = /var/lib/vigilo-$(NAME)
-LOCKDIR = /var/lock/vigilo-$(NAME)
+DATADIR = /usr/share/$(PKGNAME)
+LOCALSTATEDIR = /var/lib/$(PKGNAME)
+LOCKDIR = /var/lock/$(PKGNAME)
 DESTDIR = 
 
 all:
@@ -13,7 +14,7 @@ all:
 install_users:
 	@echo "Creating the $(NAME) user..."
 	-groupadd $(NAME)
-	-useradd -s /bin/bash -m -d /home/$(NAME) -g $(NAME) -c 'VigiConf user' $(NAME)
+	-useradd -s /bin/bash -m -d $(LOCALSTATEDIR) -g $(NAME) -c 'VigiConf user' $(NAME)
 
 install:
 	## Application
@@ -34,12 +35,13 @@ install:
 	-[ -d $(DESTDIR)$(CONFDIR)/conf.d.example ] && \
 		rm -rf $(DESTDIR)$(CONFDIR)/conf.d.example
 	cp -pr src/conf.d $(DESTDIR)$(CONFDIR)/conf.d.example
-	mv -f $(DESTDIR)$(CONFDIR)/conf.d.example/README.source $(DESTDIR)$(CONFDIR)/conf.d/
+	mv -f $(DESTDIR)$(CONFDIR)/conf.d.example/README.source $(DESTDIR)$(CONFDIR)/
 	## Cleanup
 	find $(DESTDIR)$(CONFDIR)/conf.d.example $(DESTDIR)$(DATADIR) -type d -name .svn -print | xargs rm -rf
+	rm -f $(DESTDIR)$(CONFDIR)/conf.d.example/004-non-integrated.py
 	## Var data
 	-mkdir -p $(DESTDIR)$(LOCALSTATEDIR)/{db,deploy,revisions}
-	-mkdir -p $(DESTDIR)/var/lock/vigilo-$(NAME)
+	-mkdir -p $(DESTDIR)$(LOCKDIR)
 	# Don't overwrite
 	[ -f $(DESTDIR)$(LOCALSTATEDIR)/db/ssh_config ] || \
 		install -p -m 644 pkg/ssh_config $(DESTDIR)$(LOCALSTATEDIR)/db/ssh_config
@@ -50,15 +52,16 @@ install:
 	sed -e 's,@DATADIR@,$(DATADIR),g' pkg/$(NAME).sh > $(DESTDIR)$(BINDIR)/$(NAME)
 	chmod 755 $(DESTDIR)$(BINDIR)/$(NAME)
 	touch --reference pkg/$(NAME).sh $(DESTDIR)$(BINDIR)/$(NAME)
-	sed -e 's,@DATADIR@,$(DATADIR),g' pkg/discoverator.sh > $(DESTDIR)$(BINDIR)/discoverator
-	chmod 755 $(DESTDIR)$(BINDIR)/discoverator
-	touch --reference pkg/discoverator.sh $(DESTDIR)$(BINDIR)/discoverator
+	sed -e 's,@DATADIR@,$(DATADIR),g' pkg/vigiconf-discoverator.sh > $(DESTDIR)$(BINDIR)/vigiconf-discoverator
+	chmod 755 $(DESTDIR)$(BINDIR)/vigiconf-discoverator
+	touch --reference pkg/vigiconf-discoverator.sh $(DESTDIR)$(BINDIR)/vigiconf-discoverator
 	-mkdir -p $(DESTDIR)$(SBINDIR)
-	install -p -m 755 pkg/dispatchator.sh $(DESTDIR)$(SBINDIR)/dispatchator
+	install -p -m 755 pkg/vigiconf-dispatchator.sh $(DESTDIR)$(SBINDIR)/vigiconf-dispatchator
+	touch --reference pkg/vigiconf-dispatchator.sh $(DESTDIR)$(SBINDIR)/vigiconf-dispatchator
 	## Cron job (don't overwrite)
 	-mkdir -p $(DESTDIR)/etc/cron.d/
-	[ -f $(DESTDIR)/etc/cron.d/$(NAME) ] || \
-		install -p -m 644 pkg/cronjobs $(DESTDIR)/etc/cron.d/$(NAME)
+	[ -f $(DESTDIR)/etc/cron.d/$(PKGNAME) ] || \
+		install -p -m 644 pkg/cronjobs $(DESTDIR)/etc/cron.d/$(PKGNAME)
 	## information about the sudo setup for the user
 
 install_permissions:
@@ -81,7 +84,7 @@ lint: $(wildcard src/*.py) src/lib src/generators
 	PYTHONPATH=src pylint $^
 
 tests:
-	VIGICONF_MAINCONF=src/confmgr-test.conf nosetests --with-coverage --cover-inclusive --cover-erase \
+	VIGICONF_MAINCONF=src/vigiconf-test.conf nosetests --with-coverage --cover-inclusive --cover-erase \
 		$(foreach mod,$(filter-out debug,$(patsubst src/%.py,%,$(wildcard src/*.py))),--cover-package=$(mod)) \
 		--cover-package=lib --cover-package=generators tests
 

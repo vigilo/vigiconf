@@ -1,5 +1,5 @@
 #
-# Regular cron jobs for the confmgr package
+# Regular cron jobs for the vigiconf package
 #
-#55 * * * *	confmgr		/usr/bin/confmgr -d > /dev/null 2>&1
-#00 * * * *	confmgr		/usr/bin/confmgr -r > /dev/null 2>&1
+#55 * * * *	vigiconf		/usr/bin/vigiconf -d > /dev/null 2>&1
+#00 * * * *	vigiconf		/usr/bin/vigiconf -r > /dev/null 2>&1

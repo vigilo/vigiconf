@@ -360,13 +360,13 @@ def loadhosts(source):
 
 
 # Initialize global paths
-dataDir = "/usr/share/confmgr"
-libDir = "/var/lib/vigilo-confmgr"
-confDir = "/etc/confmgr/conf.d"
-templatesDir = "/etc/confmgr/conf.d/templates"
-baseConfDir = "/etc/confmgr"
-lockFile = "/var/lock/confmgr/confmgr.token"
-svnUsername = "confmgr"
+dataDir = "/usr/share/vigilo-vigiconf"
+libDir = "/var/lib/vigilo-vigiconf"
+confDir = "/etc/vigilo-vigiconf/conf.d"
+templatesDir = "/etc/vigilo-vigiconf/conf.d/filetemplates"
+baseConfDir = "/etc/vigilo-vigiconf"
+lockFile = "/var/lock/vigilo-vigiconf/vigiconf.token"
+svnUsername = "vigiconf"
 svnPassword = "my_pass_word"
 svnRepository = "file:///var/lib/svn"
 
@@ -386,7 +386,7 @@ mode = "onedir"
 confid = ""
 
 # Load the global paths
-confFilePath = os.getenv("VIGICONF_MAINCONF", "/etc/confmgr/confmgr.conf")
+confFilePath = os.getenv("VIGICONF_MAINCONF", "/etc/vigilo-vigiconf/vigiconf.conf")
 execfile(confFilePath, globals())
 
 # Initialize global objects and only use those

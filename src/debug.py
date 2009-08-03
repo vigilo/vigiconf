@@ -14,7 +14,7 @@ def main():
 
     os.environ["VIGICONF_MAINCONF"] = os.path.join(
                                     os.path.abspath(os.path.dirname(__file__)),
-                                    "confmgr-test.conf")
+                                    "vigiconf-test.conf")
 
     module = sys.argv[1]
 
