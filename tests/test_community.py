@@ -40,15 +40,19 @@ class EnterpriseEdition(unittest.TestCase):
         # Create appsGroupsByServer mapping (Enterprise Edition)
         conf.appsGroupsByServer = {
                     "collect": {
+                        "P-F":     ["sup.example.com"],
                         "Servers": ["sup.example.com"],
                     },
                     "metrology": {
+                        "P-F":     ["sup.example.com"],
                         "Servers": ["sup.example.com"],
                     },
                     "corrpres": {
+                        "P-F":     ["sup.example.com"],
                         "Servers": ["sup.example.com"],
                     },
                     "reporting": {
+                        "P-F":     ["sup.example.com"],
                         "Servers": ["sup.example.com"],
                     },
                 }
