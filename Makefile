@@ -8,6 +8,12 @@ LOCALSTATEDIR = /var/lib/$(PKGNAME)
 LOCKDIR = /var/lock/$(PKGNAME)
 DESTDIR = 
 
+BUILDENV = ../glue
+PYTHON = $(BUILDENV)/bin/python
+
+$(PYTHON):
+	make -C $(BUILDENV) bin/python
+
 all:
 	@echo "Targets: install, clean, tarball, apidoc, lint"
 
@@ -80,11 +86,14 @@ doc/apidoc/index.html: $(wildcard src/*.py) src/lib src/generators
 		epydoc -o $(dir $@) -v --name Vigilo --url http://www.projet-vigilo.org \
 		--docformat=epytext $^
 
-lint: $(wildcard src/*.py) src/lib src/generators
-	PYTHONPATH=src pylint $^
+lint: $(PYTHON)
+	-PYTHONPATH=src VIGICONF_MAINCONF=src/vigiconf-test.conf \
+		$(PYTHON) $$(which pylint) \
+		--rcfile=$(BUILDENV)/extra/pylintrc \
+		$(wildcard src/*.py) src/lib src/generators
 
 tests:
-	VIGICONF_MAINCONF=src/vigiconf-test.conf nosetests --with-coverage --cover-inclusive --cover-erase \
+	VIGICONF_MAINCONF=src/vigiconf-test.conf nosetests --with-coverage \
 		$(foreach mod,$(filter-out debug,$(patsubst src/%.py,%,$(wildcard src/*.py))),--cover-package=$(mod)) \
 		--cover-package=lib --cover-package=generators tests
 
