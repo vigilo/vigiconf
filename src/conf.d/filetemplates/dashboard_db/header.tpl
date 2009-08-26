@@ -1,6 +1,6 @@
 -- confid:%(confid)s
 
-USE neb_2
+USE dashboard
 
 DROP TABLE IF EXISTS `tags`;
 CREATE TABLE IF NOT EXISTS `tags` (

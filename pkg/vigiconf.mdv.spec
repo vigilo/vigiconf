@@ -1,7 +1,7 @@
 %define module  vigiconf
 %define name    vigilo-%{module}
 %define version 1.36
-%define release 2
+%define release 3
 
 Name:       %{name}
 Summary:    Configuration manager for the supervision system
@@ -64,6 +64,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Aug 26 2009 Aurelien Bompard <aurelien.bompard@c-s.fr> - 1.36-3
+- rebuild
+
 * Thu Jul 30 2009 Aurelien Bompard <aurelien.bompard@c-s.fr> 1.36-2
 - rename confmgr to vigiconf
 
