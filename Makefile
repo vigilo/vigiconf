@@ -92,8 +92,8 @@ lint: $(PYTHON)
 		--rcfile=$(BUILDENV)/extra/pylintrc \
 		$(wildcard src/*.py) src/lib src/generators
 
-tests:
-	VIGICONF_MAINCONF=src/vigiconf-test.conf nosetests --with-coverage \
+tests: $(BUILDENV)/bin/python
+	VIGICONF_MAINCONF=src/vigiconf-test.conf $(BUILDENV)/bin/nosetests --with-coverage \
 		$(foreach mod,$(filter-out debug,$(patsubst src/%.py,%,$(wildcard src/*.py))),--cover-package=$(mod)) \
 		--cover-package=lib --cover-package=generators tests
 
