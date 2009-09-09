@@ -1,5 +1,6 @@
-NAME = vigiconf
+NAME := vigiconf
 PKGNAME = vigilo-$(NAME)
+include ../glue/Makefile.common
 CONFDIR = /etc/$(PKGNAME)
 BINDIR = /usr/bin
 SBINDIR = /usr/sbin
@@ -7,12 +8,6 @@ DATADIR = /usr/share/$(PKGNAME)
 LOCALSTATEDIR = /var/lib/$(PKGNAME)
 LOCKDIR = /var/lock/$(PKGNAME)
 DESTDIR = 
-
-BUILDENV = ../glue
-PYTHON = $(BUILDENV)/bin/python
-
-$(PYTHON):
-	make -C $(BUILDENV) bin/python
 
 all:
 	@echo "Targets: install, clean, tarball, apidoc, lint"
@@ -75,9 +70,6 @@ install_permissions:
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCKDIR)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
 
-clean:
-	find $(CURDIR) -name "*.pyc" -exec rm {} \;
-	find $(CURDIR) -name "*~" -exec rm {} \;
 
 apidoc: doc/apidoc/index.html
 doc/apidoc/index.html: $(wildcard src/*.py) src/lib src/generators
