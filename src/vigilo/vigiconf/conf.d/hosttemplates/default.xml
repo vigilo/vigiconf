@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!-- Default host template, for the whole domain -->
+<template name="default">
+    <!-- Nagios host template -->
+    <attribute name="hostTPL">generic-active-host</attribute>
+    <!-- Nagios host availablility check -->
+    <attribute name="checkHostCMD">check-host-alive</attribute>
+    <!-- Default SNMP values -->
+    <attribute name="snmpVersion">2</attribute>
+    <attribute name="community">public</attribute>
+    <attribute name="port">161</attribute>
+    <attribute name="snmpOIDsPerPDU">10</attribute>
+    <test name="UpTime"/>
+</template>
+
