@@ -26,12 +26,16 @@ handled by a monitoring server, by invoking the ventilator module (see its
 documentation), and launches all generators with both pieces of data.
 """
 
+from __future__ import absolute_import
+
 import os
 import sys
 
-import conf
-from lib.validator import Validator
-import generators
+from vigilo.common.conf import settings
+
+from . import conf
+from .lib.validator import Validator
+from . import generators
 
 __docformat__ = "epytext"
 
@@ -40,11 +44,11 @@ def getventilation():
     """Wrapper for the ventilator"""
     if hasattr(conf, "appsGroupsByServer"):
         try:
-            import lib.ventilator
+            from .lib import ventilator
         except ImportError:
             # Community Edition, ventilator is not available.
             return get_local_ventilation()
-        return lib.ventilator.findAServerForEachHost()
+        return ventilator.findAServerForEachHost()
     else:
         return get_local_ventilation()
 
@@ -75,7 +79,7 @@ def generate(gendir):
         sys.stderr.write("Generation Failed!!\n")
         return False
     else:
-        if not getattr(conf, "silent", False):
+        if not settings.get("SILENT", False):
             sys.stdout.write("\n".join(v.getSummary(details=True, stats=True)
                                       +['']))
             sys.stdout.write("Generation Successful\n")
@@ -84,7 +88,7 @@ def generate(gendir):
 if __name__ == "__main__":
     #from pprint import pprint; pprint(globals())
     conf.loadConf()
-    _gendir = os.path.join(conf.libDir, "deploy")
+    _gendir = os.path.join(conf.LIBDIR, "deploy")
     os.system("rm -rf %s/*" % _gendir)
     if 0:
         import hotshot, hotshot.stats

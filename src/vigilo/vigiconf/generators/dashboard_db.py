@@ -20,11 +20,13 @@
 
 """Generator for the VigiBoard database"""
             
+from __future__ import absolute_import
+
 import os
 import os.path
 
-import conf
-from generators import Templator 
+from .. import conf
+from . import Templator 
 
 class DashboardDBTpl(Templator):
     """Generator for the VigiBoard database"""

@@ -5,9 +5,9 @@ Test that the generation works properly
 
 import sys, os, unittest, tempfile, shutil, glob, re
 
-import conf
-import generator
-from lib.confclasses.host import Host
+import vigilo.vigiconf.conf as conf
+import vigilo.vigiconf.generator as generator
+from vigilo.vigiconf.lib.confclasses.host import Host
 
 from . import reload_conf, setup_tmpdir
 
@@ -21,7 +21,7 @@ class Generator(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         conf.hosttemplatefactory.load_templates()
         reload_conf()
-        self.host = Host("testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
         self.mapping = generator.getventilation()
 
     def tearDown(self):
@@ -35,12 +35,13 @@ class Generator(unittest.TestCase):
     def test_generation(self):
         """Globally test the generation"""
         # Fill with random definitions...
-        self.host.add_test("Interface", label="eth1", ifname="eth1")
+        test_list = conf.testfactory.get_test("Interface", self.host.classes)
+        self.host.add_tests(test_list, label="eth1", ifname="eth1")
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                             "GAUGE", label="TestAddCSLabel")
-        host2 = Host("testserver2", "192.168.1.2", "Servers")
+        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
         host2.add_collector_service( "TestAddCSReRoute", "TestAddCSReRouteFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )
@@ -49,7 +50,8 @@ class Generator(unittest.TestCase):
 
     def test_add_metro_service_nagios(self):
         """Test for the add_metro_service method"""
-        self.host.add_test("Interface", label="eth1", ifname="eth1")
+        test_list = conf.testfactory.get_test("Interface", self.host.classes)
+        self.host.add_tests(test_list, label="eth1", ifname="eth1")
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         generator.generate(self.basedir)
         nagiosconf = os.path.join(self.basedir,
@@ -87,6 +89,8 @@ class Generator(unittest.TestCase):
 
     def test_add_tag_service(self):
         """Test for the add_tag host method on services"""
+        test_list = conf.testfactory.get_test("UpTime", self.host.classes)
+        self.host.add_tests(test_list)
         self.host.add_tag("UpTime", "security", 1)
         generator.generate(self.basedir)
         sqlconf = os.path.join(self.basedir,

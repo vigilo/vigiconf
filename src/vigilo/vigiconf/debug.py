@@ -4,6 +4,8 @@
 This module is used to test the different parts of VigiConf
 """
 
+from __future__ import absolute_import
+
 import sys
 import os
 
@@ -19,7 +21,7 @@ def main():
     module = sys.argv[1]
 
     if module == "conf":
-        import conf
+        from . import conf
         import pprint
         conf.loadConf()
         print "hostsConf="
@@ -32,10 +34,10 @@ def main():
         pprint.pprint(conf.dynamicGroups)
 
     elif module == "generator":
-        import conf
-        import generator
+        from . import conf
+        from . import generator
         conf.loadConf()
-        _gendir = os.path.join(conf.libDir, "deploy")
+        _gendir = os.path.join(conf.LIBDIR, "deploy")
         os.system("rm -rf %s/*" % _gendir)
         if 0:
             import hotshot, hotshot.stats

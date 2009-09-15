@@ -2,6 +2,8 @@
 Generators for the Vigilo Config Manager
 """
 
+from __future__ import absolute_import
+
 import glob
 import sys
 import os
@@ -9,7 +11,7 @@ import os.path
 import shutil
 import types
 
-import conf
+from .. import conf
 
 class Templator(object):
     """
@@ -127,7 +129,7 @@ class Templator(object):
         @type  subdir: C{str}
         """
         templates = {}
-        templates_path = os.path.join(conf.templatesDir, subdir)
+        templates_path = os.path.join(conf.CONFDIR, "filetemplates", subdir)
         for tpl in glob.glob("%s/*.tpl" % templates_path):
             name = os.path.basename(tpl)[:-4]
             f = open(tpl, "r")

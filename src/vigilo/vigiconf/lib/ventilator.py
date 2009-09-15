@@ -26,10 +26,12 @@ for a given host defined in the configuration.
 This file is part of the Enterprise Edition
 """
 
+from __future__ import absolute_import
+
 import os.path
 import pickle
 
-import conf
+from .. import conf
 
 __docformat__ = "epytext"
 
@@ -71,7 +73,7 @@ def getFileNameFromServerName(serverName):
     @type  serverName: C{str}
     @return: path to the pickle file
     """
-    return "%s/%s.pkl" % (os.path.join(conf.libDir, "db"), serverName)
+    return "%s/%s.pkl" % (os.path.join(conf.LIBDIR, "db"), serverName)
 
 def appendHost(serverName, host):
     """

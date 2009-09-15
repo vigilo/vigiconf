@@ -20,14 +20,16 @@
 This module contains the classes needed to handle host templates
 """
 
+from __future__ import absolute_import
+
 import os
 import copy
 import subprocess
 from xml.etree import ElementTree as ET # Python 2.5
 
-import conf
-from lib import ParsingError
-import lib.external.topsort as topsort
+from vigilo.common.conf import settings
+from .. import ParsingError
+from ..external import topsort
 
 
 class HostTemplate(object):
@@ -36,16 +38,13 @@ class HostTemplate(object):
 
     @ivar name: the template name
     @type name: C{str}
-    @ivar htf: the host template factory from the conf module
-    @type htf: L{HostTemplateFactory}
-    @ivar parent: the name of the parent host template
-    @type parent: C{str} or C{list} of C{str}
+    @ivar data: the dict to return to the factory
+    @type data: L{dict}
     """
 
-    def __init__(self, name, parent=None):
-        self.htf = conf.hosttemplatefactory
+    def __init__(self, name):
         self.name = name
-        self.htf.templates[self.name] = {
+        self.data = {
                 "parent": [],
                 "tests": [],
                 "groups": [],
@@ -53,8 +52,6 @@ class HostTemplate(object):
             }
         if name != "default":
             self.add_parent("default")
-        if parent:
-            self.add_parent(parent)
 
     def add_parent(self, p):
         """
@@ -65,7 +62,7 @@ class HostTemplate(object):
         """
         if not isinstance(p, list): # convert to list
             p = [p,]
-        self.htf.templates[self.name]["parent"].extend(p)
+        self.data["parent"].extend(p)
 
     def add_test(self, testname, **args):
         """
@@ -75,12 +72,12 @@ class HostTemplate(object):
         @param args: the test arguments
         @type  args: C{dict}
         """
-        if not self.htf.templates[self.name].has_key("tests"):
-            self.htf.templates[self.name]["tests"] = []
+        if not self.data.has_key("tests"):
+            self.data["tests"] = []
         t_dict = {"name": testname}
         if args:
             t_dict["args"] = args
-        self.htf.templates[self.name]["tests"].append(t_dict)
+        self.data["tests"].append(t_dict)
 
     def add_group(self, *args):
         """
@@ -88,10 +85,10 @@ class HostTemplate(object):
         @param args: the groups to add
         @type  args: C{str} or C{list} of C{str}
         """
-        if not self.htf.templates[self.name].has_key("groups"):
-            self.htf.templates[self.name]["groups"] = []
+        if not self.data.has_key("groups"):
+            self.data["groups"] = []
         for group in args:
-            self.htf.templates[self.name]["groups"].append(group)
+            self.data["groups"].append(group)
 
     def add_attribute(self, attrname, value):
         """
@@ -101,9 +98,9 @@ class HostTemplate(object):
         @param value: the attribute value
         @type  value: anything
         """
-        if not self.htf.templates[self.name].has_key("attributes"):
-            self.htf.templates[self.name]["attributes"] = {}
-        self.htf.templates[self.name]["attributes"][attrname] = value
+        if not self.data.has_key("attributes"):
+            self.data["attributes"] = {}
+        self.data["attributes"][attrname] = value
 
 
 class HostTemplateFactory(object):
@@ -136,10 +133,13 @@ class HostTemplateFactory(object):
 
     templates = {}
 
-    def __init__(self):
-        self.path = [ os.path.join(conf.dataDir, "conf.d", "hosttemplates"),
-                      os.path.join(conf.confDir, "hosttemplates"),
+    def __init__(self, testfactory):
+        self.path = [
+                      os.path.join(
+                        settings.get("CONFDIR", "/etc/vigilo-vigiconf/conf.d"),
+                        "hosttemplates"),
                     ]
+        self.testfactory = testfactory
 
 
     def load_templates(self):
@@ -166,7 +166,8 @@ class HostTemplateFactory(object):
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}
         """
-        dtd = os.path.join(conf.dataDir, "validation", "dtd", "hosttemplate.dtd")
+        dtd = os.path.join(os.path.dirname(__file__), "..", "..",
+                           "validation", "dtd", "hosttemplate.dtd")
         result = subprocess.call(["xmllint", "--noout", "--dtdvalid", dtd, source])
         if result != 0:
             raise ParsingError("XML validation failed")
@@ -205,8 +206,18 @@ class HostTemplateFactory(object):
                         args[arg.attrib["name"].strip()] = arg.text.strip()
                     cur_tpl.add_test(testname, **args)
                 elif elem.tag == "template":
+                    self.register(cur_tpl)
                     cur_tpl = None
                     elem.clear()
+
+    def register(self, hosttemplate):
+        """
+        Store a hosttemplate's data in the main hashmap
+
+        @param hosttemplate: The host template to register
+        @type  hosttemplate: L{HostTemplate}
+        """
+        self.templates[hosttemplate.name] = hosttemplate.data
 
     def apply_inheritance(self):
         """
@@ -281,13 +292,14 @@ class HostTemplateFactory(object):
         # tests
         if tpl.has_key("tests"):
             for testdict in tpl["tests"]:
+                test_list = self.testfactory.get_test(testdict["name"], host.classes)
                 if testdict.has_key("args") and testdict["args"]:
-                    host.add_test(testdict["name"], **testdict["args"])
+                    host.add_tests(test_list, **testdict["args"])
                 else:
-                    host.add_test(testdict["name"])
+                    host.add_tests(test_list)
         # attributes
         if tpl.has_key("attributes"):
-            conf.hostsConf[host.name].update(tpl["attributes"])
+            host.update_attributes(tpl["attributes"])
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

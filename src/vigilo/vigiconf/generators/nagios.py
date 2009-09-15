@@ -20,10 +20,12 @@
 
 """Generator for Nagios"""
 
+from __future__ import absolute_import
+
 import os.path
 
-import conf
-from generators import Templator 
+from .. import conf
+from . import Templator 
 
 class NagiosTpl(Templator):
     """

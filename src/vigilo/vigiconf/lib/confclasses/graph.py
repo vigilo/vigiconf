@@ -20,7 +20,8 @@
 This module contains the Graph class
 """
 
-import conf
+from __future__ import absolute_import
+
 
 class Graph(object):
     """
@@ -32,9 +33,11 @@ class Graph(object):
     method to add the graph to a host definition.
     """
 
-    def __init__(self, title, dslist, template, vlabel,
+    def __init__(self, hosts, title, dslist, template, vlabel,
                     group="General", factors=None):
         """
+        @param hosts: the main hosts configuration dictionary
+        @type  hosts: C{dict}
         @param title: The graph title
         @type  title: C{str}
         @param dslist: The list of datasources to include
@@ -48,6 +51,7 @@ class Graph(object):
         @param factors: the factors to use, if any
         @type  factors: C{dict}
         """
+        self.hosts = hosts
         self.title = title
         self.dslist = dslist
         self.template = template
@@ -64,18 +68,18 @@ class Graph(object):
         @param hostname: the hostname to add the graph to
         @type  hostname: C{str}
         """
-        if not conf.hostsConf[hostname].has_key("graphItems"):
-            conf.hostsConf[hostname]["graphItems"] = {}
-        conf.hostsConf[hostname]["graphItems"].update({
+        if not self.hosts[hostname].has_key("graphItems"):
+            self.hosts[hostname]["graphItems"] = {}
+        self.hosts[hostname]["graphItems"].update({
                         self.title: {'template': self.template,
                                      'vlabel': self.vlabel,
                                      'ds': self.dslist,
                                      'factors': self.factors,
                                      }
                         })
-        if not conf.hostsConf[hostname].has_key("graphGroups"):
-            conf.hostsConf[hostname]["graphGroups"] = {}
-        if self.group not in conf.hostsConf[hostname]["graphGroups"]:
-            conf.hostsConf[hostname]["graphGroups"][self.group] = set()
-        conf.hostsConf[hostname]["graphGroups"][self.group].add(self.title)
+        if not self.hosts[hostname].has_key("graphGroups"):
+            self.hosts[hostname]["graphGroups"] = {}
+        if self.group not in self.hosts[hostname]["graphGroups"]:
+            self.hosts[hostname]["graphGroups"][self.group] = set()
+        self.hosts[hostname]["graphGroups"][self.group].add(self.title)
 

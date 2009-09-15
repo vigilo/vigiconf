@@ -21,12 +21,14 @@
 Handles the revisions deployed, running, planned on the ConfMgr system
 """
 
+from __future__ import absolute_import
+
 import re
 import locale
 import syslog
 
-import conf
-from lib import ConfMgrError
+from .. import conf
+from . import ConfMgrError
 
 
 class RevisionManagerError(ConfMgrError):
@@ -214,9 +216,9 @@ class RevisionManager(object):
         @type  iServer: L{Server<lib.server.Server>}
         """
         self.setDeployed(self.getRevision(iServer,
-                         '%s/new/revisions.txt' % conf.baseConfDir))
+                         '%s/new/revisions.txt' % conf.TARGETCONFDIR))
         self.setInstalled(self.getRevision(iServer,
-                          '%s/prod/revisions.txt' % conf.baseConfDir))
+                          '%s/prod/revisions.txt' % conf.TARGETCONFDIR))
         self.setPrevious(self.getRevision(iServer,
-                         '%s/old/revisions.txt' % conf.baseConfDir))    
+                         '%s/old/revisions.txt' % conf.TARGETCONFDIR))    
 

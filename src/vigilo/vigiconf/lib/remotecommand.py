@@ -20,10 +20,12 @@ This module wraps SSH commands to copy files, launch remote commands.
 This file is part of the Enterprise Edition
 """
 
+from __future__ import absolute_import
+
 import re
 import doctest
 
-from lib.systemcommand import SystemCommand, SystemCommandError
+from .systemcommand import SystemCommand, SystemCommandError
 
 
 class CommandUser(object):

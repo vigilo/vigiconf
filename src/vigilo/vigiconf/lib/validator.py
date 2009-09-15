@@ -20,7 +20,9 @@
 """ ConfigMgrData Consistancy validation tool
 """
 
-import conf
+from __future__ import absolute_import
+
+from .. import conf
 
 class Validator(object):
     """

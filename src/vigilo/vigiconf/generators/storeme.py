@@ -20,11 +20,13 @@
 
 """Generator for StoreMe, the RRD graph generator"""
 
+from __future__ import absolute_import
+
 import os.path
 import base64
 
-import conf
-from generators import Templator 
+from .. import conf
+from . import Templator 
 
 class StoreMeTpl(Templator):
     """Generator for StoreMe, the RRD graph generator"""

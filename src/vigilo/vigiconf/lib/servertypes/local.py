@@ -18,9 +18,13 @@
 The local host Server instance
 """
 
-import conf
-from lib.server import Server
-from lib.systemcommand import SystemCommand
+from __future__ import absolute_import
+
+from vigilo.common.conf import settings
+
+from ... import conf
+from ..server import Server
+from ..systemcommand import SystemCommand
 
 class ServerLocal(Server):
     """The local host"""
@@ -37,7 +41,7 @@ class ServerLocal(Server):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = SystemCommand(iCommand)
-        c.simulate = getattr(conf, "simulate", False)
+        c.simulate = settings.get("SIMULATE", False)
         return c
 
     def _builddepcmd(self):
@@ -45,12 +49,12 @@ class ServerLocal(Server):
         Build the deployment command line
         """
         _commandline = "sudo rm -rf %s/new && " \
-                        % conf.baseConfDir \
+                        % conf.TARGETCONFDIR \
                       +"sudo cp -pr %s/%s %s/new && " \
                         % (self.getBaseDir(), self.getName(),
-                           conf.baseConfDir) \
+                           conf.TARGETCONFDIR) \
                       +"sudo chmod -R o-w %s/new" \
-                        % conf.baseConfDir
+                        % conf.TARGETCONFDIR
         return _commandline
 
 

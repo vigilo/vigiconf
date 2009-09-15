@@ -20,12 +20,16 @@ Describes a Server where to push and commit new software configurations
 This file is part of the Enterprise Edition
 """
 
+from __future__ import absolute_import
+
 import os
 
-import conf
-from lib.server import Server, ServerError
-from lib.systemcommand import SystemCommand
-from lib.remotecommand import RemoteCommand, CommandUser
+from vigilo.common.conf import settings
+
+from ... import conf
+from ..server import Server, ServerError
+from ..systemcommand import SystemCommand
+from ..remotecommand import RemoteCommand, CommandUser
 
 class ServerRemote(Server):
     """
@@ -38,12 +42,12 @@ class ServerRemote(Server):
         # Superclass constructor
         Server.__init__(self, iName)
         # mCommandUser
-        ssh_conf_file = os.path.join(conf.libDir, "db", "ssh_config")
+        ssh_conf_file = os.path.join(conf.LIBDIR, "db", "ssh_config")
         if not os.path.exists(ssh_conf_file):
             raise ServerError("Cannot find SSH config file: %s"
                                         % ssh_conf_file)
         self.mCommandUser = CommandUser("vigiconf",
-                os.path.join(conf.libDir, "db", "ssh_config"))
+                os.path.join(conf.LIBDIR, "db", "ssh_config"))
 
         
     def setCommandUser(self, iUser):
@@ -66,7 +70,7 @@ class ServerRemote(Server):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = RemoteCommand(self.getName(), iCommand, self.getCommandUser())
-        c.simulate = getattr(conf, "simulate", False)
+        c.simulate = settings.get("SIMULATE", False)
         return c
 
     def _builddepcmd(self):
@@ -77,7 +81,7 @@ class ServerRemote(Server):
         # The output is the standard output
         _localCommandStr = "tar -C %s/%s -cf - . " % \
                            (self.getBaseDir(), self.getName())
-        _remoteCommandStr = "cd %s && " % conf.baseConfDir \
+        _remoteCommandStr = "cd %s && " % conf.TARGETCONFDIR \
                            +"sudo rm -rf new && " \
                            +"sudo mkdir new && cd new && " \
                            +"sudo tar xf - && " \

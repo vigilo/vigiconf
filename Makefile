@@ -78,16 +78,9 @@ doc/apidoc/index.html: $(wildcard src/*.py) src/lib src/generators
 		epydoc -o $(dir $@) -v --name Vigilo --url http://www.projet-vigilo.org \
 		--docformat=epytext $^
 
-lint: $(PYTHON)
-	-PYTHONPATH=src VIGICONF_MAINCONF=src/vigiconf-test.conf \
-		$(PYTHON) $$(which pylint) \
-		--rcfile=$(BUILDENV)/extra/pylintrc \
-		$(wildcard src/*.py) src/lib src/generators
+lint: lint_pylint
 
-tests: $(BUILDENV)/bin/python
-	VIGICONF_MAINCONF=src/vigiconf-test.conf $(BUILDENV)/bin/nosetests --with-coverage \
-		$(foreach mod,$(filter-out debug,$(patsubst src/%.py,%,$(wildcard src/*.py))),--cover-package=$(mod)) \
-		--cover-package=lib --cover-package=generators tests
+tests: tests_nose
 
 
 .PHONY: all tarball clean install apidoc lint install_users install install_permissions tests

@@ -22,12 +22,14 @@ This module contain the various dispatch modes. In the Community Edition,
 only the local mode is available.
 """
 
+from __future__ import absolute_import
+
 import os
 import sys
 import glob
 
-import conf
-from lib import ConfMgrError, EditionError
+from ... import conf
+from .. import ConfMgrError, EditionError
 
 def getinstance():
     """
@@ -39,7 +41,7 @@ def getinstance():
     """
     if hasattr(conf, "appsGroupsByServer"):
         try:
-            from lib.dispatchmodes.remote import DispatchatorRemote
+            from .remote import DispatchatorRemote
         except ImportError:
             message = "You are trying remote deployment on the Community " \
                      +"edition. This feature is only available in the " \
@@ -47,7 +49,7 @@ def getinstance():
             raise EditionError(message)
         _dispatchator = DispatchatorRemote()
     else:
-        from lib.dispatchmodes.local import DispatchatorLocal
+        from .local import DispatchatorLocal
         _dispatchator = DispatchatorLocal()
     return _dispatchator
 

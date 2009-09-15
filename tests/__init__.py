@@ -3,32 +3,36 @@
 import os
 import tempfile
 
-import conf
+import vigilo.vigiconf.conf as conf
 
 #testdatadir = None
 
 def setUpModule(self):
     """Call once, before loading all the test cases."""
     setup_path()
-    conf.simulate = True
-    conf.silent = True
     self.testdatadir = os.path.join(os.path.dirname(__file__), "testdata")
 
 def setup_path():
-    conf.confDir = os.path.join(os.path.dirname(__file__), "..", "src", "conf.d")
-    conf.templatesDir = os.path.join(conf.confDir,"filetemplates")
-    conf.dataDir = os.path.join(os.path.dirname(__file__), "..", "src")
+    conf.CODEDIR = os.path.join(os.path.dirname(__file__), "..", "src",
+            "vigilo", "vigiconf")
+    conf.CONFDIR = os.path.join(conf.CODEDIR, "conf.d")
 
 def reload_conf():
     """We changed the paths, reload the factories"""
-    conf.hosttemplatefactory.__init__()
-    conf.hosttemplatefactory.load_templates()
     conf.testfactory.__init__()
+    conf.hosttemplatefactory.__init__(conf.testfactory)
+    conf.hosttemplatefactory.load_templates()
+    conf.hostfactory.__init__(
+            os.path.join(conf.CONFDIR, "hosts"),
+            conf.hosttemplatefactory,
+            conf.testfactory,
+            conf.groupsHierarchy,
+      )
     conf.loadConf()
 
 def setup_tmpdir():
     """Prepare the temporary directory"""
     tmpdir = tempfile.mkdtemp(dir="/dev/shm")
-    conf.libDir = tmpdir
+    conf.LIBDIR = tmpdir
     return tmpdir
 

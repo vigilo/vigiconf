@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import sys, os, unittest, tempfile, shutil, glob
 
-import conf
-from lib.confclasses.host import Host
+import vigilo.vigiconf.conf as conf
+from vigilo.vigiconf.lib.confclasses.host import Host
 
 from . import reload_conf
 
@@ -11,7 +11,7 @@ class HostMethods(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         reload_conf()
-        self.host = Host("testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
 
     def tearDown(self):
         """Call after every test case."""
@@ -20,7 +20,8 @@ class HostMethods(unittest.TestCase):
 
     def test_add_metro_service(self):
         """Test for the add_metro_service host method"""
-        self.host.add_test("Interface", label="eth1", ifname="eth1")
+        test_list = conf.testfactory.get_test("Interface", self.host.classes)
+        self.host.add_tests(test_list, label="eth1", ifname="eth1")
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         assert conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]["command"] == \
                 "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/aW5ldGgx 10 20 1", \
@@ -28,7 +29,8 @@ class HostMethods(unittest.TestCase):
 
     def test_add_metro_service_INTF(self):
         """Test for the add_metro_service function in the Interface test"""
-        self.host.add_test( "Interface", label="eth0", ifname="eth0", warn="10,20", crit="30,40" )
+        test_list = conf.testfactory.get_test("Interface", self.host.classes)
+        self.host.add_tests(test_list, label="eth0", ifname="eth0", warn="10,20", crit="30,40")
         assert conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]["command"] == \
                 "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/aW5ldGgw 10 30 8", \
                 "add_metro_service does not work in Interface (in) test"
@@ -44,7 +46,8 @@ class HostMethods(unittest.TestCase):
 
     def test_add_tag_services(self):
         """Test for the add_tag host method"""
-        self.host.add_test("UpTime")
+        test_list = conf.testfactory.get_test("UpTime", self.host.classes)
+        self.host.add_tests(test_list)
         self.host.add_tag("UpTime", "security", 1)
         assert conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"] == {"security": 1}, \
                 "add_tag does not work on services"
@@ -61,8 +64,6 @@ class HostMethods(unittest.TestCase):
         self.host.add_group("Test Group")
         assert conf.hostsConf["testserver1"]["otherGroups"].has_key("Test Group"), \
                 "add_group does not work"
-        assert "Test Group" in conf.groupsHierarchy["Servers"], \
-                "add_group does not update the groupHierarchy"
 
     def test_add_collector_service(self):
         """Test for the add_collector_service host method"""
@@ -77,7 +78,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_collector_service_reroute(self):
         """Test for the add_collector_service host method with rerouting"""
-        host2 = Host("testserver2", "192.168.1.2", "Servers")
+        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
         host2.add_collector_service( "TestAddCSReRoute", "TestAddCSReRouteFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )
@@ -104,7 +105,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_collector_metro_reroute(self):
         """Test for the add_collector_metro host method with rerouting"""
-        host2 = Host("testserver2", "192.168.1.2", "Servers")
+        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
         host2.add_collector_metro( "TestAddCSReRoute", "TestAddCSRRMFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 "GAUGE", label="TestAddCSReRouteLabel",

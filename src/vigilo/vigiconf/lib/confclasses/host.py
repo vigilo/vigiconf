@@ -20,10 +20,18 @@
 This module contains the Host class
 """
 
-import base64
+from __future__ import absolute_import
 
-import conf
-from lib.confclasses.graph import Graph
+import os
+import base64
+import subprocess
+from xml.etree import ElementTree as ET # Python 2.5
+
+from vigilo.common.conf import settings
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+from .graph import Graph
+from .. import ParsingError
 
 class Host(object):
     """
@@ -32,25 +40,24 @@ class Host(object):
     This class defines all the attributes and the methods of hosts in the
     configuration system.
 
-    The attributes are added to the hostsConf hashmap, and the methods
+    The attributes are added to the hosts hashmap, and the methods
     directly modify this hashmap.
 
     The methods are used by the tests definitions.
 
+    @ivar hosts: the main hosts configuration dictionary
+    @type hosts: C{dict}
     @ivar name: the hostname
     @type name: C{str}
     @ivar classes: the host classes
     @type classes: C{list} of C{str}
     """
 
-    def __init__(self, name, ip, servergroup, **kw):
+    def __init__(self, hosts, name, ip, servergroup):
+        self.hosts = hosts
         self.name = name
         self.classes = [ "all" ]
-        if kw.has_key("classes"):
-            self.classes.extend(kw["classes"])
-        if servergroup not in conf.groupsHierarchy:
-            conf.groupsHierarchy[servergroup] = set()
-        conf.hostsConf[name] = {
+        self.hosts[name] = {
                 "name": name,
                 "fqhn": name,
                 "mainIP": ip,
@@ -73,54 +80,58 @@ class Host(object):
                 "port"           : 161,
                 "snmpOIDsPerPDU" : 10,
             }
-        self.apply_template("default")
-        conf.hostsConf[name].update(kw)
 
     def get_attribute(self, attribute, default=False):
         """
         A very simple wrapper to get an attribute from the
-        host's entry in the hostsConf hashmap.
+        host's entry in the hashmap.
         @param attribute: the attribute to get
         @param default: default value if the attribute is not found
         """
-        if conf.hostsConf[self.name].has_key(attribute):
-            return conf.hostsConf[self.name][attribute]
+        if self.hosts[self.name].has_key(attribute):
+            return self.hosts[self.name][attribute]
         else:
             return default
 
     def set_attribute(self, attribute, value):
         """
         A very simple wrapper to set an attribute in the
-        host's entry in the hostsConf hashmap.
+        host's entry in the hashmap.
         @param attribute: the attribute to set
         @param value: the value to set the attribute to
         """
-        conf.hostsConf[self.name][attribute] = value
+        self.hosts[self.name][attribute] = value
 
-    def add_test(self, testname, **kw):
+    def update_attributes(self, attributes):
         """
-        Add a test to this host, with the provided arguments
-        @param testname: the name of the test
-        @type  testname: C{str}
+        A very simple wrapper to set many attributes at once in the host's
+        entry in the hashmap.
+
+        @param attributes: the attributes to set
+        @type  attributes: C{dict}
+        """
+        self.hosts[self.name].update(attributes)
+
+    def add_tests(self, test_list, **kw):
+        """
+        Add a list of tests to this host, with the provided arguments
+
+        @param test_list: the list of tests
+        @type  test_list: C{list} of C{Test<.test.Test>}
         @param kw: the test arguments
         @type  kw: C{dict}
         """
-        conf.testfactory.add_test(self, testname, **kw)
+        for test_class in test_list:
+            test_class().add_test(self, **kw)
 
-    def get_testnames(self):
-        """
-        @return: available test names for this host
-        @rtype: C{set}
-        """
-        return conf.testfactory.get_testnames(self.classes)
+#    def apply_template(self, tpl):
+#        """
+#        Apply a host template to this host
+#        @param tpl: the template name
+#        @type  tpl: C{str}
+#        """
+#        conf.hosttemplatefactory.apply(self, tpl)
 
-    def apply_template(self, tpl):
-        """
-        Apply a host template to this host
-        @param tpl: the template name
-        @type  tpl: C{str}
-        """
-        conf.hosttemplatefactory.apply(self, tpl)
 
 #### Access the global dicts ####
 
@@ -132,11 +143,6 @@ class Host(object):
         """
         # This should really be a set(), but self.add only handles dicts
         self.add(self.name, "otherGroups", group_name, 1)
-        # If the secondary group did not exist yet in the main group hashmap,
-        # add it
-        server_group = self.get("serverGroup")
-        if group_name not in conf.groupsHierarchy[server_group]:
-            conf.groupsHierarchy[server_group].add(group_name)
 
     def add_dependency(self, service="Host", deps=None, options=None, cti=1):
         """
@@ -144,7 +150,7 @@ class Host(object):
         @param service: the origin service. If the value is the string "Host",
             then the host itself is the origin.
         @type  service: C{str}
-        @param deps: the target dependencies. If deps is a C{str}, then it is
+        @param depsself the target dependencies. If deps is a C{str}, then it is
             considered as a hostname. If deps is a dict, then it may be of the
             following form::
 
@@ -177,7 +183,7 @@ class Host(object):
                 conf.dependencies[(self.name, service)]["deps"]\
                                                        [dep_type].append(dep)
 
-#### Access the hostsConf dict ####
+#### Access the hosts dict ####
 
     def get(self, prop):
         """
@@ -185,7 +191,7 @@ class Host(object):
         @param prop: the property to get
         @type  prop: hashable
         """
-        return conf.hostsConf[self.name][prop]
+        return self.hosts[self.name][prop]
 
     def add(self, hostname, prop, key, value):
         """
@@ -199,9 +205,9 @@ class Host(object):
         @param value: the value to add to the property
         @type  value: anything
         """
-        if not conf.hostsConf[hostname].has_key(prop):
-            conf.hostsConf[hostname][prop] = {}
-        conf.hostsConf[hostname][prop].update({key: value})
+        if not self.hosts[hostname].has_key(prop):
+            self.hosts[hostname][prop] = {}
+        self.hosts[hostname][prop].update({key: value})
 
     def add_sub(self, hostname, prop, subprop, key, value):
         """
@@ -217,11 +223,11 @@ class Host(object):
         @param value: the value to add to the property
         @type  value: anything
         """
-        if not conf.hostsConf[hostname].has_key(prop):
-            conf.hostsConf[hostname][prop] = {}
-        if not conf.hostsConf[hostname][prop].has_key(subprop):
-            conf.hostsConf[hostname][prop][subprop] = {}
-        conf.hostsConf[hostname][prop][subprop].update({key: value})
+        if not self.hosts[hostname].has_key(prop):
+            self.hosts[hostname][prop] = {}
+        if not self.hosts[hostname][prop].has_key(subprop):
+            self.hosts[hostname][prop][subprop] = {}
+        self.hosts[hostname][prop][subprop].update({key: value})
 
     def add_trap(self, service, key, value):
         """
@@ -378,7 +384,7 @@ class Host(object):
             name = reroutefor['service']
         else:
             target = self.name
-        graph = Graph(label, [ name ], template, vlabel, group=group)
+        graph = Graph(self.hosts, label, [ name ], template, vlabel, group=group)
         graph.add_to_host(target)
 
     def add_graph(self, title, dslist, template, vlabel,
@@ -398,7 +404,7 @@ class Host(object):
         @param factors: the factors to use, if any
         @type  factors: C{dict}
         """
-        graph = Graph(title, dslist, template, vlabel,
+        graph = Graph(self.hosts, title, dslist, template, vlabel,
                       group=group, factors=factors)
         graph.add_to_host(self.name)
 
@@ -412,9 +418,9 @@ class Host(object):
         @param factor: the factor to use, if any
         @type  factor: C{int} or C{float}
         """
-        conf.hostsConf[self.name]["graphItems"][title]["ds"].append(ds)
+        self.hosts[self.name]["graphItems"][title]["ds"].append(ds)
         if factor is not None:
-            conf.hostsConf[self.name]["graphItems"][title]["factors"]\
+            self.hosts[self.name]["graphItems"][title]["factors"]\
                                                                  [ds] = factor
 
     def add_report(self, title, reportname, datesetting=0):
@@ -475,7 +481,7 @@ class Host(object):
         # Add the perfdata handler in Nagios
         if not self.get('PDHandlers').has_key(service):
             self.add(self.name, "PDHandlers", service, [])
-        conf.hostsConf[self.name]['PDHandlers'][service].append(
+        self.hosts[self.name]['PDHandlers'][service].append(
                 {'name': name, 'perfDataVarName': perfdatavarname,
                  'reRouteFor': reroutefor})
 
@@ -510,13 +516,118 @@ class Host(object):
         @type  value: C{int}
         """
         if service == "Host" or service is None:
-            target = conf.hostsConf[self.name]
+            target = self.hosts[self.name]
         else:
-            target = conf.hostsConf[self.name]["services"][service]
+            target = self.hosts[self.name]["services"][service]
         if not target.has_key("tags"):
             target["tags"] = {}
         target["tags"][name] = value
 
+
+class HostFactory(object):
+    """
+    Factory to create Host objects
+    """
+
+    def __init__(self, hostsdir, hosttemplatefactory, testfactory, groupsHierarchy):
+        self.hosts = {}
+        self.hosttemplatefactory = hosttemplatefactory
+        self.testfactory = testfactory
+        self.groupsHierarchy = groupsHierarchy
+        self.hostsdir = hostsdir
+
+    def load(self):
+        """
+        Load the defined hosts
+        """
+        for root, dirs, files in os.walk(self.hostsdir):
+            for f in files:
+                if not f.endswith(".xml"):
+                    continue
+                self._validatehost(os.path.join(root, f))
+                self._loadhosts(os.path.join(root, f))
+                LOGGER.debug("Sucessfully parsed %s" % os.path.join(root, f))
+            for d in dirs: # Don't visit subversion/CVS directories
+                if d.startswith("."):
+                    dirs.remove(d)
+                if d == "CVS":
+                    dirs.remove("CVS")
+        return self.hosts
+
+
+    def _validatehost(self, source):
+        """
+        Validate the XML against the DTD using xmllint
+
+        @note: this could take time.
+        @todo: use lxml for python-based validation
+        @param source: an XML file (or stream)
+        @type  source: C{str} or C{file}
+        """
+        dtd = os.path.join(os.path.dirname(__file__), "..", "..",
+                           "validation", "dtd", "host.dtd")
+        result = subprocess.call(["xmllint", "--noout", "--dtdvalid", dtd, source])
+        if result != 0:
+            raise ParsingError("XML validation failed")
+
+    def _loadhosts(self, source):
+        """
+        Load a Host from an XML file
+
+        @param source: an XML file (or stream)
+        @type  source: C{str} or C{file}
+        """
+        cur_host = None
+        for event, elem in ET.iterparse(source, events=("start", "end")):
+            if event == "start":
+                if elem.tag == "host":
+                    name = elem.attrib["name"].strip()
+                    ip = elem.attrib["ip"].strip()
+                    group = elem.attrib["group"].strip()
+                    cur_host = Host(self.hosts, name, ip, group)
+                    if group not in self.groupsHierarchy:
+                        self.groupsHierarchy[group] = set()
+                    self.hosttemplatefactory.apply(cur_host, "default")
+                    LOGGER.debug("Created host %s, ip %s, group %s" % (name, ip, group))
+            else:
+                if elem.tag == "template":
+                    self.hosttemplatefactory.apply(cur_host, elem.text.strip())
+                elif elem.tag == "class":
+                    cur_host.classes.append(elem.text.strip())
+                elif elem.tag == "test":
+                    testname = elem.attrib["name"].strip()
+                    args = {}
+                    for arg in elem.getchildren():
+                        args[arg.attrib["name"].strip()] = arg.text.strip()
+                    test_list = self.testfactory.get_test(testname, cur_host.classes)
+                    cur_host.add_tests(test_list, **args)
+                elif elem.tag == "attribute":
+                    value = elem.text.strip()
+                    items = [ i.text.strip() for i in elem.getchildren()
+                                     if i.tag == "item" ]
+                    if items:
+                        value = items
+                    else:
+                        value = elem.text.strip()
+                    cur_host.set_attribute(elem.attrib["name"].strip(), value)
+                elif elem.tag == "tag":
+                    cur_host.add_tag(elem.attrib["service"].strip(),
+                                     elem.attrib["name"].strip(),
+                                     elem.text.strip())
+                elif elem.tag == "trap":
+                    cur_host.add_trap(elem.attrib["service"].strip(),
+                                      elem.attrib["key"].strip(),
+                                      elem.text.strip())
+                elif elem.tag == "group":
+                    group_name = elem.text.strip()
+                    cur_host.add_group(group_name)
+                    # If the secondary group did not exist yet in the main
+                    # group hashmap, add it
+                    server_group = cur_host.get("serverGroup")
+                    if group_name not in self.groupsHierarchy[server_group]:
+                        self.groupsHierarchy[server_group].add(group_name)
+                elif elem.tag == "host":
+                    elem.clear()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

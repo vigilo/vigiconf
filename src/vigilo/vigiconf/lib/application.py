@@ -29,15 +29,17 @@
   - ...
 """
 
+from __future__ import absolute_import
+
 import syslog
 import Queue
 import threading
 # Warning, the "threading" module overwrites the built-in function enumerate()
 # if used as import * !!
 
-import conf
-from lib.systemcommand import SystemCommand, SystemCommandError
-from lib import ConfMgrError
+from .. import conf
+from .systemcommand import SystemCommand, SystemCommandError
+from . import ConfMgrError
 
 
 class ApplicationError(ConfMgrError):
@@ -279,9 +281,9 @@ class Application(object):
         qualificationCommand = self.getQualificationMethod()
         if len(qualificationCommand) > 0:
             _commandStr = "cd %s/new/ && sudo %s %s/new" \
-                          % (conf.baseConfDir,
+                          % (conf.TARGETCONFDIR,
                              self.getQualificationMethod(), 
-                             conf.baseConfDir)
+                             conf.TARGETCONFDIR)
             _command = iServer.createCommand(_commandStr)
             try:
                 _command.execute()

@@ -20,10 +20,12 @@
 
 """Generator for RRD graph generator"""
 
+from __future__ import absolute_import
+
 import os.path
 
-import conf
-from generators import Templator 
+from .. import conf
+from . import Templator 
 
 class RRDgraphTpl(Templator):
     """Generator for RRD graph generator"""

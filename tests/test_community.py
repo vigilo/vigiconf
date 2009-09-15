@@ -12,16 +12,16 @@ import glob
 import re
 import socket
 
-import conf
-import generator
-import dispatchator
-from lib.dispatchmodes.local import DispatchatorLocal
-from lib.dispatchmodes.remote import DispatchatorRemote
-from lib.server import ServerFactory
-from lib.servertypes.local import ServerLocal
-from lib.servertypes.remote import ServerRemote
-from lib.confclasses.host import Host
-from lib import dispatchmodes
+import vigilo.vigiconf.conf as conf
+import vigilo.vigiconf.generator as generator
+import vigilo.vigiconf.dispatchator as dispatchator
+from vigilo.vigiconf.lib.dispatchmodes.local import DispatchatorLocal
+from vigilo.vigiconf.lib.dispatchmodes.remote import DispatchatorRemote
+from vigilo.vigiconf.lib.server import ServerFactory
+from vigilo.vigiconf.lib.servertypes.local import ServerLocal
+from vigilo.vigiconf.lib.servertypes.remote import ServerRemote
+from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib import dispatchmodes
 
 from . import reload_conf, setup_tmpdir
 
@@ -36,7 +36,7 @@ class EnterpriseEdition(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         # Load the configuration
         reload_conf()
-        self.host = Host("testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
         # Create appsGroupsByServer mapping (Enterprise Edition)
         conf.appsGroupsByServer = {
                     "collect": {
@@ -71,7 +71,8 @@ class EnterpriseEdition(unittest.TestCase):
 
     def test_generator_ent(self):
         """Generation directory in E.E. must be named after the sup server"""
-        self.host.add_test("UpTime")
+        test_list = conf.testfactory.get_test("UpTime", self.host.classes)
+        self.host.add_tests(test_list)
         generator.generate(self.basedir)
         assert os.path.exists(os.path.join(self.basedir, "sup.example.com",
                                            "nagios.cfg"))
@@ -115,7 +116,7 @@ class CommunityEdition(unittest.TestCase):
         # Load the configuration
         reload_conf()
         delattr(conf, "appsGroupsByServer") # Become the Community(tm) :)
-        self.host = Host("testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
         self.mapping = generator.getventilation()
 
     def tearDown(self):
@@ -131,7 +132,8 @@ class CommunityEdition(unittest.TestCase):
 
     def test_generator_com(self):
         """Test the generation in C.E."""
-        self.host.add_test("UpTime")
+        test_list = conf.testfactory.get_test("UpTime", self.host.classes)
+        self.host.add_tests(test_list)
         generator.generate(self.basedir)
         assert os.path.exists(os.path.join(self.basedir, "localhost",
                               "nagios.cfg"))

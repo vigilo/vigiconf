@@ -25,6 +25,8 @@ of a new configuration.
 This is the module to call as a main end-user command line (see --help)
 """
 
+from __future__ import absolute_import
+
 import locale
 import fcntl
 import traceback
@@ -36,13 +38,13 @@ import syslog
 from threading import Thread
 import shutil
 
-import conf
-import generator
-from lib.application import Application, ApplicationError
-from lib.systemcommand import SystemCommand, SystemCommandError
-from lib import ConfMgrError
-from lib.server import ServerFactory, ServerError
-from lib import dispatchmodes
+from . import conf
+from . import generator
+from .lib.application import Application, ApplicationError
+from .lib.systemcommand import SystemCommand, SystemCommandError
+from .lib import ConfMgrError
+from .lib.server import ServerFactory, ServerError
+from .lib import dispatchmodes
 
 
 class DispatchatorError(ConfMgrError):
@@ -238,7 +240,7 @@ class Dispatchator(object):
         L{generator} module.
         """
         # generate conf files
-        gendir = os.path.join(conf.libDir, "deploy")
+        gendir = os.path.join(conf.LIBDIR, "deploy")
         shutil.rmtree(gendir)
         result = generator.generate(gendir)
         if not result:
@@ -253,7 +255,7 @@ class Dispatchator(object):
 
         #Validate Configuration
         for _App in self.getApplications():
-            _App.validate(os.path.join(conf.libDir, "deploy"))
+            _App.validate(os.path.join(conf.LIBDIR, "deploy"))
         syslog.syslog(syslog.LOG_INFO, "Validation Successful\n")
 
         #Commit Configuration
@@ -266,23 +268,23 @@ class Dispatchator(object):
         @return: the number of the revision
         @rtype: C{int}
         """
-        if not conf.svnRepository:
+        if not conf.SVNREPOSITORY:
             syslog.syslog(syslog.LOG_WARNING,
-                    "Not committing because the svnRepository configuration "
+                    "Not committing because the SVNREPOSITORY configuration "
                    +"parameter is empty\n")
             return 0
         _cmd = "svn ci "
-        if conf.svnUsername and conf.svnPassword: # TODO: escape password
+        if conf.SVNUSERNAME and conf.SVNPASSWORD: # TODO: escape password
             _cmd += "--username %s --password %s " % \
-                    (conf.svnUsername, conf.svnPassword)
+                    (conf.SVNUSERNAME, conf.SVNPASSWORD)
         _cmd += "-m 'Auto generate configuration %s' %s" % \
-                (conf.confDir, conf.confDir)
+                (conf.CONFDIR, conf.CONFDIR)
         _command = self.createCommand(_cmd)
         try:
             _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError("Can't execute the request to commit %s "
-                                    % conf.confDir
+                                    % conf.CONFDIR
                                    +"revision. REASON: %s" % e.value)
         return self.getLastRevision()
 
@@ -293,12 +295,12 @@ class Dispatchator(object):
         @rtype: C{int}
         """
         res = 0
-        if not conf.svnRepository:
+        if not conf.SVNREPOSITORY:
             return res
         # <code> UNIX only
         # TODO: use svn info --xml and parse it
         _command = self.createCommand("LANG=C LC_ALL=C svn info -r HEAD %s" % 
-                                     conf.svnRepository)
+                                     conf.SVNREPOSITORY)
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -319,16 +321,16 @@ class Dispatchator(object):
         @param iRevision: SVN revision to update to
         @type  iRevision: C{int}
         """
-        if not conf.svnRepository:
+        if not conf.SVNREPOSITORY:
             syslog.syslog(syslog.LOG_WARNING,
-                    "Not updating because the svnRepository configuration "
+                    "Not updating because the SVNREPOSITORY configuration "
                    +"parameter is empty")
             return 0
         _cmd = "svn up "
-        if conf.svnUsername and conf.svnPassword: # TODO: escape password
+        if conf.SVNUSERNAME and conf.SVNPASSWORD: # TODO: escape password
             _cmd += "--username %s --password %s " % \
-                    (conf.svnUsername, conf.svnPassword)
-        _cmd += "-r %d %s" % (iRevision, conf.confDir)
+                    (conf.SVNUSERNAME, conf.SVNPASSWORD)
+        _cmd += "-r %d %s" % (iRevision, conf.CONFDIR)
         _command = self.createCommand(_cmd)
         try:
             _command.execute()
@@ -748,7 +750,7 @@ def main():
 
     # Handle command-line options
     if (options.simulate):
-        conf.simulate = True
+        conf.SIMULATE = True
 
     if (options.force):
         _dispatchator.setModeForce(True)
@@ -789,7 +791,7 @@ if __name__ == "__main__":
     syslog.openlog('Dispatchator' , syslog.LOG_PERROR)
     syslog.syslog(syslog.LOG_INFO, "Dispatchator Begin")
 
-    f = open(conf.lockFile,'a+')
+    f = open(conf.LOCKFILE,'a+')
     try:
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception, exp:

@@ -22,8 +22,10 @@ This module contains the localhost-only implementation of the Dispatchator.
 The multi-server implementation is part of the Enterprise Edition.
 """
 
-from dispatchator import Dispatchator
-from lib.server import ServerFactory
+from __future__ import absolute_import
+
+from ...dispatchator import Dispatchator
+from ..server import ServerFactory
 
 class DispatchatorLocal(Dispatchator):
     """A localhost-only implementation of the Dispatchator."""

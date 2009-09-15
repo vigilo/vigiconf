@@ -20,10 +20,12 @@
 This module contains the classes needed to handle the tests
 """
 
+from __future__ import absolute_import
+
 import os
 import sys
 
-import conf
+from vigilo.common.conf import settings
 
 
 class Test(object):
@@ -123,8 +125,12 @@ class TestFactory(object):
     hclasschecks = {}
 
     def __init__(self):
-        self.path = [ os.path.join(conf.dataDir, "tests"),
-                      os.path.join(conf.confDir, "tests"),
+        self.path = [ 
+                  os.path.join(
+                      os.path.dirname(__file__), "..", "..", "tests"),
+                  os.path.join(
+                      settings.get("CONFDIR", "/etc/vigilo-vigiconf/conf.d"),
+                      "tests"),
                     ]
         if not self.tests:
             self.load_tests()
@@ -210,19 +216,19 @@ class TestFactory(object):
         return test_list
 
 
-    def add_test(self, host, test_name, **kw):
-        """
-        Adds a test to a host, with the optionnal kw arguments
-        @param host: the host to add to
-        @type  host: L{Server<lib.server.Server>}
-        @param test_name: the name of the test to add
-        @type  test_name: C{str}
-        @param kw: the test arguments
-        @type  kw: C{dict}
-        """
-        test_list = self.get_test(test_name, host.classes)
-        for test_class in test_list:
-            test_class().add_test(host, **kw)
+#    def add_test(self, host, test_name, **kw):
+#        """
+#        Adds a test to a host, with the optionnal kw arguments
+#        @param host: the host to add to
+#        @type  host: L{Server<lib.server.Server>}
+#        @param test_name: the name of the test to add
+#        @type  test_name: C{str}
+#        @param kw: the test arguments
+#        @type  kw: C{dict}
+#        """
+#        test_list = self.get_test(test_name, host.classes)
+#        for test_class in test_list:
+#            test_class().add_test(host, **kw)
 
     def get_hclasses(self):
         """

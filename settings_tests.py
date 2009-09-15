@@ -1,11 +1,13 @@
-dataDir = "."
-libDir = "/tmp"
-confDir = "./conf.d"
-templatesDir = "./conf.d/filetemplates"
-baseConfDir = "/tmp/vigiconf-conf"
-lockFile = "/tmp/vigiconf.lock"
-svnUsername = "vigiconf"
-svnPassword = "my_pass_word"
-#svnRepository = "file:///var/lib/svn"
-svnRepository = ""
-
+#import logging
+#LOGGING_LEVELS = {
+#    'vigilo.vigiconf': logging.DEBUG,
+#}
+LIBDIR = "/tmp"
+CONFDIR = "src/vigilo/vigiconf/conf.d"
+BASECONFDIR = "/tmp/vigiconf-conf"
+LOCKFILE = "/tmp/vigiconf.lock"
+SVNUSERNAME = "vigiconf"
+SVNPASSWORD = "my_pass_word"
+SVNREPOSITORY = ""
+SIMULATE = True
+SILENT = True

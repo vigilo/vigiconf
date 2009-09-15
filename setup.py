@@ -36,6 +36,7 @@ setup(name='vigilo-vigiconf',
             'coverage',
             'nose',
             'pylint',
+            "vigilo-common",
             ],
         namespace_packages = [
             'vigilo',

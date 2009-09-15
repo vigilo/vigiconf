@@ -20,11 +20,13 @@
 
 """Generator for NagVis"""
 
+from __future__ import absolute_import
+
 import os.path
 import glob
 
-import conf
-from generators import Templator 
+from .. import conf
+from . import Templator 
 
 class NagvisTpl(Templator):
     """Generator for NagVis"""
@@ -57,7 +59,7 @@ class NagvisTpl(Templator):
             # copy custom maps
             dirName = "%s/%s/nagvis/maps" \
                       % (self.baseDir, ventilation['nagvis'])
-            for cmap in glob.glob(conf.templatesDir+"/nagvis/*.cfg"):
+            for cmap in glob.glob(os.path.join(conf.CONFDIR, "filetemplates", "nagvis", "*.cfg")):
                 self.copyFile(cmap, "%s/%s"%(dirName, os.path.basename(cmap)))
         self.__makedyngroups()
 

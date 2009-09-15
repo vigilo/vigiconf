@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import sys, os, unittest, tempfile, shutil, glob
 
-import conf
-from lib.confclasses.hosttemplate import HostTemplate
-from lib.confclasses.host import Host
+import vigilo.vigiconf.conf as conf
+from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
+from vigilo.vigiconf.lib.confclasses.host import Host
 
 from . import reload_conf
 
@@ -17,7 +17,8 @@ class HostTemplates(unittest.TestCase):
         # HostTemplateFactory.apply() for details
         conf.hosttemplatefactory.load_templates()
         self.tpl = HostTemplate("testtpl1")
-        self.host = Host("testserver1", "192.168.1.1", "Servers")
+        conf.hosttemplatefactory.register(self.tpl)
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
 
     def tearDown(self):
         """Call after every test case."""
@@ -27,14 +28,14 @@ class HostTemplates(unittest.TestCase):
     def test_add_test_simple(self):
         """Test for the add_test method, without test arguments"""
         self.tpl.add_test("UpTime")
-        self.host.apply_template("testtpl1")
+        conf.hosttemplatefactory.apply(self.host, "testtpl1")
         assert conf.hostsConf["testserver1"]["services"].has_key("UpTime"), \
                 "add_test does not work without test args"
 
     def test_add_test_args(self):
         """Test for the add_test method, with test arguments"""
         self.tpl.add_test("Interface", label="Loopback", ifname="lo")
-        self.host.apply_template("testtpl1")
+        conf.hosttemplatefactory.apply(self.host, "testtpl1")
         assert conf.hostsConf["testserver1"]["SNMPJobs"][('Interface Loopback',
                 'service')]["params"] == ["lo", "Loopback", "i"], \
                 "add_test does not work with test args"
@@ -42,14 +43,14 @@ class HostTemplates(unittest.TestCase):
     def test_add_group_simple(self):
         """Test for the add_group method, with one argument only"""
         self.tpl.add_group("Test Group")
-        self.host.apply_template("testtpl1")
+        conf.hosttemplatefactory.apply(self.host, "testtpl1")
         assert conf.hostsConf["testserver1"]["otherGroups"].has_key("Test Group"), \
                 "add_group does not work with one arg"
 
     def test_add_group_multiple(self):
         """Test for the add_group method, with multiple arguments"""
         self.tpl.add_group("Test Group 1", "Test Group 2")
-        self.host.apply_template("testtpl1")
+        conf.hosttemplatefactory.apply(self.host, "testtpl1")
         assert conf.hostsConf["testserver1"]["otherGroups"].has_key("Test Group 1"), \
                 "add_group does not work with multiple args"
         assert conf.hostsConf["testserver1"]["otherGroups"].has_key("Test Group 2"), \
@@ -58,13 +59,15 @@ class HostTemplates(unittest.TestCase):
     def test_add_attribute(self):
         """Test for the add_attribute method"""
         self.tpl.add_attribute("TestAttr", "TestVal")
-        self.host.apply_template("testtpl1")
+        conf.hosttemplatefactory.apply(self.host, "testtpl1")
         assert conf.hostsConf["testserver1"]["TestAttr"] == "TestVal", \
                 "add_attribute does not work"
 
     def test_inherit_test(self):
         self.tpl.add_test("UpTime")
-        tpl2 = HostTemplate("testtpl2", "testtpl1")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
         assert "UpTime" in [ t["name"] for t in conf.hosttemplatefactory.templates["testtpl2"]["tests"] ], \
@@ -72,7 +75,9 @@ class HostTemplates(unittest.TestCase):
 
     def test_inherit_group(self):
         self.tpl.add_group("Test Group")
-        tpl2 = HostTemplate("testtpl2", "testtpl1")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
         assert "Test Group" in conf.hosttemplatefactory.templates["testtpl2"]["groups"], \
@@ -80,7 +85,9 @@ class HostTemplates(unittest.TestCase):
 
     def test_inherit_attribute(self):
         self.tpl.add_attribute("TestAttr", "TestVal")
-        tpl2 = HostTemplate("testtpl2", "testtpl1")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
         assert conf.hosttemplatefactory.templates["testtpl2"]["attributes"].has_key("TestAttr"), \
@@ -90,8 +97,10 @@ class HostTemplates(unittest.TestCase):
 
     def test_inherit_redefine_test(self):
         self.tpl.add_test("Interface", ifname="eth0", label="Label1")
-        tpl2 = HostTemplate("testtpl2", "testtpl1")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
         tpl2.add_test("Interface", ifname="eth0", label="Label2")
+        conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
         intftest = None
@@ -106,7 +115,10 @@ class HostTemplates(unittest.TestCase):
         self.tpl.add_test("Interface", ifname="eth0", label="Label0")
         tpl2 = HostTemplate("testtpl2")
         tpl2.add_test("Interface", ifname="eth1", label="Label1")
-        tpl3 = HostTemplate("testtpl3", ["testtpl1", "testtpl2"])
+        conf.hosttemplatefactory.register(tpl2)
+        tpl3 = HostTemplate("testtpl3")
+        tpl3.add_parent(["testtpl1", "testtpl2"])
+        conf.hosttemplatefactory.register(tpl3)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
         intftests = []
@@ -123,8 +135,10 @@ class HostTemplates(unittest.TestCase):
         into the parent
         """
         self.tpl.add_attribute("TestAttr1", "TestVal")
-        tpl2 = HostTemplate("testtpl2", "testtpl1")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
         tpl2.add_attribute("TestAttr2", "TestVal")
+        conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
         assert not conf.hosttemplatefactory.templates["testtpl1"]["attributes"].has_key("TestAttr2"), \
@@ -133,10 +147,12 @@ class HostTemplates(unittest.TestCase):
     def test_defined_templates(self):
         conf.hosttemplatefactory.load_templates()
         for tpl in conf.hosttemplatefactory.templates.keys():
-            self.host.apply_template(tpl)
+            conf.hosttemplatefactory.apply(self.host, tpl)
 
     def test_parent_default(self):
-        tpl1 = HostTemplate("testtpl2", "testtpl1")
+        tpl1 = HostTemplate("testtpl2")
+        tpl1.add_parent("testtpl1")
+        conf.hosttemplatefactory.register(tpl1)
         assert "default" in conf.hosttemplatefactory.templates["testtpl1"]["parent"], \
                 "The \"default\" template is not automatically added as parent to other templates"
 

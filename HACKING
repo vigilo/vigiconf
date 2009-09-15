@@ -1,6 +1,6 @@
 Coding style
 ------------
-When hacking on the ConfMgr, please respect these two documents:
+When hacking on VigiConf, please respect these two documents:
 - PEP-8: http://www.python.org/dev/peps/pep-0008/
 - Code like a pythonista : 
   http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html

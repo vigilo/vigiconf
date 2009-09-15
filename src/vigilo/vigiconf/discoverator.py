@@ -22,6 +22,8 @@ This module contains the Discoverator, a tool to generate the supervision
 configuation of a host by analysing its SNMP MIB.
 """
 
+from __future__ import absolute_import
+
 import os
 import sys
 import subprocess
@@ -31,8 +33,7 @@ from optparse import OptionParser
 from xml.etree import ElementTree as ET # Python 2.5
 #from pprint import pprint
 
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-import conf
+from . import conf
 
 
 class DiscoveratorError(Exception):

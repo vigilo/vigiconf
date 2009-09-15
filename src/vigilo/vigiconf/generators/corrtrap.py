@@ -20,11 +20,13 @@
 
 """Generator for the SNMP trap collector (CorrTrap)"""
 
+from __future__ import absolute_import
+
 import os
 import os.path
 
-import conf
-from generators import Templator 
+from .. import conf
+from . import Templator 
 
 class CorrTrapTpl(Templator):
     """Generator for the SNMP trap collector (CorrTrap)"""
@@ -61,7 +63,7 @@ class CorrTrapTpl(Templator):
         for server in serverList:
             dirName = "%s/%s/corrtrap" % (self.baseDir, server)
             for i in ('rules.sec', ):
-                self.copyFile("%s/corrtrap/%s" % (conf.templatesDir, i),
+                self.copyFile("%s/corrtrap/%s" % (os.path.join(conf.CONFDIR, "filetemplates"), i),
                               "%s/%s" % (dirName, i))
     
             if not os.path.exists("%s/mapTrap.pm" % (dirName)):

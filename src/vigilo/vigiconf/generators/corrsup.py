@@ -20,10 +20,12 @@
 
 """Generator for the correlator (CorrSup)"""
 
+from __future__ import absolute_import
+
 import os
 
-import conf
-from generators import Templator 
+from .. import conf
+from . import Templator 
 
 class CorrSupTpl(Templator):
     """Generator for the correlator (CorrSup)"""
@@ -40,7 +42,7 @@ class CorrSupTpl(Templator):
             dirName = "%s/%s/corrsup" % (self.baseDir, ventilation['corrsup'])
             for i in ('correl.sec', 'reduct.sec', 'transl.sec'):
                 # statically copy the 3 base S.E.C. configuration files
-                self.copyFile("%s/corrsup/%s" % (conf.templatesDir, i),
+                self.copyFile("%s/corrsup/%s" % (os.path.join(conf.CONFDIR, "filetemplates"), i),
                               "%s/%s" % (dirName, i))
             if not os.path.exists("%s/graph.txt" % dirName):
                 self.templateCreate("%s/graph.txt" % dirName, "%s", "")

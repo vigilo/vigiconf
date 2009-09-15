@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import sys, os, unittest, tempfile, shutil, glob, subprocess
 
-import conf
-from lib.confclasses.host import Host
+import vigilo.vigiconf.conf as conf
+from vigilo.vigiconf.lib.confclasses.host import Host
 
 from . import reload_conf, setup_tmpdir, setup_path
 
@@ -10,9 +10,9 @@ class ValidateDTD(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        self.dtddir = os.path.join(conf.dataDir,"validation","dtd")
-        self.hdir = os.path.join(conf.confDir,"hosts")
-        self.htdir = os.path.join(conf.confDir,"hosttemplates")
+        self.dtddir = os.path.join(conf.CODEDIR,"validation","dtd")
+        self.hdir = os.path.join(conf.CONFDIR,"hosts")
+        self.htdir = os.path.join(conf.CONFDIR,"hosttemplates")
 
     def test_host(self):
         """Validate the provided hosts against the DTD"""
@@ -37,12 +37,12 @@ class ParseHost(unittest.TestCase):
         """Call before every test case."""
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
-        shutil.copytree(os.path.join(conf.confDir, "general"),
+        shutil.copytree(os.path.join(conf.CONFDIR, "general"),
                         os.path.join(self.tmpdir, "general"))
-        shutil.copytree(os.path.join(conf.confDir, "hosttemplates"),
+        shutil.copytree(os.path.join(conf.CONFDIR, "hosttemplates"),
                         os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
-        conf.confDir = self.tmpdir
+        conf.CONFDIR = self.tmpdir
         # We changed the paths, reload the factories
         reload_conf()
         self.host = open(os.path.join(self.tmpdir, "hosts", "host.xml"), "w")
@@ -51,7 +51,7 @@ class ParseHost(unittest.TestCase):
         """Call after every test case."""
         # This has been overwritten in setUp, reset it
         setup_path()
-        #conf.confDir = os.path.join(os.path.dirname(__file__), "..", "src", "conf.d")
+        #conf.CONFDIR = os.path.join(os.path.dirname(__file__), "..", "src", "conf.d")
         shutil.rmtree(self.tmpdir)
 
 
@@ -61,7 +61,7 @@ class ParseHost(unittest.TestCase):
         <host name="testserver1" ip="192.168.1.1" group="Servers">
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert conf.hostsConf.has_key("testserver1"), \
                 "host is not properly parsed"
         assert conf.hostsConf["testserver1"]["name"] == "testserver1", \
@@ -77,7 +77,7 @@ class ParseHost(unittest.TestCase):
         <host name=" testserver1 " ip=" 192.168.1.1 " group=" Servers ">
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert conf.hostsConf.has_key("testserver1"), \
                 "host parsing does not handle whitespaces properly"
 
@@ -87,7 +87,7 @@ class ParseHost(unittest.TestCase):
         <template>linux</template>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert "Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "The \"template\" tag is not properly parsed"
 
@@ -98,7 +98,7 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         try:
-            conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+            conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         except KeyError:
             self.fail("The \"template\" tag does not strip whitespaces")
 
@@ -108,7 +108,7 @@ class ParseHost(unittest.TestCase):
         <attribute name="cpulist">2</attribute>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert conf.hostsConf["testserver1"].has_key("cpulist") and \
                 conf.hostsConf["testserver1"]["cpulist"] == "2", \
                 "The \"attribute\" tag is not properly parsed"
@@ -119,7 +119,7 @@ class ParseHost(unittest.TestCase):
         <attribute name=" cpulist "> 2 </attribute>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert conf.hostsConf["testserver1"].has_key("cpulist") and \
                 conf.hostsConf["testserver1"]["cpulist"] == "2", \
                 "The \"attribute\" tag parsing does not strip whitespaces"
@@ -130,7 +130,7 @@ class ParseHost(unittest.TestCase):
         <tag service="Host" name="important">2</tag>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert "tags" in conf.hostsConf["testserver1"] and \
                "important" in conf.hostsConf["testserver1"]["tags"] and \
                 conf.hostsConf["testserver1"]["tags"]["important"] == "2", \
@@ -142,7 +142,7 @@ class ParseHost(unittest.TestCase):
         <tag service="UpTime" name="important">2</tag>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert "tags" in conf.hostsConf["testserver1"]["services"]["UpTime"] and \
                "important" in conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"] and \
                conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"]["important"] == "2", \
@@ -155,7 +155,7 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         try:
-            conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+            conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         except KeyError:
             self.fail("The \"tag\" tag parsing does not strip whitespaces")
         assert "tags" in conf.hostsConf["testserver1"] and \
@@ -169,7 +169,7 @@ class ParseHost(unittest.TestCase):
         <trap service="test.add_trap" key="test.name">test.label</trap>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert conf.hostsConf["testserver1"].has_key("trapItems") and \
                 conf.hostsConf["testserver1"]["trapItems"]["test.add_trap"]["test.name"] == "test.label", \
                 "The \"trap\" tag is not properly parsed"
@@ -180,7 +180,7 @@ class ParseHost(unittest.TestCase):
         <trap service=" test.add_trap " key=" test.name "> test.label </trap>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert "trapItems" in conf.hostsConf["testserver1"] and \
                "test.add_trap" in conf.hostsConf["testserver1"]["trapItems"] and \
                "test.name" in conf.hostsConf["testserver1"]["trapItems"]["test.add_trap"] and \
@@ -193,7 +193,7 @@ class ParseHost(unittest.TestCase):
         <group>Linux servers</group>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert "Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "The \"group\" tag is not properly parsed"
 
@@ -203,7 +203,7 @@ class ParseHost(unittest.TestCase):
         <group> Linux servers </group>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert "Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "The \"group\" tag parsing does not strip whitespaces"
 
@@ -216,7 +216,7 @@ class ParseHost(unittest.TestCase):
         </test>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert ('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"], \
                 "The \"test\" tag is not properly parsed"
 
@@ -229,7 +229,7 @@ class ParseHost(unittest.TestCase):
         </test>
         </host>""")
         self.host.close()
-        conf.loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert ('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"], \
                 "The \"test\" tag parsing does not strip whitespaces"
 
@@ -240,13 +240,13 @@ class ParseHostTemplate(unittest.TestCase):
         """Call before every test case."""
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
-        shutil.copytree(os.path.join(conf.confDir, "general"),
+        shutil.copytree(os.path.join(conf.CONFDIR, "general"),
                         os.path.join(self.tmpdir, "general"))
-        #shutil.copytree(os.path.join(conf.confDir, "hosttemplates"),
+        #shutil.copytree(os.path.join(conf.CONFDIR, "hosttemplates"),
         #                os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
-        conf.confDir = self.tmpdir
+        conf.CONFDIR = self.tmpdir
         # We changed the paths, reload the factories
         reload_conf()
         conf.hosttemplatefactory.path = [os.path.join(self.tmpdir, "hosttemplates"),]

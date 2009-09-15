@@ -20,11 +20,13 @@
 
 """Generator for the DNS"""
 
+from __future__ import absolute_import
+
 import os
 import time
 
-import conf
-from generators import Templator 
+from .. import conf
+from . import Templator 
 
 class DnsTpl(Templator):
     """Generator for the DNS"""

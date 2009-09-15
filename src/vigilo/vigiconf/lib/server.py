@@ -20,14 +20,18 @@
 Describes a Server to push and commit new software configurations to
 """
 
+from __future__ import absolute_import
+
 import shutil, os
 import syslog
 import socket
 
-import conf
-from lib import ConfMgrError, EditionError
-from lib.systemcommand import SystemCommand, SystemCommandError
-from lib.revisionmanager import RevisionManager
+from vigilo.common.conf import settings
+
+from .. import conf
+from . import ConfMgrError, EditionError
+from .systemcommand import SystemCommand, SystemCommandError
+from .revisionmanager import RevisionManager
 
 
 class ServerError(ConfMgrError):
@@ -61,11 +65,11 @@ class ServerFactory(object):
         """
         localnames = [ "localhost", socket.gethostname(), socket.getfqdn() ]
         if name in localnames:
-            from lib.servertypes.local import ServerLocal
+            from vigilo.vigiconf.lib.servertypes.local import ServerLocal
             return ServerLocal(name)
         else:
             try:
-                from lib.servertypes.remote import ServerRemote
+                from vigilo.vigiconf.lib.servertypes.remote import ServerRemote
             except ImportError:
                 raise EditionError("On the Community Edition, you can only "
                                   +"use the localhost", name)
@@ -86,9 +90,9 @@ class Server(object):
         self.mName = iName
         # mRevisionManager
         self.mRevisionManager = RevisionManager()
-        self.mRevisionManager.setRepository(conf.svnRepository)
+        self.mRevisionManager.setRepository(conf.SVNREPOSITORY)
         self.mRevisionManager.setFilename(os.path.join(
-                conf.libDir, "revisions" , iName + ".revisions"))
+                conf.LIBDIR, "revisions" , iName + ".revisions"))
 
     def getName(self):
         """@return: L{mName}"""
@@ -118,7 +122,7 @@ class Server(object):
         @return: base directory for file deployment
         @rtype: C{str}
         """
-        return os.path.join(conf.libDir, "deploy")
+        return os.path.join(conf.LIBDIR, "deploy")
     
     def createCommand(self, iCommand):
         """
@@ -129,7 +133,7 @@ class Server(object):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = SystemCommand(iCommand)
-        c.simulate = getattr(conf, "simulate", False)
+        c.simulate = settings.get("SIMULATE", False)
         return c
 
     # methods
@@ -152,7 +156,7 @@ class Server(object):
         _CmdLine = "sudo sh -c '"+_CmdLine+"'"
         # execution
         _command = self.createCommand( _CmdLine %
-                                    {"base": conf.baseConfDir} )
+                                    {"base": conf.TARGETCONFDIR} )
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -174,7 +178,7 @@ class Server(object):
         _commandline = self._builddepcmd()
         _command = SystemCommand(_commandline)
         # Simulation mode ?
-        _command.simulate = getattr(conf, "simulate", False)
+        _command.simulate = settings.get("SIMULATE", False)
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -204,7 +208,7 @@ class Server(object):
             _commandStr = "mkdir %s/%s/validation && " \
                           % (self.getBaseDir(), self.getName()) \
                          +"cp %s/validation/*.sh %s/%s/validation/" \
-                          % (conf.dataDir, self.getBaseDir(), self.getName())
+                          % (conf.CODEDIR, self.getBaseDir(), self.getName())
             # instanciates a new systemcommand
             _command = SystemCommand(_commandStr)
             _command.execute()
@@ -231,7 +235,7 @@ class Server(object):
         # check if the directory exists
         try:
             _CmdLine = "sh -c '[ -d %s/old ] && [ -d %s/new ]'" \
-                       % (conf.baseConfDir, conf.baseConfDir)
+                       % (conf.TARGETCONFDIR, conf.TARGETCONFDIR)
              # execution
             _command = self.createCommand(_CmdLine)
             _command.execute()
@@ -246,11 +250,11 @@ class Server(object):
         try:
             
             _newundoStr = "mv %s/new %s/undo" \
-                          % (conf.baseConfDir, conf.baseConfDir)
+                          % (conf.TARGETCONFDIR, conf.TARGETCONFDIR)
             _oldnew = "mv %s/old %s/new" \
-                      % (conf.baseConfDir, conf.baseConfDir)
+                      % (conf.TARGETCONFDIR, conf.TARGETCONFDIR)
             _undoold = "mv %s/undo %s/old" \
-                       % (conf.baseConfDir, conf.baseConfDir)
+                       % (conf.TARGETCONFDIR, conf.TARGETCONFDIR)
             
             _CmdLine = "sudo sh -c ' %s && %s && %s '" \
                        % (_newundoStr, _oldnew, _undoold)

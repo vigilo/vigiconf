@@ -1,4 +1,6 @@
 - Séparer dans deux modules différents du SVN
 - Améliorer le Discoverator en utilisant nmap
 - Tests unitaires pour chaque Test dispo
-- Passer le vigiconf.conf en fichier INI avec ConfigParser
+- Changer le système d'enregistrement des tests pour utiliser une fonction register()
+- Faire un script à installer sur les machines pilotées pour éviter d'avoir à donner tous les droits sudo à vigiconf
+- Eviter que les confclasses ne modifient la hashmap en direct, laisser ce soin aux factories

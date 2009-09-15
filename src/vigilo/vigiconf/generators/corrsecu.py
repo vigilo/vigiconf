@@ -20,8 +20,10 @@
 
 """Generator for the security correlator (CorrSecu)"""
 
-import conf
-from generators import Templator 
+from __future__ import absolute_import
+
+from .. import conf
+from . import Templator 
 
 class CorrSecuTpl(Templator):
     """Generator for the security correlator (CorrSecu)"""
@@ -33,7 +35,7 @@ class CorrSecuTpl(Templator):
                 dirName = "%s/%s/corrsecu" \
                           % (self.baseDir, hostdata['corrsecu'])
                 for i in ['reglesSecu.conf']:
-                    self.copyFile("%s/corrsecu/%s"%(conf.templatesDir, i),
+                    self.copyFile("%s/corrsecu/%s"%(os.path.join(conf.CONFDIR, "filetemplates"), i),
                                   "%s/%s"%(dirName, i))
 
 

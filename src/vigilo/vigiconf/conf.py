@@ -250,16 +250,24 @@ Data Model
           hostgroups in this map or None
 """
 
+from __future__ import absolute_import
+
 import glob
 import sys
 import os
 import subprocess
-from xml.etree import ElementTree as ET # Python 2.5
 
-from lib import ParsingError
-from lib.confclasses.host import Host
-from lib.confclasses.hosttemplate import HostTemplateFactory
-from lib.confclasses.test import TestFactory
+from vigilo.common.conf import settings
+settings.load(module="vigiconf")
+
+from vigilo.common.logging import get_logger
+
+LOGGER = get_logger(__name__)
+
+from .lib import ParsingError
+from .lib.confclasses.host import HostFactory
+from .lib.confclasses.hosttemplate import HostTemplateFactory
+from .lib.confclasses.test import TestFactory
 
 
 __docformat__ = "epytext"
@@ -267,13 +275,14 @@ __docformat__ = "epytext"
 
 def loadConf():
     """
-    Load the confDir directory, looking for configuration files.
+    Load the CONFDIR directory, looking for configuration files.
     @returns: None, but sets global variables as described above.
     """
+    global hostsConf, groupsHierarchy
     # General configuration
     for confsubdir in [ "general", ]:
         try:
-            files = glob.glob(os.path.join(confDir, confsubdir, "*.py"))
+            files = glob.glob(os.path.join(CONFDIR, confsubdir, "*.py"))
             #print files
             for fileF in files:
                 execfile(fileF, globals())
@@ -283,92 +292,25 @@ def loadConf():
             raise e
     # Parse hosts
     try:
-        for root, dirs, files in os.walk(os.path.join(confDir, "hosts")):
-            for f in files:
-                if not f.endswith(".xml"):
-                    continue
-                validatehost(os.path.join(root, f))
-                loadhosts(os.path.join(root, f))
-                #print "Sucessfully parsed %s" % os.path.join(root, file)
-            for d in dirs: # Don't visit subversion/CVS directories
-                if d.startswith("."):
-                    dirs.remove(d)
-                if d == "CVS":
-                    dirs.remove("CVS")
+        hostfactory.load()
     except ParsingError, e:
-        sys.stderr.write("Error loading configuration file %s: %s\n"
-                % (f.replace(os.path.join(confDir, "hosts")+"/", ""), str(e)))
+        LOGGER.error("Error loading configuration file %s: %s\n"
+                % (f.replace(os.path.join(CONFDIR, "hosts")+"/", ""), str(e)))
         raise e
+    hostsConf = hostfactory.hosts
+    groupsHierarchy = hostfactory.groupsHierarchy
 
-def validatehost(source):
-    """
-    Validate the XML against the DTD using xmllint
-    @note: this could take time.
-    @param source: an XML file (or stream)
-    @type  source: C{str} or C{file}
-    """
-    dtd = os.path.join(dataDir, "validation", "dtd", "host.dtd")
-    result = subprocess.call(["xmllint", "--noout", "--dtdvalid", dtd, source])
-    if result != 0:
-        raise ParsingError("XML validation failed")
-
-def loadhosts(source):
-    """
-    Load a Host from an XML file
-    @param source: an XML file (or stream)
-    @type  source: C{str} or C{file}
-    """
-    cur_host = None
-    for event, elem in ET.iterparse(source, events=("start", "end")):
-        if event == "start":
-            if elem.tag == "host":
-                cur_host = Host(elem.attrib["name"].strip(),
-                                elem.attrib["ip"].strip(),
-                                elem.attrib["group"].strip())
-        else:
-            if elem.tag == "template":
-                cur_host.apply_template(elem.text.strip())
-            elif elem.tag == "class":
-                cur_host.classes.append(elem.text.strip())
-            elif elem.tag == "test":
-                testname = elem.attrib["name"].strip()
-                args = {}
-                for arg in elem.getchildren():
-                    args[arg.attrib["name"].strip()] = arg.text.strip()
-                cur_host.add_test(testname, **args)
-            elif elem.tag == "attribute":
-                value = elem.text.strip()
-                items = [ i.text.strip() for i in elem.getchildren()
-                                 if i.tag == "item" ]
-                if items:
-                    value = items
-                else:
-                    value = elem.text.strip()
-                cur_host.set_attribute(elem.attrib["name"].strip(), value)
-            elif elem.tag == "tag":
-                cur_host.add_tag(elem.attrib["service"].strip(),
-                                 elem.attrib["name"].strip(),
-                                 elem.text.strip())
-            elif elem.tag == "trap":
-                cur_host.add_trap(elem.attrib["service"].strip(),
-                                  elem.attrib["key"].strip(),
-                                  elem.text.strip())
-            elif elem.tag == "group":
-                cur_host.add_group(elem.text.strip())
-            elif elem.tag == "host":
-                elem.clear()
 
 
 # Initialize global paths
-dataDir = "/usr/share/vigilo-vigiconf"
-libDir = "/var/lib/vigilo-vigiconf"
-confDir = "/etc/vigilo-vigiconf/conf.d"
-templatesDir = "/etc/vigilo-vigiconf/conf.d/filetemplates"
-baseConfDir = "/etc/vigilo-vigiconf"
-lockFile = "/var/lock/vigilo-vigiconf/vigiconf.token"
-svnUsername = "vigiconf"
-svnPassword = "my_pass_word"
-svnRepository = "file:///var/lib/svn"
+CODEDIR = os.path.dirname(__file__)
+LIBDIR = settings.get("LIBDIR", "/var/lib/vigilo-vigiconf")
+CONFDIR = settings.get("CONFDIR", "/etc/vigilo-vigiconf/conf.d")
+TARGETCONFDIR = settings.get("TARGETCONFDIR", "/etc/vigilo-vigiconf")
+LOCKFILE = settings.get("LOCKFILE", "/var/lock/vigilo-vigiconf/vigiconf.token")
+SVNUSERNAME = settings.get("SVNUSERNAME", "vigiconf")
+SVNPASSWORD = settings.get("SVNPASSWORD", "my_pass_word")
+SVNREPOSITORY = settings.get("SVNREPOSITORY", "file:///var/lib/svn")
 
 # Initialize global conf variables
 apps = {}
@@ -385,13 +327,18 @@ mode = "onedir"
 #mode = "byday"
 confid = ""
 
-# Load the global paths
-confFilePath = os.getenv("VIGICONF_MAINCONF", "/etc/vigilo-vigiconf/vigiconf.conf")
-execfile(confFilePath, globals())
-
 # Initialize global objects and only use those
-hosttemplatefactory = HostTemplateFactory()
 testfactory = TestFactory()
+hosttemplatefactory = HostTemplateFactory(testfactory)
+hostfactory = HostFactory(
+                os.path.join(
+                    settings.get("CONFDIR",
+                                 "/etc/vigilo-vigiconf/conf.d"),
+                    "hosts"),
+                hosttemplatefactory,
+                testfactory,
+                groupsHierarchy,
+              )
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

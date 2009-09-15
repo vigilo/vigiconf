@@ -25,11 +25,13 @@ Remote deployment mode.
 This file is part of the Enterprise Edition.
 """
 
+from __future__ import absolute_import
+
 import syslog
 #from pprint import pprint
 
-import conf
-from dispatchator import Dispatchator
+from ... import conf
+from ...dispatchator import Dispatchator
 
 
 class DispatchatorRemote(Dispatchator):

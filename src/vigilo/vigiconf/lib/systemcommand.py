@@ -21,10 +21,12 @@
 Wrapper for system commands
 """
 
+from __future__ import absolute_import
+
 import os
 import subprocess
 
-from lib import ConfMgrError
+from . import ConfMgrError
 
 
 class SystemCommandError(ConfMgrError):

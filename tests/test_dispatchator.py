@@ -5,10 +5,10 @@ Test that the dispatchator works properly
 
 import sys, os, unittest, tempfile, shutil, glob, re
 
-import conf
-import dispatchator
-from lib.confclasses.host import Host
-from lib import dispatchmodes
+import vigilo.vigiconf.conf as conf
+import vigilo.vigiconf.dispatchator as dispatchator
+from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib import dispatchmodes
 
 from . import reload_conf, setup_tmpdir
 
@@ -36,8 +36,9 @@ class Dispatchator(unittest.TestCase):
         reload_conf()
         # Deploy on the localhost only -> switch to Community Edition
         delattr(conf, "appsGroupsByServer")
-        self.host = Host("testserver1", "192.168.1.1", "Servers")
-        self.host.add_test("UpTime")
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
+        test_list = conf.testfactory.get_test("UpTime", self.host.classes)
+        self.host.add_tests(test_list)
         self.dispatchator = dispatchmodes.getinstance()
         # Disable qualification, validation, stop and start scripts
         for app in self.dispatchator.getApplications():
