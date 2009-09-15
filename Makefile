@@ -71,15 +71,8 @@ install_permissions:
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
 
 
-apidoc: doc/apidoc/index.html
-doc/apidoc/index.html: $(wildcard src/*.py) src/lib src/generators
-	rm -rf $(CURDIR)/doc/apidoc
-	PYTHONPATH=src VIGICONF_MAINCONF="$(CURDIR)/src/$(NAME)-test.conf" \
-		epydoc -o $(dir $@) -v --name Vigilo --url http://www.projet-vigilo.org \
-		--docformat=epytext $^
 
 lint: lint_pylint
-
 tests: tests_nose
 
 

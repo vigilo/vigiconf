@@ -147,18 +147,18 @@ class Host(object):
     def add_dependency(self, service="Host", deps=None, options=None, cti=1):
         """
         Add a topological dependency, from "origin" to "target".
+
         @param service: the origin service. If the value is the string "Host",
             then the host itself is the origin.
         @type  service: C{str}
-        @param depsself the target dependencies. If deps is a C{str}, then it is
-            considered as a hostname. If deps is a dict, then it may be of the
+        @param deps: the target dependencies. If deps is a C{str}, then it is
+            considered as a hostname. If deps is a C{dict}, then it may be of the
             following form::
-
                 { 
                     "and": [(host1, "Host"), (host2, "Service1")]
                     "or": [(host3, "Host")]
                 }
-
+        @type  deps: C{str} or C{dict}
         @param options: TODO
         @type  options: C{list}
         @param cti: alert reference (Category - Type - Item)
