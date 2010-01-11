@@ -10,7 +10,7 @@ import vigilo.vigiconf.dispatchator as dispatchator
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import dispatchmodes
 
-from . import reload_conf, setup_tmpdir
+from confutil import reload_conf, setup_tmpdir
 
 
 class Dispatchator(unittest.TestCase):

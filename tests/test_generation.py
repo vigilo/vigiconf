@@ -9,7 +9,7 @@ import vigilo.vigiconf.conf as conf
 import vigilo.vigiconf.generator as generator
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from . import reload_conf, setup_tmpdir
+from confutil import reload_conf, setup_tmpdir
 
 
 class Generator(unittest.TestCase):

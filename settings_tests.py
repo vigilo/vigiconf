@@ -11,3 +11,10 @@ SVNPASSWORD = "my_pass_word"
 SVNREPOSITORY = ""
 SIMULATE = True
 SILENT = True
+
+# sqlite db
+VIGILO_MODELS_BDD_BASENAME = 'vigilo_'
+VIGILO_ALL_DEFAULT_LANGUAGE = 'fr'
+VIGILO_SQLALCHEMY = {
+    'url': 'sqlite:///:memory:',
+}

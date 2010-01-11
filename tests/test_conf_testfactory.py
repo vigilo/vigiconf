@@ -5,7 +5,7 @@ import unittest
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from . import reload_conf
+from confutil import reload_conf
 
 
 class TestFactory(unittest.TestCase):

@@ -4,7 +4,7 @@ import sys, os, unittest, tempfile, shutil, glob, subprocess
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from . import reload_conf, setup_tmpdir, setup_path
+from confutil import reload_conf, setup_tmpdir, setup_path
 
 class ValidateDTD(unittest.TestCase):
 
