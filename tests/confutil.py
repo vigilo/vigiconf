@@ -5,6 +5,12 @@ import tempfile
 
 import vigilo.vigiconf.conf as conf
 
+try:
+    from vigilo.models.vigilo_bdd_config import metadata
+except Exception:
+    # sqlalchemy not installed
+    pass
+
 #testdatadir = None
 
 def setUpModule(self):
@@ -36,3 +42,12 @@ def setup_tmpdir():
     conf.LIBDIR = tmpdir
     return tmpdir
 
+#Create an empty database before we start our tests for this module
+def setup_db():
+    """Crée toutes les tables du modèle dans la BDD."""
+    metadata.create_all()
+    
+#Teardown that database 
+def teardown_db():
+    """Supprime toutes les tables du modèle de la BDD."""
+    metadata.drop_all()

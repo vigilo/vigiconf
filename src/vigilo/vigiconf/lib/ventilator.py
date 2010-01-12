@@ -31,6 +31,10 @@ from __future__ import absolute_import
 import os.path
 import pickle
 
+from vigilo.models.session import DBSession
+from vigilo.models import Host
+
+
 from .. import conf
 
 __docformat__ = "epytext"
@@ -40,6 +44,8 @@ def saveToFile(o, fileName):
     Save the state to a pickle file
     @param fileName: the filename to save to
     @type  fileName: C{str}
+    
+    @deprecated: the state is now saved in a database
     """
     pickle.dump(o, open(fileName, 'wb'))
 
@@ -48,6 +54,8 @@ def getFromFile(fileName):
     Get the state from a pickle file
     @param fileName: the filename to load from
     @type  fileName: C{str}
+    
+    @deprecated: the state is now saved in a database
     """
     if os.path.exists(fileName):
         return pickle.load(open(fileName, 'rb'))
@@ -72,12 +80,14 @@ def getFileNameFromServerName(serverName):
     @param serverName: server name
     @type  serverName: C{str}
     @return: path to the pickle file
+    
+    @deprecated: the state is now saved in a database
     """
     return "%s/%s.pkl" % (os.path.join(conf.LIBDIR, "db"), serverName)
 
 def appendHost(serverName, host):
     """
-    Append a host to a pickle database
+    Append a host to a pickle database (deprecated)
     @param serverName: server name
     @type  serverName: C{str}
     @param host: the host to append
@@ -88,7 +98,20 @@ def appendHost(serverName, host):
     if o == None:
         o = []
     o.append(host)
+    
+    # todo: delete
     saveToFile(o, fileName)
+    
+    # db implementation
+    h = Host.by_host_name(host)
+    if not h:
+        pass
+        #raise Exception('host %s must exist in the db' % host)
+        """
+        h = Host(name=name, checkhostcmd=checkhostcmd,
+                       hosttpl=hosttpl, snmpcommunity=snmpcommunity, mainip=mainip, snmpport=snmpport)
+        DBSession.add(h)
+        """
 
 
 def getNextServerToUse(serverList):
