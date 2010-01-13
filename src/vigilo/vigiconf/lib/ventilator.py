@@ -32,7 +32,7 @@ import os.path
 import pickle
 
 from vigilo.models.session import DBSession
-from vigilo.models import Host
+from vigilo.models import Host, Application, HostApplication
 
 
 from .. import conf
@@ -70,9 +70,14 @@ def getSize(serverName):
     @rtype: C{int}
     """
     o = getFromFile(getFileNameFromServerName(serverName))
+    
+    # db implementation
+    size = DBSession.query(HostApplication).filter(HostApplication.appserver.has(name=serverName)).count()
     if o == None:
+        if size != 0: raise Exception("getSize db implementation error")
         return 0
     else:
+        if size != len(o): raise Exception("getSize db implementation error")
         return len(o)
 
 def getFileNameFromServerName(serverName):
@@ -103,15 +108,9 @@ def appendHost(serverName, host):
     saveToFile(o, fileName)
     
     # db implementation
-    h = Host.by_host_name(host)
-    if not h:
-        pass
-        #raise Exception('host %s must exist in the db' % host)
-        """
-        h = Host(name=name, checkhostcmd=checkhostcmd,
-                       hosttpl=hosttpl, snmpcommunity=snmpcommunity, mainip=mainip, snmpport=snmpport)
-        DBSession.add(h)
-        """
+    # TODO
+    appserver = Host.by_host_name(serverName)
+    
 
 
 def getNextServerToUse(serverList):

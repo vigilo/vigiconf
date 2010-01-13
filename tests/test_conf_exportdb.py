@@ -38,8 +38,8 @@ class ExportDBTest(unittest.TestCase):
         self.assertEquals(nb, nbdb, "nb hostgroups conf:%d db:%d" % (nb, nbdb))
         
         # check if localhost exists in db
-        h = Host.by_host_name('localhost')
-        self.assertEquals(h.name, 'localhost')
+        h = Host.by_host_name(u'localhost')
+        self.assertEquals(h.name, u'localhost')
     
 
 if __name__ == '__main__':
