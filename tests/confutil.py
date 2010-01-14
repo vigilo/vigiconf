@@ -5,11 +5,11 @@ import tempfile
 
 import vigilo.vigiconf.conf as conf
 
-try:
-    from vigilo.models.vigilo_bdd_config import metadata
-except Exception:
-    # sqlalchemy not installed
-    pass
+from vigilo.models.session import DBSession
+
+from vigilo.models.vigilo_bdd_config import metadata
+
+metadata.bind = DBSession.bind
 
 #testdatadir = None
 

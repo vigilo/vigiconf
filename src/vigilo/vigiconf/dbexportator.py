@@ -35,7 +35,7 @@ from vigilo.models import Application, HostApplication
 from . import conf
 
 def update_apps_db():
-    """ Update database with new apps
+    """ Update database with new apps.
     TODO: add new hosts here to be able to ventilate before the db export ??
     """
     apps = conf.apps
@@ -51,8 +51,7 @@ def update_apps_db():
     DBSession.flush()
 
 def export_conf_db():
-    """
-    Update database with hostConf data.
+    """ Update database with hostConf data.
     @returns: None
     """
     hostsConf = conf.hostsConf
@@ -76,13 +75,13 @@ def export_conf_db():
             h = Host.by_host_name(hostname)
             if h:
                 # update host object
-                h.checkhostcmd=host['checkHostCMD']
-                h.hosttpl=host['hostTPL']
-                h.snmpcommunity=host['community']
+                h.checkhostcmd = host['checkHostCMD']
+                h.hosttpl = host['hostTPL']
+                h.snmpcommunity = host['community']
                 h.snmpoidsperpdu = host['snmpOIDsPerPDU']
                 h.snmpversion = host['snmpVersion']
-                h.mainip=host['mainIP']
-                h.snmpport=host['port']
+                h.mainip = host['mainIP']
+                h.snmpport = host['port']
             else:
                 # create host object
                 h = Host(name=hostname, checkhostcmd=host['checkHostCMD'],
@@ -97,10 +96,10 @@ def export_conf_db():
                 h.groups.append(HostGroup.by_group_name(og))
             
             # export graphes groups
-            export_host_graphgroups(host['graphGroups'], h)
+            _export_host_graphgroups(host['graphGroups'], h)
             
             # export graphes
-            export_host_graphitems(host['graphItems'], h)
+            _export_host_graphitems(host['graphItems'], h)
             
     except:
         DBSession.rollback()
@@ -136,7 +135,7 @@ def export_conf_db():
     
     DBSession.flush()
 
-def export_host_graphgroups(graphgroups, h):
+def _export_host_graphgroups(graphgroups, h):
     """
     Update database with graph groups for a host.
     
@@ -167,7 +166,7 @@ def export_host_graphgroups(graphgroups, h):
         
 
 
-def export_host_graphitems(graphitems, h):
+def _export_host_graphitems(graphitems, h):
     """
     Update database with graph items for a host.
     
@@ -235,6 +234,7 @@ def export_ventilation_DB(ventilation):
             hostapp = HostApplication(host=Host.by_host_name(host),
                                       appserver=Host.by_host_name(server),
                                       application=Application.by_app_name(app))
-    
+            
+            DBSession.add(hostapp)
     DBSession.flush()
 

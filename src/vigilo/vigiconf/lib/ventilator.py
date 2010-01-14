@@ -62,6 +62,23 @@ def getFromFile(fileName):
     else:
         return None
 
+def getFromDB(servername):
+    """
+    Get the state from DB
+    @param servername: the name of the server to load from
+    @type  fileName: C{str}
+    
+    @return: the same list as getFromFile
+    """
+    hostapps = DBSession.query(HostApplication)\
+                    .filter(HostApplication.appserver.has(name=servername))\
+                    .filter(HostApplication.application.has(name=u'nagios'))\
+    
+    hosts = []
+    for ha in hostapps:
+        hosts.append(ha.host.name)
+    return hosts
+
 def getSize(serverName):
     """
     @param serverName: a server name
@@ -72,7 +89,13 @@ def getSize(serverName):
     o = getFromFile(getFileNameFromServerName(serverName))
     
     # db implementation
-    size = DBSession.query(HostApplication).filter(HostApplication.appserver.has(name=serverName)).count()
+    odb = getFromDB(serverName)
+    if len(o) != len(odb):
+        raise Exception("getFromDB error (%d)" % len(odb))
+    size = DBSession.query(HostApplication)\
+                    .filter(HostApplication.appserver.has(name=serverName))\
+                    .filter(HostApplication.application.has(name=u'nagios'))\
+                    .count()
     if o == None:
         if size != 0: raise Exception("getSize db implementation error")
         return 0
@@ -107,10 +130,13 @@ def appendHost(serverName, host):
     # todo: delete
     saveToFile(o, fileName)
     
-    # db implementation
-    # TODO
-    appserver = Host.by_host_name(serverName)
-    
+    # DB implementation
+    # TODO: check nagios is a convenient application for this
+    # HostApplication is used here to reimplement the old pickled dict
+    hostapp = HostApplication(appserver=Host.by_host_name(serverName),
+                              host=Host.by_host_name(host),
+                              application=Application.by_app_name(u'nagios')
+                              )
 
 
 def getNextServerToUse(serverList):
