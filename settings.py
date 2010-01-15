@@ -14,3 +14,9 @@ VIGILO_ALL_DEFAULT_LANGUAGE = 'fr'
 VIGILO_SQLALCHEMY = {
     'url': 'sqlite:///:memory:',
 }
+
+GROUPS_DEF = {
+    'new_hosts': u'new_hosts_to_ventilate',
+    'new_services': u'new_services'
+}
+APP_VENTILATION = u'nagios'

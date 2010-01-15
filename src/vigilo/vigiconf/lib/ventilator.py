@@ -32,6 +32,10 @@ from __future__ import absolute_import
 from vigilo.models.session import DBSession
 from vigilo.models import Host, Application, HostApplication
 
+from vigilo.common.conf import settings
+
+# application used to implement the many2one link "is_supervised for hosts with HostApplication
+APP_VENTILATION = settings.get('APP_VENTILATION', u'nagios')
 
 from .. import conf
 
@@ -47,7 +51,7 @@ def getFromDB(servername):
     """
     hostapps = DBSession.query(HostApplication)\
                     .filter(HostApplication.appserver.has(name=servername))\
-                    .filter(HostApplication.application.has(name=u'nagios'))\
+                    .filter(HostApplication.application.has(name=APP_VENTILATION))\
     
     hosts = []
     for ha in hostapps:
@@ -63,7 +67,7 @@ def getSize(serverName):
     """
     size = DBSession.query(HostApplication)\
                     .filter(HostApplication.appserver.has(name=serverName))\
-                    .filter(HostApplication.application.has(name=u'nagios'))\
+                    .filter(HostApplication.application.has(name=APP_VENTILATION))\
                     .count()
     return size
 
@@ -80,7 +84,7 @@ def appendHost(serverName, host):
     # HostApplication is used here to reimplement the old pickled dict
     hostapp = HostApplication(appserver=Host.by_host_name(serverName),
                               host=Host.by_host_name(host),
-                              application=Application.by_app_name(u'nagios')
+                              application=Application.by_app_name(APP_VENTILATION)
                               )
     DBSession.add(hostapp)
     DBSession.flush()

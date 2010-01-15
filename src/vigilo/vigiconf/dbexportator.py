@@ -27,12 +27,15 @@ from __future__ import absolute_import
 import sys
 import syslog
 
+from vigilo.common.conf import settings
+
 from vigilo.models.session import DBSession
 from vigilo.models import Host, HostGroup, ServiceLowLevel, ServiceGroup
 from vigilo.models import Graph, GraphGroup
 from vigilo.models import Application, HostApplication
 
 from . import conf
+
 
 def update_apps_db():
     """ Update database with new apps.
@@ -58,6 +61,12 @@ def export_conf_db():
     hostsGroups = conf.hostsGroups
     groupsHierarchy = conf.groupsHierarchy
     
+    # groups for new entities
+    groups_def = settings.get('GROUPS_DEF', {
+                                'new_hosts': u'new_hosts_to_ventilate',
+                                'new_services': u'new_services'
+                                            })
+    
     # hosts groups
     try:
         for name, desc in hostsGroups.iteritems():
@@ -65,6 +74,7 @@ def export_conf_db():
             if not hg:
                 hg = HostGroup(name=unicode(name))
             DBSession.add(hg)
+        DBSession.flush()
     except:
         DBSession.rollback()
         raise
@@ -82,6 +92,8 @@ def export_conf_db():
                 h.snmpversion = host['snmpVersion']
                 h.mainip = host['mainIP']
                 h.snmpport = host['port']
+                # add groups to host
+                h.groups = [HostGroup.by_group_name(host['serverGroup']),]
             else:
                 # create host object
                 h = Host(name=unicode(hostname), checkhostcmd=host['checkHostCMD'],
@@ -90,8 +102,8 @@ def export_conf_db():
                                snmpoidsperpdu=host['snmpOIDsPerPDU'], weight=1,
                                snmpversion=host['snmpVersion'])
                 DBSession.add(h)
-            # add groups to host
-            h.groups = [HostGroup.by_group_name(host['serverGroup']),]
+                h.groups = [HostGroup.by_group_name(groups_def['new_hosts']), ]
+            
             for og in host['otherGroups']:
                 h.groups.append(HostGroup.by_group_name(og))
             
@@ -101,6 +113,7 @@ def export_conf_db():
             # export graphes
             _export_host_graphitems(host['graphItems'], h)
             
+        DBSession.flush()
     except:
         DBSession.rollback()
         raise
@@ -120,7 +133,10 @@ def export_conf_db():
                     s = ServiceLowLevel(servicename=unicode(srvname), op_dep=u'-',
                                         host=Host.by_host_name(hostname),
                                         command=cmd, weight=1)
+                    # new services def group
+                    s.groups = [ServiceGroup.by_group_name(groups_def['new_services']), ]
                     DBSession.add(s)
+        DBSession.flush()
     except:
         DBSession.rollback()
         raise
