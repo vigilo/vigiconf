@@ -45,7 +45,7 @@ def update_apps_db():
     for name in apps.keys():
         app = Application.by_app_name(name)
         if not app:
-            app = Application(name=name)
+            app = Application(name=unicode(name))
             DBSession.add(app)
     
     DBSession.flush()
@@ -63,7 +63,7 @@ def export_conf_db():
         for name, desc in hostsGroups.iteritems():
             hg = HostGroup.by_group_name(name)
             if not hg:
-                hg = HostGroup(name=name)
+                hg = HostGroup(name=unicode(name))
             DBSession.add(hg)
     except:
         DBSession.rollback()
@@ -84,7 +84,7 @@ def export_conf_db():
                 h.snmpport = host['port']
             else:
                 # create host object
-                h = Host(name=hostname, checkhostcmd=host['checkHostCMD'],
+                h = Host(name=unicode(hostname), checkhostcmd=host['checkHostCMD'],
                                hosttpl=host['hostTPL'], snmpcommunity=host['community'],
                                mainip=host['mainIP'], snmpport=host['port'],
                                snmpoidsperpdu=host['snmpOIDsPerPDU'], weight=1,
@@ -117,7 +117,7 @@ def export_conf_db():
                     cmd = u'none'
                     if srv.has_key('command'):
                         cmd = srv['command']
-                    s = ServiceLowLevel(servicename=srvname, op_dep=u'-',
+                    s = ServiceLowLevel(servicename=unicode(srvname), op_dep=u'-',
                                         host=Host.by_host_name(hostname),
                                         command=cmd, weight=1)
                     DBSession.add(s)
@@ -154,7 +154,7 @@ def _export_host_graphgroups(graphgroups, h):
         if group:
             group.children = [] # redundant with graph.groups = [] ?
         else:
-            group = GraphGroup(name=groupname)
+            group = GraphGroup(name=unicode(groupname))
             DBSession.add(group)
         for name in graphnames:
             graph = DBSession.query(Graph).filter(Graph.name == name).first()

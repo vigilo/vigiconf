@@ -28,8 +28,6 @@ This file is part of the Enterprise Edition
 
 from __future__ import absolute_import
 
-import os.path
-import pickle
 
 from vigilo.models.session import DBSession
 from vigilo.models import Host, Application, HostApplication
@@ -38,29 +36,6 @@ from vigilo.models import Host, Application, HostApplication
 from .. import conf
 
 __docformat__ = "epytext"
-
-def saveToFile(o, fileName):
-    """
-    Save the state to a pickle file
-    @param fileName: the filename to save to
-    @type  fileName: C{str}
-    
-    @deprecated: the state is now saved in a database
-    """
-    pickle.dump(o, open(fileName, 'wb'))
-
-def getFromFile(fileName):
-    """
-    Get the state from a pickle file
-    @param fileName: the filename to load from
-    @type  fileName: C{str}
-    
-    @deprecated: the state is now saved in a database
-    """
-    if os.path.exists(fileName):
-        return pickle.load(open(fileName, 'rb'))
-    else:
-        return None
 
 def getFromDB(servername):
     """
@@ -86,32 +61,11 @@ def getSize(serverName):
     @return: the number of hosts held by a server
     @rtype: C{int}
     """
-    o = getFromFile(getFileNameFromServerName(serverName))
-    
-    # db implementation
-    odb = getFromDB(serverName)
-    if len(o) != len(odb):
-        raise Exception("getFromDB error (%d)" % len(odb))
     size = DBSession.query(HostApplication)\
                     .filter(HostApplication.appserver.has(name=serverName))\
                     .filter(HostApplication.application.has(name=u'nagios'))\
                     .count()
-    if o == None:
-        if size != 0: raise Exception("getSize db implementation error")
-        return 0
-    else:
-        if size != len(o): raise Exception("getSize db implementation error")
-        return len(o)
-
-def getFileNameFromServerName(serverName):
-    """
-    @param serverName: server name
-    @type  serverName: C{str}
-    @return: path to the pickle file
-    
-    @deprecated: the state is now saved in a database
-    """
-    return "%s/%s.pkl" % (os.path.join(conf.LIBDIR, "db"), serverName)
+    return size
 
 def appendHost(serverName, host):
     """
@@ -121,15 +75,6 @@ def appendHost(serverName, host):
     @param host: the host to append
     @type  host: C{str}
     """
-    fileName = getFileNameFromServerName(serverName)
-    o = getFromFile(fileName)
-    if o == None:
-        o = []
-    o.append(host)
-    
-    # todo: delete
-    saveToFile(o, fileName)
-    
     # DB implementation
     # TODO: check nagios is a convenient application for this
     # HostApplication is used here to reimplement the old pickled dict
@@ -137,6 +82,8 @@ def appendHost(serverName, host):
                               host=Host.by_host_name(host),
                               application=Application.by_app_name(u'nagios')
                               )
+    DBSession.add(hostapp)
+    DBSession.flush()
 
 
 def getNextServerToUse(serverList):
@@ -167,7 +114,7 @@ def getServerToUse(serverList, host):
     @rtype:  C{str}
     """
     for i in serverList:
-        o = getFromFile(getFileNameFromServerName(i))
+        o = getFromDB(i)
         if o and host in o:
             return i
     # not found yet, choose next server

@@ -30,24 +30,13 @@ class VentilatorTest(unittest.TestCase):
         conf.hosttemplatefactory.load_templates()
         reload_conf()
         setup_db()
-        print conf
     
     def tearDown(self):
         """Call after every test case."""
         teardown_db()
         #shutil.rmtree(self.tmpdir)
-    
-    def test_add_host(self):
-        #host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
-        appendHost(u'supserver.example.com', u'testserver1')
-        s = getServerToUse([u'supserver.example.com',], u'testserver1')
-        self.assertEquals(s, u'supserver.example.com')
-    
-    def test_export_localventilation_db(self):
-        ventilation = generator.get_local_ventilation()
-        self.assertEquals(len(ventilation['localhost'].keys()), 14, "14 apps (%d)" % len(ventilation['localhost'].keys()))
         
-        # need locahost in db
+    def _create_localhost(self):
         host = Host(
             name=u'localhost',
             checkhostcmd=u'halt -f',
@@ -60,6 +49,29 @@ class VentilatorTest(unittest.TestCase):
         )
         DBSession.add(host)
         DBSession.flush()
+        return host
+        
+    def _create_serverhost(self, name):
+        host = Host(
+            name=name,
+            checkhostcmd=u'halt -f',
+            snmpcommunity=u'public',
+            description=u'My Server',
+            hosttpl=u'template',
+            mainip=u'1.2.3.4',
+            snmpport=u'1234',
+            weight=34,
+        )
+        DBSession.add(host)
+        DBSession.flush()
+        return host
+    
+    def test_export_localventilation_db(self):
+        ventilation = generator.get_local_ventilation()
+        self.assertEquals(len(ventilation['localhost'].keys()), 14, "14 apps (%d)" % len(ventilation['localhost'].keys()))
+        
+        # need locahost in db
+        host = self._create_localhost()
         
         #need apps in DB
         dbexportator.update_apps_db()
@@ -73,18 +85,40 @@ class VentilatorTest(unittest.TestCase):
             self.assertEquals(links.count(), 1, "One supervision link (%d)" % links.count())
             self.assertEquals(links.first().appserver.name, u'localhost', "superviser server is localhost")
         
-    def test_ventilation_db(self):
-        # check that conditions allow enterprise ventilation
-        if hasattr(conf, "appsGroupsByServer"):
-            try:
-                from vigilo.vigiconf.lib import ventilator
-            except ImportError:
-                # Community Edition, ventilator is not available.
-                raise
-        else:
-            raise Exception("conf has no attr appsGroupsByServer")
+    def test_getservertouse(self, one_server=True):
+        """ check db implementation that replaces pickle files.
+        """
+        # need locahost in db
+        host = self._create_localhost()
         
-        ventilation = generator.getventilation()
+        # need server
+        self._create_serverhost(u'supserver.example.com')
+        
+        # need nagios application
+        nagios = Application(name=u'nagios')
+        DBSession.add(nagios)
+        DBSession.flush()
+
+        for appGroup in conf.appsGroupsByServer:
+            for hostGroup in conf.appsGroupsByServer[appGroup]:
+                l = conf.appsGroupsByServer[appGroup][hostGroup]
+                server = getServerToUse(l, host.name)
+                if one_server:
+                    self.assertEquals(server, u'supserver.example.com')
+        
+    def test_getservertouse_multi(self):
+        
+        # add 2 others servers in conf
+        for appGroup in conf.appsGroupsByServer:
+            for hostGroup in conf.appsGroupsByServer[appGroup]:
+                conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver2.example.com')
+                conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
+        
+        # add the 2 servers in DB
+        self._create_serverhost(u'supserver2.example.com')
+        self._create_serverhost(u'supserver3.example.com')
+        
+        self.test_getservertouse(one_server=False)
 
 
 if __name__ == '__main__':
