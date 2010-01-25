@@ -30,7 +30,7 @@ import syslog
 from vigilo.common.conf import settings
 
 from vigilo.models.session import DBSession
-from vigilo.models import Host, HostGroup, ServiceLowLevel, ServiceGroup
+from vigilo.models import Host, HostGroup, LowLevelService, ServiceGroup
 from vigilo.models import Graph, GraphGroup
 from vigilo.models import Application, HostApplication
 
@@ -129,7 +129,7 @@ def export_conf_db():
     try:
         for hostname, host in hostsConf.iteritems():
             for srvname, srv in host['services'].iteritems():
-                s = ServiceLowLevel.by_host_service_name(hostname, srvname)
+                s = LowLevelService.by_host_service_name(hostname, srvname)
                 if s:
                     s.command = srv['command']
                 else:
@@ -137,7 +137,7 @@ def export_conf_db():
                     cmd = u'none'
                     if srv.has_key('command'):
                         cmd = srv['command']
-                    s = ServiceLowLevel(servicename=unicode(srvname), op_dep=u'-',
+                    s = LowLevelService(servicename=unicode(srvname), op_dep=u'-',
                                         host=Host.by_host_name(hostname),
                                         command=cmd, weight=1)
                     # new services def group
