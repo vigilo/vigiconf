@@ -30,7 +30,7 @@ from __future__ import absolute_import
 
 
 from vigilo.models.session import DBSession
-from vigilo.models import Host, Application, HostApplication
+from vigilo.models import Host, Application, Ventilation, VigiloServer
 
 from vigilo.common.conf import settings
 
@@ -49,13 +49,13 @@ def getFromDB(servername):
     
     @return: the same list as getFromFile
     """
-    hostapps = DBSession.query(HostApplication)\
-                    .filter(HostApplication.appserver.has(name=servername))\
-                    .filter(HostApplication.application.has(name=APP_VENTILATION))\
+    vlist = DBSession.query(Ventilation)\
+                    .filter(Ventilation.vigiloserver.has(name=servername))\
+                    .filter(Ventilation.application.has(name=APP_VENTILATION))
     
     hosts = []
-    for ha in hostapps:
-        hosts.append(ha.host.name)
+    for v in vlist:
+        hosts.append(v.host.name)
     return hosts
 
 def getSize(serverName):
@@ -65,9 +65,9 @@ def getSize(serverName):
     @return: the number of hosts held by a server
     @rtype: C{int}
     """
-    size = DBSession.query(HostApplication)\
-                    .filter(HostApplication.appserver.has(name=serverName))\
-                    .filter(HostApplication.application.has(name=APP_VENTILATION))\
+    size = DBSession.query(Ventilation)\
+                    .filter(Ventilation.vigiloserver.has(name=serverName))\
+                    .filter(Ventilation.application.has(name=APP_VENTILATION))\
                     .count()
     return size
 
@@ -82,10 +82,10 @@ def appendHost(serverName, host):
     # DB implementation
     # TODO: check nagios is a convenient application for this
     # HostApplication is used here to reimplement the old pickled dict
-    hostapp = HostApplication(appserver=Host.by_host_name(serverName),
-                              host=Host.by_host_name(host),
-                              application=Application.by_app_name(APP_VENTILATION)
-                              )
+    hostapp = Ventilation(vigiloserver=VigiloServer.by_vigiloserver_name(serverName),
+                          host=Host.by_host_name(host),
+                          application=Application.by_app_name(APP_VENTILATION)
+                          )
     DBSession.add(hostapp)
     DBSession.flush()
 

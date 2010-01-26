@@ -16,7 +16,7 @@ from vigilo.vigiconf import generator
 from vigilo.vigiconf import dbexportator
 
 from vigilo.models.session import DBSession
-from vigilo.models import Host, HostApplication, Application
+from vigilo.models import Host, Ventilation, Application, VigiloServer
 
 class VentilatorTest(unittest.TestCase):
     """Test Ventilator"""
@@ -51,20 +51,11 @@ class VentilatorTest(unittest.TestCase):
         DBSession.flush()
         return host
         
-    def _create_serverhost(self, name):
-        host = Host(
-            name=name,
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'My Server',
-            hosttpl=u'template',
-            mainip=u'1.2.3.4',
-            snmpport=u'1234',
-            weight=34,
-        )
-        DBSession.add(host)
+    def _create_vigiloserver(self, name):
+        v = VigiloServer(name=name)
+        DBSession.add(v)
         DBSession.flush()
-        return host
+        return v
     
     def test_export_localventilation_db(self):
         ventilation = generator.get_local_ventilation()
@@ -72,6 +63,8 @@ class VentilatorTest(unittest.TestCase):
         
         # need locahost in db
         host = self._create_localhost()
+        # need localhost as VigiloServer
+        self._create_vigiloserver(u'localhost')
         
         #need apps in DB
         dbexportator.update_apps_db()
@@ -81,9 +74,9 @@ class VentilatorTest(unittest.TestCase):
         
         # check that for each app, localhost is supervised by itself
         for app in conf.apps.keys():
-            links = DBSession.query(HostApplication).filter(HostApplication.application.has(Application.name==app)).filter(HostApplication.host==host)
+            links = DBSession.query(Ventilation).filter(Ventilation.application.has(Application.name==app)).filter(Ventilation.host==host)
             self.assertEquals(links.count(), 1, "One supervision link (%d)" % links.count())
-            self.assertEquals(links.first().appserver.name, u'localhost', "superviser server is localhost")
+            self.assertEquals(links.first().vigiloserver.name, u'localhost', "superviser server is localhost")
         
     def test_getservertouse(self, one_server=True):
         """ check db implementation that replaces pickle files.
@@ -92,9 +85,10 @@ class VentilatorTest(unittest.TestCase):
         host = self._create_localhost()
         
         # need server
-        self._create_serverhost(u'supserver.example.com')
+        self._create_vigiloserver(u'supserver.example.com')
         
         # need nagios application
+        # TODO: no more
         nagios = Application(name=u'nagios')
         DBSession.add(nagios)
         DBSession.flush()
@@ -115,8 +109,8 @@ class VentilatorTest(unittest.TestCase):
                 conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
         
         # add the 2 servers in DB
-        self._create_serverhost(u'supserver2.example.com')
-        self._create_serverhost(u'supserver3.example.com')
+        self._create_vigiloserver(u'supserver2.example.com')
+        self._create_vigiloserver(u'supserver3.example.com')
         
         self.test_getservertouse(one_server=False)
 

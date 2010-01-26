@@ -32,7 +32,7 @@ from vigilo.common.conf import settings
 from vigilo.models.session import DBSession
 from vigilo.models import Host, HostGroup, LowLevelService, ServiceGroup
 from vigilo.models import Graph, GraphGroup
-from vigilo.models import Application, HostApplication
+from vigilo.models import Application, Ventilation, VigiloServer
 
 from . import conf
 
@@ -255,14 +255,14 @@ def export_ventilation_DB(ventilation):
     
     """
     # delete all associations
-    DBSession.query(HostApplication).delete()
+    DBSession.query(Ventilation).delete()
     
     for host, serverbyapp in ventilation.iteritems():
         for app, server in serverbyapp.iteritems():
-            hostapp = HostApplication(host=Host.by_host_name(host),
-                                      appserver=Host.by_host_name(server),
+            v = Ventilation(host=Host.by_host_name(host),
+                                      vigiloserver=VigiloServer.by_vigiloserver_name(server),
                                       application=Application.by_app_name(app))
             
-            DBSession.add(hostapp)
+            DBSession.add(v)
     DBSession.flush()
 
