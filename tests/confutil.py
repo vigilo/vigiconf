@@ -38,7 +38,7 @@ def reload_conf():
 
 def setup_tmpdir():
     """Prepare the temporary directory"""
-    tmpdir = tempfile.mkdtemp(dir="/dev/shm")
+    tmpdir = tempfile.mkdtemp(dir="/dev/shm", prefix="tests-vigiconf")
     conf.LIBDIR = tmpdir
     return tmpdir
 

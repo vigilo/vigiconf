@@ -34,7 +34,7 @@ class VentilatorTest(unittest.TestCase):
     def tearDown(self):
         """Call after every test case."""
         teardown_db()
-        #shutil.rmtree(self.tmpdir)
+        shutil.rmtree(self.tmpdir)
         
     def _create_localhost(self):
         host = Host(
