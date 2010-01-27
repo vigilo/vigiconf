@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+<!-- IP type (TODO: support IPv6, improve regexp) -->
+
 <xs:simpleType name="IPType">
 	<xs:restriction base="xs:string">
 	<xs:pattern value="[0-9\.]+"/>
@@ -8,9 +10,17 @@
 </xs:simpleType>
 
 
+<!-- Element hosts
+=================================================
+
+hosts element contains one ore more host elements
+=================================================
+-->
 <xs:element name="hosts">
   <xs:complexType>
 	<xs:sequence>
+		
+		<!-- Element host -->
 	
 		<xs:element name="host" minOccurs="1" maxOccurs="unbounded" >
 		  <xs:complexType>
@@ -84,7 +94,9 @@
 		    
 		  </xs:complexType>
 		</xs:element>
-
+		
+		<!-- End Element host -->
+		
  	</xs:sequence>
   </xs:complexType>
 </xs:element>

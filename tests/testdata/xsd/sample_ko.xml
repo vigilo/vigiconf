@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<sample attr="this is invalid">
+A sample to test XSDTest base class
+</sample>
