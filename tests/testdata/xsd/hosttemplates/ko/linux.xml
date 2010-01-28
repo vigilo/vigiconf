@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<templates>
 <template name="linux">
     <attribute name="snmpOIDsPerPDU">10</attribute>
     <group>Linux servers</group>
@@ -25,4 +24,3 @@
     <test name="TCPConn"/>
     <test name="RAID"/>
 </template>
-</templates>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<xs:element name="hostgroups">
+  <xs:complexType>
+	<xs:sequence>
+	
+		<xs:element maxOccurs="unbounded" minOccurs="1" name="hostgroup">
+			  <xs:complexType>
+			  
+			    <xs:sequence>
+			    	<xs:element name="permissions" type="xs:string"/>
+			    	<xs:element name="children" type="xs:string"/>
+		  	    </xs:sequence>
+		  	    
+		    	<xs:attribute name="name" type="xs:string" use="required"/>
+			  </xs:complexType>
+        
+        </xs:element> 
+		
+     </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <!-- Default host template, for the whole domain -->
+<templates>
 <template name="default">
     <!-- Nagios host template -->
     <attribute name="hostTPL">generic-active-host</attribute>
@@ -12,4 +13,5 @@
     <attribute name="snmpOIDsPerPDU">10</attribute>
     <test name="UpTime"/>
 </template>
+</templates>
 

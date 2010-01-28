@@ -1,38 +1,38 @@
 appsGroupsByServer = {
-    'collect' : {
-        'P-F'             : ['supserver.example.com'],
-        'Servers'         : ['supserver.example.com'],
-        'Telecom'         : ['supserver.example.com'],
+    u'collect' : {
+        u'P-F'             : [u'supserver.example.com'],
+        u'Servers'         : [u'supserver.example.com'],
+        u'Telecom'         : [u'supserver.example.com'],
     },
-    'metrology' : {
-        'P-F'             : ['supserver.example.com'],
-        'Servers'         : ['supserver.example.com'],
-        'Telecom'         : ['supserver.example.com'],
+    u'metrology' : {
+        u'P-F'             : [u'supserver.example.com'],
+        u'Servers'         : [u'supserver.example.com'],
+        u'Telecom'         : [u'supserver.example.com'],
     },
-    'corrpres' : {
-        'P-F'             : ['supserver.example.com'],
-        'Servers'         : ['supserver.example.com'],
-        'Telecom'         : ['supserver.example.com'],
+    u'corrpres' : {
+        u'P-F'             : [u'supserver.example.com'],
+        u'Servers'         : [u'supserver.example.com'],
+        u'Telecom'         : [u'supserver.example.com'],
     },
-    'secu' : {
-        'P-F'             : ['supserver.example.com'],
-        'Servers'         : ['supserver.example.com'],
-        'Telecom'         : ['supserver.example.com'],
+    u'secu' : {
+        u'P-F'             : [u'supserver.example.com'],
+        u'Servers'         : [u'supserver.example.com'],
+        u'Telecom'         : [u'supserver.example.com'],
     },
-    'trap' : {
-        'P-F'             : ['supserver.example.com'],
-        'Servers'         : ['supserver.example.com'],
-        'Telecom'         : ['supserver.example.com'],
+    u'trap' : {
+        u'P-F'             : [u'supserver.example.com'],
+        u'Servers'         : [u'supserver.example.com'],
+        u'Telecom'         : [u'supserver.example.com'],
     },
-    'dns1' : {
-        'P-F'             : ['supserver.example.com'],
-        'Servers'         : ['supserver.example.com'],
-        'Telecom'         : ['supserver.example.com'],
+    u'dns1' : {
+        u'P-F'             : [u'supserver.example.com'],
+        u'Servers'         : [u'supserver.example.com'],
+        u'Telecom'         : [u'supserver.example.com'],
     },
-    'reporting' : {
-        'P-F'             : ['supserver.example.com'],
-        'Servers'         : ['supserver.example.com'],
-        'Telecom'         : ['supserver.example.com'],
+    u'reporting' : {
+        u'P-F'             : [u'supserver.example.com'],
+        u'Servers'         : [u'supserver.example.com'],
+        u'Telecom'         : [u'supserver.example.com'],
     },
 }
 

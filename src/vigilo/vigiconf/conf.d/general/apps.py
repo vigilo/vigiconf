@@ -1,114 +1,114 @@
 apps = {
-    'nagios'    : { 
-                   'priority' : 3,
-                   'validationMethod' :  '',
-                   'qualificationMethod' : './validation/nagios.sh',
-                   'startMethod' : '/etc/init.d/nagios start',
-                   'stopMethod' : '/etc/init.d/nagios stop ; (while : ; do pgrep nagios >/dev/null || break; sleep 1;done)'
+    u'nagios'    : { 
+                   u'priority' : 3,
+                   u'validationMethod' :  '',
+                   u'qualificationMethod' : './validation/nagios.sh',
+                   u'startMethod' : '/etc/init.d/nagios start',
+                   u'stopMethod' : '/etc/init.d/nagios stop ; (while : ; do pgrep nagios >/dev/null || break; sleep 1;done)'
                    },
-    'corrtrap'    : { 
-                   'priority' : 3,
-                   'validationMethod' :  './validation/corrtrap.sh',
-                   'qualificationMethod' : './validation/corrtrap.sh',
-                   'startMethod' : '/etc/init.d/vigilo-corrtrap start',
-                   'stopMethod' : '/etc/init.d/vigilo-corrtrap stop'
+    u'corrtrap'    : { 
+                   u'priority' : 3,
+                   u'validationMethod' :  './validation/corrtrap.sh',
+                   u'qualificationMethod' : './validation/corrtrap.sh',
+                   u'startMethod' : '/etc/init.d/vigilo-corrtrap start',
+                   u'stopMethod' : '/etc/init.d/vigilo-corrtrap stop'
                    },
-    'storeme'    : { 
-                   'priority' : -1,
-                   'validationMethod' :  './validation/storeme.sh',
-                   'qualificationMethod' : './validation/storeme.sh',
-                   'startMethod' : '',
-                   'stopMethod' : ''
+    u'storeme'    : { 
+                   u'priority' : -1,
+                   u'validationMethod' :  './validation/storeme.sh',
+                   u'qualificationMethod' : './validation/storeme.sh',
+                   u'startMethod' : '',
+                   u'stopMethod' : ''
                    },
-    'corrsup'    : { 
-                   'priority' : 2,
-                   'validationMethod' :  '',
-                   'qualificationMethod' : './validation/corrsup.sh',
-                   'startMethod' : '/etc/init.d/vigilo-corrsup start',
-                   'stopMethod' : '/etc/init.d/vigilo-corrsup stop'
+    u'corrsup'    : { 
+                   u'priority' : 2,
+                   u'validationMethod' :  '',
+                   u'qualificationMethod' : './validation/corrsup.sh',
+                   u'startMethod' : '/etc/init.d/vigilo-corrsup start',
+                   u'stopMethod' : '/etc/init.d/vigilo-corrsup stop'
                    },
-    'dns1'    : { 
-                   'priority' : 1,
-                   'validationMethod' :  '',
-                   'qualificationMethod' : '',
-                   'startMethod' : '/etc/init.d/bind9 reload',
-                   'stopMethod' : ''
+    u'dns1'    : { 
+                   u'priority' : 1,
+                   u'validationMethod' :  '',
+                   u'qualificationMethod' : '',
+                   u'startMethod' : '/etc/init.d/bind9 reload',
+                   u'stopMethod' : ''
                    },
-    'dns2'    : { 
-                   'priority' : 1,
-                   'validationMethod' :  '',
-                   'qualificationMethod' : '',
-                   'startMethod' : '/etc/init.d/bind9 reload',
-                   'stopMethod' : ''
+    u'dns2'    : { 
+                   u'priority' : 1,
+                   u'validationMethod' :  '',
+                   u'qualificationMethod' : '',
+                   u'startMethod' : '/etc/init.d/bind9 reload',
+                   u'stopMethod' : ''
                    },
-    'apacheRP'    : { 
-                   'priority' : -1,
-                   'validationMethod' :  '',
-                   'qualificationMethod' : '',
-                   'startMethod' : '/etc/init.d/httpd reload',
-                   'stopMethod' : ''
+    u'apacheRP'    : { 
+                   u'priority' : -1,
+                   u'validationMethod' :  '',
+                   u'qualificationMethod' : '',
+                   u'startMethod' : '/etc/init.d/httpd reload',
+                   u'stopMethod' : ''
                    },
-    'collector'    : { 
-                   'priority' : -1,
-                   'validationMethod' :  './validation/collector.sh',
-                   'qualificationMethod' : './validation/collector.sh',
-                   'startMethod' : '',
-                   'stopMethod' : ''
+    u'collector'    : { 
+                   u'priority' : -1,
+                   u'validationMethod' :  './validation/collector.sh',
+                   u'qualificationMethod' : './validation/collector.sh',
+                   u'startMethod' : '',
+                   u'stopMethod' : ''
                    },
-    'perfdata'    : { 
-                   'priority' : -1,
-                   'validationMethod' :  './validation/perfdata.sh',
-                   'qualificationMethod' : './validation/perfdata.sh',
-                   'startMethod' : '',
-                   'stopMethod' : ''
+    u'perfdata'    : { 
+                   u'priority' : -1,
+                   u'validationMethod' :  './validation/perfdata.sh',
+                   u'qualificationMethod' : './validation/perfdata.sh',
+                   u'startMethod' : '',
+                   u'stopMethod' : ''
                    },
-    'supnav'    : { 
-                   'priority' : -1,
-                   'validationMethod' :  './validation/supnav.sh',
-                   'qualificationMethod' : './validation/supnav.sh',
-                   'startMethod' : '',
-                   'stopMethod' : ''
+    u'supnav'    : { 
+                   u'priority' : -1,
+                   u'validationMethod' :  './validation/supnav.sh',
+                   u'qualificationMethod' : './validation/supnav.sh',
+                   u'startMethod' : '',
+                   u'stopMethod' : ''
                    },
-    'nagvis'    : { 
-                   'priority' : -1,
-                   'validationMethod' :  './validation/nagvis.sh',
-                   'qualificationMethod' : './validation/nagvis.sh',
-                   'startMethod' : '',
-                   'stopMethod' : ''
+    u'nagvis'    : { 
+                   u'priority' : -1,
+                   u'validationMethod' :  './validation/nagvis.sh',
+                   u'qualificationMethod' : './validation/nagvis.sh',
+                   u'startMethod' : '',
+                   u'stopMethod' : ''
                    },
-    'rrdgraph'    : { 
-                   'priority' : -1,
-                   'validationMethod' :  './validation/rrdgraph.sh',
-                   'qualificationMethod' : './validation/rrdgraph.sh',
-                   'startMethod' : '/etc/init.d/httpd reload',
-                   'stopMethod' : ''
+    u'rrdgraph'    : { 
+                   u'priority' : -1,
+                   u'validationMethod' :  './validation/rrdgraph.sh',
+                   u'qualificationMethod' : './validation/rrdgraph.sh',
+                   u'startMethod' : '/etc/init.d/httpd reload',
+                   u'stopMethod' : ''
                    },
-    'reportingv2' : {
-                   'priority' : -1,
-                   'validationMethod' :  '',
-                   'qualificationMethod' : '',
-                   'startMethod' : '',
-                   'stopMethod' : ''
+    u'reportingv2' : {
+                   u'priority' : -1,
+                   u'validationMethod' :  '',
+                   u'qualificationMethod' : '',
+                   u'startMethod' : '',
+                   u'stopMethod' : ''
                    },
-    'dashboard_db'    : { 
-                   'priority' : -1,
-                   'validationMethod' :  '',
-                   'qualificationMethod' : '',
-                   'startMethod' : 'mysql < /etc/vigilo-vigiconf/prod/dashboard_db/dashboard_db.sql',
-                   'stopMethod' : ''
+    u'dashboard_db'    : { 
+                   u'priority' : -1,
+                   u'validationMethod' :  '',
+                   u'qualificationMethod' : '',
+                   u'startMethod' : 'mysql < /etc/vigilo-vigiconf/prod/dashboard_db/dashboard_db.sql',
+                   u'stopMethod' : ''
                    },
 }
 
 
 appsByAppGroups = {
-    'collect'           : ['nagios','collector','perfdata'],
-    'metrology'         : ['storeme','rrdgraph'],
-    'corrpres'          : ['corrsup','supnav','apacheRP','nagvis','dashboard_db'],
-    'reporting'         : ['reportingv2'],
-    'secu'              : [],
-    'trap'              : ['corrtrap'],
-    'dns1'              : ['dns1'],
-    'dns2'              : ['dns2'],
+    u'collect'           : [u'nagios', u'collector', u'perfdata'],
+    u'metrology'         : [u'storeme', u'rrdgraph'],
+    u'corrpres'          : [u'corrsup', u'supnav', u'apacheRP', u'nagvis', u'dashboard_db'],
+    u'reporting'         : [u'reportingv2'],
+    u'secu'              : [],
+    u'trap'              : [u'corrtrap'],
+    u'dns1'              : [u'dns1'],
+    u'dns2'              : [u'dns2'],
 }
 
 
