@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<hostgroups>
+
+	<hostgroup name="root_group" >
+		<children>
+		
+			<hostgroup name="hgroup1"/>
+			<hostgroup name="hgroup2"/>
+		
+			<hostgroup name="hgroup3" />
+
+		</children>
+	</hostgroup>
+
+</hostgroups>

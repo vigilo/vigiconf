@@ -8,7 +8,7 @@ class HosttemplateXSD(XSDTest):
     xsd_file = "src/vigilo/vigiconf/validation/xsd/hosttemplate.xsd"
     
     xml_ok_files = {"src/vigilo/vigiconf/conf.d/hosttemplates":[
-                                      #"aix.xml",
+                                      "aix.xml",
                                       "as400.xml",
                                       "cisco.xml",
                                       "default.xml",

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<servicegroups>
+
+	<servicegroup name="root_group" >
+		
+		<children>
+		
+			<servicegroup name="hgroup1"/>
+			<servicegroup name="hgroup2"/>
+		
+			<servicegroup name="hgroup3" />
+			
+		</children>
+	</servicegroup>
+
+</servicegroups>
