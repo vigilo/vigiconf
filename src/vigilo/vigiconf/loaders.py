@@ -42,7 +42,9 @@ from .lib import ParsingError
 
 def load_hostgroups(basedir):
     """ Loads Host groups from xml files.
-    TODO: NYI
+    
+        @param basedir: a directory containing hostgroups definitions files
+        @type  basedir: C{str}
     """
     for root, dirs, files in os.walk(basedir):
         for f in files:
@@ -61,11 +63,28 @@ def load_hostgroups(basedir):
             if d == "CVS":
                 dirs.remove("CVS")
 
-def load_servicegroups():
+def load_servicegroups(basedir):
     """ Loads Service groups from xml files.
-    TODO: NYI
+    
+        @param basedir: a directory containing servicegroups definitions files
+        @type  basedir: C{str}
     """
-    pass
+    for root, dirs, files in os.walk(basedir):
+        for f in files:
+            if not f.endswith(".xml"):
+                continue
+            path = os.path.join(root, f)
+            validate(path, "servicegroup.xsd")
+            # load hostgroups
+            _load_servicegroups_from_xml(path)
+            pass
+        
+            LOGGER.debug("Sucessfully parsed %s" % path)
+        for d in dirs: # Don't visit subversion/CVS directories
+            if d.startswith("."):
+                dirs.remove(d)
+            if d == "CVS":
+                dirs.remove("CVS")
 
 def load_dependencies():
     """ Loads dependencies from xml files.
@@ -119,6 +138,44 @@ def _load_hostgroups_from_xml(filepath):
                     current_parent = parent_stack[-1]
             else:
                 if elem.tag == "hostgroup":
+                    if len(parent_stack) > 0:
+                        parent_stack.pop()
+                elif elem.tag == "children":
+                    current_parent = None
+        DBSession.flush()
+    except:
+        DBSession.rollback()
+        raise
+
+def _load_servicegroups_from_xml(filepath):
+    """ Loads Host groups from a xml file.
+    
+        @param xmlfile: an XML file
+        @type  xmlfile: C{str}
+    """
+    parent_stack = []
+    current_parent = None
+    
+    try:
+        for event, elem in ET.iterparse(filepath, events=("start", "end")):
+            if event == "start":
+                if elem.tag == "servicegroup":
+                    name = elem.attrib["name"].strip()
+                    hostgroup = HostGroup.by_group_name(groupname=name)
+                    if not hostgroup:
+                        hostgroup = HostGroup(name=name)
+                        DBSession.add(hostgroup)
+                    else:
+                        hostgroup.children = []
+                    
+                    if current_parent:
+                        hostgroup.parent = current_parent
+                    # update parent stack
+                    parent_stack.append(hostgroup)
+                elif elem.tag == "children":
+                    current_parent = parent_stack[-1]
+            else:
+                if elem.tag == "servicegroup":
                     if len(parent_stack) > 0:
                         parent_stack.pop()
                 elif elem.tag == "children":
