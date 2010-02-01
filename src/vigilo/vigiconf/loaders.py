@@ -75,7 +75,7 @@ def load_servicegroups(basedir):
                 continue
             path = os.path.join(root, f)
             validate(path, "servicegroup.xsd")
-            # load hostgroups
+            # load servicegroups
             _load_servicegroups_from_xml(path)
             pass
         
@@ -88,9 +88,26 @@ def load_servicegroups(basedir):
 
 def load_dependencies():
     """ Loads dependencies from xml files.
-    TODO: NYI
+    
+        @param basedir: a directory containing dependency definitions files
+        @type  basedir: C{str}
     """
-    pass
+    for root, dirs, files in os.walk(basedir):
+        for f in files:
+            if not f.endswith(".xml"):
+                continue
+            path = os.path.join(root, f)
+            validate(path, "dependency.xsd")
+            # load dependencies
+            _load_dependencies_from_xml(path)
+            pass
+        
+            LOGGER.debug("Sucessfully parsed %s" % path)
+        for d in dirs: # Don't visit subversion/CVS directories
+            if d.startswith("."):
+                dirs.remove(d)
+            if d == "CVS":
+                dirs.remove("CVS")
 
 def validate(xmlfile, xsdfilename):
         """
@@ -185,3 +202,37 @@ def _load_servicegroups_from_xml(filepath):
         DBSession.rollback()
         raise
 
+
+def _load_dependencies_from_xml(filepath):
+    """ Loads dependencies from a xml file.
+    
+        @param xmlfile: an XML file
+        @type  xmlfile: C{str}
+    """
+    current_parent = None
+    
+    try:
+        for event, elem in ET.iterparse(filepath, events=("start", "end")):
+            if event == "start":
+                if elem.tag == "dependency":
+                    name = elem.attrib["name"].strip()
+                elif elem.tag == "host":
+                    pass
+                elif elem.tag == "service":
+                    pass
+                elif elem.tag == "subitems":
+                    pass
+            else:
+                if elem.tag == "dependency":
+                    if len(parent_stack) > 0:
+                        parent_stack.pop()
+                elif elem.tag == "host":
+                    pass
+                elif elem.tag == "service":
+                    pass
+                elif elem.tag == "subitems":
+                    pass
+        DBSession.flush()
+    except:
+        DBSession.rollback()
+        raise
