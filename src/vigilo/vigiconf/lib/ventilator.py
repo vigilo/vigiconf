@@ -34,7 +34,8 @@ from vigilo.models import Host, Application, Ventilation, VigiloServer
 
 from vigilo.common.conf import settings
 
-# application used to implement the many2one link "is_supervised for hosts with HostApplication
+# application used to implement the many2one link "is_supervised for hosts with
+# HostApplication
 APP_VENTILATION = settings.get('APP_VENTILATION', u'nagios')
 
 from .. import conf
@@ -82,9 +83,10 @@ def appendHost(serverName, host):
     # DB implementation
     # TODO: check nagios is a convenient application for this
     # HostApplication is used here to reimplement the old pickled dict
-    hostapp = Ventilation(vigiloserver=VigiloServer.by_vigiloserver_name(serverName),
-                          host=Host.by_host_name(host),
-                          application=Application.by_app_name(APP_VENTILATION)
+    hostapp = Ventilation(
+                    vigiloserver=VigiloServer.by_vigiloserver_name(serverName),
+                    host=Host.by_host_name(host),
+                    application=Application.by_app_name(APP_VENTILATION)
                           )
     DBSession.add(hostapp)
     DBSession.flush()
@@ -128,14 +130,17 @@ def getServerToUse(serverList, host):
 
 def findAServerForEachHost():
     """
-    Try to find the best server where to monitor the hosts contained in the I{conf}.
+    Try to find the best server where to monitor the hosts contained in the
+    I{conf}.
 
     @return: a dict of the ventilation result. The dict content is:
       - B{Key}: name of a host 
       - B{value}: a dict in the form:
-        - B{Key}: the name of an application for which we have to deploy a configuration for this host
+        - B{Key}: the name of an application for which we have to deploy a
+          configuration for this host
           (Nagios, CorrSup, Collector...)
-        - B{Value}: the hostname of the server where to deploy the conf for this host and this application
+        - B{Value}: the hostname of the server where to deploy the conf for
+          this host and this application
 
     I{Example}:
 

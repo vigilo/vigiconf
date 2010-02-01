@@ -137,11 +137,13 @@ def export_conf_db():
                     cmd = u'none'
                     if srv.has_key('command'):
                         cmd = srv['command']
-                    s = LowLevelService(servicename=unicode(srvname), op_dep=u'-',
+                    s = LowLevelService(servicename=unicode(srvname),
+                                        op_dep=u'-',
                                         host=Host.by_host_name(hostname),
                                         command=cmd, weight=1)
                     # new services def group
-                    s.groups = [ServiceGroup.by_group_name(groups_def['new_services']), ]
+                    ns_group = groups_def['new_services']
+                    s.groups = [ServiceGroup.by_group_name(ns_group), ]
                     DBSession.add(s)
         DBSession.flush()
     except:
@@ -164,7 +166,7 @@ def _export_host_graphgroups(graphgroups, h):
     
     TODO: lien avec host ?
     
-    @param graphgroups: a dict describing the graph groups hierarchy for a host.
+    @param graphgroups: a dict describing the graph groups hierarchy for a host
     @type graphgroups: C{dict}
     @param h: host
     @param h: C{Host}
@@ -260,8 +262,8 @@ def export_ventilation_DB(ventilation):
     for host, serverbyapp in ventilation.iteritems():
         for app, server in serverbyapp.iteritems():
             v = Ventilation(host=Host.by_host_name(host),
-                                      vigiloserver=VigiloServer.by_vigiloserver_name(server),
-                                      application=Application.by_app_name(app))
+                        vigiloserver=VigiloServer.by_vigiloserver_name(server),
+                        application=Application.by_app_name(app))
             
             DBSession.add(v)
     DBSession.flush()

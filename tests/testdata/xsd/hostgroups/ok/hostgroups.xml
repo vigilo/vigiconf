@@ -7,7 +7,7 @@
 			<hostgroup name="hgroup1"/>
 			<hostgroup name="hgroup2"/>
 		
-			<hostgroup name="hgroup3" />
+			<hostgroup name="Linux servers" />
 
 		</children>
 	</hostgroup>
