@@ -35,6 +35,7 @@ LOGGER = get_logger(__name__)
 from vigilo.models.session import DBSession
 
 from vigilo.models import HostGroup, ServiceGroup
+from vigilo.models import Host, LowLevelService, HighLevelService, Dependency
 
 from . import conf
 
@@ -86,7 +87,7 @@ def load_servicegroups(basedir):
             if d == "CVS":
                 dirs.remove("CVS")
 
-def load_dependencies():
+def load_dependencies(basedir):
     """ Loads dependencies from xml files.
     
         @param basedir: a directory containing dependency definitions files
@@ -209,29 +210,70 @@ def _load_dependencies_from_xml(filepath):
         @param xmlfile: an XML file
         @type  xmlfile: C{str}
     """
-    current_parent = None
+    dependency = False
+    subitems = False
     
     try:
         for event, elem in ET.iterparse(filepath, events=("start", "end")):
             if event == "start":
                 if elem.tag == "dependency":
-                    name = elem.attrib["name"].strip()
+                    dependency = True
+                    hostnames = []
+                    servicenames = []
                 elif elem.tag == "host":
-                    pass
+                    if subitems:
+                        subhosts.append(elem.attrib["name"].strip())
+                    else:
+                        hostnames.append(elem.attrib["name"].strip())
                 elif elem.tag == "service":
-                    pass
+                    if subitems:
+                        subservices.append(elem.attrib["name"].strip())
+                    else:
+                        servicenames.append(elem.attrib["name"].strip())
                 elif elem.tag == "subitems":
-                    pass
+                    subitems = True
+                    subhosts = []
+                    subservices = []
             else:
                 if elem.tag == "dependency":
-                    if len(parent_stack) > 0:
-                        parent_stack.pop()
+                    dependency = False
+                    # retrieve hosts and services from db
+                    supitems2 = []
+                    for hname in subhosts:
+                        supitems2.append(Host.by_host_name(hname))
+                        for sname in subservices:
+                            supitems2.append(
+                             LowLevelService.by_host_service_name(hname, sname)
+                            )
+                    # create dependency links
+                    for hname in hostnames:
+                        host = Host.by_host_name(hname)
+                        if not host:
+                            raise Exception("host %s does not exist" % hname)
+                        
+                        for supitem2 in supitems2:
+                            if not supitem2:
+                                continue
+                            dep = Dependency(supitem1=host, supitem2=supitem2)
+                            DBSession.add(dep)
+                    for sname in servicenames:
+                        hls = HighLevelService.by_service_name(sname)
+                        if not hls:
+                            raise Exception("HLS %s does not exist" % sname)
+                        for supitem2 in supitems2:
+                            if not supitem2:
+                                continue
+                            dep = Dependency(supitem1=hls, supitem2=supitem2)
+                            DBSession.add(dep)
+                        
+                        
+                        
                 elif elem.tag == "host":
                     pass
                 elif elem.tag == "service":
                     pass
                 elif elem.tag == "subitems":
-                    pass
+                    subitems=False
         DBSession.flush()
     except:
         DBSession.rollback()
