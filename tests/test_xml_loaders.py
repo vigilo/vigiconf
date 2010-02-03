@@ -134,22 +134,22 @@ class XMLLoadersTest(unittest.TestCase):
         # 8 dependencies
         self.assertEquals(8, DBSession.query(Dependency).count(), "8 dependencies")
         # host11/service11 is a dependence of host1
-        """ TODO
+        
         si_host1 = SupItem.get_supitem(hostname="host1", servicename=None)
         si_host11 = SupItem.get_supitem(hostname="host11", servicename="service11")
         self.assertTrue(si_host1, "si_host1 not null")
         self.assertTrue(si_host11, "si_host11 not null")
         self.assertEquals(1,
-          DBSession.query(Dependency).filter(Dependency.supitem1==si_host1)\
-                                     .filter(Dependency.supitem2==si_host11)\
+          DBSession.query(Dependency).filter(Dependency.idsupitem1==si_host1)\
+                                     .filter(Dependency.idsupitem2==si_host11)\
                                      .count(),
           "One dependency: host11/service11 is a dependence of host1")
         
         # host11/service11 is a dependence of hlservice1
         si_hls1 = SupItem.get_supitem(hostname=None, servicename="hlservice1")
         self.assertEquals(1,
-          DBSession.query(Dependency).filter(Dependency.supitem1==si_hls1)\
-                                     .filter(Dependency.supitem2==si_host11)\
+          DBSession.query(Dependency).filter(Dependency.idsupitem1==si_hls1)\
+                                     .filter(Dependency.idsupitem2==si_host11)\
                                      .count(),
           "One dependency: host11/service11 is a dependence of hlservice1")
-        """
+        
