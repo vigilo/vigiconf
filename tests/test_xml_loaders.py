@@ -152,4 +152,80 @@ class XMLLoadersTest(unittest.TestCase):
                                      .filter(Dependency.idsupitem2==si_host11)\
                                      .count(),
           "One dependency: host11/service11 is a dependence of hlservice1")
+    
+    def test_load_dependencies_ko(self):
+        """ Test de fichiers xml valides selon XSD mais invalides pour le loader.
         
+        """
+        host1 =  Host(
+            name=u'host1',
+            checkhostcmd=u'halt -f',
+            snmpcommunity=u'public',
+            description=u'My Host 1',
+            hosttpl=u'template',
+            mainip=u'127.0.0.1',
+            snmpport=1234,
+            weight=42,
+        )
+        DBSession.add(host1)
+        host11 =  Host(
+            name=u'host11',
+            checkhostcmd=u'halt -f',
+            snmpcommunity=u'public',
+            description=u'My Host 11',
+            hosttpl=u'tSemplate',
+            mainip=u'127.0.0.2',
+            snmpport=123,
+            weight=43,
+        )
+        DBSession.add(host11)
+        host12 =  Host(
+            name=u'host12',
+            checkhostcmd=u'halt -f',
+            snmpcommunity=u'public',
+            description=u'My Host 12',
+            hosttpl=u'template',
+            mainip=u'127.0.0.3',
+            snmpport=124,
+            weight=44,
+        )
+        DBSession.add(host12)
+        
+        hlservice1 = HighLevelService(
+            servicename=u'hlservice1',
+            op_dep=u'+',
+            message=u'Hello world',
+            warning_threshold=50,
+            critical_threshold=80,
+            priority=1
+        )
+        DBSession.add(hlservice1)
+        
+        service11 = LowLevelService(
+            servicename=u'service11',
+            op_dep=u'+',
+            weight=100,
+            host=host11
+        )
+        DBSession.add(service11)
+        
+        service12 = LowLevelService(
+            servicename=u'service12',
+            op_dep=u'+',
+            weight=100,
+            host=host12
+        )
+        DBSession.add(service12)
+        DBSession.flush()
+        
+        basedir = 'tests/testdata/xsd/dependencies/ok/loader_ko'
+        
+        self.assertRaises(Exception, loaders.load_dependencies, "%s/1" % basedir)
+        
+        self.assertRaises(Exception, loaders.load_dependencies, "%s/2" % basedir)
+        
+        self.assertRaises(Exception, loaders.load_dependencies, "%s/3" % basedir)
+        
+        self.assertRaises(Exception, loaders.load_dependencies, "%s/4" % basedir)
+        
+            

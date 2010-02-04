@@ -247,6 +247,11 @@ def _load_dependencies_from_xml(filepath):
                     subservices = []
             else:
                 if elem.tag == "dependency":
+                    
+                    # verifier si au moins 1 dependant (host ou service)
+                    if len(hostnames) == 0 and len(servicenames) == 0:
+                        raise Exception("No dependant supitem (host or service)")
+                    
                     dependency = False
                     # retrieve hosts and services from db
                     supitems2 = []
