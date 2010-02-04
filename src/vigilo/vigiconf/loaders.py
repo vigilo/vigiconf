@@ -212,6 +212,8 @@ def _load_dependencies_from_xml(filepath):
     """
     dependency = False
     subitems = False
+    levelservices1 = {}
+    levelservices2 = {}
     
     try:
         for event, elem in ET.iterparse(filepath, events=("start", "end")):
@@ -226,10 +228,19 @@ def _load_dependencies_from_xml(filepath):
                     else:
                         hostnames.append(elem.attrib["name"].strip())
                 elif elem.tag == "service":
-                    if subitems:
-                        subservices.append(elem.attrib["name"].strip())
+                    name = elem.attrib["name"].strip()
+                    if elem.attrib.has_key("level"):
+                        level = elem.attrib["level"].strip()
                     else:
-                        servicenames.append(elem.attrib["name"].strip())
+                        level = None
+                    if subitems:
+                        if not level: level = "low"
+                        subservices.append(name)
+                        levelservices2[name] = level
+                    else:
+                        if not level: level = "high"
+                        servicenames.append(name)
+                        levelservices1[name] = level
                 elif elem.tag == "subitems":
                     subitems = True
                     subhosts = []
@@ -271,7 +282,7 @@ def _load_dependencies_from_xml(filepath):
                 elif elem.tag == "host":
                     pass
                 elif elem.tag == "service":
-                    pass
+                    level = None
                 elif elem.tag == "subitems":
                     subitems=False
         DBSession.flush()

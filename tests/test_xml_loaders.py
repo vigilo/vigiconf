@@ -111,7 +111,7 @@ class XMLLoadersTest(unittest.TestCase):
         DBSession.add(service12)
         DBSession.flush()
         
-        loaders.load_dependencies('tests/testdata/xsd/dependencies/ok')
+        loaders.load_dependencies('tests/testdata/xsd/dependencies/ok/loader')
         
         """ The dependency links are as following:
         <dependency>
