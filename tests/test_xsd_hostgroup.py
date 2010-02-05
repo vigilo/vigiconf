@@ -9,7 +9,12 @@ class HostGroupXSD(XSDTest):
     
     xml_ok_files = {"tests/testdata/xsd/hostgroups/ok":[
                                       "hostgroups.xml",
+                                      "hostgroups2.xml",
+                                      "hostgroups3.xml",
                                       ]
                    }
     
-    xml_ko_files = {"tests/testdata/xsd/hostgroups/ko":[]}
+    xml_ko_files = {"tests/testdata/xsd/hostgroups/ko":[
+                                      "hostgroups1.xml",
+                                      ]
+                   }

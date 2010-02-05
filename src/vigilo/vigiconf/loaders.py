@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # ConfigMgr configuration files generation wrapper
@@ -47,6 +48,7 @@ def load_hostgroups(basedir):
         @param basedir: a directory containing hostgroups definitions files
         @type  basedir: C{str}
     """
+    
     for root, dirs, files in os.walk(basedir):
         for f in files:
             if not f.endswith(".xml"):
@@ -54,7 +56,7 @@ def load_hostgroups(basedir):
             path = os.path.join(root, f)
             validate(path, "hostgroup.xsd")
             # load hostgroups
-            _load_hostgroups_from_xml(path)
+            _load_groups_from_xml(path, HostGroup, "hostgroup")
             pass
         
             LOGGER.debug("Sucessfully parsed %s" % path)
@@ -70,6 +72,7 @@ def load_servicegroups(basedir):
         @param basedir: a directory containing servicegroups definitions files
         @type  basedir: C{str}
     """
+    
     for root, dirs, files in os.walk(basedir):
         for f in files:
             if not f.endswith(".xml"):
@@ -77,7 +80,7 @@ def load_servicegroups(basedir):
             path = os.path.join(root, f)
             validate(path, "servicegroup.xsd")
             # load servicegroups
-            _load_servicegroups_from_xml(path)
+            _load_groups_from_xml(path, ServiceGroup, "servicegroup")
             pass
         
             LOGGER.debug("Sucessfully parsed %s" % path)
@@ -127,11 +130,15 @@ def validate(xmlfile, xsdfilename):
         if result != 0:
             raise ParsingError("XML validation failed")
 
-def _load_hostgroups_from_xml(filepath):
-    """ Loads Host groups from a xml file.
+def _load_groups_from_xml(filepath, classgroup, tag_group):
+    """ Loads Host or service groups from a xml file.
     
-        @param xmlfile: an XML file
-        @type  xmlfile: C{str}
+        @param filepath: an XML file
+        @type  filepath: C{str}
+        @param classgroup HostGroup or ServiceGroup
+        @type  filepath: C{class}
+        @param tag_group "hostgroup" or "servicegroup"
+        @type  filepath: C{str}
     """
     parent_stack = []
     current_parent = None
@@ -139,61 +146,30 @@ def _load_hostgroups_from_xml(filepath):
     try:
         for event, elem in ET.iterparse(filepath, events=("start", "end")):
             if event == "start":
-                if elem.tag == "hostgroup":
+                if elem.tag == tag_group:
                     name = elem.attrib["name"].strip()
-                    hostgroup = HostGroup.by_group_name(groupname=name)
-                    if not hostgroup:
-                        hostgroup = HostGroup(name=name)
-                        DBSession.add(hostgroup)
+                    group = classgroup.by_group_name(groupname=name)
+                    if not group:
+                        group = classgroup(name=name)
+                        DBSession.add(group)
                     else:
-                        hostgroup.children = []
+                        group.children = []
                     
                     if current_parent:
-                        hostgroup.parent = current_parent
+                        if group.parent:
+                            if group.parent.name != current_parent.name:
+                                raise Exception(
+                "%s %s should have one parent (%s, %s)" %
+                (tag_group, group.name, group.parent.name,
+                 current_parent.name)
+                                    )
+                        group.parent = current_parent
                     # update parent stack
-                    parent_stack.append(hostgroup)
+                    parent_stack.append(group)
                 elif elem.tag == "children":
                     current_parent = parent_stack[-1]
             else:
-                if elem.tag == "hostgroup":
-                    if len(parent_stack) > 0:
-                        parent_stack.pop()
-                elif elem.tag == "children":
-                    current_parent = None
-        DBSession.flush()
-    except:
-        DBSession.rollback()
-        raise
-
-def _load_servicegroups_from_xml(filepath):
-    """ Loads Host groups from a xml file.
-    
-        @param xmlfile: an XML file
-        @type  xmlfile: C{str}
-    """
-    parent_stack = []
-    current_parent = None
-    
-    try:
-        for event, elem in ET.iterparse(filepath, events=("start", "end")):
-            if event == "start":
-                if elem.tag == "servicegroup":
-                    name = elem.attrib["name"].strip()
-                    hostgroup = HostGroup.by_group_name(groupname=name)
-                    if not hostgroup:
-                        hostgroup = HostGroup(name=name)
-                        DBSession.add(hostgroup)
-                    else:
-                        hostgroup.children = []
-                    
-                    if current_parent:
-                        hostgroup.parent = current_parent
-                    # update parent stack
-                    parent_stack.append(hostgroup)
-                elif elem.tag == "children":
-                    current_parent = parent_stack[-1]
-            else:
-                if elem.tag == "servicegroup":
+                if elem.tag == tag_group:
                     if len(parent_stack) > 0:
                         parent_stack.pop()
                 elif elem.tag == "children":

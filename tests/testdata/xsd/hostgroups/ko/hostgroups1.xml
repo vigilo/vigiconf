@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<hostgroup name="not_authorized" />
+
 <hostgroups>
 
 	<hostgroup name="root_group" >

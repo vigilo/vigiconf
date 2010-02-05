@@ -58,6 +58,11 @@ class VentilatorTest(unittest.TestCase):
         return v
     
     def test_export_localventilation_db(self):
+        """ test de l'export de la ventilation en mode local.
+        
+        le remplacement de la persistance pickle par db n'est pas testée
+        ici.
+        """
         ventilation = generator.get_local_ventilation()
         self.assertEquals(len(ventilation['localhost'].keys()), 14, "14 apps (%d)" % len(ventilation['localhost'].keys()))
         
@@ -79,7 +84,7 @@ class VentilatorTest(unittest.TestCase):
             self.assertEquals(links.first().vigiloserver.name, u'localhost', "superviser server is localhost")
         
     def test_getservertouse(self, one_server=True):
-        """ check db implementation that replaces pickle files.
+        """ Test de la nouvelle persistance db remplaçant la persistance pickle.
         """
         # need locahost in db
         host = self._create_localhost()
@@ -101,7 +106,8 @@ class VentilatorTest(unittest.TestCase):
                     self.assertEquals(server, u'supserver.example.com')
         
     def test_getservertouse_multi(self):
-        
+        """ Test de la ventilation sur plusieurs serveurs vigilo.
+        """
         # add 2 others servers in conf
         for appGroup in conf.appsGroupsByServer:
             for hostGroup in conf.appsGroupsByServer[appGroup]:

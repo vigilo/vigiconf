@@ -9,7 +9,12 @@ class ServiceGroupXSD(XSDTest):
     
     xml_ok_files = {"tests/testdata/xsd/servicegroups/ok":[
                                       "servicegroups.xml",
-                                      ]
+                                      "servicegroups1.xml",
+                                      "servicegroups2.xml",
+                                     ]
                    }
     
-    xml_ko_files = {"tests/testdata/xsd/servicegroups/ko":[]}
+    xml_ko_files = {"tests/testdata/xsd/servicegroups/ko":[
+                                       "servicegroups3.xml",
+                                      ]
+                   }
