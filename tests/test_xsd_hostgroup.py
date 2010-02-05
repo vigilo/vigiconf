@@ -11,6 +11,9 @@ class HostGroupXSD(XSDTest):
                                       "hostgroups.xml",
                                       "hostgroups2.xml",
                                       "hostgroups3.xml",
+                                      ],
+                    "tests/testdata/xsd/hostgroups/ko/loader_ko/1":[
+                                      "hostgroups4.xml",
                                       ]
                    }
     

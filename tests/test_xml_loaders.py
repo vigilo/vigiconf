@@ -50,6 +50,11 @@ class XMLLoadersTest(unittest.TestCase):
         n = len(g.children)
         self.assertEquals(n, 3, "rootgroup2 has 3 children (%d)" % n)
         
+    def test_load_hostgroups_ko(self):
+        basedir = 'tests/testdata/xsd/hostgroups/ko/loader_ko'
+        
+        self.assertRaises(Exception, loaders.load_hostgroups, '%s/1' % basedir)
+        
     def test_load_servicegroups(self):
         loaders.load_servicegroups('tests/testdata/xsd/servicegroups/ok')
         
