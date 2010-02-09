@@ -6,12 +6,12 @@
 ############
 
 define command{
-	command_name    host-notify-corrsup
-	command_line    /usr/bin/printf "%%b" "$TIMET$|$HOSTNAME$|$HOSTADDRESS$|Host|$HOSTSTATE$|$HOSTOUTPUT$\\n" | socat -u - UDP4:%(corrsupServer)s:50002
+	command_name    host-notify-bus
+	command_line    /usr/bin/printf "%%b" "$TIMET$|$HOSTNAME$|$HOSTADDRESS$|Host|$HOSTSTATE$|$HOSTOUTPUT$\\n" | socat -u - UNIX-CONNECT:%(socket)s
 }
 define command{
-	command_name    service-notify-corrsup
-	command_line    /usr/bin/printf "%%b" "$TIMET$|$HOSTNAME$|$HOSTADDRESS$|$SERVICEDESC$|$SERVICESTATE$|$SERVICEOUTPUT$\\n" | socat -u - UDP4:%(corrsupServer)s:50002
+	command_name    service-notify-bus
+	command_line    /usr/bin/printf "%%b" "$TIMET$|$HOSTNAME$|$HOSTADDRESS$|$SERVICEDESC$|$SERVICESTATE$|$SERVICEOUTPUT$\\n" | socat -u - UNIX-CONNECT:%(socket)s
 }
 define command{
 	command_name	check_http_ars
@@ -86,14 +86,14 @@ define command{
 ############
 
 define contact{
-	contact_name                    corrsup
-	alias                           CorrSup
+	contact_name                    bus
+	alias                           Message Bus
 	service_notification_period     24x7
 	host_notification_period        24x7
 	service_notification_options    w,u,c,r
 	host_notification_options       d,r
-	service_notification_commands   service-notify-corrsup
-	host_notification_commands      host-notify-corrsup
+	service_notification_commands   service-notify-bus
+	host_notification_commands      host-notify-bus
 	email                           root@localhost
 }
 
@@ -105,7 +105,7 @@ define contact{
 define contactgroup{
     contactgroup_name       bots
     alias                   Nagios Notification robots
-    members                 corrsup
+    members                 bus
 }
 
 

@@ -14,8 +14,8 @@ type=Single
 ptype=regexp
 pattern=^SEND_IT (.*)
 desc=$0
-action=eval %C ($mapTrap::corrsup); \
-       shellcmd printf "%b" "$1" | socat -u - UDP4:%C:50002
+action=eval %B ($mapTrap::bus); \
+       shellcmd printf "%b" "$1" | socat -u - UNIX-CONNECT:%B
 
 ################################ TRAPS CONCERNANT LES ROUTES BGP #################################
 

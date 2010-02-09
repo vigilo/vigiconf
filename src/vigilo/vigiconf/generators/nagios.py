@@ -83,7 +83,7 @@ class NagiosTpl(Templator):
                 # anyone else in this Nagios instance!!
                 self.templateCreate(self.fileName, self.templates["header"],
                                     {"confid": conf.confid,
-                                     "corrsupServer": ventilation['corrsup']})
+                                     "socket": conf.SOCKET_NAGIOS_TO_VIGILO})
             newhash = h.copy()
             # Groups
             self.__fillgroups(hostname, newhash, files)
