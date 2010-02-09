@@ -4,6 +4,9 @@ import os
 from glob import glob
 from setuptools import setup, find_packages
 
+sysconfdir = os.getenv("SYSCONFDIR", "/etc")
+localstatedir = os.getenv("LOCALSTATEDIR", "/var")
+
 
 def find_data_files(basedir, srcdir):
     data_files = []
@@ -19,6 +22,23 @@ def find_data_files(basedir, srcdir):
                            [os.path.join(root, name) for name in files]) )
     return data_files
 
+def get_data_files():
+    files = find_data_files(
+                os.path.join(sysconfdir, "vigilo-vigiconf/conf.d.example"),
+                "src/vigilo/vigiconf/conf.d")
+    # filter those out
+    files = [f for f in files if f[0] != "/etc/vigilo-vigiconf/conf.d.example/"]
+    # others
+    for d in ["conf.d", "new", "prod"]:
+        files.append( (os.path.join(sysconfdir, "vigilo-vigiconf", d), []) )
+    files.append( (os.path.join(sysconfdir, "vigilo-vigiconf"),
+                ["settings.py", "src/vigilo/vigiconf/conf.d/README.source"]) )
+    files.append(("/etc/cron.d", ["pkg/vigilo-vigiconf.cron"]))
+    files.append((os.path.join(localstatedir, "lib/vigilo-vigiconf/db"), ["pkg/ssh_config"]))
+    files.append((os.path.join(localstatedir, "lib/vigilo-vigiconf/deploy"), []))
+    files.append((os.path.join(localstatedir, "lib/vigilo-vigiconf/revisions"), []))
+    return files
+
 
 setup(name='vigilo-vigiconf',
         version='0.1',
@@ -33,9 +53,6 @@ setup(name='vigilo-vigiconf',
         install_requires=[
             # dashes become underscores
             # order is important
-            'coverage',
-            'nose',
-            'pylint',
             'SQLAlchemy',
             "vigilo-common",
             "psycopg2",
@@ -63,8 +80,7 @@ setup(name='vigilo-vigiconf',
         package_data={
             "vigilo.vigiconf": ["validation/*.sh", "validation/dtd/*.dtd", "tests/*/*.py"],
             },
-        data_files=find_data_files("/etc/vigilo-vigiconf/conf.d",
-                                   "src/vigilo/vigiconf/conf.d"),
+        data_files=get_data_files(),
         )
 
 #from pprint import pprint

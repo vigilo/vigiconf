@@ -1,6 +1,6 @@
 # SSH config file for remote deployment
 # This file is part of the Enterprise Edition
 StrictHostKeyChecking no
-IdentityFile /var/lib/vigilo-vigiconf/db/vigiconf.key
-UserKnownHostsFile /var/lib/vigilo-vigiconf/db/known_hosts
+IdentityFile @VIGILODIR@/db/vigiconf.key
+UserKnownHostsFile @VIGILODIR@/db/known_hosts
 HashKnownHosts yes
