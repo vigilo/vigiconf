@@ -784,7 +784,7 @@ def main():
                     _dispatchator.stopApplications()
                 if options.start:
                     _dispatchator.startApplications()
-               else:
+                else:
                     print "Nothing to do."
                     syslog.syslog(syslog.LOG_ERR, "Nothing to do.")
         except (DispatchatorError, ApplicationError), e:
