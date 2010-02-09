@@ -48,23 +48,7 @@ def load_hostgroups(basedir):
         @param basedir: a directory containing hostgroups definitions files
         @type  basedir: C{str}
     """
-    
-    for root, dirs, files in os.walk(basedir):
-        for f in files:
-            if not f.endswith(".xml"):
-                continue
-            path = os.path.join(root, f)
-            validate(path, "hostgroup.xsd")
-            # load hostgroups
-            _load_groups_from_xml(path, HostGroup, "hostgroup")
-            pass
-        
-            LOGGER.debug("Sucessfully parsed %s" % path)
-        for d in dirs: # Don't visit subversion/CVS directories
-            if d.startswith("."):
-                dirs.remove(d)
-            if d == "CVS":
-                dirs.remove("CVS")
+    _load_from_xmlfiles(basedir, "hostgroup.xsd", _load_hostgroups_from_xml)
 
 def load_servicegroups(basedir):
     """ Loads Service groups from xml files.
@@ -72,23 +56,7 @@ def load_servicegroups(basedir):
         @param basedir: a directory containing servicegroups definitions files
         @type  basedir: C{str}
     """
-    
-    for root, dirs, files in os.walk(basedir):
-        for f in files:
-            if not f.endswith(".xml"):
-                continue
-            path = os.path.join(root, f)
-            validate(path, "servicegroup.xsd")
-            # load servicegroups
-            _load_groups_from_xml(path, ServiceGroup, "servicegroup")
-            pass
-        
-            LOGGER.debug("Sucessfully parsed %s" % path)
-        for d in dirs: # Don't visit subversion/CVS directories
-            if d.startswith("."):
-                dirs.remove(d)
-            if d == "CVS":
-                dirs.remove("CVS")
+    _load_from_xmlfiles(basedir, "servicegroup.xsd", _load_servicegroups_from_xml)
 
 def load_dependencies(basedir):
     """ Loads dependencies from xml files.
@@ -96,15 +64,38 @@ def load_dependencies(basedir):
         @param basedir: a directory containing dependency definitions files
         @type  basedir: C{str}
     """
+    _load_from_xmlfiles(basedir, "dependency.xsd", _load_dependencies_from_xml)
+
+def load_hlservices(basedir):
+    """ Loads dependencies from xml files.
+    
+        @param basedir: a directory containing dependency definitions files
+        @type  basedir: C{str}
+    """
+    global impact_dict
+    impact_dict = {}
+    _load_from_xmlfiles(basedir, "hlservice.xsd", _load_hlservices_from_xml)
+    _load_hlservices_impacts(impact_dict)
+
+
+def _load_from_xmlfiles(basedir, xsd_file, handler):
+    """ Generic loader of data from xml files.
+    
+        @param basedir: a directory containing xml files
+        @type  basedir: C{str}
+        @param xsd_file: a xsd file for validation
+        @type  xsd_file: C{str}
+        @param handler:  a processing function for a xml file with one argument (path)
+        @type  handler: C{function}
+    """
     for root, dirs, files in os.walk(basedir):
         for f in files:
             if not f.endswith(".xml"):
                 continue
             path = os.path.join(root, f)
-            validate(path, "dependency.xsd")
-            # load dependencies
-            _load_dependencies_from_xml(path)
-            pass
+            _validate(path, xsd_file)
+            # load data
+            handler(path)
         
             LOGGER.debug("Sucessfully parsed %s" % path)
         for d in dirs: # Don't visit subversion/CVS directories
@@ -113,7 +104,8 @@ def load_dependencies(basedir):
             if d == "CVS":
                 dirs.remove("CVS")
 
-def validate(xmlfile, xsdfilename):
+
+def _validate(xmlfile, xsdfilename):
         """
         Validate the XML against the DTD using xmllint
 
@@ -129,6 +121,13 @@ def validate(xmlfile, xsdfilename):
         result = subprocess.call(["xmllint", "--noout", "--schema", xsd, xmlfile])
         if result != 0:
             raise ParsingError("XML validation failed")
+
+
+def _load_hostgroups_from_xml(path):
+    _load_groups_from_xml(path, HostGroup, "hostgroup")
+
+def _load_servicegroups_from_xml(path):
+    _load_groups_from_xml(path, ServiceGroup, "servicegroup")
 
 def _load_groups_from_xml(filepath, classgroup, tag_group):
     """ Loads Host or service groups from a xml file.
@@ -270,3 +269,90 @@ def _load_dependencies_from_xml(filepath):
     except:
         DBSession.rollback()
         raise
+
+def _load_hlservices_from_xml(_load_hlservices_from_xml):
+    """ Loads high level services from a xml file.
+    
+        @param filepath: an XML file
+        @type  filepath: C{str}
+    """
+    global impact_dict
+    
+    try:
+        for event, elem in ET.iterparse(filepath, events=("start", "end")):
+            if event == "start":
+                if elem.tag == "hlservice":
+                    name = elem.attrib["name"].strip()
+                    groups = []
+                    name = None
+                    message = None
+                elif elem.tag == "message":
+                    message = elem.text
+                elif elem.tag == "warning_threshold":
+                    warning_threshold = int(elem.attrib["warning_threshold"].strip())
+                elif elem.tag == "critical_threshold":
+                    critical_threshold = int(elem.attrib["critical_threshold"].strip())
+                elif elem.tag == "priority":
+                    priority = int(elem.attrib["priority"].strip())
+                elif elem.tag == "op_dep":
+                    op_dep = int(elem.attrib["op_dep"].strip())
+                elif elem.tag == "group":
+                    group = elem.attrib["name"].strip()
+                    groups.append(group)
+                elif elem.tag == "impact":
+                    hls_impacted = elem.attrib["hlservice"].strip()
+                    if impact_dict.has_key(name):
+                        impact_dict[name].append(hls_impacted)
+                    else:
+                        impact_dict[name] = [hls_impacted, ]
+            else:
+                if elem.tag == "hlservice":
+                    # on instancie ou on récupère le HLS
+                    hls = HighLevelService.by_service_name(name)
+                    if hls:
+                        hls.servicename = name
+                        hls.op_dep = opdep
+                        hls.message = message
+                        hls.priority = priority
+                        hls.warning_threshold = warning_threshold
+                        hls.critical_threshold = critical_threshold
+                    else:
+                        hls = HighLevelService(servicename=name, op_dep=opdep,
+                                        message=message, priority=priority,
+                                        warning_threshold=warning_threshold,
+                                        critical_threshold=critical_threshold
+                                               )
+                    # ajout des groupes
+                    hls.groups = []
+                    for gname in groups:
+                        hls.groups.append(ServiceGroup.by_group_name(gname))
+                    
+                    # ajout des impacts
+                    # les impacts sont ajoutés après le traitement de
+                    # l'ensemble des fichiers
+                    
+        DBSession.flush()
+    except:
+        DBSession.rollback()
+        raise
+
+def _load_hlservices_impacts(impact_dict):
+    """ Links high level services impacted.
+    
+        @param impact_dict: an dictionary hlsname -> list of impacted hls names
+        @type  impact_dict: C{dict}
+    """
+    try:
+        for hlsname, impacts, in impact_dict.iteritems():
+            hls = HighLevelService.by_service_name(hlsname)
+            
+            hls.impacts = []
+            for impact in impacts:
+                hls.impacts.append(
+                            HighLevelService.by_service_name(impact)
+                            )
+        DBSession.flush()
+    except:
+        DBSession.rollback()
+        raise
+
