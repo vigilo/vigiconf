@@ -316,7 +316,7 @@ class Host(object):
             service = reroutefor['service']
         # Add the RRD datasource (rerouting-dependant)
         self.add(target, "dataSources", service,
-                 {'dsType':dstype, 'label': label})
+                 {'dsType': dstype, 'label': label})
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (name, 'perfData'),
                                         {'function': function,
@@ -476,7 +476,7 @@ class Host(object):
         else:
             target = reroutefor['host']
         # Add the RRD
-        self.add(target, "dataSources", service,
+        self.add(target, "dataSources", name,
                  {'dsType': dstype, 'label': label})
         # Add the perfdata handler in Nagios
         if not self.get('PDHandlers').has_key(service):

@@ -119,12 +119,14 @@ class DispatchatorRemote(Dispatchator):
         @type  servers: C{list} of L{Server<lib.server.Server>}
         """
         if len(servers):
-            self.restrictServersList(servers)
-            self.restrictApplicationsListToServers(servers)
-            for _ser in servers:
-                if _ser not in self.getServersList():
+            server_objs = self.buildServersFrom(servers)
+            self.restrictServersList(server_objs)
+            self.restrictApplicationsListToServers(server_objs)
+            for _ser in server_objs:
+                _ser_name = _ser.getName()
+                if _ser_name not in self.getServersList():
                     syslog.syslog(syslog.LOG_WARNING,
-                              "Incorrect servername (not in conf list): "+_ser)
+                              "Incorrect servername (not in conf list): "+_ser_name)
 
     def restrictServersList(self, servers):
         """

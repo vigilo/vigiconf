@@ -233,7 +233,7 @@ class Application(object):
         # iterate through the servers
         _validationCommand = self.getValidationMethod()
         if len(_validationCommand) > 0: # if there's a command for validation
-            _commandStr = _validationCommand + " " + iBaseDir + "/" + iServer
+            _commandStr = _validationCommand + " " + iBaseDir + "/" + iServer.getName()
             _command = SystemCommand(_commandStr)
             try:
                 _command.execute()
