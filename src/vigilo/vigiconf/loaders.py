@@ -76,7 +76,8 @@ def load_hlservices(basedir):
     global impact_dict
     impact_dict = {}
     _load_from_xmlfiles(basedir, "hlservice.xsd", _load_hlservices_from_xml)
-    _load_hlservices_impacts(impact_dict)
+    # TODO: inutile - pas d'impact au niveau conf
+    #_load_hlservices_impacts(impact_dict)
 
 
 def _load_from_xmlfiles(basedir, xsd_file, handler):
@@ -271,7 +272,7 @@ def _load_dependencies_from_xml(filepath):
         DBSession.rollback()
         raise
 
-def _load_hlservices_from_xml(_load_hlservices_from_xml):
+def _load_hlservices_from_xml(filepath):
     """ Loads high level services from a xml file.
     
         @param filepath: an XML file
@@ -285,18 +286,17 @@ def _load_hlservices_from_xml(_load_hlservices_from_xml):
                 if elem.tag == "hlservice":
                     name = elem.attrib["name"].strip()
                     groups = []
-                    name = None
                     message = None
                 elif elem.tag == "message":
                     message = elem.text
                 elif elem.tag == "warning_threshold":
-                    warning_threshold = int(elem.attrib["warning_threshold"].strip())
+                    warning_threshold = int(elem.attrib["value"].strip())
                 elif elem.tag == "critical_threshold":
-                    critical_threshold = int(elem.attrib["critical_threshold"].strip())
+                    critical_threshold = int(elem.attrib["value"].strip())
                 elif elem.tag == "priority":
-                    priority = int(elem.attrib["priority"].strip())
+                    priority = int(elem.attrib["value"].strip())
                 elif elem.tag == "op_dep":
-                    op_dep = int(elem.attrib["op_dep"].strip())
+                    op_dep = elem.attrib["value"].strip()
                 elif elem.tag == "group":
                     group = elem.attrib["name"].strip()
                     groups.append(group)
@@ -318,15 +318,19 @@ def _load_hlservices_from_xml(_load_hlservices_from_xml):
                         hls.warning_threshold = warning_threshold
                         hls.critical_threshold = critical_threshold
                     else:
-                        hls = HighLevelService(servicename=name, op_dep=opdep,
+                        hls = HighLevelService(servicename=name, op_dep=op_dep,
                                         message=message, priority=priority,
                                         warning_threshold=warning_threshold,
                                         critical_threshold=critical_threshold
                                                )
+                        DBSession.add(hls)
                     # ajout des groupes
                     hls.groups = []
                     for gname in groups:
-                        hls.groups.append(ServiceGroup.by_group_name(gname))
+                        sg = ServiceGroup.by_group_name(gname)
+                        if not sg:
+                            raise Exception("Service group %s does not exist." % gname)
+                        hls.groups.append(sg)
                     
                     # ajout des impacts
                     # les impacts sont ajoutés après le traitement de
@@ -349,9 +353,10 @@ def _load_hlservices_impacts(impact_dict):
             
             hls.impacts = []
             for impact in impacts:
-                hls.impacts.append(
-                            HighLevelService.by_service_name(impact)
-                            )
+                hlsimp = HighLevelService.by_service_name(impact)
+                if not hlsimp:
+                    raise Exception("HL Service %s does not exist." % impact)
+                hls.impacts.append(hlsimp)
         DBSession.flush()
     except:
         DBSession.rollback()
