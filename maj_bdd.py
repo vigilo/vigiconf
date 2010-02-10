@@ -3,7 +3,8 @@ from sqlalchemy import and_
 
 #from vigiconf import model
 #from vigiconf.model import DBSession
-from vigilo.models.session import DBSession
+from vigilo.models.configure import DBSession
+#from vigilo.models.session import DBSession
 from vigilo.models import VigiloServer, AppGroup, Host, \
         Host_VigiloServer_AppGroup
 

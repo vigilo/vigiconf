@@ -136,7 +136,7 @@ class HostTemplateFactory(object):
     def __init__(self, testfactory):
         self.path = [
                       os.path.join(
-                        settings.get("CONFDIR", "/etc/vigilo-vigiconf/conf.d"),
+                        settings['vigiconf'].get("CONFDIR", "/etc/vigilo-vigiconf/conf.d"),
                         "hosttemplates"),
                     ]
         self.testfactory = testfactory

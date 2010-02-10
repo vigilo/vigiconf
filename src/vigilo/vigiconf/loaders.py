@@ -33,7 +33,8 @@ from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
-from vigilo.models.session import DBSession
+#from vigilo.models.session import DBSession
+from vigilo.models.configure import DBSession
 
 from vigilo.models import HostGroup, ServiceGroup
 from vigilo.models import Host, LowLevelService, HighLevelService, Dependency

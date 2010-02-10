@@ -23,7 +23,7 @@ from vigilo.vigiconf.lib.servertypes.remote import ServerRemote
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import dispatchmodes
 
-from confutil import reload_conf, setup_tmpdir
+from confutil import setup_tmpdir, reload_conf
 
 
 class EnterpriseEdition(unittest.TestCase):

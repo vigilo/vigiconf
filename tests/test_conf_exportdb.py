@@ -8,12 +8,14 @@ sample test
 import unittest
 
 import vigilo.vigiconf.conf as conf
+from vigilo.common.conf import settings
+
 from vigilo.vigiconf.dbexportator import export_conf_db
 
-from confutil import reload_conf, setup_tmpdir, setup_db, teardown_db
+from confutil import setup_db, teardown_db, reload_conf
 
 from vigilo.models import Host, HostGroup
-from vigilo.models.session import DBSession
+from vigilo.models.configure import DBSession
 
 class ExportDBTest(unittest.TestCase):
     """Test Sample"""
@@ -30,6 +32,8 @@ class ExportDBTest(unittest.TestCase):
     
     def test_export_hosts_db(self):
         print 'hostsconf', conf.hostsConf
+        self.assertEquals(len(conf.hostsConf.items()), 1,
+                          "one host in conf (%d)"%len(conf.hostsConf.items()))
         
         export_conf_db()
         # check host groups

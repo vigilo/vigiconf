@@ -258,7 +258,7 @@ import os
 import subprocess
 
 from vigilo.common.conf import settings
-settings.load(module="vigiconf")
+#settings.load(module="vigiconf")
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -303,13 +303,13 @@ def loadConf():
 
 # Initialize global paths
 CODEDIR = os.path.dirname(__file__)
-LIBDIR = settings.get("LIBDIR", "/var/lib/vigilo-vigiconf")
-CONFDIR = settings.get("CONFDIR", "/etc/vigilo-vigiconf/conf.d")
-TARGETCONFDIR = settings.get("TARGETCONFDIR", "/etc/vigilo-vigiconf")
-LOCKFILE = settings.get("LOCKFILE", "/var/lock/vigilo-vigiconf/vigiconf.token")
-SVNUSERNAME = settings.get("SVNUSERNAME", "vigiconf")
-SVNPASSWORD = settings.get("SVNPASSWORD", "my_pass_word")
-SVNREPOSITORY = settings.get("SVNREPOSITORY", "file:///var/lib/svn")
+LIBDIR = settings['vigiconf'].get("LIBDIR", "/var/lib/vigilo-vigiconf")
+CONFDIR = settings['vigiconf'].get("CONFDIR", "/etc/vigilo-vigiconf/conf.d")
+TARGETCONFDIR = settings['vigiconf'].get("TARGETCONFDIR", "/etc/vigilo-vigiconf")
+LOCKFILE = settings['vigiconf'].get("LOCKFILE", "/var/lock/vigilo-vigiconf/vigiconf.token")
+SVNUSERNAME = settings['vigiconf'].get("SVNUSERNAME", "vigiconf")
+SVNPASSWORD = settings['vigiconf'].get("SVNPASSWORD", "my_pass_word")
+SVNREPOSITORY = settings['vigiconf'].get("SVNREPOSITORY", "file:///var/lib/svn")
 
 # Initialize global conf variables
 apps = {}

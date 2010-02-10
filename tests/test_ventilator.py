@@ -15,7 +15,9 @@ from vigilo.vigiconf.lib.ventilator import appendHost, getServerToUse, findAServ
 from vigilo.vigiconf import generator
 from vigilo.vigiconf import dbexportator
 
-from vigilo.models.session import DBSession
+#from vigilo.models.session import DBSession
+from vigilo.models.configure import DBSession
+
 from vigilo.models import Host, Ventilation, Application, VigiloServer
 
 class VentilatorTest(unittest.TestCase):

@@ -29,7 +29,9 @@ import syslog
 
 from vigilo.common.conf import settings
 
-from vigilo.models.session import DBSession
+#from vigilo.models.session import DBSession
+from vigilo.models.configure import DBSession
+
 from vigilo.models import Host, HostGroup, LowLevelService, ServiceGroup
 from vigilo.models import Graph, GraphGroup
 from vigilo.models import Application, Ventilation, VigiloServer
