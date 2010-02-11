@@ -1,7 +1,7 @@
 %define module  vigiconf
 %define name    vigilo-%{module}
 %define version 1.36
-%define release 4
+%define release 7
 
 Name:       %{name}
 Summary:    Configuration manager for the supervision system
@@ -37,21 +37,37 @@ This application is part of the Vigilo Project <http://vigilo-project.org>
 %setup -q -n %{module}
 
 %build
-make PREFIX=%{_prefix} SYSCONFDIR=%{_sysconfdir} LOCALSTATEDIR=%{_localstatedir}
+make \
+	PREFIX=%{_prefix} \
+	SYSCONFDIR=%{_sysconfdir} \
+	LOCALSTATEDIR=%{_localstatedir} \
+	PYTHON=%{_bindir}/python
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT PREFIX=%{_prefix} SYSCONFDIR=%{_sysconfdir} LOCALSTATEDIR=%{_localstatedir}
+make install \
+	DESTDIR=$RPM_BUILD_ROOT \
+	PREFIX=%{_prefix} \
+	SYSCONFDIR=%{_sysconfdir} \
+	LOCALSTATEDIR=%{_localstatedir} \
+	PYTHON=%{_bindir}/python
+
 # Listed explicitely in %%files as %%config:
 grep -v '^%{_sysconfdir}' INSTALLED_FILES \
-	| grep -v '^%{_localstatedir}/lib/vigilo-vigiconf' \
+	| grep -v '^%{_localstatedir}/lib/vigilo/vigiconf' \
 	> INSTALLED_FILES.filtered
 mv -f INSTALLED_FILES.filtered INSTALLED_FILES
 
 
 %pre
 groupadd vigiconf >/dev/null 2>&1 || :
-useradd -s /bin/bash -m -d /var/lib/vigilo-vigiconf -g vigiconf -c 'VigiConf user' vigiconf >/dev/null 2>&1 || :
+useradd -s /bin/bash -M -d / -g vigiconf -c 'Vigilo VigiConf user' vigiconf >/dev/null 2>&1 || :
+
+%post
+if [ ! -f %{_sysconfdir}/vigilo/vigiconf/ssh/vigiconf.key ]; then
+    ssh-keygen -t rsa -f %{_sysconfdir}/vigilo/vigiconf/ssh/vigiconf.key -N "" > /dev/null 2>&1 || :
+fi
+chown vigiconf:vigiconf %{_sysconfdir}/vigilo/vigiconf/ssh/vigiconf.key
 
 
 %clean
@@ -60,19 +76,19 @@ rm -rf $RPM_BUILD_ROOT
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
 %doc COPYING doc/*
-%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo-vigiconf/
-%config(noreplace) %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo-vigiconf/settings.py
-%config(noreplace) %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo-vigiconf/conf.d
-%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo-vigiconf/new
-%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo-vigiconf/prod
-%{_sysconfdir}/vigilo-vigiconf/conf.d.example
-%{_sysconfdir}/vigilo-vigiconf/README.source
-%config(noreplace) %{_sysconfdir}/cron.d/*
-%dir %attr(-,vigiconf,vigiconf) %{_localstatedir}/lib/vigilo-vigiconf
-%dir %attr(-,vigiconf,vigiconf) %{_localstatedir}/lib/vigilo-vigiconf/db
-%config(noreplace) %attr(-,vigiconf,vigiconf) %{_localstatedir}/lib/vigilo-vigiconf/db/ssh_config
-%attr(-,vigiconf,vigiconf) %{_localstatedir}/lib/vigilo-vigiconf/deploy
-%attr(-,vigiconf,vigiconf) %{_localstatedir}/lib/vigilo-vigiconf/revisions
+%dir %{_sysconfdir}/vigilo
+%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/
+%config(noreplace) %attr(640,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/settings.ini
+%config(noreplace) %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/conf.d
+%config(noreplace) %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/ssh
+%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/new
+%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/prod
+%{_sysconfdir}/vigilo/vigiconf/conf.d.example
+%{_sysconfdir}/vigilo/vigiconf/README.source
+%config(noreplace) /etc/cron.d/*
+%dir %{_localstatedir}/lib/vigilo
+%attr(-,vigiconf,vigiconf) %{_localstatedir}/lib/vigilo/vigiconf
+%attr(-,vigiconf,vigiconf) %{_localstatedir}/lock/vigilo-vigiconf
 
 
 %changelog

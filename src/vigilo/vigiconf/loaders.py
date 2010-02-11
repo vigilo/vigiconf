@@ -29,7 +29,6 @@ import subprocess
 
 from xml.etree import ElementTree as ET # Python 2.5
 
-from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 

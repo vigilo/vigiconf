@@ -1,0 +1,24 @@
+[vigiconf]
+
+confdir = @SYSCONFDIR@/vigilo/vigiconf/conf.d
+libdir = @LOCALSTATEDIR@/lib/vigilo/vigiconf
+targetconfdir = @SYSCONFDIR@/vigilo/vigiconf
+lockfile = @LOCALSTATEDIR@/lock/vigilo-vigiconf/vigiconf.token
+svnusername = vigiconf
+svnpassword = svnpass
+svnrepository = http://svnrepo/path/to/svn/repo
+simulate = False
+silent = False
+default_language = fr
+
+app_ventilation = nagios
+
+socket_nagios_to_vigilo = @LOCALSTATEDIR@/lib/vigilo/connector-nagios/send.sock
+
+[vigilo.models]
+sqlalchemy.url = sqlite:///:memory:
+vigilo_models_bdd_basename = vigilo_
+
+[groups_def]
+new_hosts = new_hosts_to_ventilate
+new_services = new_services

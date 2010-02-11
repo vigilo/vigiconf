@@ -7,11 +7,11 @@
 
 define command{
 	command_name    host-notify-bus
-	command_line    /usr/bin/printf "%%b" "$TIMET$|$HOSTNAME$|$HOSTADDRESS$|Host|$HOSTSTATE$|$HOSTOUTPUT$\\n" | socat -u - UNIX-CONNECT:%(socket)s
+	command_line    /usr/bin/printf "%%b" "event|$TIMET$|$HOSTNAME$|Host|$HOSTSTATE$|$HOSTOUTPUT$\\n" | socat -u - UNIX-CONNECT:%(socket)s
 }
 define command{
 	command_name    service-notify-bus
-	command_line    /usr/bin/printf "%%b" "$TIMET$|$HOSTNAME$|$HOSTADDRESS$|$SERVICEDESC$|$SERVICESTATE$|$SERVICEOUTPUT$\\n" | socat -u - UNIX-CONNECT:%(socket)s
+	command_line    /usr/bin/printf "%%b" "event|$TIMET$|$HOSTNAME$|$SERVICEDESC$|$SERVICESTATE$|$SERVICEOUTPUT$\\n" | socat -u - UNIX-CONNECT:%(socket)s
 }
 define command{
 	command_name	check_http_ars
@@ -51,11 +51,11 @@ define command{
 }
 define command{
         command_name    process-service-perfdata
-        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/vigilo-vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
+        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/vigilo/vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
 }
 define command{
         command_name    process-host-perfdata
-        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/vigilo-vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s 'HOST' -a '$HOSTSTATE$' -t '$LASTHOSTCHECK$' -v '$HOSTPERFDATA$'
+        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/vigilo/vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s 'HOST' -a '$HOSTSTATE$' -t '$LASTHOSTCHECK$' -v '$HOSTPERFDATA$'
 }
 define command{
 	command_name            Collector

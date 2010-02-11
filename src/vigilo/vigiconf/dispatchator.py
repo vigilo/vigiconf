@@ -38,6 +38,8 @@ import syslog
 from threading import Thread
 import shutil
 
+from vigilo.common.conf import settings
+
 from . import conf
 from . import generator
 from .lib.application import Application, ApplicationError
@@ -240,7 +242,7 @@ class Dispatchator(object):
         L{generator} module.
         """
         # generate conf files
-        gendir = os.path.join(conf.LIBDIR, "deploy")
+        gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir)
         result = generator.generate(gendir)
         if not result:
@@ -255,7 +257,7 @@ class Dispatchator(object):
 
         #Validate Configuration
         for _App in self.getApplications():
-            _App.validate(os.path.join(conf.LIBDIR, "deploy"))
+            _App.validate(os.path.join(settings["vigiconf"].get("libdir"), "deploy"))
         syslog.syslog(syslog.LOG_INFO, "Validation Successful\n")
 
         #Commit Configuration
@@ -268,24 +270,27 @@ class Dispatchator(object):
         @return: the number of the revision
         @rtype: C{int}
         """
-        if not conf.SVNREPOSITORY:
+        confdir = settings["vigiconf"].get("confdir")
+        if not settings["vigiconf"].get("svnrepository", False):
             syslog.syslog(syslog.LOG_WARNING,
-                    "Not committing because the SVNREPOSITORY configuration "
+                    "Not committing because the 'svnrepository' configuration "
                    +"parameter is empty\n")
             return 0
         _cmd = "svn ci "
-        if conf.SVNUSERNAME and conf.SVNPASSWORD: # TODO: escape password
+        svnusername = settings["vigiconf"].get("svnusername", False)
+        svnpassword =  settings["vigiconf"].get("svnpassword", False)
+        if svnusername and svnpassword: # TODO: escape password
             _cmd += "--username %s --password %s " % \
-                    (conf.SVNUSERNAME, conf.SVNPASSWORD)
+                    (svnusername, svnpassword)
         _cmd += "-m 'Auto generate configuration %s' %s" % \
-                (conf.CONFDIR, conf.CONFDIR)
+                    (confdir, confdir)
         _command = self.createCommand(_cmd)
         try:
             _command.execute()
         except SystemCommandError, e:
-            raise DispatchatorError("Can't execute the request to commit %s "
-                                    % conf.CONFDIR
-                                   +"revision. REASON: %s" % e.value)
+            raise DispatchatorError(
+                    "Can't execute the request to commit %s " % confdir
+                    +"revision. REASON: %s" % e.value)
         return self.getLastRevision()
 
     def getLastRevision(self):
@@ -295,12 +300,12 @@ class Dispatchator(object):
         @rtype: C{int}
         """
         res = 0
-        if not conf.SVNREPOSITORY:
+        if not settings["vigiconf"].get("svnrepository", False):
             return res
         # <code> UNIX only
         # TODO: use svn info --xml and parse it
         _command = self.createCommand("LANG=C LC_ALL=C svn info -r HEAD %s" % 
-                                     conf.SVNREPOSITORY)
+                                     settings["vigiconf"].get("svnrepository"))
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -321,16 +326,18 @@ class Dispatchator(object):
         @param iRevision: SVN revision to update to
         @type  iRevision: C{int}
         """
-        if not conf.SVNREPOSITORY:
+        if not settings["vigiconf"].get("svnrepository", False):
             syslog.syslog(syslog.LOG_WARNING,
-                    "Not updating because the SVNREPOSITORY configuration "
+                    "Not updating because the 'svnrepository' configuration "
                    +"parameter is empty")
             return 0
         _cmd = "svn up "
-        if conf.SVNUSERNAME and conf.SVNPASSWORD: # TODO: escape password
+        svnusername = settings["vigiconf"].get("svnusername", False)
+        svnpassword =  settings["vigiconf"].get("svnpassword", False)
+        if svnusername and svnpassword: # TODO: escape password
             _cmd += "--username %s --password %s " % \
-                    (conf.SVNUSERNAME, conf.SVNPASSWORD)
-        _cmd += "-r %d %s" % (iRevision, conf.CONFDIR)
+                    (svnusername, svnpassword)
+        _cmd += "-r %d %s" % (iRevision, settings["vigiconf"].get("confdir"))
         _command = self.createCommand(_cmd)
         try:
             _command.execute()
@@ -750,7 +757,7 @@ def main():
 
     # Handle command-line options
     if (options.simulate):
-        conf.SIMULATE = True
+        settings["vigiconf"]["simulate"] = True
 
     if (options.force):
         _dispatchator.setModeForce(True)
@@ -794,7 +801,7 @@ if __name__ == "__main__":
     syslog.openlog('Dispatchator' , syslog.LOG_PERROR)
     syslog.syslog(syslog.LOG_INFO, "Dispatchator Begin")
 
-    f = open(conf.LOCKFILE,'a+')
+    f = open(settings["vigiconf"].get("lockfile"),'a+')
     try:
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception, exp:

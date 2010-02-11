@@ -22,6 +22,8 @@
 
 from __future__ import absolute_import
 
+from vigilo.common.conf import settings
+
 from .. import conf
 from . import Templator 
 
@@ -35,8 +37,9 @@ class CorrSecuTpl(Templator):
                 dirName = "%s/%s/corrsecu" \
                           % (self.baseDir, hostdata['corrsecu'])
                 for i in ['reglesSecu.conf']:
-                    self.copyFile("%s/corrsecu/%s"%(os.path.join(conf.CONFDIR, "filetemplates"), i),
-                                  "%s/%s"%(dirName, i))
+                    self.copyFile("%s/corrsecu/%s" % (
+                        os.path.join(settings["vigiconf"].get("confdir"),
+                            "filetemplates"), i), "%s/%s"%(dirName, i))
 
 
 

@@ -258,7 +258,8 @@ import os
 import subprocess
 
 from vigilo.common.conf import settings
-#settings.load(module="vigiconf")
+# TODO: Yuck ! :(
+settings.load_file("/etc/vigilo/vigiconf/settings.ini")
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -274,14 +275,15 @@ __docformat__ = "epytext"
 
 def loadConf():
     """
-    Load the CONFDIR directory, looking for configuration files.
+    Load the confdir directory, looking for configuration files.
     @returns: None, but sets global variables as described above.
     """
     global hostsConf, groupsHierarchy
     # General configuration
     for confsubdir in [ "general", ]:
         try:
-            files = glob.glob(os.path.join(CONFDIR, confsubdir, "*.py"))
+            files = glob.glob(os.path.join(settings["vigiconf"].get("confdir"),
+                                           confsubdir, "*.py"))
             #print files
             for fileF in files:
                 execfile(fileF, globals())
@@ -294,7 +296,8 @@ def loadConf():
         hostfactory.load()
     except ParsingError, e:
         LOGGER.error("Error loading configuration file %s: %s\n"
-                % (f.replace(os.path.join(CONFDIR, "hosts")+"/", ""), str(e)))
+                % (f.replace(os.path.join(settings["vigiconf"].get("confdir"),
+                                          "hosts")+"/", ""), str(e)))
         raise e
     hostsConf = hostfactory.hosts
     groupsHierarchy = hostfactory.groupsHierarchy
@@ -303,13 +306,6 @@ def loadConf():
 
 # Initialize global paths
 CODEDIR = os.path.dirname(__file__)
-LIBDIR = settings['vigiconf'].get("LIBDIR", "/var/lib/vigilo-vigiconf")
-CONFDIR = settings['vigiconf'].get("CONFDIR", "/etc/vigilo-vigiconf/conf.d")
-TARGETCONFDIR = settings['vigiconf'].get("TARGETCONFDIR", "/etc/vigilo-vigiconf")
-LOCKFILE = settings['vigiconf'].get("LOCKFILE", "/var/lock/vigilo-vigiconf/vigiconf.token")
-SVNUSERNAME = settings['vigiconf'].get("SVNUSERNAME", "vigiconf")
-SVNPASSWORD = settings['vigiconf'].get("SVNPASSWORD", "my_pass_word")
-SVNREPOSITORY = settings['vigiconf'].get("SVNREPOSITORY", "file:///var/lib/svn")
 
 # Initialize global conf variables
 apps = {}
@@ -330,10 +326,7 @@ confid = ""
 testfactory = TestFactory()
 hosttemplatefactory = HostTemplateFactory(testfactory)
 hostfactory = HostFactory(
-                os.path.join(
-                    settings.get("CONFDIR",
-                                 "/etc/vigilo-vigiconf/conf.d"),
-                    "hosts"),
+                os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
                 hosttemplatefactory,
                 testfactory,
                 groupsHierarchy,

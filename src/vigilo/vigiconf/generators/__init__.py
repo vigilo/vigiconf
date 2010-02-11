@@ -11,6 +11,8 @@ import os.path
 import shutil
 import types
 
+from vigilo.common.conf import settings
+
 from .. import conf
 
 class Templator(object):
@@ -129,7 +131,8 @@ class Templator(object):
         @type  subdir: C{str}
         """
         templates = {}
-        templates_path = os.path.join(conf.CONFDIR, "filetemplates", subdir)
+        templates_path = os.path.join(settings["vigiconf"].get("confdir"),
+                                      "filetemplates", subdir)
         for tpl in glob.glob("%s/*.tpl" % templates_path):
             name = os.path.basename(tpl)[:-4]
             f = open(tpl, "r")

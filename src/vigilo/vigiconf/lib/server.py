@@ -90,9 +90,11 @@ class Server(object):
         self.mName = iName
         # mRevisionManager
         self.mRevisionManager = RevisionManager()
-        self.mRevisionManager.setRepository(conf.SVNREPOSITORY)
+        self.mRevisionManager.setRepository(
+                settings["vigiconf"].get("svnrepository"))
         self.mRevisionManager.setFilename(os.path.join(
-                conf.LIBDIR, "revisions" , iName + ".revisions"))
+                settings["vigiconf"].get("libdir"),
+                "revisions" , iName + ".revisions"))
 
     def getName(self):
         """@return: L{mName}"""
@@ -122,7 +124,7 @@ class Server(object):
         @return: base directory for file deployment
         @rtype: C{str}
         """
-        return os.path.join(conf.LIBDIR, "deploy")
+        return os.path.join(settings["vigiconf"].get("libdir"), "deploy")
     
     def createCommand(self, iCommand):
         """
@@ -133,7 +135,7 @@ class Server(object):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = SystemCommand(iCommand)
-        c.simulate = settings.get("SIMULATE", False)
+        c.simulate = settings["vigiconf"].as_bool("simulate")
         return c
 
     # methods
@@ -156,7 +158,7 @@ class Server(object):
         _CmdLine = "sudo sh -c '"+_CmdLine+"'"
         # execution
         _command = self.createCommand( _CmdLine %
-                                    {"base": conf.TARGETCONFDIR} )
+                        {"base": settings["vigiconf"].get("targetconfdir")} )
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -178,7 +180,7 @@ class Server(object):
         _commandline = self._builddepcmd()
         _command = SystemCommand(_commandline)
         # Simulation mode ?
-        _command.simulate = settings.get("SIMULATE", False)
+        _command.simulate = settings["vigiconf"].as_bool("simulate")
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -232,10 +234,11 @@ class Server(object):
  
     def undo(self):
         """Undo a deployment"""
+        targetdir = settings["vigiconf"].get("targetconfdir")
         # check if the directory exists
         try:
             _CmdLine = "sh -c '[ -d %s/old ] && [ -d %s/new ]'" \
-                       % (conf.TARGETCONFDIR, conf.TARGETCONFDIR)
+                       % (targetdir, targetdir)
              # execution
             _command = self.createCommand(_CmdLine)
             _command.execute()
@@ -249,12 +252,9 @@ class Server(object):
         # undo !
         try:
             
-            _newundoStr = "mv %s/new %s/undo" \
-                          % (conf.TARGETCONFDIR, conf.TARGETCONFDIR)
-            _oldnew = "mv %s/old %s/new" \
-                      % (conf.TARGETCONFDIR, conf.TARGETCONFDIR)
-            _undoold = "mv %s/undo %s/old" \
-                       % (conf.TARGETCONFDIR, conf.TARGETCONFDIR)
+            _newundoStr = "mv %s/new %s/undo" % (targetdir, targetdir)
+            _oldnew = "mv %s/old %s/new" % (targetdir, targetdir)
+            _undoold = "mv %s/undo %s/old" % (targetdir, targetdir)
             
             _CmdLine = "sudo sh -c ' %s && %s && %s '" \
                        % (_newundoStr, _oldnew, _undoold)

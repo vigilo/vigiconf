@@ -94,7 +94,7 @@ apps = {
                    u'priority' : -1,
                    u'validationMethod' :  '',
                    u'qualificationMethod' : '',
-                   u'startMethod' : 'mysql < /etc/vigilo-vigiconf/prod/dashboard_db/dashboard_db.sql',
+                   u'startMethod' : 'mysql < /etc/vigilo/vigiconf/prod/dashboard_db/dashboard_db.sql',
                    u'stopMethod' : ''
                    },
 }

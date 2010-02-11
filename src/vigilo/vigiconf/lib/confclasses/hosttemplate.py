@@ -28,6 +28,7 @@ import subprocess
 from xml.etree import ElementTree as ET # Python 2.5
 
 from vigilo.common.conf import settings
+
 from .. import ParsingError
 from ..external import topsort
 
@@ -136,7 +137,7 @@ class HostTemplateFactory(object):
     def __init__(self, testfactory):
         self.path = [
                       os.path.join(
-                        settings['vigiconf'].get("CONFDIR", "/etc/vigilo-vigiconf/conf.d"),
+                        settings["vigiconf"].get("confdir"),
                         "hosttemplates"),
                     ]
         self.testfactory = testfactory

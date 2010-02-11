@@ -35,7 +35,7 @@ and sudo to copy configuration files, launch command (to validate a
 configuration file validity, stop/start/restart deamons).
 After installing this package, you need to extract the configuration and
 templates directories from the subversion repository.
-See /etc/vigilo-vigiconf/conf.d/README.source for the subversion repository address
+See /etc/vigilo/vigiconf/conf.d/README.source for the subversion repository address
 This should be done as the "vigiconf" user.
 
 A full forced configuration dispatch is done by calling "dispatchator"

@@ -41,20 +41,18 @@ class ServerLocal(Server):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = SystemCommand(iCommand)
-        c.simulate = settings.get("SIMULATE", False)
+        c.simulate = settings["vigiconf"].as_bool("simulate")
         return c
 
     def _builddepcmd(self):
         """
         Build the deployment command line
         """
-        _commandline = "sudo rm -rf %s/new && " \
-                        % conf.TARGETCONFDIR \
+        targetdir = settings["vigiconf"].get("targetconfdir")
+        _commandline = "sudo rm -rf %s/new && " % targetdir \
                       +"sudo cp -pr %s/%s %s/new && " \
-                        % (self.getBaseDir(), self.getName(),
-                           conf.TARGETCONFDIR) \
-                      +"sudo chmod -R o-w %s/new" \
-                        % conf.TARGETCONFDIR
+                        % (self.getBaseDir(), self.getName(), targetdir) \
+                      +"sudo chmod -R o-w %s/new" % targetdir
         return _commandline
 
 

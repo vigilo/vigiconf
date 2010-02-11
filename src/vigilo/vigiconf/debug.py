@@ -6,6 +6,8 @@ This module is used to test the different parts of VigiConf
 
 from __future__ import absolute_import
 
+from vigilo.common.conf import settings
+
 import sys
 import os
 
@@ -37,7 +39,7 @@ def main():
         from . import conf
         from . import generator
         conf.loadConf()
-        _gendir = os.path.join(conf.LIBDIR, "deploy")
+        _gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         os.system("rm -rf %s/*" % _gendir)
         if 0:
             import hotshot, hotshot.stats

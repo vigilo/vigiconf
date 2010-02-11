@@ -21,7 +21,7 @@
 +#cfg_dir=/etc/nagios/routers
 +
 +# Vigiconf-generated conf file
-+cfg_file=/etc/vigilo-vigiconf/prod/nagios.cfg
++cfg_file=/etc/vigilo/vigiconf/prod/nagios.cfg
  
  
  # OBJECT CACHE FILE

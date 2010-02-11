@@ -3,9 +3,11 @@
 import os
 import tempfile
 
+from vigilo.common.conf import settings
+from vigilo.models.configure import metadata, DBSession, configure_db
+
 import vigilo.vigiconf.conf as conf
 
-from vigilo.models.configure import metadata, DBSession, configure_db
 
 
 def setUpModule(self):
@@ -16,7 +18,7 @@ def setUpModule(self):
 def setup_path():
     conf.CODEDIR = os.path.join(os.path.dirname(__file__), "..", "src",
             "vigilo", "vigiconf")
-    conf.CONFDIR = os.path.join(conf.CODEDIR, "conf.d")
+    settings["vigiconf"]["confdir"] = os.path.join(conf.CODEDIR, "conf.d")
 
 def reload_conf():
     """We changed the paths, reload the factories"""
@@ -24,7 +26,7 @@ def reload_conf():
     conf.hosttemplatefactory.__init__(conf.testfactory)
     conf.hosttemplatefactory.load_templates()
     conf.hostfactory.__init__(
-            os.path.join(conf.CONFDIR, "hosts"),
+            os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
             conf.hosttemplatefactory,
             conf.testfactory,
             conf.groupsHierarchy,

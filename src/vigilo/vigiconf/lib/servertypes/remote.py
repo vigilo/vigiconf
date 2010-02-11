@@ -42,12 +42,12 @@ class ServerRemote(Server):
         # Superclass constructor
         Server.__init__(self, iName)
         # mCommandUser
-        ssh_conf_file = os.path.join(conf.LIBDIR, "db", "ssh_config")
+        ssh_conf_file = os.path.join(settings["vigiconf"].get("confdir"),
+                                     "ssh", "ssh_config")
         if not os.path.exists(ssh_conf_file):
             raise ServerError("Cannot find SSH config file: %s"
                                         % ssh_conf_file)
-        self.mCommandUser = CommandUser("vigiconf",
-                os.path.join(conf.LIBDIR, "db", "ssh_config"))
+        self.mCommandUser = CommandUser("vigiconf", ssh_conf_file)
 
         
     def setCommandUser(self, iUser):
@@ -70,7 +70,7 @@ class ServerRemote(Server):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = RemoteCommand(self.getName(), iCommand, self.getCommandUser())
-        c.simulate = settings.get("SIMULATE", False)
+        c.simulate = settings["vigiconf"].as_bool("simulate")
         return c
 
     def _builddepcmd(self):
@@ -81,7 +81,8 @@ class ServerRemote(Server):
         # The output is the standard output
         _localCommandStr = "tar -C %s/%s -cf - . " % \
                            (self.getBaseDir(), self.getName())
-        _remoteCommandStr = "cd %s && " % conf.TARGETCONFDIR \
+        _remoteCommandStr = "cd %s && " % \
+                                settings["vigiconf"].get("targetconfdir") \
                            +"sudo rm -rf new && " \
                            +"sudo mkdir new && cd new && " \
                            +"sudo tar xf - && " \

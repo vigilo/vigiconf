@@ -37,7 +37,7 @@ from vigilo.common.conf import settings
 
 # application used to implement the many2one link "is_supervised for hosts with
 # HostApplication
-APP_VENTILATION = settings.get('APP_VENTILATION', u'nagios')
+APP_VENTILATION = unicode(settings["vigiconf"].get('app_ventilation', 'nagios'))
 
 from .. import conf
 

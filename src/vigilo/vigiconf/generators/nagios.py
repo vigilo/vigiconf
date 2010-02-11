@@ -43,7 +43,7 @@ class NagiosTpl(Templator):
     def generate(self):
         """Generate files"""
         # pre-parse all the nagios-related templates
-        # usually in /etc/vigilo-vigiconf/templates/nagios/*.tpl
+        # usually in /etc/vigilo/vigiconf/templates/nagios/*.tpl
         self.templates = self.loadTemplates("nagios")
         files = {}
         for (hostname, ventilation) in self.mapping.iteritems():
@@ -82,8 +82,8 @@ class NagiosTpl(Templator):
                 # Nagios instance gives the name of the corrsup server for
                 # anyone else in this Nagios instance!!
                 self.templateCreate(self.fileName, self.templates["header"],
-                                    {"confid": conf.confid,
-                                     "socket": conf.SOCKET_NAGIOS_TO_VIGILO})
+                    {"confid": conf.confid,
+                     "socket": settings["vigiconf"].get("socket_nagios_to_vigilo")})
             newhash = h.copy()
             # Groups
             self.__fillgroups(hostname, newhash, files)

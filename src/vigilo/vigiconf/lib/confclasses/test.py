@@ -129,7 +129,7 @@ class TestFactory(object):
                   os.path.join(
                       os.path.dirname(__file__), "..", "..", "tests"),
                   os.path.join(
-                      settings.get("CONFDIR", "/etc/vigilo-vigiconf/conf.d"),
+                      settings["vigiconf"].get("confdir"),
                       "tests"),
                     ]
         if not self.tests:

@@ -79,7 +79,7 @@ def generate(gendir):
         sys.stderr.write("Generation Failed!!\n")
         return False
     else:
-        if not settings.get("SILENT", False):
+        if not settings["vigiconf"].get("silent", False):
             sys.stdout.write("\n".join(v.getSummary(details=True, stats=True)
                                       +['']))
             sys.stdout.write("Generation Successful\n")
@@ -88,7 +88,7 @@ def generate(gendir):
 if __name__ == "__main__":
     #from pprint import pprint; pprint(globals())
     conf.loadConf()
-    _gendir = os.path.join(conf.LIBDIR, "deploy")
+    _gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
     os.system("rm -rf %s/*" % _gendir)
     if 0:
         import hotshot, hotshot.stats

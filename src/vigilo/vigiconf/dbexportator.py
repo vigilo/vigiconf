@@ -63,10 +63,9 @@ def export_conf_db():
     groupsHierarchy = conf.groupsHierarchy
     
     # groups for new entities
-    groups_def = settings.get('GROUPS_DEF', {
-                                'new_hosts': u'new_hosts_to_ventilate',
-                                'new_services': u'new_services'
-                                            })
+    groups_def = {}
+    groups_def["new_hosts"] = settings["groups_def"].get("new_hosts", "new_hosts_to_ventilate")
+    groups_def["new_services"] = settings["groups_def"].get("new_services", "new_services")
     # add if needed these groups
     if not HostGroup.by_group_name(groups_def['new_hosts']):
         DBSession.add(HostGroup(name=groups_def['new_hosts']))

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sys, os, unittest, tempfile, shutil, glob, subprocess
 
+from vigilo.common.conf import settings
+
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
@@ -10,9 +12,10 @@ class ValidateDTD(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        self.dtddir = os.path.join(conf.CODEDIR,"validation","dtd")
-        self.hdir = os.path.join(conf.CONFDIR,"hosts")
-        self.htdir = os.path.join(conf.CONFDIR,"hosttemplates")
+        self.dtddir = os.path.join(conf.CODEDIR, "validation", "dtd")
+        self.hdir = os.path.join(settings["vigiconf"].get("confdir"), "hosts")
+        self.htdir = os.path.join(settings["vigiconf"].get("confdir"),
+                        "hosttemplates")
 
     def test_host(self):
         """Validate the provided hosts against the DTD"""
@@ -37,12 +40,14 @@ class ParseHost(unittest.TestCase):
         """Call before every test case."""
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
-        shutil.copytree(os.path.join(conf.CONFDIR, "general"),
+        shutil.copytree(os.path.join(
+                            settings["vigiconf"].get("confdir"), "general"),
                         os.path.join(self.tmpdir, "general"))
-        shutil.copytree(os.path.join(conf.CONFDIR, "hosttemplates"),
+        shutil.copytree(os.path.join(
+                        settings["vigiconf"].get("confdir"), "hosttemplates"),
                         os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
-        conf.CONFDIR = self.tmpdir
+        settings["vigiconf"]["confdir"] = self.tmpdir
         # We changed the paths, reload the factories
         reload_conf()
         self.host = open(os.path.join(self.tmpdir, "hosts", "host.xml"), "w")
@@ -51,7 +56,7 @@ class ParseHost(unittest.TestCase):
         """Call after every test case."""
         # This has been overwritten in setUp, reset it
         setup_path()
-        #conf.CONFDIR = os.path.join(os.path.dirname(__file__), "..", "src", "conf.d")
+        #settings["vigiconf"]["confdir"] = os.path.join(os.path.dirname(__file__), "..", "src", "conf.d")
         shutil.rmtree(self.tmpdir)
 
 
@@ -240,13 +245,15 @@ class ParseHostTemplate(unittest.TestCase):
         """Call before every test case."""
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
-        shutil.copytree(os.path.join(conf.CONFDIR, "general"),
+        shutil.copytree(os.path.join(
+                            settings["vigiconf"].get("confdir"), "general"),
                         os.path.join(self.tmpdir, "general"))
-        #shutil.copytree(os.path.join(conf.CONFDIR, "hosttemplates"),
+        #shutil.copytree(os.path.join(
+        #                    settings["vigiconf"].get("confdir"), "hosttemplates"),
         #                os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
-        conf.CONFDIR = self.tmpdir
+        settings["vigiconf"]["confdir"] = self.tmpdir
         # We changed the paths, reload the factories
         reload_conf()
         conf.hosttemplatefactory.path = [os.path.join(self.tmpdir, "hosttemplates"),]

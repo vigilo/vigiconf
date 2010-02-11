@@ -37,6 +37,8 @@ import threading
 # Warning, the "threading" module overwrites the built-in function enumerate()
 # if used as import * !!
 
+from vigilo.common.conf import settings
+
 from .. import conf
 from .systemcommand import SystemCommand, SystemCommandError
 from . import ConfMgrError
@@ -281,9 +283,9 @@ class Application(object):
         qualificationCommand = self.getQualificationMethod()
         if len(qualificationCommand) > 0:
             _commandStr = "cd %s/new/ && sudo %s %s/new" \
-                          % (conf.TARGETCONFDIR,
+                          % (settings["vigiconf"].get("targetconfdir"),
                              self.getQualificationMethod(), 
-                             conf.TARGETCONFDIR)
+                             settings["vigiconf"].get("targetconfdir"))
             _command = iServer.createCommand(_commandStr)
             try:
                 _command.execute()

@@ -24,6 +24,8 @@ from __future__ import absolute_import
 
 import os
 
+from vigilo.common.conf import settings
+
 from .. import conf
 from . import Templator 
 
@@ -42,7 +44,9 @@ class CorrSupTpl(Templator):
             dirName = "%s/%s/corrsup" % (self.baseDir, ventilation['corrsup'])
             for i in ('correl.sec', 'reduct.sec', 'transl.sec'):
                 # statically copy the 3 base S.E.C. configuration files
-                self.copyFile("%s/corrsup/%s" % (os.path.join(conf.CONFDIR, "filetemplates"), i),
+                self.copyFile("%s/corrsup/%s" % (
+                    os.path.join(settings["vigiconf"].get("confdir"),
+                                 "filetemplates"), i),
                               "%s/%s" % (dirName, i))
             if not os.path.exists("%s/graph.txt" % dirName):
                 self.templateCreate("%s/graph.txt" % dirName, "%s", "")

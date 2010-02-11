@@ -27,6 +27,8 @@ import re
 import locale
 import syslog
 
+from vigilo.common.conf import settings
+
 from .. import conf
 from . import ConfMgrError
 
@@ -216,9 +218,12 @@ class RevisionManager(object):
         @type  iServer: L{Server<lib.server.Server>}
         """
         self.setDeployed(self.getRevision(iServer,
-                         '%s/new/revisions.txt' % conf.TARGETCONFDIR))
+                    '%s/new/revisions.txt' % \
+                    settings["vigiconf"].get("targetconfdir")))
         self.setInstalled(self.getRevision(iServer,
-                          '%s/prod/revisions.txt' % conf.TARGETCONFDIR))
+                    '%s/prod/revisions.txt' % \
+                    settings["vigiconf"].get("targetconfdir")))
         self.setPrevious(self.getRevision(iServer,
-                         '%s/old/revisions.txt' % conf.TARGETCONFDIR))    
+                    '%s/old/revisions.txt' % \
+                    settings["vigiconf"].get("targetconfdir")))
 

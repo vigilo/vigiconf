@@ -25,6 +25,8 @@ from __future__ import absolute_import
 import os
 import os.path
 
+from vigilo.common.conf import settings
+
 from .. import conf
 from . import Templator 
 
@@ -63,8 +65,9 @@ class CorrTrapTpl(Templator):
         for server in serverList:
             dirName = "%s/%s/corrtrap" % (self.baseDir, server)
             for i in ('rules.sec', ):
-                self.copyFile("%s/corrtrap/%s" % (os.path.join(conf.CONFDIR, "filetemplates"), i),
-                              "%s/%s" % (dirName, i))
+                self.copyFile("%s/corrtrap/%s" % (
+                    os.path.join(settings["vigiconf"].get("confdir"),
+                        "filetemplates"), i), "%s/%s" % (dirName, i))
     
             if not os.path.exists("%s/mapTrap.pm" % (dirName)):
                 fileName = "%s/mapTrap.pm" % (dirName)                    
