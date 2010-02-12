@@ -2,6 +2,7 @@
 import sys, os, unittest, tempfile, shutil, glob, subprocess
 
 from vigilo.common.conf import settings
+settings.load_module(__name__)
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host

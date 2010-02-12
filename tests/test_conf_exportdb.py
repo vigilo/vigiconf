@@ -9,6 +9,7 @@ import unittest
 
 import vigilo.vigiconf.conf as conf
 from vigilo.common.conf import settings
+settings.load_module(__name__)
 
 from vigilo.vigiconf.dbexportator import export_conf_db
 

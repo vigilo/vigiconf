@@ -4,6 +4,7 @@ import os
 import tempfile
 
 from vigilo.common.conf import settings
+settings.load_module(__name__)
 from vigilo.models.configure import metadata, DBSession, configure_db
 
 import vigilo.vigiconf.conf as conf

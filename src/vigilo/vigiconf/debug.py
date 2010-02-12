@@ -7,6 +7,7 @@ This module is used to test the different parts of VigiConf
 from __future__ import absolute_import
 
 from vigilo.common.conf import settings
+settings.load_module(__name__)
 
 import sys
 import os

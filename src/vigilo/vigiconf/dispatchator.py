@@ -39,6 +39,7 @@ from threading import Thread
 import shutil
 
 from vigilo.common.conf import settings
+settings.load_module(__name__)
 
 from . import conf
 from . import generator

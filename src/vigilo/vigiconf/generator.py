@@ -32,6 +32,7 @@ import os
 import sys
 
 from vigilo.common.conf import settings
+settings.load_module(__name__)
 
 from . import conf
 from .lib.validator import Validator

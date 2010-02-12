@@ -30,6 +30,7 @@ import syslog
 import os
 
 from vigilo.common.conf import settings
+settings.load_module(__name__)
 
 #from vigilo.models.session import DBSession
 from vigilo.models.configure import DBSession
