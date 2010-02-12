@@ -118,7 +118,62 @@ class HostMethods(unittest.TestCase):
                  'vars': ["GET/.1.3.6.1.2.1.1.3.0"], 'reRouteFor': \
                  {'host':"testserver1", "service" : "TestAddCSReRoute"}}, \
                 "add_collector_service ReRouting does not work with the SNMPJobs sub-hashmap"
+    
+    def test_add_nagios_directive(self):
+        """ Test for the add_nagios_directive method
+        """
+        host = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
+        host.add_nagios_directive("max_check_attempts", "5")
+        self.assertEquals(conf.hostsConf["testserver2"]["nagiosDirectives"]["max_check_attempts"],
+                          "5")
+                
 
+    
+    def test_add_nagios_service_directive(self):
+        """ Test for the add_nagios_service_directive method
+        """
+        host = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
+        host.add_nagios_service_directive("Interface", "retry_interval", "10")
+        self.assertEquals(
+            conf.hostsConf["testserver2"]["nagiosSrvDirs"]["Interface"]["retry_interval"],
+            "10")
+ 
+
+from vigilo.vigiconf.lib.confclasses.host import HostFactory
+from vigilo.common.conf import settings
+
+class HostFactoryMethods(unittest.TestCase):
+
+    def setUp(self):
+        """Call before every test case."""
+        reload_conf()
+
+    def tearDown(self):
+        """Call after every test case."""
+        pass
+    
+    def test_load(self):
+        """ Test of the loading of the conf test hosts
+        """
+        f = HostFactory(
+                os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
+                conf.hosttemplatefactory,
+                conf.testfactory,
+                conf.groupsHierarchy,
+            )
+        f.load()
+    
+    def test_load_with_nagios_directives(self):
+        """ Test of the loading of host with nagios directives
+        """
+        f = HostFactory(
+                "tests/testdata/xsd/hosts/ok",
+                conf.hosttemplatefactory,
+                conf.testfactory,
+                conf.groupsHierarchy,
+            )
+        # TODO remplacer DTD par XSD
+        f.load(validation=False)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

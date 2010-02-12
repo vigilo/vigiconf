@@ -238,23 +238,33 @@ def _load_dependencies_from_xml(filepath):
                             supitems2.append(
                              LowLevelService.by_host_service_name(hname, sname)
                             )
+                    
+                    # recueil des low level services dépendants
+                    llservicesnames = []
+                    for sname in servicenames:
+                        if levelservices1[sname] == "low":
+                            llservicesnames.append(sname)
+                    
+                    # erreur si low level service sans host
+                    if len(hostnames) == 0 and len(llservicesnames) > 0:
+                        raise Exception(
+                            "low level services without a host declaration"
+                            % ", ".join(llservices))
+            
                     # create dependency links
                     for hname in hostnames:
                         supitem1 = Host.by_host_name(hname)
                         if not supitem1:
                             raise Exception("host %s does not exist" % hname)
                         
-                        llservices = []
-                        for sname in servicenames:
-                            if levelservices1[sname] == "low":
-                                lls = LowLevelService.by_host_service_name(hname, sname)
-                                if not lls:
-                                    raise Exception("low level service %s/%s does not exist" % (hname, sname))
-                                llservices.append(lls)
-                        
-                        if len(llservices) > 0:
-                            supitems1 = llservices
-                        else:
+                        supitems1 = []
+                        for sname in llservicesnames:
+                            lls = LowLevelService.by_host_service_name(hname, sname)
+                            if not lls:
+                                raise Exception("low level service %s/%s does not exist" % (hname, sname))
+                            supitems1.append(lls)
+                            
+                        if len(supitems1) == 0:
                             supitems1 = [supitem1, ]
                         
                         for supitem1 in supitems1:

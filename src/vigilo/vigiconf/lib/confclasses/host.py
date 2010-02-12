@@ -79,7 +79,9 @@ class Host(object):
                 "community"      : "public",
                 "port"           : 161,
                 "snmpOIDsPerPDU" : 10,
-                "lowlevelservices": []
+                "lowlevelservices": [],
+                "nagiosDirectives": {},
+                "nagiosSrvDirs": {}
             }
 
     def get_attribute(self, attribute, default=False):
@@ -166,6 +168,7 @@ class Host(object):
         @param cti: alert reference (Category - Type - Item)
         @type  cti: C{int}
         @todo: finish agument description
+        @todo: deprecated (database management)
         """
         if deps is None:
             return
@@ -524,6 +527,12 @@ class Host(object):
         if not target.has_key("tags"):
             target["tags"] = {}
         target["tags"][name] = value
+    
+    def add_nagios_directive(self, name, value):
+        self.add(self.name, "nagiosDirectives", name, value)
+    
+    def add_nagios_service_directive(self, service, name, value):
+        self.add_sub(self.name, "nagiosSrvDirs", service, name, value)
 
 
 class HostFactory(object):
@@ -538,7 +547,7 @@ class HostFactory(object):
         self.groupsHierarchy = groupsHierarchy
         self.hostsdir = hostsdir
 
-    def load(self):
+    def load(self, validation=True):
         """
         Load the defined hosts
         """
@@ -546,7 +555,8 @@ class HostFactory(object):
             for f in files:
                 if not f.endswith(".xml"):
                     continue
-                self._validatehost(os.path.join(root, f))
+                if validation:
+                    self._validatehost(os.path.join(root, f))
                 self._loadhosts(os.path.join(root, f))
                 LOGGER.debug("Sucessfully parsed %s" % os.path.join(root, f))
             for d in dirs: # Don't visit subversion/CVS directories
@@ -571,7 +581,7 @@ class HostFactory(object):
         result = subprocess.call(["xmllint", "--noout", "--dtdvalid", dtd, source])
         if result != 0:
             raise ParsingError("XML validation failed")
-
+    
     def _loadhosts(self, source):
         """
         Load a Host from an XML file
@@ -583,6 +593,7 @@ class HostFactory(object):
         for event, elem in ET.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "host":
+                    inside_test = False
                     name = elem.attrib["name"].strip()
                     ip = elem.attrib["ip"].strip()
                     group = elem.attrib["group"].strip()
@@ -591,18 +602,38 @@ class HostFactory(object):
                         self.groupsHierarchy[group] = set()
                     self.hosttemplatefactory.apply(cur_host, "default")
                     LOGGER.debug("Created host %s, ip %s, group %s" % (name, ip, group))
+                elif elem.tag == "test":
+                    inside_test = True
+                elif elem.tag == "nagios":
+                    process_nagios = True
+                    
+                elif elem.tag == "test":
+                    test_name = elem.attrib["name"].strip()
+                elif elem.tag == "directive":
+                    if not process_nagios: continue
+                    # directive nagios
+                    directives = {}
+                    for dname, value in elem.attrib.iteritems():
+                        if inside_test:
+                            # directive de service nagios
+                            cur_host.add_nagios_service_directive(test_name, d.strip(), value.strip())
+                        else:
+                            # directive host nagios
+                            cur_host.add_nagios_directive(d.strip(), value.strip())
             else:
                 if elem.tag == "template":
                     self.hosttemplatefactory.apply(cur_host, elem.text.strip())
                 elif elem.tag == "class":
                     cur_host.classes.append(elem.text.strip())
                 elif elem.tag == "test":
+                    inside_test = False
                     testname = elem.attrib["name"].strip()
                     args = {}
                     for arg in elem.getchildren():
                         args[arg.attrib["name"].strip()] = arg.text.strip()
                     test_list = self.testfactory.get_test(testname, cur_host.classes)
                     cur_host.add_tests(test_list, **args)
+                    testname = None
                 elif elem.tag == "attribute":
                     value = elem.text.strip()
                     items = [ i.text.strip() for i in elem.getchildren()
@@ -628,6 +659,9 @@ class HostFactory(object):
                     server_group = cur_host.get("serverGroup")
                     if group_name not in self.groupsHierarchy[server_group]:
                         self.groupsHierarchy[server_group].add(group_name)
+                elif elem.tag == "nagios":
+                    process_nagios = False
+                
                 elif elem.tag == "host":
                     elem.clear()
 
