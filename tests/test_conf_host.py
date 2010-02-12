@@ -11,7 +11,7 @@ class HostMethods(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         reload_conf()
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers")
 
     def tearDown(self):
         """Call after every test case."""
