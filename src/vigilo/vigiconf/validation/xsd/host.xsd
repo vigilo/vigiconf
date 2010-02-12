@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
 <!-- IP type (TODO: support IPv6, improve regexp) -->
@@ -8,7 +8,6 @@
 	<xs:pattern value="[0-9\.]+"/>
 	</xs:restriction>
 </xs:simpleType>
-
 
 <!-- Element hosts
 =================================================
@@ -22,74 +21,115 @@ hosts element contains one ore more host elements
 		
 		<!-- Element host -->
 	
-		<xs:element name="host" minOccurs="1" maxOccurs="unbounded" >
+		<xs:element maxOccurs="unbounded" minOccurs="1" name="host">
 		  <xs:complexType>
 	
 		  	<xs:sequence>
 		  	
-			<xs:element name="class"    minOccurs="1" maxOccurs="unbounded" type="xs:string" />
-			<xs:element name="template" minOccurs="1" maxOccurs="1"         type="xs:string" />
+			<xs:element maxOccurs="unbounded" minOccurs="1" name="class" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="1" name="template" type="xs:string"/>
 			
-			<xs:element name="attribute" minOccurs="0" maxOccurs="unbounded" >
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="attribute">
 			  <xs:complexType>
 				  <xs:simpleContent>
 					  <xs:extension base="xs:integer">
-					    <xs:attribute name="name" type="xs:string" />
+					    <xs:attribute name="name" type="xs:string"/>
 					  </xs:extension>
 				  </xs:simpleContent>
 			  </xs:complexType>
 			</xs:element>
+
+
+			<!-- test bloc -->
 			
-			<xs:element name="test" minOccurs="0" maxOccurs="unbounded" >
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="test">
 			  <xs:complexType>
 			  
 			    <xs:sequence>
-					<xs:element name="arg" minOccurs="0" maxOccurs="unbounded" >
+			    
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="arg">
 					  <xs:complexType>
 						  <xs:simpleContent>
 							  <xs:extension base="xs:string">
-					    		<xs:attribute name="name" type="xs:string" />
+					    		<xs:attribute name="name" type="xs:string"/>
 							  </xs:extension>
 						  </xs:simpleContent>
 					  </xs:complexType>
 					</xs:element>
+
+					<!-- nagios service specific bloc -->
+					
+					<xs:element maxOccurs="1" minOccurs="0" name="nagios">
+					  <xs:complexType>
+					    <xs:sequence>
+					    
+							<xs:element maxOccurs="3" minOccurs="0" name="directive">
+							  <xs:complexType>
+							    <xs:attribute name="max_check_attempts" type="xs:integer"/>
+							    <xs:attribute name="check_interval" type="xs:integer"/>
+							    <xs:attribute name="retry_interval" type="xs:integer"/>
+							  </xs:complexType>
+							</xs:element>
+							
+						</xs:sequence>
+					  </xs:complexType>
+					</xs:element>
+					
 				</xs:sequence>
 				
-			    <xs:attribute name="name" type="xs:string" />
+			    <xs:attribute name="name" type="xs:string"/>
 	    	
 			  </xs:complexType>
 			</xs:element>
+
+
+			<!-- nagios host specific bloc -->
 			
-			<xs:element name="item" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+			<xs:element maxOccurs="1" minOccurs="0" name="nagios">
+			  <xs:complexType>
+			    <xs:sequence>
+					<xs:element maxOccurs="3" minOccurs="0" name="directive">
+					  <xs:complexType>
+					    <xs:attribute name="max_check_attempts" type="xs:integer"/>
+					    <xs:attribute name="check_interval" type="xs:integer"/>
+					    <xs:attribute name="retry_interval" type="xs:integer"/>
+					  </xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			  </xs:complexType>
+			</xs:element>
+
 			
-			<xs:element name="tag" minOccurs="0" maxOccurs="unbounded" >
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="xs:string"/>
+			
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="tag">
 			  <xs:complexType>
 				  <xs:simpleContent>
 					  <xs:extension base="xs:string">
-					    <xs:attribute name="service" type="xs:string" />
-					    <xs:attribute name="name" type="xs:string" />
+					    <xs:attribute name="service" type="xs:string"/>
+					    <xs:attribute name="name" type="xs:string"/>
 					  </xs:extension>
 				  </xs:simpleContent>
 			  </xs:complexType>
 			</xs:element>
 			
-			<xs:element name="trap" minOccurs="0" maxOccurs="unbounded" >
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="trap">
 			  <xs:complexType>
 				  <xs:simpleContent>
 					  <xs:extension base="xs:string">
-					    <xs:attribute name="service" type="xs:string" />
-					    <xs:attribute name="key" type="xs:string" />
+					    <xs:attribute name="service" type="xs:string"/>
+					    <xs:attribute name="key" type="xs:string"/>
 					  </xs:extension>
 				  </xs:simpleContent>
 			  </xs:complexType>
 			</xs:element>
 			
-			<xs:element name="group" minOccurs="1" maxOccurs="unbounded" type="xs:string" />
+			<xs:element maxOccurs="unbounded" minOccurs="1" name="group" type="xs:string"/>
 		  
 		  	</xs:sequence>
 		  	
-		    <xs:attribute name="name"  type="xs:string" use="required" />
-		    <xs:attribute name="ip"    type="IPType" use="required" />
+		    <xs:attribute name="name" type="xs:string" use="required"/>
+		    <xs:attribute name="ip" type="IPType" use="required"/>
 		    <xs:attribute name="group" type="xs:string" use="required"/>
 		    
 		  </xs:complexType>

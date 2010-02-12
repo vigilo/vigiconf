@@ -178,6 +178,41 @@ class XMLLoadersTest(unittest.TestCase):
                                      .count(),
           "One dependency: host11/service11 is a dependence of hlservice1")
     
+    def test_load_conf_dependencies(self):
+        """ Test de chargement des dépendances de la conf.
+        """
+        localhost =  Host(
+            name=u'localhost',
+            checkhostcmd=u'halt -f',
+            snmpcommunity=u'public',
+            description=u'my localhost',
+            hosttpl=u'template',
+            mainip=u'127.0.0.1',
+            snmpport=124,
+            weight=44,
+        )
+        DBSession.add(localhost)
+        
+        hlservice1 = HighLevelService(
+            servicename=u'hlservice1',
+            op_dep=u'+',
+            message=u'Hello world',
+            warning_threshold=50,
+            critical_threshold=80,
+            priority=1
+        )
+        DBSession.add(hlservice1)
+        
+        interface = LowLevelService(
+            servicename=u'Interface',
+            op_dep=u'+',
+            weight=100,
+            host=localhost
+        )
+        DBSession.add(interface)
+        
+        loaders.load_dependencies('src/vigilo/vigiconf/conf.d/dependencies')
+    
     def test_load_dependencies_ko(self):
         """ Test de fichiers xml valides selon XSD mais invalides pour le loader.
         

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<hostgroups>
+
+	<hostgroup name="root_host_group" >
+		<children>
+		
+			<hostgroup name="P-F"/>
+			<hostgroup name="Servers"/>
+			<hostgroup name="Telecom" />
+
+		</children>
+	</hostgroup>
+
+</hostgroups>

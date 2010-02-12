@@ -259,7 +259,7 @@ import subprocess
 
 from vigilo.common.conf import settings
 # TODO: Yuck ! :(
-settings.load_file("/etc/vigilo/vigiconf/settings.ini")
+#settings.load_file("/home/esimorre/vigilo-base/vigiconf/settings_tests.ini")
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)

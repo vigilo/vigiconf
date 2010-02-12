@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (C) 2007-2009 CS-SI
@@ -26,6 +27,7 @@ from __future__ import absolute_import
 
 import sys
 import syslog
+import os
 
 from vigilo.common.conf import settings
 
@@ -37,6 +39,9 @@ from vigilo.models import Graph, GraphGroup
 from vigilo.models import Application, Ventilation, VigiloServer
 
 from . import conf
+
+# chargement de données xml
+from . import loaders
 
 
 def update_apps_db():
@@ -63,15 +68,18 @@ def export_conf_db():
     groupsHierarchy = conf.groupsHierarchy
     
     # groups for new entities
-    groups_def = {}
-    groups_def["new_hosts"] = settings["groups_def"].get("new_hosts", "new_hosts_to_ventilate")
-    groups_def["new_services"] = settings["groups_def"].get("new_services", "new_services")
-    # add if needed these groups
-    if not HostGroup.by_group_name(groups_def['new_hosts']):
-        DBSession.add(HostGroup(name=groups_def['new_hosts']))
+    group_newhosts_def = settings['vigiconf'].get('GROUPS_DEF_NEW_HOSTS',
+                                          u'new_hosts_to_ventilate')
+    group_newservices_def = settings['vigiconf'].get('GROUPS_DEF_NEW_SERVICES',
+                                          u'new_services')
     
-    if not HostGroup.by_group_name(groups_def['new_services']):
-        DBSession.add(HostGroup(name=groups_def['new_services']))
+    # add if needed these groups
+    if not HostGroup.by_group_name(group_newhosts_def):
+        DBSession.add(HostGroup(name=group_newhosts_def))
+    
+    if not ServiceGroup.by_group_name(group_newservices_def):
+        DBSession.add(ServiceGroup(name=group_newservices_def))
+    group_newservices_def = ServiceGroup.by_group_name(group_newservices_def)
     
     # hosts groups
     try:
@@ -110,7 +118,17 @@ def export_conf_db():
                         snmpoidsperpdu=host['snmpOIDsPerPDU'], weight=1,
                         snmpversion=host['snmpVersion'])
                 DBSession.add(h)
-                h.groups = [HostGroup.by_group_name(groups_def['new_hosts']), ]
+                h.groups = [HostGroup.by_group_name(group_newhosts_def), ]
+            
+            # low level services
+            # TODO : implémenter les détails: op_dep, weight, command
+            for test in host['lowlevelservices']:
+                lls = LowLevelService.by_host_service_name(hostname, test)
+                if not lls:
+                    lls = LowLevelService(host=h, servicename=test,
+                                          op_dep=u'+', weight=1)
+                    lls.groups = [group_newservices_def, ]
+                    DBSession.add(lls)
             
             for og in host['otherGroups']:
                 h.groups.append(HostGroup.by_group_name(og))
@@ -127,12 +145,15 @@ def export_conf_db():
         raise
     
     # services
+    # TODO: à revoir
+    '''
     try:
         for hostname, host in hostsConf.iteritems():
             for srvname, srv in host['services'].iteritems():
                 s = LowLevelService.by_host_service_name(hostname, srvname)
                 if s:
-                    s.command = srv['command']
+                    if srv.has_key('command'):
+                        s.command = srv['command']
                 else:
                     # create service object
                     cmd = u'none'
@@ -143,15 +164,15 @@ def export_conf_db():
                                         host=Host.by_host_name(hostname),
                                         command=cmd, weight=1)
                     # new services def group
-                    ns_group = groups_def['new_services']
-                    s.groups = [ServiceGroup.by_group_name(ns_group), ]
+                    s.groups = [group_newservices_def, ]
                     DBSession.add(s)
         DBSession.flush()
     except:
         DBSession.rollback()
         raise
+    '''
     
-    # groups hierarchies
+    # groups hierarchies (à 2 niveaux, cf vigilo 1)
     for parent_name, children in groupsHierarchy.iteritems():
         parent = HostGroup.by_group_name(parent_name)
         parent.children = []
@@ -160,6 +181,20 @@ def export_conf_db():
             g.parent = parent
     
     DBSession.flush()
+    
+    confdir = settings['vigiconf'].get('confdir')
+    # hiérarchie groupes hosts (fichier xml)
+    loaders.load_hostgroups(os.path.join(confdir, 'hostgroups'))
+    
+    # hiérarchies groupes services
+    loaders.load_servicegroups(os.path.join(confdir, 'servicegroups'))
+    
+    # high level services
+    loaders.load_hlservices(os.path.join(confdir, 'hlservices'))
+    
+    # dépendances
+    loaders.load_dependencies(os.path.join(confdir, 'dependencies'))
+    
 
 def _export_host_graphgroups(graphgroups, h):
     """

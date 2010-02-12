@@ -10,8 +10,12 @@ class HostXSD(XSDTest):
     xml_ok_files = {"src/vigilo/vigiconf/conf.d/hosts":[
                                       "localhost.xml",
                                       "example.xml.dist",
-                                      ]
+                                      ],
+                    "tests/testdata/xsd/hosts/ok":[
+                                    "example_nagios_spec.xml", ]
                    }
     
     xml_ko_files = {"tests/testdata/xsd/hosts/ko":[
-                                    "localhost1.xml", ]}
+                                    "localhost1.xml",
+                                    "example_nagios_spec2.xml",
+                                    ]}

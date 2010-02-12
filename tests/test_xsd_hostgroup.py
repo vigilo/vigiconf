@@ -14,7 +14,10 @@ class HostGroupXSD(XSDTest):
                                       ],
                     "tests/testdata/xsd/hostgroups/ko/loader_ko/1":[
                                       "hostgroups4.xml",
-                                      ]
+                                      ],
+                    "src/vigilo/vigiconf/conf.d/hostgroups":[
+                                      "hostgroups.xml",
+                                      ],
                    }
     
     xml_ko_files = {"tests/testdata/xsd/hostgroups/ko":[

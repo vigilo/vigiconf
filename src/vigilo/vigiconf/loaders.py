@@ -189,6 +189,7 @@ def _load_dependencies_from_xml(filepath):
     dependency = False
     subitems = False
     levelservices1 = {}
+    lowlevelservices1 = {}
     levelservices2 = {}
     
     try:
@@ -239,16 +240,34 @@ def _load_dependencies_from_xml(filepath):
                             )
                     # create dependency links
                     for hname in hostnames:
-                        host = Host.by_host_name(hname)
-                        if not host:
+                        supitem1 = Host.by_host_name(hname)
+                        if not supitem1:
                             raise Exception("host %s does not exist" % hname)
                         
-                        for supitem2 in supitems2:
-                            if not supitem2:
-                                continue
-                            dep = Dependency(supitem1=host, supitem2=supitem2)
-                            DBSession.add(dep)
+                        llservices = []
+                        for sname in servicenames:
+                            if levelservices1[sname] == "low":
+                                lls = LowLevelService.by_host_service_name(hname, sname)
+                                if not lls:
+                                    raise Exception("low level service %s/%s does not exist" % (hname, sname))
+                                llservices.append(lls)
+                        
+                        if len(llservices) > 0:
+                            supitems1 = llservices
+                        else:
+                            supitems1 = [supitem1, ]
+                        
+                        for supitem1 in supitems1:
+                            for supitem2 in supitems2:
+                                if not supitem2:
+                                    continue
+                                    
+                                dep = Dependency(supitem1=supitem1, supitem2=supitem2)
+                                DBSession.add(dep)
+                    
                     for sname in servicenames:
+                        if levelservices1[sname] == "low": continue
+                        
                         hls = HighLevelService.by_service_name(sname)
                         if not hls:
                             raise Exception("HLS %s does not exist" % sname)
@@ -342,7 +361,7 @@ def _load_hlservices_from_xml(filepath):
 
 def _load_hlservices_impacts(impact_dict):
     """ Links high level services impacted.
-    
+        TODO: à supprimer
         @param impact_dict: an dictionary hlsname -> list of impacted hls names
         @type  impact_dict: C{dict}
     """

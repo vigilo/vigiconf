@@ -79,6 +79,7 @@ class Host(object):
                 "community"      : "public",
                 "port"           : 161,
                 "snmpOIDsPerPDU" : 10,
+                "lowlevelservices": []
             }
 
     def get_attribute(self, attribute, default=False):
@@ -123,6 +124,7 @@ class Host(object):
         """
         for test_class in test_list:
             test_class().add_test(self, **kw)
+            self.hosts[self.name]['lowlevelservices'].append(test_class.__name__)
 
 #    def apply_template(self, tpl):
 #        """

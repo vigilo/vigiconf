@@ -11,7 +11,10 @@ class ServiceGroupXSD(XSDTest):
                                       "servicegroups.xml",
                                       "servicegroups1.xml",
                                       "servicegroups2.xml",
-                                     ]
+                                     ],
+                    "src/vigilo/vigiconf/conf.d/servicegroups":[
+                                      "servicegroups.xml",
+                                      ]
                    }
     
     xml_ko_files = {"tests/testdata/xsd/servicegroups/ko":[
