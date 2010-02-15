@@ -231,7 +231,7 @@ class Discoverator(object):
         decl.set("group", self.group)
         for hclass in self.hclasses:
             _class = ET.SubElement(decl, "class")
-            _class.set("name", hclass)
+            _class.text = hclass
         for attr, val in self.attributes.iteritems():
             _attr = ET.SubElement(decl, "attribute")
             _attr.set("name", attr)
