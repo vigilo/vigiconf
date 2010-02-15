@@ -47,7 +47,7 @@ def setup_db():
     parser = SafeConfigParser()
     parser.read('settings_tests.ini')
 
-    settings = dict(parser.items('vigilo.models'))
+    settings = dict(parser.items('database'))
 
     configure_db(settings, 'sqlalchemy.')
 #    db_basename = settings['db_basename']

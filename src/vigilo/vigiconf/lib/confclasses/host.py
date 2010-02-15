@@ -604,11 +604,9 @@ class HostFactory(object):
                     LOGGER.debug("Created host %s, ip %s, group %s" % (name, ip, group))
                 elif elem.tag == "test":
                     inside_test = True
+                    test_name = elem.attrib["name"].strip()
                 elif elem.tag == "nagios":
                     process_nagios = True
-                    
-                elif elem.tag == "test":
-                    test_name = elem.attrib["name"].strip()
                 elif elem.tag == "directive":
                     if not process_nagios: continue
                     # directive nagios
@@ -616,10 +614,10 @@ class HostFactory(object):
                     for dname, value in elem.attrib.iteritems():
                         if inside_test:
                             # directive de service nagios
-                            cur_host.add_nagios_service_directive(test_name, d.strip(), value.strip())
+                            cur_host.add_nagios_service_directive(test_name, dname.strip(), value.strip())
                         else:
                             # directive host nagios
-                            cur_host.add_nagios_directive(d.strip(), value.strip())
+                            cur_host.add_nagios_directive(dname.strip(), value.strip())
             else:
                 if elem.tag == "template":
                     self.hosttemplatefactory.apply(cur_host, elem.text.strip())
@@ -630,7 +628,8 @@ class HostFactory(object):
                     testname = elem.attrib["name"].strip()
                     args = {}
                     for arg in elem.getchildren():
-                        args[arg.attrib["name"].strip()] = arg.text.strip()
+                        if arg.tag == 'arg':
+                            args[arg.attrib["name"].strip()] = arg.text.strip()
                     test_list = self.testfactory.get_test(testname, cur_host.classes)
                     cur_host.add_tests(test_list, **args)
                     testname = None
