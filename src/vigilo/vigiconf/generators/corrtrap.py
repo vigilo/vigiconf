@@ -73,6 +73,9 @@ class CorrTrapTpl(Templator):
                 fileName = "%s/mapTrap.pm" % (dirName)                    
                 self.templateCreate(fileName, templates["header"],
                                     {"confid": conf.confid,
+                                     "socket": settings["vigiconf"].get(
+                                                    "socket_nagios_to_vigilo"
+                                                    ),
                                      "corrsup": corrsup_server})
     
                 self.templateAppend(fileName, "\nmy %%mapTrap=(\n", ())

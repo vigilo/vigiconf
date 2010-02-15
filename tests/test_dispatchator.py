@@ -5,6 +5,8 @@ Test that the dispatchator works properly
 
 import sys, os, unittest, tempfile, shutil, glob, re
 
+from vigilo.common.conf import settings
+
 import vigilo.vigiconf.conf as conf
 import vigilo.vigiconf.dispatchator as dispatchator
 from vigilo.vigiconf.lib.confclasses.host import Host
@@ -18,16 +20,19 @@ class Dispatchator(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         # Prepare necessary directories
-        self.tmpdir = setup_tmpdir()
-        self.basedir = os.path.join(self.tmpdir, "deploy")
+        gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
+        os.mkdir(gendir)
+        self.gendir = gendir
+
+        self.basedir = os.path.join(gendir, "deploy")
         os.mkdir(self.basedir)
-        conf.baseConfDir = os.path.join(self.tmpdir, "vigiconf-conf")
+        conf.baseConfDir = os.path.join(gendir, "vigiconf-conf")
         os.mkdir(conf.baseConfDir)
         for dir in [ "new", "old", "prod" ]:
             os.mkdir( os.path.join(conf.baseConfDir, dir) )
         # Create necessary files
-        os.mkdir( os.path.join(self.tmpdir, "revisions") )
-        revs = open( os.path.join(self.tmpdir, "revisions", "localhost.revisions"), "w")
+        os.mkdir( os.path.join(gendir, "revisions") )
+        revs = open( os.path.join(gendir, "revisions", "localhost.revisions"), "w")
         revs.close()
         os.mkdir( os.path.join(self.basedir, "localhost") )
         revs = open( os.path.join(self.basedir, "localhost", "revisions.txt"), "w")
@@ -51,7 +56,7 @@ class Dispatchator(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
-        shutil.rmtree(self.tmpdir)
+        shutil.rmtree(self.gendir)
         # Restore baseConfDir
         conf.baseConfDir = "/tmp/vigiconf-conf"
 
