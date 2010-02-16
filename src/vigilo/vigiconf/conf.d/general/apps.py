@@ -20,27 +20,6 @@ apps = {
                    u'startMethod' : '',
                    u'stopMethod' : ''
                    },
-    u'corrsup'    : { 
-                   u'priority' : 2,
-                   u'validationMethod' :  '',
-                   u'qualificationMethod' : './validation/corrsup.sh',
-                   u'startMethod' : '/etc/init.d/vigilo-corrsup start',
-                   u'stopMethod' : '/etc/init.d/vigilo-corrsup stop'
-                   },
-    u'dns1'    : { 
-                   u'priority' : 1,
-                   u'validationMethod' :  '',
-                   u'qualificationMethod' : '',
-                   u'startMethod' : '/etc/init.d/bind9 reload',
-                   u'stopMethod' : ''
-                   },
-    u'dns2'    : { 
-                   u'priority' : 1,
-                   u'validationMethod' :  '',
-                   u'qualificationMethod' : '',
-                   u'startMethod' : '/etc/init.d/bind9 reload',
-                   u'stopMethod' : ''
-                   },
     u'apacheRP'    : { 
                    u'priority' : -1,
                    u'validationMethod' :  '',
@@ -90,25 +69,15 @@ apps = {
                    u'startMethod' : '',
                    u'stopMethod' : ''
                    },
-    u'dashboard_db'    : { 
-                   u'priority' : -1,
-                   u'validationMethod' :  '',
-                   u'qualificationMethod' : '',
-                   u'startMethod' : 'mysql < /etc/vigilo/vigiconf/prod/dashboard_db/dashboard_db.sql',
-                   u'stopMethod' : ''
-                   },
 }
 
 
 appsByAppGroups = {
     u'collect'           : [u'nagios', u'collector', u'perfdata'],
     u'metrology'         : [u'storeme', u'rrdgraph'],
-    u'corrpres'          : [u'corrsup', u'supnav', u'apacheRP', u'nagvis', u'dashboard_db'],
+    u'corrpres'          : [u'supnav', u'apacheRP', u'nagvis'],
     u'reporting'         : [u'reportingv2'],
-    u'secu'              : [],
     u'trap'              : [u'corrtrap'],
-    u'dns1'              : [u'dns1'],
-    u'dns2'              : [u'dns2'],
 }
 
 

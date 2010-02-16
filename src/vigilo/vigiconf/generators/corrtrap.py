@@ -38,13 +38,11 @@ class CorrTrapTpl(Templator):
         templates = self.loadTemplates("corrtrap")
         data = {}
         serverList = [] 
-        corrsup_server = None
         
         for (host, ventilation) in self.mapping.iteritems():            
             if 'corrtrap' in ventilation:
                 h = conf.hostsConf[host]
                 server = ventilation['corrtrap']
-                corrsup_server = ventilation['corrsup']
                 if not (data.has_key(server)):
                     data[server] = {}
                     serverList.append(server)
@@ -76,7 +74,7 @@ class CorrTrapTpl(Templator):
                                      "socket": settings["vigiconf"].get(
                                                     "socket_nagios_to_vigilo"
                                                     ),
-                                     "corrsup": corrsup_server})
+                                    })
     
                 self.templateAppend(fileName, "\nmy %%mapTrap=(\n", ())
                 for (key, value) in data[server].iteritems():

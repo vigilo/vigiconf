@@ -29,5 +29,7 @@ else
     echo "Can't find the nagios version"
     exit 1
 fi
-/usr/sbin/nagios${nver} -v /etc/nagios${nver}/nagios-test.cfg
+# Utilisation de sudo pour pouvoir ecrire dans les repertoires specifiques de
+# Nagios (/var/spool/nagios/)
+sudo -u nagios /usr/sbin/nagios${nver} -v /etc/nagios${nver}/nagios-test.cfg
 exit $?
