@@ -163,13 +163,13 @@ class HostTemplateFactory(object):
 
     def __validate(self, source):
         """
-        Validate the XML against the DTD using xmllint
+        Validate the XML against the XSD using xmllint
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}
         """
-        dtd = os.path.join(os.path.dirname(__file__), "..", "..",
-                           "validation", "dtd", "hosttemplate.dtd")
-        result = subprocess.call(["xmllint", "--noout", "--dtdvalid", dtd, source])
+        xsd = os.path.join(os.path.dirname(__file__), "..", "..",
+                           "validation", "xsd", "hosttemplate.xsd")
+        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, source])
         if result != 0:
             raise ParsingError("XML validation failed")
 

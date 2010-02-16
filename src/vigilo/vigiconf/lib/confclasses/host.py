@@ -569,16 +569,16 @@ class HostFactory(object):
 
     def _validatehost(self, source):
         """
-        Validate the XML against the DTD using xmllint
+        Validate the XML against the XSD using xmllint
 
         @note: this could take time.
         @todo: use lxml for python-based validation
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}
         """
-        dtd = os.path.join(os.path.dirname(__file__), "..", "..",
-                           "validation", "dtd", "host.dtd")
-        result = subprocess.call(["xmllint", "--noout", "--dtdvalid", dtd, source])
+        xsd = os.path.join(os.path.dirname(__file__), "..", "..",
+                           "validation", "xsd", "host.xsd")
+        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, source])
         if result != 0:
             raise ParsingError("XML validation failed")
     
