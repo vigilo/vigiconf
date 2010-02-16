@@ -161,7 +161,9 @@ class HostFactoryMethods(unittest.TestCase):
                 conf.testfactory,
                 conf.groupsHierarchy,
             )
-        f.load()
+        hosts = f.load()
+        self.assertTrue(hosts.has_key('localhost'), "localhost defined in conf")
+        
     
     def test_load_with_nagios_directives(self):
         """ Test of the loading of host with nagios directives
@@ -172,8 +174,24 @@ class HostFactoryMethods(unittest.TestCase):
                 conf.testfactory,
                 conf.groupsHierarchy,
             )
-        # TODO remplacer DTD par XSD
-        f.load(validation=False)
+        # validation par XSD
+        hosts = f.load(validation=True)
+        testserver1 = hosts['testserver1']
+        nagiosdirs = testserver1.get('nagiosDirectives')
+        self.assertEquals(nagiosdirs['max_check_attempts'], "5",
+                          "max_check_attempts=5")
+        self.assertEquals(nagiosdirs['check_interval'], "10",
+                          "check_interval=10")
+        self.assertEquals(nagiosdirs['retry_interval'], "1",
+                          "retry_interval=1")
+        
+        nagios_sdirs = testserver1.get('nagiosSrvDirs')
+        self.assertEquals(nagios_sdirs['Interface']['max_check_attempts'], "5",
+                          "max_check_attempts=5")
+        self.assertEquals(nagios_sdirs['Interface']['check_interval'], "10",
+                          "check_interval=10")
+        self.assertEquals(nagios_sdirs['Interface']['retry_interval'], "1",
+                          "retry_interval=1")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

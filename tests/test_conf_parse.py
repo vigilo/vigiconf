@@ -13,25 +13,25 @@ class ValidateDTD(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        self.dtddir = os.path.join(conf.CODEDIR, "validation", "dtd")
+        self.dtddir = os.path.join(conf.CODEDIR, "validation", "xsd")
         self.hdir = os.path.join(settings["vigiconf"].get("confdir"), "hosts")
         self.htdir = os.path.join(settings["vigiconf"].get("confdir"),
                         "hosttemplates")
 
     def test_host(self):
-        """Validate the provided hosts against the DTD"""
+        """Validate the provided hosts against the XSD"""
         hosts = glob.glob(os.path.join(self.hdir, "*.xml"))
         for host in hosts:
-            valid = subprocess.call(["xmllint", "--noout", "--dtdvalid",
-                                    os.path.join(self.dtddir, "host.dtd"), host])
+            valid = subprocess.call(["xmllint", "--noout", "--schema",
+                                    os.path.join(self.dtddir, "host.xsd"), host])
             assert valid == 0, "Validation of host \"%s\" failed" % os.path.basename(host)
 
     def test_hosttemplate(self):
-        """Validate the provided hosttemplatess against the DTD"""
+        """Validate the provided hosttemplatess against the XSD"""
         hts = glob.glob(os.path.join(self.htdir, "*.xml"))
         for ht in hts:
-            valid = subprocess.call(["xmllint", "--noout", "--dtdvalid",
-                                    os.path.join(self.dtddir, "hosttemplate.dtd"), ht])
+            valid = subprocess.call(["xmllint", "--noout", "--schema",
+                                    os.path.join(self.dtddir, "hosttemplate.xsd"), ht])
             assert valid == 0, "Validation of hosttemplate \"%s\" failed" % os.path.basename(ht)
 
 
@@ -259,7 +259,7 @@ class ParseHostTemplate(unittest.TestCase):
         reload_conf()
         conf.hosttemplatefactory.path = [os.path.join(self.tmpdir, "hosttemplates"),]
         self.defaultht = open(os.path.join(self.tmpdir, "hosttemplates", "default.xml"), "w")
-        self.defaultht.write('<?xml version="1.0"?>\n<template name="default"></template>')
+        self.defaultht.write('<?xml version="1.0"?>\n<templates><template name="default"></template></templates>')
         self.defaultht.close()
         self.ht = open(os.path.join(self.tmpdir, "hosttemplates", "test.xml"), "w")
 
@@ -272,7 +272,7 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_template(self):
         """Test the parsing of a basic template declaration"""
-        self.ht.write("""<?xml version="1.0"?>\n<template name="test"></template>""")
+        self.ht.write("""<?xml version="1.0"?>\n<templates><template name="test"></template></templates>""")
         self.ht.close()
         try:
             conf.hosttemplatefactory.load_templates()
@@ -282,7 +282,7 @@ class ParseHostTemplate(unittest.TestCase):
                "template is not properly parsed"
 
     def test_template_whitespace(self):
-        self.ht.write("""<?xml version="1.0"?>\n<template name=" test "></template>""")
+        self.ht.write("""<?xml version="1.0"?>\n<templates><template name=" test "></template></templates>""")
         self.ht.close()
         try:
             conf.hosttemplatefactory.load_templates()
@@ -293,9 +293,11 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_attribute(self):
         self.ht.write("""<?xml version="1.0"?>
-                <template name="test">
-                    <attribute name="testattr">testattrvalue</attribute>
-                </template>""")
+                <templates>
+                    <template name="test">
+                        <attribute name="testattr">testattrvalue</attribute>
+                    </template>
+                </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
         assert "testattr" in conf.hosttemplatefactory.templates["test"]["attributes"] and \
@@ -304,9 +306,12 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_attribute_whitespace(self):
         self.ht.write("""<?xml version="1.0"?>
-                <template name="test">
-                    <attribute name=" testattr "> testattrvalue </attribute>
-                </template>""")
+                <templates>
+                    <template name="test">
+                        <attribute name=" testattr "> testattrvalue </attribute>
+                    </template>
+                </templates>
+                """)
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
         assert "testattr" in conf.hosttemplatefactory.templates["test"]["attributes"] and \
@@ -315,9 +320,11 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_test(self):
         self.ht.write("""<?xml version="1.0"?>
+                <templates>
                 <template name="test">
                     <test name="TestTest"/>
-                </template>""")
+                </template>
+                </templates>""")
         self.ht.close()
         try:
             conf.hosttemplatefactory.load_templates()
@@ -328,12 +335,14 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_test_args(self):
         self.ht.write("""<?xml version="1.0"?>
+                <templates>
                 <template name="test">
                     <test name="TestTest">
                         <arg name="TestArg1">TestValue1</arg>
                         <arg name="TestArg2">TestValue2</arg>
                     </test>
-                </template>""")
+                </template>
+                </templates>""")
         self.ht.close()
         try:
             conf.hosttemplatefactory.load_templates()
@@ -349,12 +358,14 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_test_whitespace(self):
         self.ht.write("""<?xml version="1.0"?>
+                <templates>
                 <template name="test">
                     <test name=" TestTest ">
                         <arg name=" TestArg1 "> TestValue1 </arg>
                         <arg name=" TestArg2 "> TestValue2 </arg>
                     </test>
-                </template>""")
+                </template>
+                </templates>""")
         self.ht.close()
         try:
             conf.hosttemplatefactory.load_templates()
@@ -370,9 +381,11 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_group(self):
         self.ht.write("""<?xml version="1.0"?>
+                <templates>
                 <template name="test">
                     <group>Test group</group>
-                </template>""")
+                </template>
+                </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
         assert "Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
@@ -380,9 +393,11 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_group_whitespace(self):
         self.ht.write("""<?xml version="1.0"?>
+                <templates>
                 <template name="test">
                     <group> Test group </group>
-                </template>""")
+                </template>
+                </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
         assert "Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
