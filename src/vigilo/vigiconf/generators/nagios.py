@@ -183,6 +183,13 @@ class NagiosTpl(Templator):
         """Fill the services section in the configuration file"""
         h = conf.hostsConf[hostname]
         for (srvname, srvdata) in h['services'].iteritems():
+            
+            #   directives generiques
+            generic_directives = ""
+            if newhash['nagiosSrvDirs'].has_key(srvname):
+                for dir, value in newhash['nagiosSrvDirs'][srvname].iteritems():
+                    generic_directives += "%s    %s\n    " % (dir, value)
+            
             if srvname  in h['PDHandlers']:
                 # there is a perfdata handler to set as we asked to
                 # route a perfdata (or more) to a RRD
@@ -204,7 +211,8 @@ class NagiosTpl(Templator):
                          'quietOrNot': newhash['quietOrNot'],
                          'perfDataOrNot': perfdata,
                          'maxchecks': srvdata.get('maxchecks', 1),
-                         "notification_period": srvdata["notification_period"]})
+                         "notification_period": srvdata["notification_period"],
+                         "generic_sdirectives":generic_directives})
             else:
                 if srvdata['command'].count("$METROSERVER$") > 0:
                     # Replace the keyword
@@ -226,7 +234,8 @@ class NagiosTpl(Templator):
                          'quietOrNot': newhash['quietOrNot'],
                          'perfDataOrNot': perfdata,
                          'maxchecks': srvdata.get('maxchecks', 1),
-                         "notification_period": srvdata["notification_period"]})
+                         "notification_period": srvdata["notification_period"],
+                         "generic_sdirectives":generic_directives})
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

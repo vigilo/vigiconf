@@ -7,5 +7,6 @@ define service{
     %(quietOrNot)s
     %(perfDataOrNot)s
     %(notification_period)s
+    %(generic_sdirectives)s
 }
 

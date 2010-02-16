@@ -186,11 +186,11 @@ class HostFactoryMethods(unittest.TestCase):
                           "retry_interval=1")
         
         nagios_sdirs = testserver1.get('nagiosSrvDirs')
-        self.assertEquals(nagios_sdirs['Interface']['max_check_attempts'], "5",
+        self.assertEquals(nagios_sdirs[('Interface', 'eth0')]['max_check_attempts'], "5",
                           "max_check_attempts=5")
-        self.assertEquals(nagios_sdirs['Interface']['check_interval'], "10",
+        self.assertEquals(nagios_sdirs[('Interface', 'eth0')]['check_interval'], "10",
                           "check_interval=10")
-        self.assertEquals(nagios_sdirs['Interface']['retry_interval'], "1",
+        self.assertEquals(nagios_sdirs[('Interface', 'eth0')]['retry_interval'], "1",
                           "retry_interval=1")
 
 

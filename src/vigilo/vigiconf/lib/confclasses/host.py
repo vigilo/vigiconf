@@ -529,9 +529,25 @@ class Host(object):
         target["tags"][name] = value
     
     def add_nagios_directive(self, name, value):
+        """ Add a generic nagios directive
+        
+            @param name: the directive name
+            @type  name: C{str}
+            @param value: the directive value
+            @type  value: C{str}
+        """
         self.add(self.name, "nagiosDirectives", name, value)
     
     def add_nagios_service_directive(self, service, name, value):
+        """ Add a generic nagios directive for a service
+        
+            @param service: the service, ie ('Interface', 'eth0')
+            @type  service: C{tuple*2}
+            @param name: the directive name
+            @type  name: C{str}
+            @param value: the directive value
+            @type  value: C{str}
+        """
         self.add_sub(self.name, "nagiosSrvDirs", service, name, value)
 
 
@@ -605,6 +621,14 @@ class HostFactory(object):
                 elif elem.tag == "test":
                     inside_test = True
                     test_name = elem.attrib["name"].strip()
+                    
+                    for arg in elem.getchildren():
+                        if arg.tag == 'arg':
+                            tname = arg.attrib["name"].strip()
+                            if tname == "label":
+                                test_name = (test_name, arg.text.strip())
+                                break
+                
                 elif elem.tag == "nagios":
                     process_nagios = True
                 elif elem.tag == "directive":

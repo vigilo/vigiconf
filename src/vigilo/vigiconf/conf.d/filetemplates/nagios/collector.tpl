@@ -5,5 +5,6 @@ define service{
 	max_check_attempts      %(maxchecks)s
 	%(quietOrNot)s
     %(notification_period)s
+    %(generic_sdirectives)s
 }
 

@@ -11,6 +11,7 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 
 from confutil import reload_conf, setup_tmpdir
 
+import pprint
 
 class Generator(unittest.TestCase):
 
@@ -111,7 +112,10 @@ class NagiosGeneratorForTest(NagiosTpl):
         """ redefinition pour tester les directives generiques nagios.
         """
         if args.has_key('generic_directives'):
-            self.test_data = args
+            self.test_host_data = args
+        elif args.has_key('generic_sdirectives'):
+            if args['generic_sdirectives'] != "":
+                self.test_srv_data = args
         super(NagiosGeneratorForTest, self).templateAppend(filename, template, args)
         
 
@@ -137,8 +141,22 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         
         tpl = NagiosGeneratorForTest(self.basedir, h, v)
         tpl.generate()
-        nagdirs = tpl.test_data['generic_directives']
-        print nagdirs
+        # recuperation de la generation pour host
+        nagdirs = tpl.test_host_data['generic_directives']
+        
+        self.assertTrue(nagdirs.find("max_check_attempts    5") >= 0,
+                                     "nagios generator generates max_check_attempts=5")
+        
+        self.assertTrue(nagdirs.find("check_interval    10") >= 0,
+                                     "nagios generator generates check_interval=10")
+        
+        self.assertTrue(nagdirs.find("retry_interval    1") >= 0,
+                                     "nagios generator generates retry_interval=1")
+        
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(tpl.test_host_data)
+        # recuperation de la generation pour services
+        nagdirs = tpl.test_srv_data['generic_sdirectives']
         
         self.assertTrue(nagdirs.find("max_check_attempts    5") >= 0,
                                      "nagios generator generates max_check_attempts=5")
