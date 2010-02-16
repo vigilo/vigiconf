@@ -15,59 +15,59 @@ define command{
 }
 define command{
 	command_name	check_http_ars
-	command_line	/usr/lib/nagios/plugins/check_http -H $HOSTADDRESS$ -u /arsys/shared/login.jsp 
+	command_line	$USER1$/check_http -H $HOSTADDRESS$ -u /arsys/shared/login.jsp 
 }
 define command{
         command_name    check_dhcp_sudo
-        command_line    /usr/bin/sudo /usr/lib/nagios/plugins/check_dhcp -s $HOSTADDRESS$
+        command_line    /usr/bin/sudo $USER1$/check_dhcp -s $HOSTADDRESS$
 }
 define command {
         command_name    check_nrpe_rerouted
-        command_line    /usr/lib/nagios/plugins/check_nrpe -H $ARG1$ -c $ARG2$ -a $ARG3$
+        command_line    $USER1$/check_nrpe -H $ARG1$ -c $ARG2$ -a $ARG3$
 }
 define command {
         command_name    check_nrpe_nossl
-        command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -n -c $ARG1$ -a $ARG2$
+        command_line    $USER1$/check_nrpe -H $HOSTADDRESS$ -n -c $ARG1$ -a $ARG2$
 }
 define command {
         command_name    check_nrpe_1arg_nossl
-        command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -n -c $ARG1$
+        command_line    $USER1$/check_nrpe -H $HOSTADDRESS$ -n -c $ARG1$
 }
 define command {
 	command_name        check_nrpe_1arg_timeout
-	command_line        /usr/lib/nagios/plugins/check_nrpe -t 15 -H $HOSTADDRESS$ -c $ARG1$
+	command_line        $USER1$/check_nrpe -t 15 -H $HOSTADDRESS$ -c $ARG1$
 }
 define command{
         command_name    check_proxy_noauth
-        command_line    /usr/lib/nagios/plugins/check_http -H $ARG2$ -I $HOSTADDRESS$ -p $ARG1$ -u http://$ARG2$
+        command_line    $USER1$/check_http -H $ARG2$ -I $HOSTADDRESS$ -p $ARG1$ -u http://$ARG2$
 }
 define command{
         command_name    check_proxy_auth
-        command_line    /usr/lib/nagios/plugins/check_http -H $ARG2$ -I $HOSTADDRESS$ -p $ARG1$ -u http://$ARG2$ -k "Proxy-Authorization: Basic login:passbase64encoded"
+        command_line    $USER1$/check_http -H $ARG2$ -I $HOSTADDRESS$ -p $ARG1$ -u http://$ARG2$ -k "Proxy-Authorization: Basic login:passbase64encoded"
 }
 define command{
         command_name    my_check_radius
-        command_line    /usr/lib/nagios/plugins/check_radius -H $HOSTADDRESS$ -t 15 -P 1812 -F /etc/radiusclient/radiusclient.conf -u $ARG1$ -p $ARG2$
+        command_line    $USER1$/check_radius -H $HOSTADDRESS$ -t 15 -P 1812 -F /etc/radiusclient/radiusclient.conf -u $ARG1$ -p $ARG2$
 }
 define command{
         command_name    process-service-perfdata
-        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/vigilo/vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
+        command_line    $USER1$/perf2store -p /etc/vigilo/vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
 }
 define command{
         command_name    process-host-perfdata
-        command_line    /usr/lib/nagios/plugins/perf2store -p /etc/vigilo/vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s 'HOST' -a '$HOSTSTATE$' -t '$LASTHOSTCHECK$' -v '$HOSTPERFDATA$'
+        command_line    $USER1$/perf2store -p /etc/vigilo/vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s 'HOST' -a '$HOSTSTATE$' -t '$LASTHOSTCHECK$' -v '$HOSTPERFDATA$'
 }
 define command{
 	command_name            Collector
-	command_line            /usr/lib/nagios/plugins/Collector -H '$HOSTNAME$' 
+	command_line            $USER1$/Collector -H '$HOSTNAME$' 
 }
 define command{
 	command_name            check_dummy
-	command_line            /usr/lib/nagios/plugins/check_dummy 0
+	command_line            $USER1$/check_dummy 0
 }
 define command{
 	command_name            check_ldap_v3
-	command_line            /usr/lib/nagios/plugins/check_ldap -H $HOSTADDRESS$ -3 -b $ARG1$
+	command_line            $USER1$/check_ldap -H $HOSTADDRESS$ -3 -b $ARG1$
 }
 define command{
         command_name            check_sysUpTime_v2
