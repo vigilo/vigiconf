@@ -80,7 +80,8 @@ setup(name='vigilo-vigiconf',
         package_dir={'': 'src'},
         #include_package_data = True,
         package_data={
-            "vigilo.vigiconf": ["validation/*.sh", "validation/dtd/*.dtd", "tests/*/*.py"],
+            "vigilo.vigiconf": ["validation/*.sh", "validation/dtd/*.dtd",
+                                "validation/xsd/*.xsd", "tests/*/*.py"],
             },
         data_files=get_data_files(),
         )
