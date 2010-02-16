@@ -21,13 +21,15 @@ def setup_path():
             "vigilo", "vigiconf")
     settings["vigiconf"]["confdir"] = os.path.join(conf.CODEDIR, "conf.d")
 
-def reload_conf():
+def reload_conf(hostsdir=None):
     """We changed the paths, reload the factories"""
     conf.testfactory.__init__()
     conf.hosttemplatefactory.__init__(conf.testfactory)
     conf.hosttemplatefactory.load_templates()
+    if not hostsdir:
+        hostsdir = os.path.join(settings["vigiconf"].get("confdir"), "hosts")
     conf.hostfactory.__init__(
-            os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
+            hostsdir,
             conf.hosttemplatefactory,
             conf.testfactory,
             conf.groupsHierarchy,

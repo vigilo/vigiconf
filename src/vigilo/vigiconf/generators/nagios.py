@@ -22,6 +22,8 @@
 
 from __future__ import absolute_import
 
+from vigilo.common.conf import settings
+
 import os.path
 
 from .. import conf
@@ -99,6 +101,12 @@ class NagiosTpl(Templator):
                 newhash['parents'] = "	parents    "+",".join(parents)
             else:
                 newhash['parents'] = ""
+            
+            #   directives generiques
+            newhash['generic_directives'] = ""
+            for dir, value in newhash['nagiosDirectives'].iteritems():
+                newhash['generic_directives'] += "%s    %s\n    " % (dir, value)
+                
             # Add the host definition
             self.templateAppend(self.fileName, self.templates["host"], newhash)
             # Add the service item into the Nagios configuration file

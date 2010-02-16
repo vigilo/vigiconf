@@ -104,5 +104,50 @@ class Generator(unittest.TestCase):
                         "add_tag on services does not generate proper SQL"
 
 
+from vigilo.vigiconf.generators.nagios import NagiosTpl
+
+class NagiosGeneratorForTest(NagiosTpl):
+    def templateAppend(self, filename, template, args):
+        """ redefinition pour tester les directives generiques nagios.
+        """
+        if args.has_key('generic_directives'):
+            self.test_data = args
+        super(NagiosGeneratorForTest, self).templateAppend(filename, template, args)
+        
+
+class TestGenericDirNagiosGeneration(unittest.TestCase):
+
+    def setUp(self):
+        """Call before every test case."""
+        # Prepare temporary directory
+        self.tmpdir = setup_tmpdir()
+        self.basedir = os.path.join(self.tmpdir, "deploy")
+        conf.hosttemplatefactory.load_templates()
+        # on charge en conf un host avec directives generiques nagios
+        reload_conf(hostsdir='tests/testdata/xsd/hosts/ok')
+        self.mapping = generator.getventilation()
+
+    def tearDown(self):
+        """Call after every test case."""
+        shutil.rmtree(self.tmpdir)
+    
+    def test_nagios_generator(self):
+        h = generator.getventilation()
+        v = generator.Validator(h)
+        
+        tpl = NagiosGeneratorForTest(self.basedir, h, v)
+        tpl.generate()
+        nagdirs = tpl.test_data['generic_directives']
+        print nagdirs
+        
+        self.assertTrue(nagdirs.find("max_check_attempts    5") >= 0,
+                                     "nagios generator generates max_check_attempts=5")
+        
+        self.assertTrue(nagdirs.find("check_interval    10") >= 0,
+                                     "nagios generator generates check_interval=10")
+        
+        self.assertTrue(nagdirs.find("retry_interval    1") >= 0,
+                                     "nagios generator generates retry_interval=1")
+        
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
