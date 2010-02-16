@@ -17,9 +17,10 @@ Requires:   perl
 Requires:   subversion
 Requires:   openssh-clients
 Requires:   tar
-#Requires:   sec
 Requires:   libxml2-utils
 Requires:   vigilo-models
+# Pour CorrTrap
+Requires:   sec
 #Buildrequires: graphviz # Documentation generation
 Buildarch:  noarch
 
