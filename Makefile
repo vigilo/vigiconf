@@ -42,7 +42,7 @@ install_permissions:
 
 
 
-include buildenv/Makefile.common
+include ../glue/Makefile.common
 lint: lint_pylint
 tests: tests_nose
 clean: clean_python
