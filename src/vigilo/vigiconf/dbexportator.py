@@ -123,13 +123,15 @@ def export_conf_db():
             
             # low level services
             # TODO : implémenter les détails: op_dep, weight, command
-            for test in host['lowlevelservices']:
-                lls = LowLevelService.by_host_service_name(hostname, test)
+            
+            for service, data in host['services'].iteritems():
+                lls = LowLevelService.by_host_service_name(hostname, service)
                 if not lls:
-                    lls = LowLevelService(host=h, servicename=test,
+                    lls = LowLevelService(host=h, servicename=service,
                                           op_dep=u'+', weight=1)
                     lls.groups = [group_newservices_def, ]
                     DBSession.add(lls)
+            
             
             for og in host['otherGroups']:
                 h.groups.append(HostGroup.by_group_name(og))

@@ -204,7 +204,7 @@ class XMLLoadersTest(unittest.TestCase):
         DBSession.add(hlservice1)
         
         interface = LowLevelService(
-            servicename=u'Interface',
+            servicename=u'Interface eth0',
             op_dep=u'+',
             weight=100,
             host=localhost

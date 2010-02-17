@@ -156,5 +156,39 @@ class HostTemplates(unittest.TestCase):
         assert "default" in conf.hosttemplatefactory.templates["testtpl1"]["parent"], \
                 "The \"default\" template is not automatically added as parent to other templates"
 
+    
+    def test_add_nagios_directive(self):
+        """ Test for the add_nagios_directive method
+        """
+        self.tpl.add_nagios_directive("max_check_attempts", "5")
+        self.assertEquals(conf.hosttemplatefactory.templates["testtpl1"]["nagiosDirectives"]["max_check_attempts"],
+                          "5")
+                
+
+    
+    def test_add_nagios_service_directive(self):
+        """ Test for the add_nagios_service_directive method
+        """
+        self.tpl.add_nagios_service_directive("Interface eth1", "retry_interval", "10")
+        self.assertEquals(
+            conf.hosttemplatefactory.templates["testtpl1"]["nagiosSrvDirs"]["Interface eth1"]["retry_interval"],
+            "10")
+    
+    def test_nagiosdirs_apply_on_host(self):
+        self.tpl.add_nagios_directive("retry_interval", "8")
+        conf.hosttemplatefactory.apply(self.host, "testtpl1")
+        testserver1 = conf.hostsConf['testserver1']
+        nagiosdirs = testserver1.get('nagiosDirectives')
+        self.assertEquals(nagiosdirs['retry_interval'], "8",
+                          "retry_interval=8")
+    
+    def test_nagios_srvdirs_apply_on_host(self):
+        self.tpl.add_nagios_service_directive("Interface eth0", "retry_interval", "6")
+        conf.hosttemplatefactory.apply(self.host, "testtpl1")
+        testserver1 = conf.hostsConf['testserver1']
+        nagiosdirs = testserver1.get('nagiosSrvDirs')
+        self.assertEquals(nagiosdirs['Interface eth0']['retry_interval'], "6",
+                          "retry_interval=6")
+
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

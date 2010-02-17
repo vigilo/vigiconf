@@ -91,6 +91,20 @@ class HostTemplate(object):
         for group in args:
             self.data["groups"].append(group)
 
+    def add(self,  prop, key, value):
+        """
+        A generic function to add a key/value to a property
+        @param prop: the property to add to
+        @type  prop: hashable
+        @param key: the key to add to the property
+        @type  key: hashable
+        @param value: the value to add to the property
+        @type  value: anything
+        """
+        if not self.data.has_key(prop):
+            self.data[prop] = {}
+        self.data[prop].update({key: value})
+
     def add_attribute(self, attrname, value):
         """
         Add an attribute to this host template
@@ -102,6 +116,46 @@ class HostTemplate(object):
         if not self.data.has_key("attributes"):
             self.data["attributes"] = {}
         self.data["attributes"][attrname] = value
+
+    def add_sub(self, prop, subprop, key, value):
+        """
+        A generic function to add a key/value to a subproperty
+        @param prop: the property to add to
+        @type  prop: hashable
+        @param subprop: the subproperty to add to
+        @type  subprop: hashable
+        @param key: the key to add to the property
+        @type  key: hashable
+        @param value: the value to add to the property
+        @type  value: anything
+        """
+        if not self.data.has_key(prop):
+            self.data[prop] = {}
+        if not self.data[prop].has_key(subprop):
+            self.data[prop][subprop] = {}
+        self.data[prop][subprop].update({key: value})
+    
+    def add_nagios_directive(self, name, value):
+        """ Add a generic nagios directive
+        
+            @param name: the directive name
+            @type  name: C{str}
+            @param value: the directive value
+            @type  value: C{str}
+        """
+        self.add("nagiosDirectives", name, value)
+    
+    def add_nagios_service_directive(self, service, name, value):
+        """ Add a generic nagios directive for a service
+        
+            @param service: the service, ie 'Interface eth0'
+            @type  service: C{str}
+            @param name: the directive name
+            @type  name: C{str}
+            @param value: the directive value
+            @type  value: C{str}
+        """
+        self.add_sub("nagiosSrvDirs", service, name, value)
 
 
 class HostTemplateFactory(object):
@@ -184,6 +238,32 @@ class HostTemplateFactory(object):
             if event == "start":
                 if elem.tag == "template":
                     cur_tpl = HostTemplate(elem.attrib["name"].strip())
+                
+                elif elem.tag == "test":
+                    inside_test = True
+                    test_name = elem.attrib["name"].strip()
+                    
+                    for arg in elem.getchildren():
+                        if arg.tag == 'arg':
+                            tname = arg.attrib["name"].strip()
+                            if tname == "label":
+                                test_name = "%s %s" % (test_name, arg.text.strip())
+                                break
+                
+                elif elem.tag == "nagios":
+                    process_nagios = True
+                elif elem.tag == "directive":
+                    if not process_nagios: continue
+                    # directive nagios
+                    directives = {}
+                    for dname, value in elem.attrib.iteritems():
+                        if inside_test:
+                            # directive de service nagios
+                            cur_tpl.add_nagios_service_directive(test_name, dname.strip(), value.strip())
+                        else:
+                            # directive host nagios
+                            cur_tpl.add_nagios_directive(dname.strip(), value.strip())
+                
             else:
                 if elem.tag == "parent":
                     cur_tpl.add_parent(elem.text.strip())
@@ -201,11 +281,16 @@ class HostTemplateFactory(object):
                 elif elem.tag == "group":
                     cur_tpl.add_group(elem.text.strip())
                 elif elem.tag == "test":
-                    testname = elem.attrib["name"].strip()
+                    inside_test = False
+                    test_name = elem.attrib["name"].strip()
                     args = {}
                     for arg in elem.getchildren():
                         args[arg.attrib["name"].strip()] = arg.text.strip()
-                    cur_tpl.add_test(testname, **args)
+                    cur_tpl.add_test(test_name, **args)
+                    test_name = None
+                elif elem.tag == "nagios":
+                    process_nagios = False
+                    
                 elif elem.tag == "template":
                     self.register(cur_tpl)
                     cur_tpl = None
@@ -290,6 +375,17 @@ class HostTemplateFactory(object):
         if tpl.has_key("groups"):
             for group in tpl["groups"]:
                 host.add_group(group)
+        
+        # nagios generics
+        if tpl.has_key("nagiosDirectives"):
+            for name, value in tpl["nagiosDirectives"].iteritems():
+                host.add_nagios_directive(name, value)
+                
+        if tpl.has_key("nagiosSrvDirs"):
+            for srv, data in tpl["nagiosSrvDirs"].iteritems():
+                for name, value in data.iteritems():
+                    host.add_nagios_service_directive(srv, name, value)
+        
         # tests
         if tpl.has_key("tests"):
             for testdict in tpl["tests"]:

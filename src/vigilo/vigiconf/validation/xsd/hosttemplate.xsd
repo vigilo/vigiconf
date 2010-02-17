@@ -39,12 +39,49 @@
 						  </xs:simpleContent>
 					  </xs:complexType>
 					</xs:element>
+
+					<!-- nagios service specific bloc -->
+					
+					<xs:element maxOccurs="1" minOccurs="0" name="nagios">
+					  <xs:complexType>
+					    <xs:sequence>
+					    
+							<xs:element maxOccurs="3" minOccurs="0" name="directive">
+							  <xs:complexType>
+							    <xs:attribute name="max_check_attempts" type="xs:integer"/>
+							    <xs:attribute name="check_interval" type="xs:integer"/>
+							    <xs:attribute name="retry_interval" type="xs:integer"/>
+							  </xs:complexType>
+							</xs:element>
+							
+						</xs:sequence>
+					  </xs:complexType>
+					</xs:element>
+					
 				</xs:sequence>
 				
 			    <xs:attribute name="name" type="xs:string"/>
 			
 			  </xs:complexType>
 			</xs:element>
+
+
+			<!-- nagios host specific bloc -->
+			
+			<xs:element maxOccurs="1" minOccurs="0" name="nagios">
+			  <xs:complexType>
+			    <xs:sequence>
+					<xs:element maxOccurs="3" minOccurs="0" name="directive">
+					  <xs:complexType>
+					    <xs:attribute name="max_check_attempts" type="xs:integer"/>
+					    <xs:attribute name="check_interval" type="xs:integer"/>
+					    <xs:attribute name="retry_interval" type="xs:integer"/>
+					  </xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			  </xs:complexType>
+			</xs:element>
+
 			
 			<xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="xs:string"/>
 		  

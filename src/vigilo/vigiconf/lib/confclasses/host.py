@@ -79,7 +79,6 @@ class Host(object):
                 "community"      : "public",
                 "port"           : 161,
                 "snmpOIDsPerPDU" : 10,
-                "lowlevelservices": [],
                 "nagiosDirectives": {},
                 "nagiosSrvDirs": {}
             }
@@ -126,7 +125,6 @@ class Host(object):
         """
         for test_class in test_list:
             test_class().add_test(self, **kw)
-            self.hosts[self.name]['lowlevelservices'].append(test_class.__name__)
 
 #    def apply_template(self, tpl):
 #        """
@@ -649,14 +647,14 @@ class HostFactory(object):
                     cur_host.classes.append(elem.text.strip())
                 elif elem.tag == "test":
                     inside_test = False
-                    testname = elem.attrib["name"].strip()
+                    test_name = elem.attrib["name"].strip()
                     args = {}
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
                             args[arg.attrib["name"].strip()] = arg.text.strip()
-                    test_list = self.testfactory.get_test(testname, cur_host.classes)
+                    test_list = self.testfactory.get_test(test_name, cur_host.classes)
                     cur_host.add_tests(test_list, **args)
-                    testname = None
+                    test_name = None
                 elif elem.tag == "attribute":
                     value = elem.text.strip()
                     items = [ i.text.strip() for i in elem.getchildren()
