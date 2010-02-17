@@ -76,10 +76,10 @@ def export_conf_db():
     
     # add if needed these groups
     if not HostGroup.by_group_name(group_newhosts_def):
-        DBSession.add(HostGroup(name=group_newhosts_def))
+        DBSession.add(HostGroup(name=unicode(group_newhosts_def)))
     
     if not ServiceGroup.by_group_name(group_newservices_def):
-        DBSession.add(ServiceGroup(name=group_newservices_def))
+        DBSession.add(ServiceGroup(name=unicode(group_newservices_def)))
     group_newservices_def = ServiceGroup.by_group_name(group_newservices_def)
     
     # hosts groups
@@ -127,7 +127,7 @@ def export_conf_db():
             for service, data in host['services'].iteritems():
                 lls = LowLevelService.by_host_service_name(hostname, service)
                 if not lls:
-                    lls = LowLevelService(host=h, servicename=service,
+                    lls = LowLevelService(host=h, servicename=unicode(service),
                                           op_dep=u'+', weight=1)
                     lls.groups = [group_newservices_def, ]
                     DBSession.add(lls)

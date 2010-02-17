@@ -147,7 +147,7 @@ def _load_groups_from_xml(filepath, classgroup, tag_group):
         for event, elem in ET.iterparse(filepath, events=("start", "end")):
             if event == "start":
                 if elem.tag == tag_group:
-                    name = elem.attrib["name"].strip()
+                    name = unicode(elem.attrib["name"].strip())
                     group = classgroup.by_group_name(groupname=name)
                     if not group:
                         group = classgroup(name=name)
@@ -339,15 +339,15 @@ def _load_hlservices_from_xml(filepath):
                     # on instancie ou on récupère le HLS
                     hls = HighLevelService.by_service_name(name)
                     if hls:
-                        hls.servicename = name
-                        hls.op_dep = opdep
-                        hls.message = message
+                        hls.servicename = unicode(name)
+                        hls.op_dep = unicode(opdep)
+                        hls.message = unicode(message)
                         hls.priority = priority
                         hls.warning_threshold = warning_threshold
                         hls.critical_threshold = critical_threshold
                     else:
-                        hls = HighLevelService(servicename=name, op_dep=op_dep,
-                                        message=message, priority=priority,
+                        hls = HighLevelService(servicename=unicode(name), op_dep=unicode(op_dep),
+                                        message=unicode(message), priority=priority,
                                         warning_threshold=warning_threshold,
                                         critical_threshold=critical_threshold
                                                )

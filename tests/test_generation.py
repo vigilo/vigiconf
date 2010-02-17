@@ -74,36 +74,6 @@ class Generator(unittest.TestCase):
         assert regexp.search(nagios) is not None, \
             "add_metro_service does not generate proper nagios conf"
 
-    def test_add_tag_host(self):
-        """Test for the add_tag host method on hosts"""
-        self.host.add_tag("Host", "important", 2)
-        generator.generate(self.basedir)
-        sqlconf = os.path.join(self.basedir,
-                               self.get_supserver(self.host, "dashboard_db"),
-                               "dashboard_db", "dashboard_db.sql")
-        assert os.path.exists(sqlconf), \
-            "Dashboard conf file was not generated"
-        sql = open(sqlconf).read()
-        assert sql.count("INSERT INTO `tags` (`host`, `service`, `tag`, `value`) VALUES "
-                        +"('testserver1', '', 'important', '2');""") > 0, \
-                        "add_tag on hosts does not generate proper SQL"
-
-    def test_add_tag_service(self):
-        """Test for the add_tag host method on services"""
-        test_list = conf.testfactory.get_test("UpTime", self.host.classes)
-        self.host.add_tests(test_list)
-        self.host.add_tag("UpTime", "security", 1)
-        generator.generate(self.basedir)
-        sqlconf = os.path.join(self.basedir,
-                               self.get_supserver(self.host, "dashboard_db"),
-                               "dashboard_db", "dashboard_db.sql")
-        assert os.path.exists(sqlconf), \
-            "Dashboard conf file was not generated"
-        sql = open(sqlconf).read()
-        assert sql.count("INSERT INTO `tags` (`host`, `service`, `tag`, `value`) VALUES "
-                        +"('testserver1', 'UpTime', 'security', '1');""") > 0, \
-                        "add_tag on services does not generate proper SQL"
-
 
 from vigilo.vigiconf.generators.nagios import NagiosTpl
 
