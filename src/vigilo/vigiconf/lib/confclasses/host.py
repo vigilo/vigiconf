@@ -541,8 +541,8 @@ class Host(object):
     def add_nagios_service_directive(self, service, name, value):
         """ Add a generic nagios directive for a service
         
-            @param service: the service, ie ('Interface', 'eth0')
-            @type  service: C{tuple*2}
+            @param service: the service, ie 'Interface eth0'
+            @type  service: C{str}
             @param name: the directive name
             @type  name: C{str}
             @param value: the directive value
@@ -626,7 +626,7 @@ class HostFactory(object):
                         if arg.tag == 'arg':
                             tname = arg.attrib["name"].strip()
                             if tname == "label":
-                                test_name = (test_name, arg.text.strip())
+                                test_name = "%s %s" % (test_name, arg.text.strip())
                                 break
                 
                 elif elem.tag == "nagios":
