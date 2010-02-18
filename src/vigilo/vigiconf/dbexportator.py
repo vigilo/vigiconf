@@ -38,6 +38,7 @@ from vigilo.models.configure import DBSession
 from vigilo.models import Host, HostGroup, LowLevelService, ServiceGroup
 from vigilo.models import Graph, GraphGroup
 from vigilo.models import Application, Ventilation, VigiloServer
+from vigilo.models import ConfItem
 
 from . import conf
 
@@ -131,6 +132,15 @@ def export_conf_db():
                                           op_dep=u'+', weight=1)
                     lls.groups = [group_newservices_def, ]
                     DBSession.add(lls)
+            
+            # nagios generic directives
+            for name, value in host['nagiosDirectives'].iteritems():
+                ci = ConfItem.by_host_confitem_name(hostname, name)
+                if ci:
+                    ci.value = value
+                else:
+                    ci = ConfItem(supitem=h, name=name, value=value)
+                    DBSession.add(ci)
             
             
             for og in host['otherGroups']:

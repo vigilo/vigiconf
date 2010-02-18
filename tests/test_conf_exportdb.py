@@ -17,6 +17,7 @@ from confutil import setup_db, teardown_db, reload_conf
 
 from vigilo.models import Host, HostGroup
 from vigilo.models.configure import DBSession
+from vigilo.models import ConfItem, Service
 
 class ExportDBTest(unittest.TestCase):
     """Test Sample"""
@@ -32,7 +33,6 @@ class ExportDBTest(unittest.TestCase):
         teardown_db()
     
     def test_export_hosts_db(self):
-        print 'hostsconf', conf.hostsConf
         self.assertEquals(len(conf.hostsConf.items()), 1,
                           "one host in conf (%d)"%len(conf.hostsConf.items()))
         
@@ -48,6 +48,36 @@ class ExportDBTest(unittest.TestCase):
         h = Host.by_host_name(u'localhost')
         self.assertEquals(h.name, u'localhost')
     
+    def test_export_host_confitem(self):
+        host = conf.hostsConf['localhost']
+        host['nagiosDirectives'] = {"max_check_attempts":"8",
+                                    "check_interval":"2"}
+        
+        export_conf_db()
+        
+        ci = ConfItem.by_host_confitem_name(u'localhost', "max_check_attempts")
+        self.assertTrue(ci, "confitem max_check_attempts exists")
+        self.assertEquals(ci.value, "8", "max_check_attempts=8")
+        
+        ci = ConfItem.by_host_confitem_name(u'localhost', "check_interval")
+        self.assertTrue(ci, "confitem check_interval exists")
+        self.assertEquals(ci.value, "2", "check_interval=2")
+        
+    def xxtest_export_service_confitem(self):
+        host = conf.hostsConf['localhost']
+        host['nagiosSrvDirs']['Interface eth0'] = {"max_check_attempts":"7",
+                                    "retry_interval":"3"}
+        
+        export_conf_db()
+        
+        ci = ConfItem.by_host_confitem_name(u'localhost', "max_check_attempts")
+        self.assertTrue(ci, "confitem max_check_attempts exists")
+        self.assertEquals(ci.value, "8", "max_check_attempts=8")
+        
+        ci = ConfItem.by_host_confitem_name(u'localhost', "check_interval")
+        self.assertTrue(ci, "confitem check_interval exists")
+        self.assertEquals(ci.value, "2", "check_interval=2")
+
 
 if __name__ == '__main__':
     unittest.main()

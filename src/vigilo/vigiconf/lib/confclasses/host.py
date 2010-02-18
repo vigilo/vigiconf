@@ -534,7 +534,7 @@ class Host(object):
             @param value: the directive value
             @type  value: C{str}
         """
-        self.add(self.name, "nagiosDirectives", name, value)
+        self.add(self.name, "nagiosDirectives", name, str(value))
     
     def add_nagios_service_directive(self, service, name, value):
         """ Add a generic nagios directive for a service
@@ -546,7 +546,7 @@ class Host(object):
             @param value: the directive value
             @type  value: C{str}
         """
-        self.add_sub(self.name, "nagiosSrvDirs", service, name, value)
+        self.add_sub(self.name, "nagiosSrvDirs", service, name, str(value))
 
 
 class HostFactory(object):
