@@ -20,7 +20,8 @@ class Dispatchator(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         # Prepare necessary directories
-        gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
+        # TODO commenter les divers repertoires
+        gendir = settings["vigiconf"].get("libdir")
         os.mkdir(gendir)
         self.gendir = gendir
 
