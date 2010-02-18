@@ -23,7 +23,7 @@
 from __future__ import absolute_import
 
 import os.path
-import base64
+import urllib
 
 from .. import conf
 from . import Templator 
@@ -45,22 +45,26 @@ class StoreMeTpl(Templator):
                        % (self.baseDir, ventilation['storeme'])
             if not os.path.exists(fileName):
                 self.templateCreate(fileName, templates["header"],
-                                    {"confid":conf.confid})
+                                    {"confid": conf.confid})
             if conf.mode != "onedir":
                 self.templateAppend(fileName, templates["host"],
-                                    {'host':hostname})
+                                    {'host': hostname})
             keys = h['dataSources'].keys()
             keys.sort()
             for k2 in keys:
                 v2 = h['dataSources'][k2]
-                tplvars = {'host':hostname, 'dsType':v2['dsType'],
-                           'dsName':k2, 'label':v2["label"]}
+                tplvars = {
+                    'host': hostname,
+                    'dsType': v2['dsType'],
+                    'dsName': k2,
+                    'label': v2["label"],
+                }
                 if conf.mode == "onedir":
-                    rrdname = base64.encodestring(k2).replace("/", "_").strip()
+                    rrdname = urllib.quote(k2).strip()
                     tplvars["host"] = "%s/%s" % (hostname, rrdname)
                     tplvars["dsName"] = "DS"
                     self.templateAppend(fileName, templates["host"],
-                                        {'host':tplvars["host"]})
+                                        {'host': tplvars["host"]})
                 self.templateAppend(fileName, templates["ds"], tplvars)
 
 
