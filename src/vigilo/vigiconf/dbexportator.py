@@ -132,8 +132,17 @@ def export_conf_db():
                                           op_dep=u'+', weight=1)
                     lls.groups = [group_newservices_def, ]
                     DBSession.add(lls)
+                # nagios generic directives for services
+                if host['nagiosSrvDirs'].has_key(service):
+                    for name, value in host['nagiosSrvDirs'][service].iteritems():
+                        ci = ConfItem.by_host_service_confitem_name(hostname, service, name)
+                        if ci:
+                            ci.value = value
+                        else:
+                            ci = ConfItem(supitem=lls, name=name, value=value)
+                            DBSession.add(ci)
             
-            # nagios generic directives
+            # nagios generic directives for host
             for name, value in host['nagiosDirectives'].iteritems():
                 ci = ConfItem.by_host_confitem_name(hostname, name)
                 if ci:

@@ -63,20 +63,22 @@ class ExportDBTest(unittest.TestCase):
         self.assertTrue(ci, "confitem check_interval exists")
         self.assertEquals(ci.value, "2", "check_interval=2")
         
-    def xxtest_export_service_confitem(self):
+    def test_export_service_confitem(self):
         host = conf.hostsConf['localhost']
         host['nagiosSrvDirs']['Interface eth0'] = {"max_check_attempts":"7",
                                     "retry_interval":"3"}
         
         export_conf_db()
         
-        ci = ConfItem.by_host_confitem_name(u'localhost', "max_check_attempts")
+        ci = ConfItem.by_host_service_confitem_name(
+                            u'localhost', u'Interface eth0', "max_check_attempts")
         self.assertTrue(ci, "confitem max_check_attempts exists")
-        self.assertEquals(ci.value, "8", "max_check_attempts=8")
+        self.assertEquals(ci.value, "7", "max_check_attempts=7")
         
-        ci = ConfItem.by_host_confitem_name(u'localhost', "check_interval")
-        self.assertTrue(ci, "confitem check_interval exists")
-        self.assertEquals(ci.value, "2", "check_interval=2")
+        ci = ConfItem.by_host_service_confitem_name(
+                            u'localhost', u'Interface eth0', "retry_interval")
+        self.assertTrue(ci, "confitem retry_interval exists")
+        self.assertEquals(ci.value, "3", "retry_interval=3")
 
 
 if __name__ == '__main__':
