@@ -255,7 +255,6 @@ from __future__ import absolute_import
 import glob
 import sys
 import os
-import subprocess
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -287,7 +286,7 @@ def loadConf():
             for fileF in files:
                 execfile(fileF, globals())
                 #print "Sucessfully parsed %s"%fileF
-        except Exception,e:
+        except Exception, e:
             sys.stderr.write("Error while parsing %s: %s\n"%(fileF, str(e)))
             raise e
     # Parse hosts
@@ -295,8 +294,9 @@ def loadConf():
         hostfactory.load()
     except ParsingError, e:
         LOGGER.error("Error loading configuration file %s: %s\n"
-                % (f.replace(os.path.join(settings["vigiconf"].get("confdir"),
-                                          "hosts")+"/", ""), str(e)))
+                % (os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
+                   str(e))
+        )
         raise e
     hostsConf = hostfactory.hosts
     groupsHierarchy = hostfactory.groupsHierarchy

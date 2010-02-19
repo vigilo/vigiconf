@@ -125,7 +125,7 @@ def export_conf_db():
             # low level services
             # TODO : implémenter les détails: op_dep, weight, command
             
-            for service, data in host['services'].iteritems():
+            for service in host['services'].keys():
                 lls = LowLevelService.by_host_service_name(hostname, service)
                 if not lls:
                     lls = LowLevelService(host=h, servicename=unicode(service),
@@ -166,33 +166,6 @@ def export_conf_db():
         DBSession.rollback()
         raise
     
-    # services
-    # TODO: à revoir
-    '''
-    try:
-        for hostname, host in hostsConf.iteritems():
-            for srvname, srv in host['services'].iteritems():
-                s = LowLevelService.by_host_service_name(hostname, srvname)
-                if s:
-                    if srv.has_key('command'):
-                        s.command = srv['command']
-                else:
-                    # create service object
-                    cmd = u'none'
-                    if srv.has_key('command'):
-                        cmd = srv['command']
-                    s = LowLevelService(servicename=unicode(srvname),
-                                        op_dep=u'-',
-                                        host=Host.by_host_name(hostname),
-                                        command=cmd, weight=1)
-                    # new services def group
-                    s.groups = [group_newservices_def, ]
-                    DBSession.add(s)
-        DBSession.flush()
-    except:
-        DBSession.rollback()
-        raise
-    '''
     
     # groups hierarchies (à 2 niveaux, cf vigilo 1)
     for parent_name, children in groupsHierarchy.iteritems():

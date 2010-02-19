@@ -89,19 +89,19 @@ def generate(gendir):
 if __name__ == "__main__":
     #from pprint import pprint; pprint(globals())
     conf.loadConf()
-    _gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
-    os.system("rm -rf %s/*" % _gendir)
+    __gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
+    os.system("rm -rf %s/*" % __gendir)
     if 0:
         import hotshot, hotshot.stats
-        _prof = hotshot.Profile("/tmp/generator.prof")
-        _prof.runcall(generate, _gendir)
-        _prof.close()
-        _stats = hotshot.stats.load("/tmp/generator.prof")
-        _stats.strip_dirs()
-        _stats.sort_stats('time', 'calls')
-        _stats.print_stats(20)
+        __prof = hotshot.Profile("/tmp/generator.prof")
+        __prof.runcall(generate, __gendir)
+        __prof.close()
+        __stats = hotshot.stats.load("/tmp/generator.prof")
+        __stats.strip_dirs()
+        __stats.sort_stats('time', 'calls')
+        __stats.print__stats(20)
     else:
-        if not generate(_gendir):
+        if not generate(__gendir):
             sys.exit(1)
 
 

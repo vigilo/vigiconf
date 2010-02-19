@@ -56,7 +56,8 @@ def load_servicegroups(basedir):
         @param basedir: a directory containing servicegroups definitions files
         @type  basedir: C{str}
     """
-    _load_from_xmlfiles(basedir, "servicegroup.xsd", _load_servicegroups_from_xml)
+    _load_from_xmlfiles(basedir, "servicegroup.xsd",
+                        _load_servicegroups_from_xml)
 
 def load_dependencies(basedir):
     """ Loads dependencies from xml files.
@@ -72,11 +73,7 @@ def load_hlservices(basedir):
         @param basedir: a directory containing dependency definitions files
         @type  basedir: C{str}
     """
-    global impact_dict
-    impact_dict = {}
     _load_from_xmlfiles(basedir, "hlservice.xsd", _load_hlservices_from_xml)
-    # TODO: inutile - pas d'impact au niveau conf
-    #_load_hlservices_impacts(impact_dict)
 
 
 def _load_from_xmlfiles(basedir, xsd_file, handler):
@@ -107,27 +104,37 @@ def _load_from_xmlfiles(basedir, xsd_file, handler):
 
 
 def _validate(xmlfile, xsdfilename):
-        """
-        Validate the XML against the DTD using xmllint
-
-        @note: this could take time.
-        @todo: use lxml for python-based validation
-        @param xmlfile: an XML file
-        @type  xmlfile: C{str}
-        @param  xsdfilename: an XSD file name (present in the validation/xsd directory)
-        @type  xsdfilename: C{str}
-        """
-        xsd = os.path.join(os.path.dirname(__file__),
-                           "validation", "xsd", xsdfilename)
-        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, xmlfile])
-        if result != 0:
-            raise ParsingError("XML validation failed")
+    """
+    Validate the XML against the DTD using xmllint
+    
+    @note: this could take time.
+    @todo: use lxml for python-based validation
+    @param xmlfile: an XML file
+    @type  xmlfile: C{str}
+    @param  xsdfilename: an XSD file name (present in the validation/xsd dir)
+    @type  xsdfilename: C{str}
+    """
+    xsd = os.path.join(os.path.dirname(__file__),
+                       "validation", "xsd", xsdfilename)
+    result = subprocess.call(["xmllint", "--noout", "--schema", xsd, xmlfile])
+    if result != 0:
+        raise ParsingError("XML validation failed")
 
 
 def _load_hostgroups_from_xml(path):
+    """ Loads Host groups from a xml file.
+    
+        @param path: an XML file
+        @type  path: C{str}
+    """
     _load_groups_from_xml(path, HostGroup, "hostgroup")
 
 def _load_servicegroups_from_xml(path):
+    """ Loads Service groups from a xml file.
+    
+        @param path: an XML file
+        @type  path: C{str}
+    """
     _load_groups_from_xml(path, ServiceGroup, "servicegroup")
 
 def _load_groups_from_xml(filepath, classgroup, tag_group):
@@ -186,10 +193,8 @@ def _load_dependencies_from_xml(filepath):
         @param xmlfile: an XML file
         @type  xmlfile: C{str}
     """
-    dependency = False
     subitems = False
     levelservices1 = {}
-    lowlevelservices1 = {}
     levelservices2 = {}
     
     try:
@@ -227,7 +232,9 @@ def _load_dependencies_from_xml(filepath):
                     
                     # verifier si au moins 1 dependant (host ou service)
                     if len(hostnames) == 0 and len(servicenames) == 0:
-                        raise Exception("No dependant supitem (host or service)")
+                        raise Exception(
+                                    "No dependant supitem (host or service)"
+                              )
                     
                     dependency = False
                     # retrieve hosts and services from db
@@ -259,9 +266,13 @@ def _load_dependencies_from_xml(filepath):
                         
                         supitems1 = []
                         for sname in llservicesnames:
-                            lls = LowLevelService.by_host_service_name(hname, sname)
+                            lls = LowLevelService.by_host_service_name(
+                                                                hname, sname
+                                                                )
                             if not lls:
-                                raise Exception("low level service %s/%s does not exist" % (hname, sname))
+                                raise Exception(
+                                       "low level service %s/%s does not exist"
+                                       % (hname, sname))
                             supitems1.append(lls)
                             
                         if len(supitems1) == 0:
@@ -272,7 +283,8 @@ def _load_dependencies_from_xml(filepath):
                                 if not supitem2:
                                     continue
                                     
-                                dep = Dependency(supitem1=supitem1, supitem2=supitem2)
+                                dep = Dependency(supitem1=supitem1,
+                                                 supitem2=supitem2)
                                 DBSession.add(dep)
                     
                     for sname in servicenames:
@@ -306,7 +318,6 @@ def _load_hlservices_from_xml(filepath):
         @param filepath: an XML file
         @type  filepath: C{str}
     """
-    global impact_dict
     
     try:
         for event, elem in ET.iterparse(filepath, events=("start", "end")):
@@ -328,28 +339,24 @@ def _load_hlservices_from_xml(filepath):
                 elif elem.tag == "group":
                     group = elem.attrib["name"].strip()
                     groups.append(group)
-                elif elem.tag == "impact":
-                    hls_impacted = elem.attrib["hlservice"].strip()
-                    if impact_dict.has_key(name):
-                        impact_dict[name].append(hls_impacted)
-                    else:
-                        impact_dict[name] = [hls_impacted, ]
             else:
                 if elem.tag == "hlservice":
                     # on instancie ou on récupère le HLS
                     hls = HighLevelService.by_service_name(name)
                     if hls:
                         hls.servicename = unicode(name)
-                        hls.op_dep = unicode(opdep)
+                        hls.op_dep = unicode(op_dep)
                         hls.message = unicode(message)
                         hls.priority = priority
                         hls.warning_threshold = warning_threshold
                         hls.critical_threshold = critical_threshold
                     else:
-                        hls = HighLevelService(servicename=unicode(name), op_dep=unicode(op_dep),
-                                        message=unicode(message), priority=priority,
-                                        warning_threshold=warning_threshold,
-                                        critical_threshold=critical_threshold
+                        hls = HighLevelService(servicename=unicode(name),
+                                       op_dep=unicode(op_dep),
+                                       message=unicode(message),
+                                       priority=priority,
+                                       warning_threshold=warning_threshold,
+                                       critical_threshold=critical_threshold
                                                )
                         DBSession.add(hls)
                     # ajout des groupes
@@ -357,34 +364,14 @@ def _load_hlservices_from_xml(filepath):
                     for gname in groups:
                         sg = ServiceGroup.by_group_name(gname)
                         if not sg:
-                            raise Exception("Service group %s does not exist." % gname)
+                            raise Exception("Service group %s does not exist."
+                                            % gname)
                         hls.groups.append(sg)
                     
                     # ajout des impacts
                     # les impacts sont ajoutés après le traitement de
                     # l'ensemble des fichiers
                     
-        DBSession.flush()
-    except:
-        DBSession.rollback()
-        raise
-
-def _load_hlservices_impacts(impact_dict):
-    """ Links high level services impacted.
-        TODO: à supprimer
-        @param impact_dict: an dictionary hlsname -> list of impacted hls names
-        @type  impact_dict: C{dict}
-    """
-    try:
-        for hlsname, impacts, in impact_dict.iteritems():
-            hls = HighLevelService.by_service_name(hlsname)
-            
-            hls.impacts = []
-            for impact in impacts:
-                hlsimp = HighLevelService.by_service_name(impact)
-                if not hlsimp:
-                    raise Exception("HL Service %s does not exist." % impact)
-                hls.impacts.append(hlsimp)
         DBSession.flush()
     except:
         DBSession.rollback()
