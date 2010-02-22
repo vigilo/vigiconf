@@ -13,10 +13,10 @@ apps = {
                    'startMethod' : '/etc/init.d/vigilo-corrtrap start',
                    'stopMethod' : '/etc/init.d/vigilo-corrtrap stop'
                    },
-    'storeme'    : { 
+    'connector-metro': { 
                    'priority' : -1,
-                   'validationMethod' :  './validation/storeme.sh',
-                   'qualificationMethod' : './validation/storeme.sh',
+                   'validationMethod' :  './validation/connector-metro.sh',
+                   'qualificationMethod' : './validation/connector-metro.sh',
                    'startMethod' : '',
                    'stopMethod' : ''
                    },
@@ -102,7 +102,7 @@ apps = {
 
 appsByAppGroups = {
     'collect'           : ['nagios','collector','perfdata'],
-    'metrology'         : ['storeme','rrdgraph'],
+    'metrology'         : ['connector-metro','rrdgraph'],
     'corrpres'          : ['corrsup','supnav','apacheRP','nagvis','dashboard_db'],
     'reporting'         : ['reportingv2'],
     'secu'              : [],

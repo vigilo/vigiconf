@@ -22,7 +22,7 @@
 
 from __future__ import absolute_import
 
-import base64
+import urllib
 
 from .. import conf
 from . import Templator 
@@ -42,7 +42,6 @@ class CollectorTpl(Templator):
             h = conf.hostsConf[hostname]
             newhash = h.copy()
             newhash['spoolmeServer'] = ventilation['nagios']
-            newhash['storemeServer'] = ventilation['storeme']
             if newhash['snmpVersion'] == '2' or newhash['snmpVersion'] == '1':
                 newhash['snmpAuth'] = "communityString => '%(community)s'" \
                                       % newhash
@@ -81,14 +80,9 @@ class CollectorTpl(Templator):
             # reRouting arguements
             if jobdata['reRouteFor'] != None:
                 forHost = jobdata['reRouteFor']['host']
-                if jobtype == 'perfData': # for the storeme server
-                    tplvars['reRouteFor'] = "{server => '%s', " \
-                                            % self.mapping[forHost]['storeme'] \
-                                            +"port =>%s}" % 50001
-                else: # service check result => forHost's spoolme server
+                if jobtype != 'perfData': # service check result => forHost's spoolme server
                     tplvars['reRouteFor'] = "{server => '%s', " \
                                             % self.mapping[forHost]['nagios'] \
-                                            +"port =>%s, " % 50000 \
                                             +"host => '%s', " % forHost \
                                             +"service => '%s'}" \
                                             % jobdata['reRouteFor']['service']
@@ -96,10 +90,7 @@ class CollectorTpl(Templator):
             else:
                 forHost = hostname
                 service = jobname
-            if conf.mode == "onedir":
-                encodedservice = base64.encodestring(service).replace("/","_")
-                tplvars["encodedname"] = "%s/%s" % (forHost,
-                                                    encodedservice.strip())
+            tplvars["encodedname"] = urllib.quote(service).strip()
             if jobtype == 'perfData':
                 self.templateAppend(fileName, templates["metro"], tplvars)
             else:
