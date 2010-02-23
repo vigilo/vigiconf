@@ -17,7 +17,7 @@ apps = {
                    u'priority' : -1,
                    u'validationMethod' :  './validation/connector-metro.sh',
                    u'qualificationMethod' : './validation/connector-metro.sh',
-                   u'startMethod' : '',
+                   u'startMethod' : '/etc/init.d/vigilo-connector-metro reload',
                    u'stopMethod' : ''
                    },
     u'apacheRP'    : { 

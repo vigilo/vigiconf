@@ -1,1 +1,1 @@
-hosts["%(host)s"] = {}
+HOSTS["%(host)s"] = {}

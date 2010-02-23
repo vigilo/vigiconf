@@ -1,4 +1,4 @@
-hosts["%(host)s"]["%(dsName)s"] = {
+HOSTS["%(host)s"]["%(dsName)s"] = {
     "step": 300,
     "DS": {
         "name": "DS",
