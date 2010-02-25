@@ -22,7 +22,7 @@
 
 from __future__ import absolute_import
 
-import base64
+import urllib
 
 from .. import conf
 from . import Templator 
@@ -34,7 +34,7 @@ class PerfDataTpl(Templator):
         """Generate files"""
         templates = self.loadTemplates("perfdata")
         for (hostname, ventilation) in self.mapping.iteritems():
-            if 'perfdata' not in ventilation or 'storeme' not in ventilation:
+            if 'perfdata' not in ventilation:
                 continue
             h = conf.hostsConf[hostname]
             if not h.has_key("PDHandlers") or len(h['PDHandlers']) == 0:
@@ -42,22 +42,20 @@ class PerfDataTpl(Templator):
             dirName = "%s/%s/perfdata" % (self.baseDir, ventilation['perfdata'])
             fileName = "%s/perf-%s.pm" % (dirName, hostname)
             newhash = h.copy()
-            newhash['storemeServer'] = ventilation['storeme']
             newhash['confid'] = conf.confid
             self.templateCreate(fileName, templates["header"], newhash)
             for (servicename, perfitems) in h['PDHandlers'].iteritems():
                 for perfitem in perfitems:
                     if perfitem['reRouteFor'] != None:
                         forHost = perfitem['reRouteFor']['host']
-                        reRouteFor = '{server => "%s", port => "50001"}' \
-                                     % (self.mapping[forHost]['storeme'])
+                        reRouteFor = "'%s'" % forHost
                     else:
                         forHost = hostname
                         reRouteFor = "undef"
-                    rrdname = base64.encodestring(perfitem["name"])
-                    rrdname = rrdname.replace("/", "_").strip()
+                    rrdname = urllib.quote(perfitem["name"].strip())
                     tplvars = {'service':servicename,
-                               'dsid': "%s/%s" % (forHost, rrdname),
+                               'host': forHost, 
+                               'ds': rrdname,
                                'perfDataVarName': perfitem['perfDataVarName'],
                                'reRouteFor': reRouteFor}
                     self.templateAppend(fileName, templates["map"], tplvars)

@@ -1,1 +1,1 @@
-push @{$host{"map"}{"%(service)s"}}, {var => "%(perfDataVarName)s", ds => "%(dsid)s", reRouteFor => %(reRouteFor)s};
+push @{$host{"%(service)s"}}, {var => "%(perfDataVarName)s", host => "%(host)s", ds => "%(ds)s", reRouteFor => %(reRouteFor)s};
