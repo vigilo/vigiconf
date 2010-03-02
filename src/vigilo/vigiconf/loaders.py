@@ -42,6 +42,13 @@ from . import conf
 
 from .lib import ParsingError
 
+__docformat__ = "epytext"
+
+# VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
+#   configurations de la supervision en mode CLI
+#
+#   configuration des groupes d'hôtes : ajout/modification/suppression d'un
+#   groupe d'hôte
 def load_hostgroups(basedir):
     """ Loads Host groups from xml files.
     
@@ -50,6 +57,16 @@ def load_hostgroups(basedir):
     """
     _load_from_xmlfiles(basedir, "hostgroup.xsd", _load_hostgroups_from_xml)
 
+
+# VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
+#   configurations de la supervision en mode CLI
+#
+#   configuration d'un groupe de service : ajout/modification/suppression d'un
+#     groupe de service
+#   configuration des services de haut niveau : ajout/modification/suppression
+#     d'un service
+#   configuration des règles de corrélations associé à un service de haut
+#     niveau : ajout/modification/suppression d'une règle de corrélation
 def load_servicegroups(basedir):
     """ Loads Service groups from xml files.
     

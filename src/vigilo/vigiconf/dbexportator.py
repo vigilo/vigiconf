@@ -45,6 +45,8 @@ from . import conf
 # chargement de données xml
 from . import loaders
 
+__docformat__ = "epytext"
+
 
 def update_apps_db():
     """ Update database with new apps.

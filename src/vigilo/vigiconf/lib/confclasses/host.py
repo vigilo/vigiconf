@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (C) 2007-2009 CS-SI
@@ -561,6 +562,19 @@ class HostFactory(object):
         self.groupsHierarchy = groupsHierarchy
         self.hostsdir = hostsdir
 
+# VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
+#   configurations de la supervision en mode CLI
+#
+#   configuration des hôtes à superviser : ajout/modification/suppression
+#     d'un hôte ou d'une liste d'hôtes
+#   configuration des paramètres d'authentification SNMP pour chaque hôte à
+#     superviser ( version V1,V2c,V3) et adresse IP pour l'interface SNMP
+#   configuration des services et seuils d'alarmes :
+#     ajout/modification/suppression d'un service et positionnement des seuils
+#     d'alarme Warning/Critical/OK
+#   configuration des valeurs de performances à collecter :
+#     ajout/modification/suppression d'une valeur de performance
+#   configuration des cartes automatiques;
     def load(self, validation=True):
         """
         Load the defined hosts
