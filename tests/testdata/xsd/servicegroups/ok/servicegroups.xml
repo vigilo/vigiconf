@@ -5,10 +5,10 @@
 		
 		<children>
 		
-			<servicegroup name="hgroup1"/>
-			<servicegroup name="hgroup2"/>
+			<servicegroup name="sgroup1"/>
+			<servicegroup name="sgroup2"/>
 		
-			<servicegroup name="hgroup3" />
+			<servicegroup name="sgroup3" />
 			
 		</children>
 	</servicegroup>

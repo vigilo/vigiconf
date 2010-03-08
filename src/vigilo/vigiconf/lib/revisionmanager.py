@@ -217,13 +217,9 @@ class RevisionManager(object):
         @param iServer: The server to update
         @type  iServer: L{Server<lib.server.Server>}
         """
-        self.setDeployed(self.getRevision(iServer,
-                    '%s/new/revisions.txt' % \
-                    settings["vigiconf"].get("targetconfdir")))
-        self.setInstalled(self.getRevision(iServer,
-                    '%s/prod/revisions.txt' % \
-                    settings["vigiconf"].get("targetconfdir")))
-        self.setPrevious(self.getRevision(iServer,
-                    '%s/old/revisions.txt' % \
-                    settings["vigiconf"].get("targetconfdir")))
+        rev_file_tpl = '%s/%%s/revisions.txt' % \
+                        settings["vigiconf"].get("targetconfdir")
+        self.setDeployed( self.getRevision(iServer, rev_file_tpl % 'new'))
+        self.setInstalled(self.getRevision(iServer, rev_file_tpl % 'prod'))
+        self.setPrevious( self.getRevision(iServer, rev_file_tpl % 'old'))
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # ConfigMgr Data Consistancy dispatchator
@@ -89,6 +90,8 @@ class Dispatchator(object):
         self.mAppsList = []
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
+        self.deploy_unit = False
+        self.deploy_revision = None
         # initialize applications
         self.listApps()
         self.sortApplication()
@@ -264,7 +267,41 @@ class Dispatchator(object):
         #Commit Configuration
         self.commitLastRevision()
         syslog.syslog(syslog.LOG_INFO, "Commit Successful\n")
-
+    
+    
+    def loadRevision(self, revision):
+        """
+        Load a given revision in the configuration directory.
+        """
+        confdir = settings["vigiconf"].get("confdir")
+        
+        if not settings["vigiconf"].get("svnrepository", False):
+            raise DispatchatorError(
+                "Not revision load because the 'svnrepository' configuration "
+                +"parameter is empty\n")
+        
+        # on efface tout
+        shutil.rmtree(confdir)
+        os.mkdir(confdir)
+        
+        _cmd = self._get_auth_svn_cmd_prefix('co')
+        
+        _cmd += '--revision %s ' % revision
+        _cmd +=  '%s %s' % (
+                    settings["vigiconf"].get("svnrepository"),
+                    confdir
+                    )
+        
+        _command = self.createCommand(_cmd)
+        
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError(
+                    "Can't execute the request to load %s " % revision
+                    +"revision. REASON: %s" % e.value)
+        
+    
     def commitLastRevision(self):
         """
         Commit the last revision of the files via SVN
@@ -272,20 +309,19 @@ class Dispatchator(object):
         @rtype: C{int}
         """
         confdir = settings["vigiconf"].get("confdir")
+        
         if not settings["vigiconf"].get("svnrepository", False):
             syslog.syslog(syslog.LOG_WARNING,
                     "Not committing because the 'svnrepository' configuration "
                    +"parameter is empty\n")
             return 0
-        _cmd = "svn ci "
-        svnusername = settings["vigiconf"].get("svnusername", False)
-        svnpassword =  settings["vigiconf"].get("svnpassword", False)
-        if svnusername and svnpassword: # TODO: escape password
-            _cmd += "--username %s --password %s " % \
-                    (svnusername, svnpassword)
+        
+        _cmd = self._get_auth_svn_cmd_prefix('ci')
+        
         _cmd += "-m 'Auto generate configuration %s' %s" % \
                     (confdir, confdir)
         _command = self.createCommand(_cmd)
+        
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -293,6 +329,24 @@ class Dispatchator(object):
                     "Can't execute the request to commit %s " % confdir
                     +"revision. REASON: %s" % e.value)
         return self.getLastRevision()
+    
+    
+    def _get_auth_svn_cmd_prefix(self, svn_cmd):
+        """
+        Get an authentified svn command prefix like
+          "svn <svn_cmd> --username user --password password "
+        
+        @return: the svn command prefix
+        @rtype: C{str}
+        """
+        _cmd = "svn %s " % svn_cmd
+        svnusername = settings["vigiconf"].get("svnusername", False)
+        svnpassword =  settings["vigiconf"].get("svnpassword", False)
+        if svnusername and svnpassword: # TODO: escape password
+            _cmd += "--username %s --password %s " % \
+                    (svnusername, svnpassword)
+        return _cmd
+        
 
     def getLastRevision(self):
         """
@@ -467,10 +521,19 @@ class Dispatchator(object):
         Does a full deployment: deploy files, qualify files
         """
         _servers = []
-        _revision = self.getLastRevision() # get the last revision on SVN
+        
+        if self.deploy_revision:
+            # deploiment d'une révision donnée
+            self.loadRevision(self.deploy_revision)
+            _revision = self.deploy_revision
+        else:
+            # get the last revision on SVN
+            _revision = self.getLastRevision()
+            
         # 1 - build a list of servers that requires deployment
         if self.getModeForce() == False: 
             for _srv in self.getServers():
+                # TODO: si deploy_revision, faire quelque chose
                 _srv.updateRevisionManager()
                 _srv.getRevisionManager().setSubversion(_revision)
                 if _srv.needsDeployment():
@@ -728,6 +791,8 @@ def main():
                       help="Stop all the applications.")
     parser.add_option("-s", "--start", action="store_true", dest="start",
                       help="Start all the applications.")
+    parser.add_option("-t", "--unit", action="store", dest="unit",
+                      help="Do a unit deployment. Should be used with --deploy option.")
     parser.add_option("-u", "--undo", action="store_true", dest="undo",
                       help="Deploys the previously installed configuration. "
                           +"2 consecutives undo will return to the "
@@ -735,6 +800,9 @@ def main():
                           +"first undo (ie. redo). Cannot be used with any "
                           +"other option. Should be followed by the restart "
                           +"command.")
+    parser.add_option("-v", "--revision", action="store", dest="revision",
+                      help="Deploy the given revision. Should be used with --deploy option."
+                          +" Should be followed by the restart command.")
     parser.add_option("-i", "--info", action="store_true", dest="info",
                       help="Prints a summary of the actual configuration.")
     parser.add_option("-n", "--dry-run", action="store_true", dest="simulate",
@@ -762,6 +830,12 @@ def main():
 
     if (options.force):
         _dispatchator.setModeForce(True)
+    
+    if (options.unit):
+        _dispatchator.deploy_unit = True
+    
+    if (options.revision):
+        _dispatchator.deploy_revision = options.revision
 
     if ( len(_dispatchator.getServers()) <= 0):
         syslog.syslog(syslog.LOG_WARNING, "No server to manage.")

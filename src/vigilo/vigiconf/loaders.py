@@ -166,6 +166,7 @@ def _load_groups_from_xml(filepath, classgroup, tag_group):
     """
     parent_stack = []
     current_parent = None
+    deleting_mode = False
     
     try:
         for event, elem in ET.iterparse(filepath, events=("start", "end")):
@@ -177,6 +178,10 @@ def _load_groups_from_xml(filepath, classgroup, tag_group):
                         group = classgroup(name=name)
                         DBSession.add(group)
                     else:
+                        if deleting_mode:
+                            DBSession.delete(group)
+                            continue
+                        
                         group.children = []
                     
                     if current_parent:
@@ -192,12 +197,16 @@ def _load_groups_from_xml(filepath, classgroup, tag_group):
                     parent_stack.append(group)
                 elif elem.tag == "children":
                     current_parent = parent_stack[-1]
+                elif elem.tag == "todelete":
+                    deleting_mode = True
             else:
                 if elem.tag == tag_group:
                     if len(parent_stack) > 0:
                         parent_stack.pop()
                 elif elem.tag == "children":
                     current_parent = None
+                elif elem.tag == "todelete":
+                    deleting_mode = False
         DBSession.flush()
     except:
         DBSession.rollback()

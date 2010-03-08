@@ -5,16 +5,16 @@
 		
 		<children>
 		
-			<servicegroup name="hgroup21" />
-			<servicegroup name="hgroup22" />
+			<servicegroup name="sgroup21" />
+			<servicegroup name="sgroup22" />
 		
-			<servicegroup name="hgroup23" >
+			<servicegroup name="sgroup23" >
 				
 				<children>
 				
-					<servicegroup name="hgroup231" />
-					<servicegroup name="hgroup232" />
-					<servicegroup name="hgroup233" />
+					<servicegroup name="sgroup231" />
+					<servicegroup name="sgroup232" />
+					<servicegroup name="sgroup233" />
 					
 				</children>
 			</servicegroup>

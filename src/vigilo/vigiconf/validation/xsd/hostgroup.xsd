@@ -43,8 +43,27 @@
 <xs:element name="hostgroups">
   <xs:complexType>
 	<xs:sequence>
-	
-		<xs:element maxOccurs="unbounded" minOccurs="1" ref="hostgroup"/>
+
+		<xs:element maxOccurs="1" minOccurs="0" name="todelete">
+		  <xs:complexType>
+			<xs:sequence>
+			
+				<xs:element maxOccurs="unbounded" minOccurs="0" name="hostgroup">
+				  <xs:complexType>
+					  <xs:simpleContent>
+						  <xs:extension base="xs:string">
+				    		<xs:attribute name="name" type="xs:string"/>
+						  </xs:extension>
+					  </xs:simpleContent>
+				  </xs:complexType>
+				</xs:element>
+				
+		    </xs:sequence>
+		  </xs:complexType>
+		</xs:element>
+		
+		
+		<xs:element maxOccurs="unbounded" minOccurs="0" ref="hostgroup"/>
 		
     </xs:sequence>
   </xs:complexType>

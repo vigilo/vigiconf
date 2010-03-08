@@ -40,6 +40,18 @@ install_permissions:
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/lock/$(PKGNAME)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
 
+# pour lancer un sous-ensemble de tests dans le dir "testu"
+$(NOSETESTS): $(BUILDOUT_DEPS)
+	http_proxy= ./bin/buildout install nose
+	touch -c $@
+
+testu/doit:
+	
+testu: testu/doit
+	if [ ! -d testu ]; then echo "Pas de tests dans testu"; else  \
+		VIGILO_SETTINGS=./settings_tests.ini PYTHONPATH=$(CODEPATH) \
+			$(NOSETESTS) -v --with-coverage --cover-package=$(MODULE) \
+			--cover-inclusive testu; fi
 
 
 include buildenv/Makefile.common

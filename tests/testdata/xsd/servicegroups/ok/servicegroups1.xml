@@ -3,9 +3,9 @@
 	
 	<children>
 	
-		<servicegroup name="hgroup11" />
-		<servicegroup name="hgroup12" />
-		<servicegroup name="hgroup13" />
+		<servicegroup name="sgroup11" />
+		<servicegroup name="sgroup12" />
+		<servicegroup name="sgroup13" />
 		
 	</children>
 </servicegroup>
