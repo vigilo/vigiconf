@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<hostgroups>
+	<todelete>
+		<hostgroup name="Linux servers"/>
+	</todelete>
+	
+	<!-- existing group -->
+	<hostgroup name="hgroup1"/>
+	
+	<!-- a new group group -->
+	<hostgroup name="Linux servers new"/>
+</hostgroups>

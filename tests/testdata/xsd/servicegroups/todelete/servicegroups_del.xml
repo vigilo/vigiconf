@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<servicegroups>
+	<todelete>
+		<servicegroup name="sgroup3" />
+	</todelete>
+	
+	<servicegroup name="new sgroup3" />
+	<servicegroup name="another new sgroup3" />
+</servicegroups>
