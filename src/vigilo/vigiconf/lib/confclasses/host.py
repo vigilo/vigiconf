@@ -561,6 +561,7 @@ class HostFactory(object):
         self.testfactory = testfactory
         self.groupsHierarchy = groupsHierarchy
         self.hostsdir = hostsdir
+        self.hosts_todelete = []
 
 # VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
 #   configurations de la supervision en mode CLI
@@ -592,6 +593,11 @@ class HostFactory(object):
                     dirs.remove(d)
                 if d == "CVS":
                     dirs.remove("CVS")
+        
+        # suppression unitaire hosts
+        for hname in self.hosts_todelete:
+            del self.hosts[hname]
+        
         return self.hosts
 
 
@@ -618,13 +624,21 @@ class HostFactory(object):
         @type  source: C{str} or C{file}
         """
         cur_host = None
+        deleting_mode = False
+        
         for event, elem in ET.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "host":
                     inside_test = False
                     name = elem.attrib["name"].strip()
+                    
+                    if deleting_mode:
+                        self.hosts_todelete.append(name)
+                        continue
+
                     ip = elem.attrib["ip"].strip()
                     group = elem.attrib["group"].strip()
+                    
                     cur_host = Host(self.hosts, name, ip, group)
                     if group not in self.groupsHierarchy:
                         self.groupsHierarchy[group] = set()
@@ -641,6 +655,8 @@ class HostFactory(object):
                                 test_name = "%s %s" % (test_name, arg.text.strip())
                                 break
                 
+                elif elem.tag == "todelete":
+                    deleting_mode = True
                 elif elem.tag == "nagios":
                     process_nagios = True
                 elif elem.tag == "directive":
@@ -694,6 +710,8 @@ class HostFactory(object):
                     server_group = cur_host.get("serverGroup")
                     if group_name not in self.groupsHierarchy[server_group]:
                         self.groupsHierarchy[server_group].add(group_name)
+                elif elem.tag == "todelete":
+                    deleting_mode = False
                 elif elem.tag == "nagios":
                     process_nagios = False
                 

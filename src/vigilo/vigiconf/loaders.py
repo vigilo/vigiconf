@@ -135,7 +135,7 @@ def _validate(xmlfile, xsdfilename):
                        "validation", "xsd", xsdfilename)
     result = subprocess.call(["xmllint", "--noout", "--schema", xsd, xmlfile])
     if result != 0:
-        raise ParsingError("XML validation failed")
+        raise ParsingError("XML validation failed (%s/%s)" % (xmlfile, xsd))
 
 
 def _load_hostgroups_from_xml(path):
@@ -344,6 +344,7 @@ def _load_hlservices_from_xml(filepath):
         @param filepath: an XML file
         @type  filepath: C{str}
     """
+    deleting_mode = False
     
     try:
         for event, elem in ET.iterparse(filepath, events=("start", "end")):
@@ -365,11 +366,17 @@ def _load_hlservices_from_xml(filepath):
                 elif elem.tag == "group":
                     group = elem.attrib["name"].strip()
                     groups.append(group)
+                elif elem.tag == "todelete":
+                    deleting_mode = True
             else:
                 if elem.tag == "hlservice":
                     # on instancie ou on récupère le HLS
                     hls = HighLevelService.by_service_name(name)
                     if hls:
+                        if deleting_mode:
+                            DBSession.delete(hls)
+                            continue
+                        
                         hls.servicename = unicode(name)
                         hls.op_dep = unicode(op_dep)
                         hls.message = unicode(message)
@@ -393,6 +400,8 @@ def _load_hlservices_from_xml(filepath):
                             raise Exception("Service group %s does not exist."
                                             % gname)
                         hls.groups.append(sg)
+                elif elem.tag == "todelete":
+                    deleting_mode = False
                     
                     # ajout des impacts
                     # les impacts sont ajoutés après le traitement de

@@ -48,10 +48,10 @@ $(NOSETESTS): $(BUILDOUT_DEPS)
 testu/doit:
 	
 testu: testu/doit
-	if [ ! -d testu ]; then echo "Pas de tests dans testu"; else  \
+	if [ ! -d tests/testu ]; then echo "Pas de tests dans testu"; else  \
 		VIGILO_SETTINGS=./settings_tests.ini PYTHONPATH=$(CODEPATH) \
 			$(NOSETESTS) -v --with-coverage --cover-package=$(MODULE) \
-			--cover-inclusive testu; fi
+			--cover-inclusive tests/testu; fi
 
 
 include buildenv/Makefile.common
