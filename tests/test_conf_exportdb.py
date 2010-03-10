@@ -19,6 +19,8 @@ from vigilo.models import Host, HostGroup
 from vigilo.models.configure import DBSession
 from vigilo.models import ConfItem, Service
 
+import transaction
+
 class ExportDBTest(unittest.TestCase):
     """Test Sample"""
 
@@ -79,6 +81,43 @@ class ExportDBTest(unittest.TestCase):
                             u'localhost', u'Interface eth0', "retry_interval")
         self.assertTrue(ci, "confitem retry_interval exists")
         self.assertEquals(ci.value, "3", "retry_interval=3")
+    
+    def test_export_conf_db_rollback(self):
+        """ Test du rollback sur la base après export en base de la conf
+        """
+        
+        export_conf_db()
+        
+        # check if localhost exists in db
+        h = Host.by_host_name(u'localhost')
+        self.assertEquals(h.name, u'localhost')
+        
+        DBSession.rollback()
+        
+        # check that localhost does not exists anymore in db
+        h = Host.by_host_name(u'localhost')
+        self.assertFalse(h, "no more localhost host in db")
+    
+    def test_export_conf_db_commit(self):
+        """ Test du commit sur la base après export en base de la conf.
+        
+        Un rollback est effectué juste après le commit.
+        """
+        
+        export_conf_db()
+        
+        # check if localhost exists in db
+        h = Host.by_host_name(u'localhost')
+        self.assertEquals(h.name, u'localhost')
+        
+        # il faut passer par le transaction manager pour commiter
+        transaction.commit()
+        
+        DBSession.rollback()
+        
+        # check that localhost does not exists anymore in db
+        h = Host.by_host_name(u'localhost')
+        self.assertEquals(h.name, u'localhost')
 
 
 if __name__ == '__main__':

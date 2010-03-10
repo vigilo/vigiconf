@@ -247,7 +247,7 @@ class Dispatchator(object):
         """
         # generate conf files
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
-        shutil.rmtree(gendir)
+        shutil.rmtree(gendir, ignore_errors=True)
         result = generator.generate(gendir)
         if not result:
             raise DispatchatorError("Can't generate configuration")
@@ -279,12 +279,8 @@ class Dispatchator(object):
             raise DispatchatorError(
                 "Not revision load because the 'svnrepository' configuration "
                 +"parameter is empty\n")
-        
-        # on efface tout
-        shutil.rmtree(confdir)
-        os.mkdir(confdir)
-        
-        _cmd = self._get_auth_svn_cmd_prefix('co')
+                
+        _cmd = self._get_auth_svn_cmd_prefix('update')
         
         _cmd += '--revision %s ' % revision
         _cmd +=  '%s %s' % (
@@ -835,7 +831,7 @@ def main():
         _dispatchator.deploy_unit = True
     
     if (options.revision):
-        _dispatchator.deploy_revision = options.revision
+        _dispatchator.deploy_revision = int(options.revision)
 
     if ( len(_dispatchator.getServers()) <= 0):
         syslog.syslog(syslog.LOG_WARNING, "No server to manage.")
