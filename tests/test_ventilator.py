@@ -9,7 +9,8 @@ import os, unittest, shutil
 
 import vigilo.vigiconf.conf as conf
 
-from confutil import reload_conf, setup_tmpdir, setup_db, teardown_db
+from confutil import reload_conf, setup_tmpdir
+from confutil import create_vigiloserver, setup_db, teardown_db
 
 from vigilo.vigiconf.lib.ventilator import appendHost, getServerToUse, findAServerForEachHost
 from vigilo.vigiconf import generator
@@ -18,7 +19,7 @@ from vigilo.vigiconf import dbexportator
 #from vigilo.models.session import DBSession
 from vigilo.models.configure import DBSession
 
-from vigilo.models import Host, Ventilation, Application, VigiloServer
+from vigilo.models import Host, Ventilation, Application
 
 class VentilatorTest(unittest.TestCase):
     """Test Ventilator"""
@@ -52,12 +53,6 @@ class VentilatorTest(unittest.TestCase):
         DBSession.add(host)
         DBSession.flush()
         return host
-        
-    def _create_vigiloserver(self, name):
-        v = VigiloServer(name=name)
-        DBSession.add(v)
-        DBSession.flush()
-        return v
     
     def test_export_localventilation_db(self):
         """ test de l'export de la ventilation en mode local.
@@ -71,7 +66,7 @@ class VentilatorTest(unittest.TestCase):
         # need locahost in db
         host = self._create_localhost()
         # need localhost as VigiloServer
-        self._create_vigiloserver(u'localhost')
+        create_vigiloserver(u'localhost')
         
         #need apps in DB
         dbexportator.update_apps_db()
@@ -92,7 +87,7 @@ class VentilatorTest(unittest.TestCase):
         host = self._create_localhost()
         
         # need server
-        self._create_vigiloserver(u'supserver.example.com')
+        create_vigiloserver(u'supserver.example.com')
         
         # need nagios application
         # TODO: no more
@@ -117,8 +112,8 @@ class VentilatorTest(unittest.TestCase):
                 conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
         
         # add the 2 servers in DB
-        self._create_vigiloserver(u'supserver2.example.com')
-        self._create_vigiloserver(u'supserver3.example.com')
+        create_vigiloserver(u'supserver2.example.com')
+        create_vigiloserver(u'supserver3.example.com')
         
         self.test_getservertouse(one_server=False)
 

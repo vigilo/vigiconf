@@ -113,8 +113,6 @@ class ExportDBTest(unittest.TestCase):
         # il faut passer par le transaction manager pour commiter
         transaction.commit()
         
-        DBSession.rollback()
-        
         # check that localhost does not exists anymore in db
         h = Host.by_host_name(u'localhost')
         self.assertEquals(h.name, u'localhost')

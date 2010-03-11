@@ -5,7 +5,9 @@ import tempfile
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
+
 from vigilo.models.configure import metadata, DBSession, configure_db
+from vigilo.models import VigiloServer
 
 import vigilo.vigiconf.conf as conf
 
@@ -90,3 +92,10 @@ def teardown_deploy_dir():
     """ teardown des tests dispatchator
     """
     shutil.rmtree(settings["vigiconf"].get("libdir"))
+
+        
+def create_vigiloserver(name):
+    v = VigiloServer(name=name)
+    DBSession.add(v)
+    DBSession.flush()
+    return v

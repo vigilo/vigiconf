@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # ConfigMgr configuration files generation wrapper
@@ -38,6 +40,13 @@ from . import conf
 from .lib.validator import Validator
 from . import generators
 
+# module d'export base de données
+from .dbexportator import update_apps_db, export_conf_db, export_ventilation_DB
+
+# permet l'option commit/rollback de la base
+from vigilo.models.configure import DBSession
+import transaction
+
 __docformat__ = "epytext"
 
 
@@ -62,12 +71,29 @@ def get_local_ventilation():
             mapping[host][app] = "localhost"
     return mapping
 
-def generate(gendir):
+def generate(gendir, commit_db=False):
     """
     Main routine of this module, produces the configuration files.
+    TODO: implementer l'option commit db
+    @param gendir generation directory
+    @type C{str}
+    @param commit_db True means that data is commited in the database
+           after generation; if False, a rollback is done.
+    @type commit_db C{boolean}
     @return: True if sucessful, False otherwise.
     """
+    
+    # mise à jour de la liste des application en base
+    update_apps_db()
+    
+    # mise à jour de la base de données
+    export_conf_db()
+    
     h = getventilation()
+    
+    # export de la ventilation en base de données
+    export_ventilation_DB(h)
+    
     v = Validator(h)
     if not v.preValidate():
         sys.stderr.write("\n".join(v.getSummary(details=True, stats=True)))
@@ -75,11 +101,28 @@ def generate(gendir):
         return False
     genmanager = generators.GeneratorManager()
     genmanager.generate(gendir, h, v)
+            
     if v.hasErrors():
         sys.stderr.write("\n".join(v.getSummary(details=True, stats=True)+['']))
         sys.stderr.write("Generation Failed!!\n")
+        if commit_db:
+            DBSession.rollback()
+            sys.stdout.write("transaction rollbacked\n")
         return False
     else:
+        try:
+            if commit_db:
+                transaction.commit()
+                sys.stdout.write("transaction commited\n")
+            else:
+                DBSession.rollback()
+                sys.stdout.write("transaction rollbacked\n")
+                
+        except Exception, v:
+            DBSession.rollback()
+            sys.stdout.write("transaction rollbacked\n")
+            return False
+            
         if not settings["vigiconf"].get("silent", False):
             sys.stdout.write("\n".join(v.getSummary(details=True, stats=True)
                                       +['']))

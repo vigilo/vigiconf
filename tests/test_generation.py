@@ -10,6 +10,7 @@ import vigilo.vigiconf.generator as generator
 from vigilo.vigiconf.lib.confclasses.host import Host
 
 from confutil import reload_conf, setup_tmpdir
+from confutil import create_vigiloserver, setup_db, teardown_db
 
 import pprint
 
@@ -17,6 +18,9 @@ class Generator(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
+        setup_db()
+        create_vigiloserver(u'supserver.example.com')
+        
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
@@ -27,6 +31,7 @@ class Generator(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
+        teardown_db()
         shutil.rmtree(self.tmpdir)
 
     def get_supserver(self, host, app):

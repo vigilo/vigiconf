@@ -24,6 +24,7 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import dispatchmodes
 
 from confutil import setup_tmpdir, reload_conf
+from confutil import setup_db, teardown_db, create_vigiloserver
 
 
 class EnterpriseEdition(unittest.TestCase):
@@ -31,6 +32,10 @@ class EnterpriseEdition(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
+        setup_db()
+        # need server
+        create_vigiloserver(u'sup.example.com')
+        
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
@@ -60,6 +65,7 @@ class EnterpriseEdition(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
+        teardown_db()
         shutil.rmtree(self.tmpdir)
 
     def test_ventilator_ent(self):
@@ -111,6 +117,10 @@ class CommunityEdition(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         # Prepare temporary directory
+        setup_db()
+        #need server
+        create_vigiloserver(u'localhost')
+        
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
         # Load the configuration
@@ -121,6 +131,7 @@ class CommunityEdition(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
+        teardown_db()
         shutil.rmtree(self.tmpdir)
 
     def test_ventilator_com(self):

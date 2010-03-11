@@ -92,6 +92,7 @@ class Dispatchator(object):
         self.returnsQueue = None # will be initialized as Queue.Queue later
         self.deploy_unit = False
         self.deploy_revision = None
+        self.mode_db = None
         # initialize applications
         self.listApps()
         self.sortApplication()
@@ -244,11 +245,16 @@ class Dispatchator(object):
         """
         Generate the configuration files for the servers, using the
         L{generator} module.
+        
+        Selon l'option --modedb les données sont commitées ou non
+        dans la base de données; ceci afin de retrouver l'état précédent
+        facilement si le déploiement ne se passe pas correctement.
         """
         # generate conf files
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir, ignore_errors=True)
-        result = generator.generate(gendir)
+        
+        result = generator.generate(gendir, commit_db=(self.mode_db == 'commit'))
         if not result:
             raise DispatchatorError("Can't generate configuration")
 
@@ -779,6 +785,9 @@ def main():
     parser.add_option("-d", "--deploy", action="store_true", dest="deploy",
                       help="Deploys the configuration on each server if this "
                           +"configuration has changed.")
+    parser.add_option("-m", "--modedb", action="store", dest="modedb",
+                      help="use MODEDB=commit to commit data in the database."
+                      +"Should be used with --deploy option.")
     parser.add_option("-r", "--restart", action="store_true", dest="restart",
                       help="Restart all the applications if a new "
                           +"configuration has been deployed. "
@@ -787,7 +796,7 @@ def main():
                       help="Stop all the applications.")
     parser.add_option("-s", "--start", action="store_true", dest="start",
                       help="Start all the applications.")
-    parser.add_option("-t", "--unit", action="store", dest="unit",
+    parser.add_option("-t", "--unit", action="store_true", dest="unit",
                       help="Do a unit deployment. Should be used with --deploy option.")
     parser.add_option("-u", "--undo", action="store_true", dest="undo",
                       help="Deploys the previously installed configuration. "
@@ -832,6 +841,9 @@ def main():
     
     if (options.revision):
         _dispatchator.deploy_revision = int(options.revision)
+    
+    if (options.modedb == 'commit'):
+        _dispatchator.mode_db = 'commit'
 
     if ( len(_dispatchator.getServers()) <= 0):
         syslog.syslog(syslog.LOG_WARNING, "No server to manage.")

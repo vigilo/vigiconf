@@ -294,8 +294,15 @@ def export_ventilation_DB(ventilation):
     
     for host, serverbyapp in ventilation.iteritems():
         for app, server in serverbyapp.iteritems():
+            vigiloserver = VigiloServer.by_vigiloserver_name(server)
+            
+            if not vigiloserver:
+                msg = "Vigilo server %s does not exists in db." % server
+                syslog.syslog(syslog.LOG_ERR, msg)
+                raise Exception(msg)
+            
             v = Ventilation(host=Host.by_host_name(host),
-                        vigiloserver=VigiloServer.by_vigiloserver_name(server),
+                        vigiloserver=vigiloserver,
                         application=Application.by_app_name(app))
             
             DBSession.add(v)

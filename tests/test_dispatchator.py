@@ -14,12 +14,16 @@ from vigilo.vigiconf.lib import dispatchmodes
 
 from confutil import reload_conf, setup_tmpdir
 from confutil import setup_deploy_dir, teardown_deploy_dir
+from confutil import setup_db, teardown_db, create_vigiloserver
 
 
 class Dispatchator(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
+        setup_db()
+        create_vigiloserver(u'localhost')
+        
         # Prepare necessary directories
         # TODO commenter les divers repertoires
         setup_deploy_dir()
@@ -41,6 +45,7 @@ class Dispatchator(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
+        teardown_db()
         teardown_deploy_dir()
 
     def test_deploy(self):
