@@ -93,6 +93,11 @@ class Dispatchator(object):
         self.deploy_unit = False
         self.deploy_revision = None
         self.mode_db = None
+        # mode simulation: on recopie simplement la commande svn pour
+        # verification
+        self.simulate = settings["vigiconf"].get("simulate", False)
+        self.svn_cmd = ""
+        
         # initialize applications
         self.listApps()
         self.sortApplication()
@@ -182,7 +187,7 @@ class Dispatchator(object):
         @type  iCommandStr: C{str}
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
-        return SystemCommand(iCommandStr)
+        return SystemCommand(iCommandStr, simulate=self.simulate)
 
     def listApps(self):
         """
@@ -295,6 +300,9 @@ class Dispatchator(object):
                     )
         
         _command = self.createCommand(_cmd)
+        
+        if self.simulate:
+            self.svn_cmd = _cmd
         
         try:
             _command.execute()

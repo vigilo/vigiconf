@@ -43,7 +43,10 @@ from vigilo.models import ConfItem
 from . import conf
 
 # chargement de données xml
-from . import loaders
+from vigilo.vigiconf.loaders import hostgrouploader,\
+                                    servicegrouploader,\
+                                    dependencyloader
+from .loaders import load_hlservices
 
 __docformat__ = "epytext"
 
@@ -179,16 +182,16 @@ def export_conf_db():
     
     confdir = settings['vigiconf'].get('confdir')
     # hiérarchie groupes hosts (fichier xml)
-    loaders.load_hostgroups(os.path.join(confdir, 'hostgroups'))
+    hostgrouploader.load_dir(os.path.join(confdir, 'hostgroups'))
     
     # hiérarchies groupes services
-    loaders.load_servicegroups(os.path.join(confdir, 'servicegroups'))
+    servicegrouploader.load_dir(os.path.join(confdir, 'servicegroups'))
     
     # high level services
-    loaders.load_hlservices(os.path.join(confdir, 'hlservices'))
+    load_hlservices(os.path.join(confdir, 'hlservices'))
     
     # dépendances
-    loaders.load_dependencies(os.path.join(confdir, 'dependencies'))
+    dependencyloader.load_dir(os.path.join(confdir, 'dependencies'))
     
 
 def _export_host_graphgroups(graphgroups, h):

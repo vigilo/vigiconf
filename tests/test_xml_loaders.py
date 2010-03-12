@@ -12,6 +12,10 @@ import os, unittest, shutil
 
 from vigilo.vigiconf import loaders
 
+from vigilo.vigiconf.loaders import hostgrouploader,\
+                                    servicegrouploader,\
+                                    dependencyloader
+
 import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
 
@@ -33,7 +37,7 @@ class XMLLoadersTest(unittest.TestCase):
 
         
     def test_load_hostgroups(self):
-        loaders.load_hostgroups('tests/testdata/xsd/hostgroups/ok')
+        hostgrouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         
         g = HostGroup.by_group_name('root_group')
         self.assertTrue(g, "root_group created.")
@@ -53,10 +57,10 @@ class XMLLoadersTest(unittest.TestCase):
     def test_load_hostgroups_ko(self):
         basedir = 'tests/testdata/xsd/hostgroups/ko/loader_ko'
         
-        self.assertRaises(Exception, loaders.load_hostgroups, '%s/1' % basedir)
+        self.assertRaises(Exception, hostgrouploader.load_dir, '%s/1' % basedir)
         
     def test_load_servicegroups(self):
-        loaders.load_servicegroups('tests/testdata/xsd/servicegroups/ok')
+        servicegrouploader.load_dir('tests/testdata/xsd/servicegroups/ok')
         
         root_group1 = ServiceGroup.by_group_name('root_group1')
         self.assertTrue(root_group1, "root_group1 created.")
@@ -136,7 +140,7 @@ class XMLLoadersTest(unittest.TestCase):
         DBSession.add(service12)
         DBSession.flush()
         
-        loaders.load_dependencies('tests/testdata/xsd/dependencies/ok/loader')
+        dependencyloader.load_dir('tests/testdata/xsd/dependencies/ok/loader')
         
         """ The dependency links are as following:
         <dependency>
@@ -211,7 +215,7 @@ class XMLLoadersTest(unittest.TestCase):
         )
         DBSession.add(interface)
         
-        loaders.load_dependencies('src/vigilo/vigiconf/conf.d/dependencies')
+        dependencyloader.load_dir('src/vigilo/vigiconf/conf.d/dependencies')
     
     def test_load_dependencies_ko(self):
         """ Test de fichiers xml valides selon XSD mais invalides pour le loader.
@@ -280,12 +284,12 @@ class XMLLoadersTest(unittest.TestCase):
         
         basedir = 'tests/testdata/xsd/dependencies/ok/loader_ko'
         
-        self.assertRaises(Exception, loaders.load_dependencies, "%s/1" % basedir)
+        self.assertRaises(Exception, dependencyloader.load_dir, "%s/1" % basedir)
         
-        self.assertRaises(Exception, loaders.load_dependencies, "%s/2" % basedir)
+        self.assertRaises(Exception, dependencyloader.load_dir, "%s/2" % basedir)
         
-        self.assertRaises(Exception, loaders.load_dependencies, "%s/3" % basedir)
+        self.assertRaises(Exception, dependencyloader.load_dir, "%s/3" % basedir)
         
-        self.assertRaises(Exception, loaders.load_dependencies, "%s/4" % basedir)
+        self.assertRaises(Exception, dependencyloader.load_dir, "%s/4" % basedir)
         
             
