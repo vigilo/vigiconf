@@ -106,7 +106,7 @@ def generate(gendir, commit_db=False):
         sys.stderr.write("\n".join(v.getSummary(details=True, stats=True)+['']))
         sys.stderr.write("Generation Failed!!\n")
         if commit_db:
-            DBSession.rollback()
+            transaction.abort()
             sys.stdout.write("transaction rollbacked\n")
         return False
     else:
@@ -115,11 +115,11 @@ def generate(gendir, commit_db=False):
                 transaction.commit()
                 sys.stdout.write("transaction commited\n")
             else:
-                DBSession.rollback()
+                transaction.abort()
                 sys.stdout.write("transaction rollbacked\n")
                 
         except Exception, v:
-            DBSession.rollback()
+            transaction.abort()
             sys.stdout.write("transaction rollbacked\n")
             return False
             

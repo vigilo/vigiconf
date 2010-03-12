@@ -209,7 +209,7 @@ def _load_groups_from_xml(filepath, classgroup, tag_group):
                     deleting_mode = False
         DBSession.flush()
     except:
-        DBSession.rollback()
+        #DBSession.rollback()
         raise
 
 
@@ -335,7 +335,7 @@ def _load_dependencies_from_xml(filepath):
                     subitems=False
         DBSession.flush()
     except:
-        DBSession.rollback()
+        #DBSession.rollback()
         raise
 
 def _load_hlservices_from_xml(filepath):
@@ -409,6 +409,6 @@ def _load_hlservices_from_xml(filepath):
                     
         DBSession.flush()
     except:
-        DBSession.rollback()
+        #DBSession.rollback()
         raise
 

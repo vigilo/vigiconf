@@ -94,7 +94,6 @@ def export_conf_db():
             DBSession.add(hg)
         DBSession.flush()
     except:
-        DBSession.rollback()
         raise
     
     # hosts
@@ -165,7 +164,6 @@ def export_conf_db():
             
         DBSession.flush()
     except:
-        DBSession.rollback()
         raise
     
     
