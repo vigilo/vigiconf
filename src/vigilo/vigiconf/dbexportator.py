@@ -45,8 +45,8 @@ from . import conf
 # chargement de données xml
 from vigilo.vigiconf.loaders import hostgrouploader,\
                                     servicegrouploader,\
-                                    dependencyloader
-from .loaders import load_hlservices
+                                    dependencyloader,\
+                                    hlserviceloader
 
 __docformat__ = "epytext"
 
@@ -188,7 +188,7 @@ def export_conf_db():
     servicegrouploader.load_dir(os.path.join(confdir, 'servicegroups'))
     
     # high level services
-    load_hlservices(os.path.join(confdir, 'hlservices'))
+    hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'))
     
     # dépendances
     dependencyloader.load_dir(os.path.join(confdir, 'dependencies'))
