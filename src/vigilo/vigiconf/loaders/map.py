@@ -20,7 +20,9 @@
 
 from .xmlloader import XMLLoader, ET
 
-from vigilo.models import HighLevelService, ServiceGroup
+from datetime import datetime
+
+from vigilo.models import Map
 
 from vigilo.models.configure import DBSession
 
@@ -44,20 +46,31 @@ class MapLoader(XMLLoader):
                         mapid = elem.attrib["id"].strip()
                         groups = []
                     elif elem.tag == "title":
-                        title = elem.text.strip()
+                        title = unicode(elem.text.strip())
                     elif elem.tag == "bg_position":
-                        bg_position = elem.text.strip()
+                        bg_position = unicode(elem.text.strip())
                     elif elem.tag == "bg_repeat":
-                        bg_repeat = elem.text.strip()
+                        bg_repeat = unicode(elem.text.strip())
                     elif elem.tag == "bg_color":
-                        bg_color = elem.text.strip()
+                        bg_color = unicode(elem.text.strip())
                     elif elem.tag == "bg_image":
-                        bg_image = elem.text.strip()
+                        bg_image = unicode(elem.text.strip())
                     elif elem.tag == "group":
-                        groups.append(elem.text.strip())
+                        groups.append(unicode(elem.text.strip()))
                 else:
                     if elem.tag == "map":
+                        map = Map(
+                                mtime=datetime.today(),
+                                title=title,
+                                background_color=bg_color,
+                                background_image=bg_image,
+                                background_position=bg_position,
+                                background_repeat=bg_repeat
+                                )
+                        if mapid:
+                            maps[mapid] = map
                         mapid = None
+                            
                         
             DBSession.flush()
         except:

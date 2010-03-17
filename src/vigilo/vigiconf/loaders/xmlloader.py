@@ -58,7 +58,9 @@ class XMLLoader:
     
     def __init__(self, xsd_filename=None):
         if xsd_filename: self._xsd_filename = xsd_filename
-        self._xsd_file_path = os.path.join(self._xsd_dir, self._xsd_filename)
+        if self._xsd_filename:
+            self._xsd_file_path = os.path.join(self._xsd_dir,
+                                               self._xsd_filename)
     
     def load(self, path):
         """ Charge des données depuis un fichier xml.
