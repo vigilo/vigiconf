@@ -90,7 +90,6 @@ class Dispatchator(object):
         self.mAppsList = []
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
-        self.deploy_unit = False
         self.deploy_revision = None
         self.mode_db = None
         # mode simulation: on recopie simplement la commande svn pour
@@ -804,8 +803,6 @@ def main():
                       help="Stop all the applications.")
     parser.add_option("-s", "--start", action="store_true", dest="start",
                       help="Start all the applications.")
-    parser.add_option("-t", "--unit", action="store_true", dest="unit",
-                      help="Do a unit deployment. Should be used with --deploy option.")
     parser.add_option("-u", "--undo", action="store_true", dest="undo",
                       help="Deploys the previously installed configuration. "
                           +"2 consecutives undo will return to the "
@@ -843,9 +840,6 @@ def main():
 
     if (options.force):
         _dispatchator.setModeForce(True)
-    
-    if (options.unit):
-        _dispatchator.deploy_unit = True
     
     if (options.revision):
         _dispatchator.deploy_revision = int(options.revision)

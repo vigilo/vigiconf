@@ -1,9 +1,5 @@
 <?xml version="1.0"?>
 <hosts>
-	<todelete>
-	  <host name="localhost"/>
-	</todelete>
-	
 	<host name="testhost2" ip="127.0.0.2" group="P-F">
 	    <class>linux</class>
 	    <class>ucd</class>

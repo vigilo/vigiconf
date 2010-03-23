@@ -63,6 +63,9 @@ class XMLLoader:
     
     do_validation = True
     
+    # change detection
+    change = False
+    
     def __init__(self, xsd_filename=None):
         if xsd_filename: self._xsd_filename = xsd_filename
         if self._xsd_filename:
@@ -213,7 +216,30 @@ class XMLLoader:
         """
         return unicode(self.get_attrib(name, elem))
     
-    def load_dir(self, basedir):
+    def delete_all(self):
+        """ efface la totalité des entités de la base
+        
+        méthode à redéfinir dans la classe héritière.
+        """
+        raise Exception("not implemented.")
+    
+    def reset_change(self):
+        """ Initialisation de la séquence de détection de changement.
+        
+        met à jour l'attribut booléen change à False.
+        """
+        self.change = False
+    
+    def detect_change(self):
+        """ détecte un éventuel changement.
+        
+        méthode à redéfinir dans la classe héritière.
+        
+c        @return: True si changement détecté
+        """
+        raise Exception("not implemented.")
+        
+    def load_dir(self, basedir, delete_all=False):
         """ Chargement de données dans une hiérarchie de fichiers XML.
         
             Dans chaque répertoire, un fichier spécifique self._unit_filename
@@ -234,7 +260,13 @@ class XMLLoader:
         
             @param basedir: a directory containing xml files
             @type  basedir: C{str}
+            @param delete_all: delete all entities before loading (default)
+            @type delete_all: C{boolean}
         """
+        
+        if  delete_all:
+            self.delete_all()
+        
         for root, dirs, files in os.walk(basedir):
             final = False
             

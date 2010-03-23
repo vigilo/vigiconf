@@ -191,8 +191,9 @@ def export_conf_db():
     hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'))
     
     # dépendances
-    dependencyloader.load_dir(os.path.join(confdir, 'dependencies'))
-    
+    dependencyloader.reset_change()
+    dependencyloader.load_dir(os.path.join(confdir, 'dependencies'), delete_all=True)
+    dependencyloader.detect_change()
 
 def _export_host_graphgroups(graphgroups, h):
     """
