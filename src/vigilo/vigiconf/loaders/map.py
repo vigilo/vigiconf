@@ -18,18 +18,29 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-from .xmlloader import XMLLoader, ET
-
 from datetime import datetime
 
-from vigilo.models import Map
+from vigilo.models import Map, MapGroup, Host, LowLevelService
 
 from vigilo.models.configure import DBSession
+
+from .xmlloader import XMLLoader
 
 class MapLoader(XMLLoader):
     
     do_validation = True
-
+    
+    def start_element(self, tag):
+        """ 
+        """
+        pass
+    
+    def end_element(self, tag):
+        """
+        """
+        pass
+    
+    
     def load(self, path):
         """ Loads maps from a xml file.
         
@@ -38,25 +49,52 @@ class MapLoader(XMLLoader):
         """
         
         maps = {}
+        node_mode = False
+        submap_mode = False
         
         try:
-            for event, elem in ET.iterparse(path, events=("start", "end")):
+            for event, elem in self.get_xml_parser(path):
                 if event == "start":
                     if elem.tag == "map":
-                        mapid = elem.attrib["id"].strip()
+                        mapid = self.get_uattrib("id", elem)
                         groups = []
+                    elif elem.tag == "nodes":
+                        node_mode = True
+                    elif elem.tag == "host":
+                        if not node_mode: continue
+                        name = elem.attrib["name"].strip()
+                        id = elem.attrib["id"].strip()
+                        host = Host.by_host_name(name)
+                    elif elem.tag == "service":
+                        if not node_mode: continue
+                        pass
+                    elif elem.tag == "label":
+                        pass
+                    elif elem.tag == "position":
+                        pass
+                    elif elem.tag == "icon":
+                        pass
+                    elif elem.tag == "stateicon":
+                        pass
+                    elif elem.tag == "submaps":
+                        submap_mode = True
                     elif elem.tag == "title":
-                        title = unicode(elem.text.strip())
+                        title = self.get_utext(elem)
                     elif elem.tag == "bg_position":
-                        bg_position = unicode(elem.text.strip())
+                        bg_position = self.get_utext(elem)
                     elif elem.tag == "bg_repeat":
-                        bg_repeat = unicode(elem.text.strip())
+                        bg_repeat = self.get_utext(elem)
                     elif elem.tag == "bg_color":
-                        bg_color = unicode(elem.text.strip())
+                        bg_color = self.get_utext(elem)
                     elif elem.tag == "bg_image":
-                        bg_image = unicode(elem.text.strip())
+                        bg_image = self.get_utext(elem)
                     elif elem.tag == "group":
-                        groups.append(unicode(elem.text.strip()))
+                        groupname = self.get_utext(elem)
+                        group = MapGroup.by_group_name(groupname)
+                        if not group:
+                            group = MapGroup(name=groupname)
+                        groups.append(group)
+                        
                 else:
                     if elem.tag == "map":
                         map = Map(
@@ -67,9 +105,24 @@ class MapLoader(XMLLoader):
                                 background_position=bg_position,
                                 background_repeat=bg_repeat
                                 )
+                        if len(groups) > 0:
+                            map.groups = list(groups)
                         if mapid:
                             maps[mapid] = map
                         mapid = None
+                    elif elem.tag == "nodes":
+                        node_mode = False
+                    elif elem.tag == "host":
+                        if not node_mode: continue
+                        pass
+                    elif elem.tag == "service":
+                        if not node_mode: continue
+                        pass
+                    elif elem.tag == "host":
+                        if not node_mode: continue
+                        host, name, id = (None,) * 3
+                    elif elem.tag == "submaps":
+                        submap_mode = False
                             
                         
             DBSession.flush()

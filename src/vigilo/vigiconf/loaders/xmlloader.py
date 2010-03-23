@@ -54,6 +54,13 @@ class XMLLoader:
     _xsd_file_path = None
     _xsd_filename = None
     
+    _unit_filename = "final.xml"
+    
+    # current bloc list (ie. ['nodes', 'node', 'item'])
+    _bloclist = []
+    # current element
+    _elem = None
+    
     do_validation = True
     
     def __init__(self, xsd_filename=None):
@@ -65,12 +72,15 @@ class XMLLoader:
     def load(self, path):
         """ Charge des données depuis un fichier xml.
         
-        Cette méthode doit redéfinie dans une classe dérivée
+        Cette méthode peut être redéfinie dans une classe dérivée.
+        L'implémentation par défaut (méthode parse) nécessite d'implémenter dans la
+        classe dérivée les méthodes start_element et end_element.
         
-            @param filepath: an XML file
-            @type  filepath: C{str}
+        @param path: an XML file
+        @type  path: C{str}
         """
-        raise Exception("should be implemented in a subclass")
+        self.parse(path)
+        
     
     def validate(self, xmlfile):
         """
@@ -98,14 +108,136 @@ class XMLLoader:
             return False
         
         return True
+    
+    def get_xml_parser(self, path, events=("start", "end")):
+        """ get an XML parser.
+        
+        Usage:
+        
+            for event, elem in self.get_xml_parser(filepath):
+                if event == "start":
+                    if elem.tag == "map":
+                        # DO SOMETHING
+        
+        @param path: an XML file
+        @type  path: C{str}
+        @param events: list of events. default=('start', 'end')
+        @type  events: C{seq}
+        """
+        return ET.iterparse(path, events=("start", "end"))
+    
+    def parse(self, path):
+        """ Default parser.
+        
+        The XMLLoader subclass should implement  the 2 methods:
+        - start_element(tag)
+        - end_element(tag)
+        
+        and should use the following methods:
+        - get_attrib(name)
+        - get_text()
+        
+        @param path: an XML file
+        @type  path: C{str}
+        """
+        for event, elem in self.get_xml_parser(path, ("start", "end")):
+            self._elem = elem
+            if event == "start":
+                self._bloclist.append(elem.tag)
+                
+                self.start_element(elem.tag)
+            elif event == "end":
+                self.end_element(elem.tag)
+                
+                start_tag = self._bloclist.pop()
+                if start_tag != elem.tag:
+                    raise Exception("End tag mismatch error: %s/%s" % (start_tag, elem.tag))
+    
+    def start_element(self, tag):
+        """ should be implemented by the subclass when using parse method
+        
+        Does nothing
+        
+        one should use the following methods:
+        - get_attrib(name)
+        - get_text()
+        
+        and attributes
+        - _bloclist that contains current bloc hierarchy
+          ie. ['nodes', 'node', 'item']
+        """
+        pass
+    
+    def end_element(self, tag):
+        """ should be implemented by the subclass when using parse method
+        
+        Does nothing
+        
+        one should use the following methods:
+        - get_attrib(name)
+        - get_text()
+        
+        and attributes
+        - _bloclist that contains current bloc hierarchy
+          ie. ['nodes', 'node', 'item']
+        """
+        pass
+    
+    def get_text(self, elem=None):
+        """ Obtient le bloc texte entre deux tags XML.
+        
+        Les blancs début et fin sont retirés.
+        """
+        if elem == None: elem = self._elem
+        return elem.text.strip()
+    
+    def get_attrib(self, name, elem=None):
+        """ Obtient la valeur d'un attribut XML.
+        
+        Les blancs début et fin sont retirés.
+        """
+        if elem == None: elem = self._elem
+        return elem.attrib[name].strip()
 
+    def get_utext(self, elem=None):
+        """ Obtient le bloc texte unicode entre deux tags XML.
+        
+        Les blancs début et fin sont retirés.
+        """
+        return unicode(self.get_text(elem))
+    
+    def get_uattrib(self, name, elem=None):
+        """ Obtient la valeur d'un attribut XML en unicode.
+        
+        Les blancs début et fin sont retirés.
+        """
+        return unicode(self.get_attrib(name, elem))
+    
     def load_dir(self, basedir):
-        """ Generic loader of data from xml files.
+        """ Chargement de données dans une hiérarchie de fichiers XML.
+        
+            Dans chaque répertoire, un fichier spécifique self._unit_filename
+            nommé par défaut "final.xml" est chargé en dernier, ce qui permet
+            de faire des mises à jour unitaires en ajoutant un tel
+            fichier (qui peut contenir par exemple la suppression d'un élément)
+        
+            --------------------------------------
+            VIGILO_EXIG_VIGILO_CONFIGURATION_0030
+            Interface programmatique de configuration.
+            
+            Les modes de configuration sont les suivants :
+                mise à jour de la totalité de la configuration via l'interface
+                  programmatique pour l'ensemble des configurations
+                mise à jour unitaire d'un élément de la configuration via
+                  l'interface programmatique
+            --------------------------------------
         
             @param basedir: a directory containing xml files
             @type  basedir: C{str}
         """
         for root, dirs, files in os.walk(basedir):
+            final = False
+            
             for f in files:
                 if not f.endswith(".xml"):
                     continue
@@ -116,9 +248,17 @@ class XMLLoader:
                     else:
                         raise Exception("A XSD Schema should be provided.")
                 # load data
-                self.load(path)
-            
+                if f == self._unit_filename:
+                    final = True
+                else:
+                    self.load(path)
+                
                 LOGGER.debug("Sucessfully parsed %s" % path)
+            
+            # parsing du dernier fichier à traiter pour des mises
+            # à jour unitaires
+            if final:
+                self.load(self._unit_filename)
                 
             for d in dirs: # Don't visit subversion/CVS directories
                 if not self.visit_dir(d):

@@ -18,7 +18,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-from .xmlloader import XMLLoader, ET
+from .xmlloader import XMLLoader
 
 from vigilo.models import HostGroup, ServiceGroup
 
@@ -65,7 +65,7 @@ class GroupLoader(XMLLoader):
         tag_group = self._tag_group
         
         try:
-            for event, elem in ET.iterparse(path, events=("start", "end")):
+            for event, elem in self.get_xml_parser(path):
                 if event == "start":
                     if elem.tag == tag_group:
                         name = unicode(elem.attrib["name"].strip())
