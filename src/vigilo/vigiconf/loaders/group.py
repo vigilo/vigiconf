@@ -133,6 +133,26 @@ class HostGroupLoader(GroupLoader):
         for g in DBSession.query(HostGroup).all():
             hostsgroups[g.name] = g.name
         return hostsgroups
+    
+    def get_groups_hierarchy(self):
+        """ reconstruit le dico groupsHierarchy v1
+        
+        TODO: refactoring
+        """
+        hgroups = {}
+        for top in HostGroup.get_top_groups():
+            hgroups[top.name] = self._get_children_hierarchy(top)
+        return hgroups
+    
+    def _get_children_hierarchy(self, hostgroup):
+        """ fonction récursive construisant un dictionnaire hiérarchique.
+        """
+        if hostgroup.children == []:
+            return 1
+        hchildren = {}
+        for g in hostgroup.children:
+            hchildren[g.name] = self._get_children_hierarchy(g)
+        return hchildren
         
 
 

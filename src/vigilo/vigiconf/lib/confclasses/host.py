@@ -618,6 +618,9 @@ class HostFactory(object):
     def _loadhosts(self, source):
         """
         Load a Host from an XML file
+        
+        TODO: refactoring: implémenter un loader XML pour les hosts, comme pour
+              les autres entités.
 
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}

@@ -178,6 +178,7 @@ def export_conf_db():
     # TODO : refactoring à prévoir
     # les groupes se chargent maintenant avec loader XML
     conf.hostsGroups = hostgrouploader.get_hosts_conf()
+    conf.groupsHierarchy = hostgrouploader.get_groups_hierarchy()
     
     # hiérarchies groupes services
     servicegrouploader.load_dir(os.path.join(confdir, 'servicegroups'), delete_all=True)

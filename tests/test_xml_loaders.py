@@ -290,4 +290,14 @@ class XMLLoadersTest(unittest.TestCase):
         
         self.assertRaises(Exception, dependencyloader.load_dir, "%s/4" % basedir)
         
+    def test_hostgroups_hierarchy(self):
+        """ Test de hostgrouploader.get_groups_hierarchy().
+        
+        réimplémentation avec db du dico python conf.groupsHierarchy
+        """
+        hostgrouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
+        gh = hostgrouploader.get_groups_hierarchy()
+        self.assertEquals(len(gh.keys()), 3, "3 top hostgroups")
+        self.assertEquals(gh["root_group3"]["hgroup31"], 1)
+        self.assertEquals(gh["root_group3"]["hgroup33"]["Linux servers 3"], 1)
             
