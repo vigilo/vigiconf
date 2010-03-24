@@ -170,25 +170,21 @@ def export_conf_db():
         raise
     
     
-    # groups hierarchies (à 2 niveaux, cf vigilo 1)
-    for parent_name, children in groupsHierarchy.iteritems():
-        parent = HostGroup.by_group_name(parent_name)
-        parent.children = []
-        for name in children:
-            g = HostGroup.by_group_name(name)
-            g.parent = parent
-    
     DBSession.flush()
     
     confdir = settings['vigiconf'].get('confdir')
     # hiérarchie groupes hosts (fichier xml)
-    hostgrouploader.load_dir(os.path.join(confdir, 'hostgroups'))
+    hostgrouploader.load_dir(os.path.join(confdir, 'hostgroups'), delete_all=True)
+    
+    # TODO : refactoring à prévoir
+    # les groupes se chargent maintenant avec loader XML
+    conf.hostsGroups = hostgrouploader.get_hosts_conf()
     
     # hiérarchies groupes services
-    servicegrouploader.load_dir(os.path.join(confdir, 'servicegroups'))
+    servicegrouploader.load_dir(os.path.join(confdir, 'servicegroups'), delete_all=True)
     
     # high level services
-    hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'))
+    hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'), delete_all=True)
     
     # dépendances
     dependencyloader.reset_change()

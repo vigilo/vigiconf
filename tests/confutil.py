@@ -34,7 +34,6 @@ def reload_conf(hostsdir=None):
             hostsdir,
             conf.hosttemplatefactory,
             conf.testfactory,
-            conf.groupsHierarchy,
       )
     conf.loadConf()
 

@@ -9,6 +9,20 @@
 			<hostgroup name="Servers"/>
 			<hostgroup name="Telecom" />
 
+			<hostgroup name="Linux servers" />
+			<hostgroup name="Windows servers" />
+			<hostgroup name="Switches" />
+			<hostgroup name="Firewalls" />
+			<hostgroup name="Routers" />
+			<hostgroup name="Modems" />
+			<hostgroup name="AIX servers" />
+			<hostgroup name="Solaris servers" />
+			<hostgroup name="AS400 servers" />
+			<hostgroup name="CISCO devices" />
+			<hostgroup name="Nokia firewalls" />
+			<hostgroup name="NetApp proxies" />
+			<hostgroup name="Nortel devices" />
+			<hostgroup name="Netware servers" />
 		</children>
 	</hostgroup>
 

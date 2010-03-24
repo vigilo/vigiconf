@@ -299,7 +299,8 @@ def loadConf():
         )
         raise e
     hostsConf = hostfactory.hosts
-    groupsHierarchy = hostfactory.groupsHierarchy
+    # TODO: refactoring
+    #groupsHierarchy = hostfactory.groupsHierarchy
 
 
 
@@ -309,8 +310,11 @@ CODEDIR = os.path.dirname(__file__)
 # Initialize global conf variables
 apps = {}
 appsByAppGroups = {}
+
+# TODO : en base, plus de python
 hostsGroups     = {}
 groupsHierarchy = {}
+
 hostsConf = {}
 dependencies = {}
 dynamicGroups = {}
@@ -328,7 +332,6 @@ hostfactory = HostFactory(
                 os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
                 hosttemplatefactory,
                 testfactory,
-                groupsHierarchy,
               )
 
 

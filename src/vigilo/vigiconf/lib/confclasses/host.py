@@ -555,11 +555,10 @@ class HostFactory(object):
     Factory to create Host objects
     """
 
-    def __init__(self, hostsdir, hosttemplatefactory, testfactory, groupsHierarchy):
+    def __init__(self, hostsdir, hosttemplatefactory, testfactory):
         self.hosts = {}
         self.hosttemplatefactory = hosttemplatefactory
         self.testfactory = testfactory
-        self.groupsHierarchy = groupsHierarchy
         self.hostsdir = hostsdir
         self.hosts_todelete = []
 
@@ -640,8 +639,9 @@ class HostFactory(object):
                     group = elem.attrib["group"].strip()
                     
                     cur_host = Host(self.hosts, name, ip, group)
-                    if group not in self.groupsHierarchy:
-                        self.groupsHierarchy[group] = set()
+                    # TODO refactoring
+                    #if group not in self.groupsHierarchy:
+                    #    self.groupsHierarchy[group] = set()
                     self.hosttemplatefactory.apply(cur_host, "default")
                     LOGGER.debug("Created host %s, ip %s, group %s" % (name, ip, group))
                 elif elem.tag == "test":
@@ -708,8 +708,9 @@ class HostFactory(object):
                     # If the secondary group did not exist yet in the main
                     # group hashmap, add it
                     server_group = cur_host.get("serverGroup")
-                    if group_name not in self.groupsHierarchy[server_group]:
-                        self.groupsHierarchy[server_group].add(group_name)
+                    # TODO refactoring
+                    #if group_name not in self.groupsHierarchy[server_group]:
+                    #    self.groupsHierarchy[server_group].add(group_name)
                 elif elem.tag == "todelete":
                     deleting_mode = False
                 elif elem.tag == "nagios":

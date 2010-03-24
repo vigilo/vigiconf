@@ -159,7 +159,6 @@ class HostFactoryMethods(unittest.TestCase):
                 os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
                 conf.hosttemplatefactory,
                 conf.testfactory,
-                conf.groupsHierarchy,
             )
         hosts = f.load()
         self.assertTrue(hosts.has_key('localhost'), "localhost defined in conf")
@@ -172,7 +171,6 @@ class HostFactoryMethods(unittest.TestCase):
                 "tests/testdata/xsd/hosts/ok",
                 conf.hosttemplatefactory,
                 conf.testfactory,
-                conf.groupsHierarchy,
             )
         # validation par XSD
         hosts = f.load(validation=True)

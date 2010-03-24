@@ -42,7 +42,6 @@ class ExportDBTest(unittest.TestCase):
         # check host groups
         nb = len(conf.hostsGroups.keys())
         # 2 groups created for new hosts and services (see settings)
-        nb = nb + 2
         nbdb = DBSession.query(HostGroup).count()
         self.assertEquals(nb, nbdb, "nb hostgroups conf:%d db:%d" % (nb, nbdb))
         

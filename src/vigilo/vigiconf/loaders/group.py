@@ -117,6 +117,23 @@ class HostGroupLoader(GroupLoader):
     _classgroup = HostGroup
     _tag_group = "hostgroup"
     _xsd_filename = "hostgroup.xsd"
+    
+    def delete_all(self):
+        """ efface la totalité des entités de la base
+        
+        """
+        DBSession.query(HostGroup).delete()
+    
+    def get_hosts_conf(self):
+        """ reconstruit le dico hostsGroup v1
+        
+        TODO: refactoring
+        """
+        hostsgroups = {}
+        for g in DBSession.query(HostGroup).all():
+            hostsgroups[g.name] = g.name
+        return hostsgroups
+        
 
 
 # VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
@@ -132,5 +149,10 @@ class ServiceGroupLoader(GroupLoader):
     _classgroup = ServiceGroup
     _tag_group = "servicegroup"
     _xsd_filename = "servicegroup.xsd"
-
+    
+    def delete_all(self):
+        """ efface la totalité des entités de la base
+        
+        """
+        DBSession.query(ServiceGroup).delete()
 
