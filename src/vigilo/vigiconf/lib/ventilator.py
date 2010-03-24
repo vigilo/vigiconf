@@ -36,7 +36,7 @@ from vigilo.models import Host, Application, Ventilation, VigiloServer
 from vigilo.common.conf import settings
 
 # application used to implement the many2one link "is_supervised for hosts with
-# HostApplication
+# Ventilation
 APP_VENTILATION = unicode(settings["vigiconf"].get('app_ventilation', 'nagios'))
 
 from .. import conf
@@ -83,7 +83,7 @@ def appendHost(serverName, host):
     """
     # DB implementation
     # TODO: check nagios is a convenient application for this
-    # HostApplication is used here to reimplement the old pickled dict
+    # ressource file is used here to reimplement the old pickled dict
     hostapp = Ventilation(
                     vigiloserver=VigiloServer.by_vigiloserver_name(serverName),
                     host=Host.by_host_name(host),

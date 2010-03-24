@@ -90,7 +90,6 @@ class VentilatorTest(unittest.TestCase):
         create_vigiloserver(u'supserver.example.com')
         
         # need nagios application
-        # TODO: no more
         nagios = Application(name=u'nagios')
         DBSession.add(nagios)
         DBSession.flush()

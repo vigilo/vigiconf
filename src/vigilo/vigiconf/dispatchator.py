@@ -439,27 +439,8 @@ class Dispatchator(object):
         except ConfMgrError, e: # if it fails
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
-
-    # files deployment       
-
-    #def needForDeployment(self): # TODO: it seems not to be used anywhere...
-    #    """
-    #    Prints a list of servers that need a new deployment
-    #    """
-    #    _revision = self.getLastRevision()
-    #    for _srv in self.getServers():
-    #        try:
-    #            _srv.updateRevisionManager()
-    #            _srv.getRevisionManager().setSubversion(_revision)
-    #            if _srv.needsDeployment():
-    #                print "Server %s should be deployed. %d/%d" % \
-    #                      (_srv.getName(), 
-    #                       _srv.getRevisionManager().getDeployed(),
-    #                       _revision)
-    #        except Exception, e:
-    #            syslog.syslog(syslog.LOG_WARNING,
-    #                    "needForDeployment failed: %s" % str(e))
-
+        
+    
     def deploysOnServers(self, iServers, iRevision):
         """
         Deploys the config files to the servers belonging to iServers

@@ -53,7 +53,6 @@ __docformat__ = "epytext"
 
 def update_apps_db():
     """ Update database with new apps.
-    TODO: add new hosts here to be able to ventilate before the db export ??
     """
     apps = conf.apps
     
