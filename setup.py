@@ -7,6 +7,11 @@ from setuptools import setup, find_packages
 sysconfdir = os.getenv("SYSCONFDIR", "/etc")
 localstatedir = os.getenv("LOCALSTATEDIR", "/var")
 
+tests_require = [
+    'nose',
+    'coverage',
+]
+
 
 def find_data_files(basedir, srcdir):
     data_files = []
@@ -61,6 +66,9 @@ setup(name='vigilo-vigiconf',
             "vigilo-models",
             "vigilo-turbogears"
             ],
+        extras_require={
+            'tests': tests_require,
+        },
         namespace_packages = [
             'vigilo',
         #    'vigilo.common',
