@@ -311,7 +311,7 @@ CODEDIR = os.path.dirname(__file__)
 apps = {}
 appsByAppGroups = {}
 
-# TODO : en base, plus de python
+# TODO: en base, plus de python
 hostsGroups     = {}
 groupsHierarchy = {}
 

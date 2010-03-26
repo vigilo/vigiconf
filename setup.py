@@ -59,6 +59,7 @@ setup(name='vigilo-vigiconf',
             "vigilo-common",
             "psycopg2",
             "vigilo-models",
+            "vigilo-turbogears"
             ],
         namespace_packages = [
             'vigilo',

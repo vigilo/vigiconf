@@ -1,4 +1,0 @@
-# confid:%s
-
-ProxyRequests Off
-

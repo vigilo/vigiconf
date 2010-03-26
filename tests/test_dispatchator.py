@@ -25,7 +25,7 @@ class Dispatchator(unittest.TestCase):
         create_vigiloserver(u'localhost')
         
         # Prepare necessary directories
-        # TODO commenter les divers repertoires
+        # TODO: commenter les divers repertoires
         setup_deploy_dir()
         # Deploy on the localhost only -> switch to Community Edition
         

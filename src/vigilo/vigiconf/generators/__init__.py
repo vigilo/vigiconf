@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Generators for the Vigilo Config Manager
 """
@@ -18,6 +20,9 @@ from .. import conf
 class Templator(object):
     """
     The base class for the generators
+    
+    TODO: refactoring: utiliser le template engine Genshi ?
+    
     @ivar mapping: ventilation mapping
     @type mapping: C{dict}, see the L{lib.ventilator.findAServerForEachHost}()
         function
@@ -175,10 +180,11 @@ class GeneratorManager(object):
                                  % (filename, str(e)))
                 raise
         for name, genclass in locals().iteritems():
-            if isinstance(genclass, (type, types.ClassType)) and \
-                    issubclass(genclass, Templator) and \
-                    name != "Templator":
-                self.genclasses.append(genclass)
+            if isinstance(genclass, (type, types.ClassType)):
+                if issubclass(genclass, Templator) and  name != "Templator":
+                    self.genclasses.append(genclass)
+                if issubclass(genclass, View) and  name != "View":
+                    self.genclasses.append(genclass)
             elif isinstance(genclass, (type, types.ModuleType)) and \
                     name not in globals():
                 # This is an import statement and we don't have it yet,
@@ -191,6 +197,59 @@ class GeneratorManager(object):
         for genclass in self.genclasses:
             generator = genclass(gendir, h, v)
             generator.generate()
+
+
+# new template engine (genshi)
+from genshi.template import TextTemplate
+from genshi.template import TemplateLoader
+
+class View:
+    """
+    The base class for the generators (Genshi template engine)
+    
+    @ivar mapping: ventilation mapping
+    @type mapping: C{dict}, see the L{lib.ventilator.findAServerForEachHost}()
+        function
+    @ivar baseDir: generation directory
+    @type baseDir: C{str}
+    @ivar validator: validator instance for warnings and errors
+    @type validator: L{Validator<lib.validator.Validator>}
+    """
+    
+    def __init__(self, gendir, mapping={}, validator=None, template_dir=None):
+        self.mapping = mapping
+        self.baseDir = gendir
+        
+        if not template_dir:
+            template_dir = os.path.join(settings["vigiconf"].get("confdir"),
+                                      "filetemplates")
+        self.loader = TemplateLoader(template_dir, auto_reload=False)
+
+    def create_dir_if_missing(self, filename):
+        """
+        Creates all directories on the path of the provided filename
+        @param filename: a file path
+        @type  filename: C{str}
+        """
+        destdir = os.path.dirname(filename)
+        if not os.path.exists(destdir):
+            os.makedirs(destdir)
+    
+    def render(self, template, context, filename=None):
+        """ génération de texte à partir d'un template genshi.
+        
+        """
+        tmpl = self.loader.load(template, cls=TextTemplate)
+        stream = tmpl.generate(**context)
+        print context
+        if not filename:
+            return stream.render()
+        
+        self.create_dir_if_missing(filename)
+        
+        fout = open(os.path.join(self.baseDir, filename), "w")
+        fout.write(stream.render())
+        fout.close()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

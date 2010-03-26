@@ -162,7 +162,7 @@ class Host(object):
                     "or": [(host3, "Host")]
                 }
         @type  deps: C{str} or C{dict}
-        @param options: TODO
+        @param options: TODO:
         @type  options: C{list}
         @param cti: alert reference (Category - Type - Item)
         @type  cti: C{int}
@@ -642,7 +642,7 @@ class HostFactory(object):
                     group = elem.attrib["group"].strip()
                     
                     cur_host = Host(self.hosts, name, ip, group)
-                    # TODO refactoring
+                    # TODO: refactoring
                     #if group not in self.groupsHierarchy:
                     #    self.groupsHierarchy[group] = set()
                     self.hosttemplatefactory.apply(cur_host, "default")
@@ -711,7 +711,7 @@ class HostFactory(object):
                     # If the secondary group did not exist yet in the main
                     # group hashmap, add it
                     server_group = cur_host.get("serverGroup")
-                    # TODO refactoring
+                    # TODO: refactoring
                     #if group_name not in self.groupsHierarchy[server_group]:
                     #    self.groupsHierarchy[server_group].add(group_name)
                 elif elem.tag == "todelete":

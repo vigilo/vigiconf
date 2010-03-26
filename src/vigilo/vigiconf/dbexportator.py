@@ -71,7 +71,6 @@ def export_conf_db():
     """
     hostsConf = conf.hostsConf
     hostsGroups = conf.hostsGroups
-    groupsHierarchy = conf.groupsHierarchy
     
     # groups for new entities
     group_newhosts_def = settings['vigiconf'].get('GROUPS_DEF_NEW_HOSTS',
@@ -126,7 +125,7 @@ def export_conf_db():
                 h.groups = [HostGroup.by_group_name(group_newhosts_def), ]
             
             # low level services
-            # TODO : implémenter les détails: op_dep, weight, command
+            # TODO: implémenter les détails: op_dep, weight, command
             
             for service in host['services'].keys():
                 lls = LowLevelService.by_host_service_name(hostname, service)
@@ -175,7 +174,7 @@ def export_conf_db():
     # hiérarchie groupes hosts (fichier xml)
     hostgrouploader.load_dir(os.path.join(confdir, 'hostgroups'), delete_all=True)
     
-    # TODO : refactoring à prévoir
+    # TODO: refactoring à prévoir
     # les groupes se chargent maintenant avec loader XML
     conf.hostsGroups = hostgrouploader.get_hosts_conf()
     conf.groupsHierarchy = hostgrouploader.get_groups_hierarchy()

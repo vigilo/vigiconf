@@ -37,9 +37,11 @@ def reload_conf(hostsdir=None):
       )
     conf.loadConf()
 
-def setup_tmpdir():
+def setup_tmpdir(dirpath=None):
     """Prepare the temporary directory"""
-    tmpdir = tempfile.mkdtemp(dir="/dev/shm", prefix="tests-vigiconf")
+    if not dirpath:
+        dirpath = tempfile.mkdtemp(dir="/dev/shm", prefix="tests-vigiconf")
+    tmpdir = dirpath
     conf.LIBDIR = tmpdir
     return tmpdir
 
@@ -66,7 +68,7 @@ def setup_deploy_dir():
     """ setup des tests dispatchator
     """
     # Prepare necessary directories
-    # TODO commenter les divers repertoires
+    # TODO: commenter les divers repertoires
     gendir = settings["vigiconf"].get("libdir")
     shutil.rmtree(gendir, ignore_errors=True)
     os.mkdir(gendir)

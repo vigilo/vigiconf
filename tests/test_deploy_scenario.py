@@ -23,7 +23,7 @@ class DeployScenario(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         # Prepare necessary directories
-        # TODO commenter les divers repertoires
+        # TODO: commenter les divers repertoires
         setup_deploy_dir()
         setup_db()
         create_vigiloserver(u'localhost')
