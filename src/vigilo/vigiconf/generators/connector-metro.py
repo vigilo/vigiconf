@@ -64,4 +64,42 @@ class ConnectorMetroTpl(Templator):
                 self.templateAppend(fileName, templates["ds"], tplvars)
 
 
+from . import View
+
+class ConnectorMetroView(View):
+    """Generator for connector-metro, the RRD db generator"""
+    
+    def generate(self):
+        """Generate files"""
+        for (hostname, ventilation) in self.mapping.iteritems():
+            
+            if 'connector-metro' not in ventilation:
+                continue
+            h = conf.hostsConf[hostname]
+            if not h.has_key("dataSources") or len(h['dataSources']) == 0:
+                continue
+            
+            filename = "%s/connector-metro.conf_genshi.py" \
+                       % ventilation['connector-metro']
+            
+            keys = h['dataSources'].keys()
+            keys.sort()
+            
+            ds_list = []
+            
+            for k2 in keys:
+                v2 = h['dataSources'][k2]
+                rrdname = urllib.quote(k2).strip()
+                ds_list.append({
+                         'host':hostname, 'type':v2['dsType'],
+                         'name':rrdname, 'label':v2["label"]
+                         })
+            
+            self.render('connector-metro/connector-metro.conf',
+                        {'host':'hosttest', 'dsType':'TESTTYPE',
+                         'confid':12345, 'dsName':'TESTNAME',
+                         'values':[1,2]},
+                        filename)
+
+
 # vim:set expandtab tabstop=4 shiftwidth=4:

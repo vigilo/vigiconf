@@ -232,9 +232,28 @@ class View:
         @type  filename: C{str}
         """
         destdir = os.path.dirname(filename)
-        if not os.path.exists(destdir):
+        if destdir != "" and not os.path.exists(destdir):
             os.makedirs(destdir)
     
+    def reventilate(self, app_key, apps):
+        """ reventile le mapping ventilation.
+        """
+        servers = {}
+        
+        for ventilation in self.mapping.values():
+            if app_key not in ventilation :
+                continue
+            for i in apps:
+                if i in ventilation:
+                    app_server = ventilation[app_key]
+                    
+                    if not servers.has_key(app_server):
+                        servers[app_server] = []
+                    if ventilation[i] not in servers[app_server]:
+                        servers[app_server].append(ventilation[i])
+        return servers
+        
+        
     def render(self, template, context, filename=None):
         """ génération de texte à partir d'un template genshi.
         
