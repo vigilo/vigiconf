@@ -611,7 +611,10 @@ class HostFactory(object):
         """
         xsd = os.path.join(os.path.dirname(__file__), "..", "..",
                            "validation", "xsd", "host.xsd")
-        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, source])
+        devnull = open("/dev/null", "w")
+        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, source],
+                    stdout=devnull, stderr=subprocess.STDOUT)
+        devnull.close()
         if result != 0:
             raise ParsingError("XML validation failed")
     

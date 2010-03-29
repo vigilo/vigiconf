@@ -97,7 +97,10 @@ class XMLLoader:
         @type  xsdfilename: C{str}
         """
         xsd = self._xsd_file_path
-        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, xmlfile])
+        devnull = open("/dev/null", "w")
+        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, xmlfile],
+                    stdout=devnull, stderr=subprocess.STDOUT)
+        devnull.close()
         if result != 0:
             raise ParsingError("XML validation failed (%s/%s)" % (xmlfile, xsd))
     
