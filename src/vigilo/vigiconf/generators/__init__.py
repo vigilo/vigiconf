@@ -2,6 +2,21 @@
 # -*- coding: utf-8 -*-
 """
 Generators for the Vigilo Config Manager
+
+En plus du moteur de template existant (classe de base Templator), il
+est possible maintenant d'utiliser le moteur de template Genshi au moyen
+de la classe de base View définie ici. A priori moins performante (en cours
+d'évaluation) cette 2nde solution devrait faciliter l'écriture des handlers
+python (views) et des fichiers templates.
+
+A noter également que le moteur genshi pour générer des fichiers textes possède
+2 syntaxes, mais que la dernière, pourtant conseillée (à-la-django) n'est
+peut-être pas mature (voir tests), donc préférer l'ancienne (avec des #
+et non pas des {%})
+
+Voir l'exemple de générateur connector-metro, qui possède les deux
+implémentations.
+
 """
 
 from __future__ import absolute_import
@@ -161,8 +176,12 @@ class GeneratorManager(object):
     """
 
     genclasses = []
+    genshi_enabled = False
 
     def __init__(self):
+        self.genshi_enabled = ('True' == settings["vigiconf"].get(
+                                                "enable_genshi_generation",
+                                                False) )
         if not self.genclasses:
             self.__load()
 
@@ -183,7 +202,8 @@ class GeneratorManager(object):
             if isinstance(genclass, (type, types.ClassType)):
                 if issubclass(genclass, Templator) and  name != "Templator":
                     self.genclasses.append(genclass)
-                if issubclass(genclass, View) and  name != "View":
+                if self.genshi_enabled and issubclass(genclass, View)\
+                                       and  name != "View":
                     self.genclasses.append(genclass)
             elif isinstance(genclass, (type, types.ModuleType)) and \
                     name not in globals():
@@ -235,22 +255,20 @@ class View:
         if destdir != "" and not os.path.exists(destdir):
             os.makedirs(destdir)
     
-    def reventilate(self, app_key, apps):
-        """ reventile le mapping ventilation.
+    def get_hosts_by_server(self, app_key):
+        """
         """
         servers = {}
-        
-        for ventilation in self.mapping.values():
-            if app_key not in ventilation :
+        for (hostname, ventilation) in self.mapping.iteritems():
+            if app_key not in ventilation:
                 continue
-            for i in apps:
-                if i in ventilation:
-                    app_server = ventilation[app_key]
-                    
-                    if not servers.has_key(app_server):
-                        servers[app_server] = []
-                    if ventilation[i] not in servers[app_server]:
-                        servers[app_server].append(ventilation[i])
+            app_server = ventilation[app_key]
+            fileName = "%s/%s/connector-metro.conf.py" \
+                       % (self.baseDir, app_server)
+            if not servers.has_key(app_server):
+                servers[app_server] = []
+            if hostname not in servers[app_server]:
+                servers[app_server].append(hostname)
         return servers
         
         
@@ -264,9 +282,10 @@ class View:
         if not filename:
             return stream.render()
         
-        self.create_dir_if_missing(filename)
+        filepath = os.path.join(self.baseDir, filename)
+        self.create_dir_if_missing(filepath)
         
-        fout = open(os.path.join(self.baseDir, filename), "w")
+        fout = open(filepath, "w")
         fout.write(stream.render())
         fout.close()
 

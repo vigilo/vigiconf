@@ -67,39 +67,39 @@ class ConnectorMetroTpl(Templator):
 from . import View
 
 class ConnectorMetroView(View):
-    """Generator for connector-metro, the RRD db generator"""
+    """Generator for connector-metro, the RRD db generator
+    
+    Version utilisant le moteur de template genshi de TurboGears
+    """
     
     def generate(self):
         """Generate files"""
-        for (hostname, ventilation) in self.mapping.iteritems():
+        hosts = {}
+        
+        servers = self.get_hosts_by_server('connector-metro')
+        
+        for server, hosts in servers.iteritems():
+            data_hosts = []
             
-            if 'connector-metro' not in ventilation:
-                continue
-            h = conf.hostsConf[hostname]
-            if not h.has_key("dataSources") or len(h['dataSources']) == 0:
-                continue
-            
-            filename = "%s/connector-metro.conf_genshi.py" \
-                       % ventilation['connector-metro']
-            
-            keys = h['dataSources'].keys()
-            keys.sort()
-            
-            ds_list = []
-            
-            for k2 in keys:
-                v2 = h['dataSources'][k2]
-                rrdname = urllib.quote(k2).strip()
-                ds_list.append({
-                         'host':hostname, 'type':v2['dsType'],
-                         'name':rrdname, 'label':v2["label"]
-                         })
-            
+            for hostname in hosts:
+                h = conf.hostsConf[hostname]
+                if not h.has_key("dataSources") or len(h['dataSources']) == 0:
+                    continue
+                keys = h['dataSources'].keys()
+                keys.sort()
+                
+                data_list = []
+                
+                for k2 in keys:
+                    v2 = h['dataSources'][k2]
+                    rrdname = urllib.quote(k2).strip()
+                    data_list.append({
+                             'type':v2['dsType'],
+                             'name':rrdname, 'label':v2["label"]
+                             })
+                data_hosts.append({'hostname':hostname, 'data':data_list})
+                
             self.render('connector-metro/connector-metro.conf',
-                        {'host':'hosttest', 'dsType':'TESTTYPE',
-                         'confid':12345, 'dsName':'TESTNAME',
-                         'values':[1,2]},
-                        filename)
-
-
-# vim:set expandtab tabstop=4 shiftwidth=4:
+                        {'hosts':data_hosts, 'confid':conf.confid},
+                        "%s/connector-metro.conf_genshi.py" % server)
+            
