@@ -10,8 +10,8 @@ loaders test.
 
 import os, unittest, shutil
 
-from vigilo.vigiconf.loaders import hostgrouploader,\
-                                    servicegrouploader,\
+from vigilo.vigiconf.loaders import hostgrouploader, \
+                                    servicegrouploader, \
                                     dependencyloader
 
 import vigilo.vigiconf.conf as conf
