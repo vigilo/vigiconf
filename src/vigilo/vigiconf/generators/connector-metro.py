@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # ConfigMgr RRD StoreMe daemon configuration file generator
@@ -18,7 +20,18 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-"""Generator for connector-metro, the RRD db generator"""
+"""Generator for connector-metro, the RRD db generator
+
+Ce générateur est implémenté avec les deux moteurs de templates
+- Templator (spécifique vigilo)
+- Genshi (fourni par TG)
+
+La génération Genshi est activée au moyen d'une option dans settings.ini:
+enable_genshi_generation = True
+
+Pour éviter une double génération la génération Templator est
+désactivée pour ce module en supprimant la classe de base Templator
+"""
 
 from __future__ import absolute_import
 
@@ -28,7 +41,9 @@ import urllib
 from .. import conf
 from . import Templator 
 
-class ConnectorMetroTpl(Templator):
+# générateur désactivé
+#class ConnectorMetroTpl(Templator):
+class ConnectorMetroTpl:
     """Generator for connector-metro, the RRD db generator"""
 
     def generate(self):
@@ -101,5 +116,5 @@ class ConnectorMetroView(View):
                 
             self.render('connector-metro/connector-metro.conf',
                         {'hosts':data_hosts, 'confid':conf.confid},
-                        "%s/connector-metro.conf_genshi.py" % server)
+                        "%s/connector-metro.conf.py" % server)
             

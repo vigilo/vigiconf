@@ -22,7 +22,7 @@ import vigilo.vigiconf.conf as conf
 
 class GenshiGenerationTest(unittest.TestCase):
     
-    expand_factor = 100
+    expand_factor = 200
     
     def setUp(self):
         reload_conf()
@@ -48,7 +48,11 @@ class GenshiGenerationTest(unittest.TestCase):
         """Call after every test case."""
         shutil.rmtree(self.tmpdir)       
     
-    def test_run_tpl(self):
+    # désactivé: utilisé pour un comparatif perfo
+    # pour réactiver, il faut aussi rajouter la classe de
+    # base Templator dans le générateur
+    # info: rapport perfo de 10 en faveur de Templator
+    def __t_est_run_tpl(self):
         classes =  list(self.manager.genclasses)
         for cl in classes:
             if cl.__name__ == 'ConnectorMetroTpl':
@@ -56,7 +60,11 @@ class GenshiGenerationTest(unittest.TestCase):
                 break
         self.assertEquals(len(self.manager.genclasses), 1)
         
+        t = time.time()
         self.manager.generate(self.basedir, self.mapping, self.validator)
+        dt = time.time() - t
+        os.system("echo templator %f >> time_templ.txt" % dt)
+    
     
     def test_run_genshi(self):
         classes =  list(self.manager.genclasses)
@@ -69,7 +77,7 @@ class GenshiGenerationTest(unittest.TestCase):
         t = time.time()
         self.manager.generate(self.basedir, self.mapping, self.validator)
         dt = time.time() - t
-        os.system("echo %f > time_genshi.txt" % dt)
+        os.system("echo genshi %f >> time_templ.txt" % dt)
         
 
 
