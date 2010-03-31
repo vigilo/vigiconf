@@ -17,10 +17,9 @@ from vigilo.vigiconf.loaders import hostgrouploader, \
 import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
 
-from vigilo.models import HostGroup, ServiceGroup, Host, SupItem
-from vigilo.models import LowLevelService, HighLevelService, Dependency
-#from vigilo.models.session import DBSession
-from vigilo.models.configure import DBSession
+from vigilo.models.tables import HostGroup, ServiceGroup, Host, SupItem
+from vigilo.models.tables import LowLevelService, HighLevelService, Dependency
+from vigilo.models.session import DBSession
 
 class XMLLoadersTest(unittest.TestCase):
 

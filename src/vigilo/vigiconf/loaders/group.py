@@ -20,9 +20,9 @@
 
 from .xmlloader import XMLLoader
 
-from vigilo.models import HostGroup, ServiceGroup
+from vigilo.models.tables import HostGroup, ServiceGroup
 
-from vigilo.models.configure import DBSession
+from vigilo.models.session import DBSession
 
 class GroupLoader(XMLLoader):
     """ Classe de base pour charger des fichiers XML groupes .

@@ -6,11 +6,14 @@ import tempfile
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
-from vigilo.models.configure import metadata, DBSession, configure_db
-from vigilo.models import VigiloServer
+from vigilo.models.configure import configure_db
+configure_db(settings['database'], 'sqlalchemy_',
+    settings['database']['db_basename'])
+
+from vigilo.models.session import metadata, DBSession
+from vigilo.models.tables import VigiloServer
 
 import vigilo.vigiconf.conf as conf
-
 
 
 def setUpModule(self):
@@ -48,14 +51,6 @@ def setup_tmpdir(dirpath=None):
 #Create an empty database before we start our tests for this module
 def setup_db():
     """Crée toutes les tables du modèle dans la BDD."""
-    from ConfigParser import SafeConfigParser
-    parser = SafeConfigParser()
-    parser.read('settings_tests.ini')
-
-    settings = dict(parser.items('database'))
-
-    configure_db(settings, 'sqlalchemy.')
-#    db_basename = settings['db_basename']
     metadata.create_all()
     
 #Teardown that database 

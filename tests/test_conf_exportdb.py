@@ -15,9 +15,9 @@ from vigilo.vigiconf.dbexportator import export_conf_db
 
 from confutil import setup_db, teardown_db, reload_conf
 
-from vigilo.models import Host, HostGroup
-from vigilo.models.configure import DBSession
-from vigilo.models import ConfItem, Service
+from vigilo.models.tables import Host, HostGroup
+from vigilo.models.session import DBSession
+from vigilo.models.tables import ConfItem, Service
 
 import transaction
 

@@ -44,7 +44,7 @@ from . import generators
 from .dbexportator import update_apps_db, export_conf_db, export_ventilation_DB
 
 # permet l'option commit/rollback de la base
-from vigilo.models.configure import DBSession
+from vigilo.models.session import DBSession
 import transaction
 
 __docformat__ = "epytext"

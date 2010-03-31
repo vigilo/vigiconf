@@ -32,13 +32,12 @@ import os
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
-#from vigilo.models.session import DBSession
-from vigilo.models.configure import DBSession
+from vigilo.models.session import DBSession
 
-from vigilo.models import Host, HostGroup, LowLevelService, ServiceGroup
-from vigilo.models import Graph, GraphGroup
-from vigilo.models import Application, Ventilation, VigiloServer
-from vigilo.models import ConfItem
+from vigilo.models.tables import Host, HostGroup, LowLevelService, ServiceGroup
+from vigilo.models.tables import Graph, GraphGroup
+from vigilo.models.tables import Application, Ventilation, VigiloServer
+from vigilo.models.tables import ConfItem
 
 from . import conf
 

@@ -29,9 +29,8 @@ This file is part of the Enterprise Edition
 from __future__ import absolute_import
 
 
-#from vigilo.models.session import DBSession
-from vigilo.models.configure import DBSession
-from vigilo.models import Host, Application, Ventilation, VigiloServer
+from vigilo.models.session import DBSession
+from vigilo.models.tables import Host, Application, Ventilation, VigiloServer
 
 from vigilo.common.conf import settings
 

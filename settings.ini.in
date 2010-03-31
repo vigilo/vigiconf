@@ -16,7 +16,7 @@ app_ventilation = nagios
 socket_nagios_to_vigilo = @LOCALSTATEDIR@/lib/vigilo/connector-nagios/send.sock
 
 [database]
-sqlalchemy.url = postgres://vigilo:vigilo@localhost/vigilo
+sqlalchemy_url = postgres://vigilo:vigilo@localhost/vigilo
 db_basename = vigilo_
 
 [groups_def]

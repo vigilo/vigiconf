@@ -17,8 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
-from vigilo.models import HostGroup, MapGroup
-from vigilo.models.configure import DBSession
+from vigilo.models.tables import HostGroup, MapGroup
+from vigilo.models.session import DBSession
 
 """
 Manager de cartes automatiques.

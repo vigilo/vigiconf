@@ -20,9 +20,9 @@
 
 from datetime import datetime
 
-from vigilo.models import Map, MapGroup, Host, LowLevelService
+from vigilo.models.tables import Map, MapGroup, Host, LowLevelService
 
-from vigilo.models.configure import DBSession
+from vigilo.models.session import DBSession
 
 from .xmlloader import XMLLoader
 
