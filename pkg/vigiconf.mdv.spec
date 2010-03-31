@@ -1,7 +1,7 @@
 %define module  vigiconf
 %define name    vigilo-%{module}
-%define version 1.36
-%define release 7
+%define version 1.37
+%define release 1%{?svn}
 
 Name:       %{name}
 Summary:    Configuration manager for the supervision system
