@@ -1,6 +1,6 @@
 %define module  vigiconf
 %define name    vigilo-%{module}
-%define version 1.37
+%define version 2.0.0
 %define release 1%{?svn}
 
 Name:       %{name}
