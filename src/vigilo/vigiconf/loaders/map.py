@@ -33,12 +33,15 @@ class MapLoader(XMLLoader):
     maps = {}
     node_mode = False
     submap_mode = False
-    groups = None
+    groups = []
     
     def start_element(self, tag):
         """ start element event handler
         """
-        if   tag == "map": self.start_map()
+        if   tag == "map":
+            if self._bloclist == ['maps', 'map']: self.start_map()
+            elif 'submaps' in self._bloclist: self.start_submap()
+            else: print self._bloclist
         elif tag == "nodes": self.node_mode = True
         elif tag == "host": self.start_host()
         elif tag == "service": pass
@@ -66,7 +69,10 @@ class MapLoader(XMLLoader):
     def end_element(self, tag):
         """ end element event handler
         """
-        if   tag == "map": self.end_map()
+        if   tag == "map":
+            if self._bloclist == ['maps', 'map']: self.end_map()
+            elif 'submaps' in self._bloclist: self.end_submap()
+            else: print self._bloclist
         elif tag == "nodes": self.node_mode = False
         elif tag == "host": self.end_host()
         elif tag == "service": pass
@@ -80,7 +86,7 @@ class MapLoader(XMLLoader):
         elif tag == "bg_repeat": pass
         elif tag == "bg_color": pass
         elif tag == "bg_image": pass
-        elif tag == "group": self.end_group()
+        elif tag == "group": pass
         elif tag == "maps": pass
         elif tag == "links": pass
         elif tag == "servicelink": pass
@@ -104,8 +110,12 @@ class MapLoader(XMLLoader):
                 background_position=self.bg_position,
                 background_repeat=self.bg_repeat
                 )
+        DBSession.add(map)
+        print self.title
         if len(self.groups) > 0:
             map.groups = list(self.groups)
+            DBSession.flush()
+        
         if self.mapid:
             self.maps[self.mapid] = map
         self.mapid = None
@@ -127,15 +137,19 @@ class MapLoader(XMLLoader):
         group = MapGroup.by_group_name(groupname)
         if not group:
             group = MapGroup(name=groupname)
+            DBSession.add(group)
         self.groups.append(group)
-    
-    def end_group(self):
-        pass
-    
+        
     def start_label(self):
         pass
     
     def end_label(self):
+        pass
+    
+    def start_submap(self):
+        pass
+    
+    def end_submap(self):
         pass
     
     def start_(self):
