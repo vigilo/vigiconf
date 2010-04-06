@@ -17,7 +17,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
-from vigilo.models.tables import HostGroup, MapGroup
+from datetime import datetime
+
+from vigilo.models.tables import HostGroup, MapGroup, Map
 from vigilo.models.session import DBSession
 
 """
@@ -48,7 +50,7 @@ class CartesAutoManager:
         """ traitement des hostgroups de haut niveau
         """
         if self.params['top_groups']['map_group']['generate']:
-            self.gen_map_topgroup(group, self.params['top_groups']['map_group'])
+            self.gen_map_topgroup(group, self.params['top_groups'])
     
     def process_mid_group(self, group):
         """ traitement des hostgroups de niveau intermédiaire
@@ -73,20 +75,36 @@ class CartesAutoManager:
                 self.process_leaf_group(g)
     
     def gen_map_topgroup(self, group, context):
-        for name in context['groups']:
+        # génération des MapGroup
+        for name in context['map_group']['groups']:
             gname = name % {'hostgroup':group.name}
             if not MapGroup.by_group_name(gname):
                 gmap = MapGroup(name=gname)
-                parent = context['parent']
+                parent = context['map_group']['parent']
                 if parent:
                     gmap.parent = MapGroup.by_group_name(parent)
                 DBSession.add(gmap)
         DBSession.flush()
-                
-            
+        
+        # génération des Map
+        if context['map']['generate']:
+            map = Map.by_map_title(group.name)
+            if map:
+                self.create_map(group.name, (group,), context['map']['defaults'])
+        DBSession.flush()
     
     def gen_map_midgroup(self, group, context):
         pass
     
     def gen_map_leafgroup(self, group, context):
         pass
+    
+    def create_map(self, title, groups, data):
+        map = Map(title=title, generated=True, groups=list(groups),
+                  mtime=datetime.now(),
+                  background_color=data['background_color'],
+                  background_image=data['background_image'],
+                  background_position=data['background_position'],
+                  background_repeat=data['background_repeat']
+                  )
+        DBSession.add(map)

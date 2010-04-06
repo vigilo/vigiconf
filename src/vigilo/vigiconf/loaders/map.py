@@ -138,7 +138,7 @@ class MapLoader(XMLLoader):
         if not self.node_mode:  raise Exception("host node must be in a nodes block.")
         self.host, self.name, self.id = (None,) * 3
         self.label = None
-        self.x, self.y, self.minimize = None*3
+        self.x, self.y, self.minimize = (None,) * 3
      
     def start_group(self):
         groupname = self.get_utext()
