@@ -31,9 +31,11 @@ class MapLoader(XMLLoader):
     do_validation = True
     
     maps = {}
+    hosts = {}
     node_mode = False
     submap_mode = False
     groups = []
+    label = None
     
     def start_element(self, tag):
         """ start element event handler
@@ -45,8 +47,9 @@ class MapLoader(XMLLoader):
         elif tag == "nodes": self.node_mode = True
         elif tag == "host": self.start_host()
         elif tag == "service": pass
-        elif tag == "label": self.start_label()
-        elif tag == "position": pass
+        elif tag == "label":
+            if 'host' in self._bloclist: self.label = self.get_utext()
+        elif tag == "position": self.start_position()
         elif tag == "icon": pass
         elif tag == "stateicon": pass
         elif tag == "submaps": self.submap_mode = True
@@ -76,7 +79,7 @@ class MapLoader(XMLLoader):
         elif tag == "nodes": self.node_mode = False
         elif tag == "host": self.end_host()
         elif tag == "service": pass
-        elif tag == "label": self.end_label()
+        elif tag == "label": pass
         elif tag == "position": pass
         elif tag == "icon": pass
         elif tag == "stateicon": pass
@@ -122,15 +125,20 @@ class MapLoader(XMLLoader):
         
     
     def start_host(self):
-        if not self.node_mode: return
+        if not self.node_mode: raise Exception("host node must be in a nodes block.")
         
-        name = self.get_attrib("name")
+        name = self.get_uattrib("name")
         id = self.get_attrib("id")
         host = Host.by_host_name(name)
+        if not host:
+            raise Exception("host %s does not exist" % name)
+        self.hosts[id] = host
     
     def end_host(self):
-        if not self.node_mode: return
-        host, name, id = (None,) * 3
+        if not self.node_mode:  raise Exception("host node must be in a nodes block.")
+        self.host, self.name, self.id = (None,) * 3
+        self.label = None
+        self.x, self.y, self.minimize = None*3
      
     def start_group(self):
         groupname = self.get_utext()
@@ -139,18 +147,17 @@ class MapLoader(XMLLoader):
             group = MapGroup(name=groupname)
             DBSession.add(group)
         self.groups.append(group)
-        
-    def start_label(self):
-        pass
-    
-    def end_label(self):
-        pass
     
     def start_submap(self):
         pass
     
     def end_submap(self):
         pass
+    
+    def start_position(self):
+        self.x = int(self.get_attrib("x"))
+        self.y = int(self.get_attrib("y"))
+        self.minimize = self.get_attrib("minimize") == 'true'
     
     def start_(self):
         pass
