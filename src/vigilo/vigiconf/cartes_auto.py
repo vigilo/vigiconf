@@ -75,6 +75,12 @@ class CartesAutoManager:
                 self.process_leaf_group(g)
     
     def gen_map_topgroup(self, group, context):
+        """ génération des entités liées à un groupe d'hosts de niveau supérieur.
+        
+        création d'un MapGroup de même nom que le groupe
+        création des MapGroups de niveau supérieur
+        création d'une Map portant le même nom que le groupe
+        """
         # génération des MapGroup
         for name in context['map_group']['groups']:
             gname = name % {'hostgroup':group.name}
@@ -84,13 +90,12 @@ class CartesAutoManager:
                 if parent:
                     gmap.parent = MapGroup.by_group_name(parent)
                 DBSession.add(gmap)
-        DBSession.flush()
-        
-        # génération des Map
-        if context['map']['generate']:
-            map = Map.by_map_title(group.name)
-            if map:
-                self.create_map(group.name, (group,), context['map']['defaults'])
+                
+                # génération des Map
+                if context['map']['generate']:
+                    map = Map.by_map_title(gmap.name)
+                    if not map:
+                        self.create_map(gname, (gmap,), context['map']['defaults'])
         DBSession.flush()
     
     def gen_map_midgroup(self, group, context):
@@ -100,11 +105,12 @@ class CartesAutoManager:
         pass
     
     def create_map(self, title, groups, data):
-        map = Map(title=title, generated=True, groups=list(groups),
+        map = Map(title=title, generated=True,
                   mtime=datetime.now(),
                   background_color=data['background_color'],
                   background_image=data['background_image'],
                   background_position=data['background_position'],
                   background_repeat=data['background_repeat']
                   )
+        map.groups = list(groups)
         DBSession.add(map)
