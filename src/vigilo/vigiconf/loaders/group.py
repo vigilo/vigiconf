@@ -20,7 +20,7 @@
 
 from .xmlloader import XMLLoader
 
-from vigilo.models.tables import HostGroup, ServiceGroup
+from vigilo.models.tables import SupItemGroup
 
 from vigilo.models.session import DBSession
 
@@ -36,16 +36,14 @@ class GroupLoader(XMLLoader):
     _classgroup = None
     _tag_group = None
     
-    def __init__(self, classgroup=None, tag_group=None, xsd_filename=None):
+    def __init__(self, tag_group=None, xsd_filename=None):
         """
-        @param classgroup Modèle (ex. HostGroup ou ServiceGroup)
-        @type  classgroup: C{class}
         @param tag_group balise xml "hostgroup" or "servicegroup"
         @type  tag_group: C{str}
         @param xsd_filename fichier schema xsd pour validation
         @type  xsd_filename: C{str}
         """
-        if classgroup: self._classgroup = classgroup
+        self._classgroup = SupItemGroup
         if tag_group: self._tag_group = tag_group
         if xsd_filename: self._xsd_filename = xsd_filename
         XMLLoader.__init__(self)
@@ -78,17 +76,17 @@ class GroupLoader(XMLLoader):
                                 DBSession.delete(group)
                                 continue
                             
-                            group.children = []
+                            group.remove_children()
                         
                         if current_parent:
-                            if group.parent:
-                                if group.parent.name != current_parent.name:
+                            if group.has_parent():
+                                if group.get_parent().name != current_parent.name:
                                     raise Exception(
                     "%s %s should have one parent (%s, %s)" %
                     (tag_group, group.name, group.parent.name,
                      current_parent.name)
                                         )
-                            group.parent = current_parent
+                            group.set_parent(current_parent)
                         # update parent stack
                         parent_stack.append(group)
                     elif elem.tag == "children":
@@ -114,7 +112,7 @@ class GroupLoader(XMLLoader):
 #   configuration des groupes d'hôtes : ajout/modification/suppression d'un
 #   groupe d'hôte
 class HostGroupLoader(GroupLoader):
-    _classgroup = HostGroup
+    _classgroup = SupItemGroup
     _tag_group = "hostgroup"
     _xsd_filename = "hostgroup.xsd"
     
@@ -122,7 +120,7 @@ class HostGroupLoader(GroupLoader):
         """ efface la totalité des entités de la base
         
         """
-        DBSession.query(HostGroup).delete()
+        DBSession.query(SupItemGroup).delete()
     
     def get_hosts_conf(self):
         """ reconstruit le dico hostsGroup v1
@@ -130,7 +128,7 @@ class HostGroupLoader(GroupLoader):
         TODO: refactoring
         """
         hostsgroups = {}
-        for g in DBSession.query(HostGroup).all():
+        for g in DBSession.query(SupItemGroup).all():
             hostsgroups[g.name] = g.name
         return hostsgroups
     
@@ -140,17 +138,17 @@ class HostGroupLoader(GroupLoader):
         TODO: refactoring
         """
         hgroups = {}
-        for top in HostGroup.get_top_groups():
+        for top in SupItemGroup.get_top_groups():
             hgroups[top.name] = self._get_children_hierarchy(top)
         return hgroups
     
     def _get_children_hierarchy(self, hostgroup):
         """ fonction récursive construisant un dictionnaire hiérarchique.
         """
-        if hostgroup.children == []:
+        if hostgroup.has_children():
             return 1
         hchildren = {}
-        for g in hostgroup.children:
+        for g in hostgroup.get_children():
             hchildren[g.name] = self._get_children_hierarchy(g)
         return hchildren
         
@@ -166,7 +164,7 @@ class HostGroupLoader(GroupLoader):
 #   configuration des règles de corrélations associé à un service de haut
 #     niveau : ajout/modification/suppression d'une règle de corrélation
 class ServiceGroupLoader(GroupLoader):
-    _classgroup = ServiceGroup
+    _classgroup = SupItemGroup
     _tag_group = "servicegroup"
     _xsd_filename = "servicegroup.xsd"
     
@@ -174,5 +172,5 @@ class ServiceGroupLoader(GroupLoader):
         """ efface la totalité des entités de la base
         
         """
-        DBSession.query(ServiceGroup).delete()
+        DBSession.query(SupItemGroup).delete()
 

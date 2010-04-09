@@ -34,7 +34,7 @@ settings.load_module(__name__)
 
 from vigilo.models.session import DBSession
 
-from vigilo.models.tables import Host, HostGroup, LowLevelService, ServiceGroup
+from vigilo.models.tables import Host, SupItemGroup, LowLevelService
 from vigilo.models.tables import Graph, GraphGroup
 from vigilo.models.tables import Application, Ventilation, VigiloServer
 from vigilo.models.tables import ConfItem
@@ -78,19 +78,19 @@ def export_conf_db():
                                           u'new_services')
     
     # add if needed these groups
-    if not HostGroup.by_group_name(group_newhosts_def):
-        DBSession.add(HostGroup(name=unicode(group_newhosts_def)))
+    if not SupItemGroup.by_group_name(group_newhosts_def):
+        DBSession.add(SupItemGroup(name=unicode(group_newhosts_def)))
     
-    if not ServiceGroup.by_group_name(group_newservices_def):
-        DBSession.add(ServiceGroup(name=unicode(group_newservices_def)))
-    group_newservices_def = ServiceGroup.by_group_name(group_newservices_def)
+    if not SupItemGroup.by_group_name(group_newservices_def):
+        DBSession.add(SupItemGroup(name=unicode(group_newservices_def)))
+    group_newservices_def = SupItemGroup.by_group_name(group_newservices_def)
     
     # hosts groups
     try:
         for name in hostsGroups.keys():
-            hg = HostGroup.by_group_name(name)
+            hg = SupItemGroup.by_group_name(name)
             if not hg:
-                hg = HostGroup(name=unicode(name))
+                hg = SupItemGroup(name=unicode(name))
             DBSession.add(hg)
         DBSession.flush()
     except:
@@ -110,7 +110,7 @@ def export_conf_db():
                 h.mainip = host['mainIP']
                 h.snmpport = host['port']
                 # add groups to host
-                h.groups = [HostGroup.by_group_name(host['serverGroup']), ]
+                h.groups = [SupItemGroup.by_group_name(host['serverGroup']), ]
             else:
                 # create host object
                 h = Host(name=unicode(hostname),
@@ -121,7 +121,7 @@ def export_conf_db():
                         snmpoidsperpdu=host['snmpOIDsPerPDU'], weight=1,
                         snmpversion=host['snmpVersion'])
                 DBSession.add(h)
-                h.groups = [HostGroup.by_group_name(group_newhosts_def), ]
+                h.groups = [SupItemGroup.by_group_name(group_newhosts_def), ]
             
             # low level services
             # TODO: implémenter les détails: op_dep, weight, command
@@ -154,7 +154,7 @@ def export_conf_db():
             
             
             for og in host['otherGroups']:
-                h.groups.append(HostGroup.by_group_name(og))
+                h.groups.append(SupItemGroup.by_group_name(og))
             
             # export graphes groups
             _export_host_graphgroups(host['graphGroups'], h)
@@ -208,7 +208,7 @@ def _export_host_graphgroups(graphgroups, h):
     for groupname, graphnames in graphgroups.iteritems():
         group = GraphGroup.by_group_name(groupname)
         if group:
-            group.children = [] # redundant with graph.groups = [] ?
+            group.remove_children() # redundant with graph.groups = [] ?
         else:
             group = GraphGroup(name=unicode(groupname))
             DBSession.add(group)

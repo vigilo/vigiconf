@@ -18,7 +18,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 """
-Data loaders for models like HostGroup, ServiceGroup, Dependency.
+Data loaders for models like SupItemGroup, Dependency.
 
 File format: XML
 Notice: some other models like Host have their own loader (confclasses)

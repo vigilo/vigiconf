@@ -17,7 +17,7 @@ from vigilo.vigiconf.loaders import hostgrouploader, \
 import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
 
-from vigilo.models.tables import HostGroup, ServiceGroup, Host, SupItem
+from vigilo.models.tables import SupItemGroup, SupItemGroup, Host, SupItem
 from vigilo.models.tables import LowLevelService, HighLevelService, Dependency
 from vigilo.models.session import DBSession
 
@@ -36,19 +36,19 @@ class XMLLoadersTest(unittest.TestCase):
     def test_load_hostgroups(self):
         hostgrouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         
-        g = HostGroup.by_group_name('root_group')
+        g = SupItemGroup.by_group_name('root_group')
         self.assertTrue(g, "root_group created.")
-        n = len(g.children)
+        n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup has 3 children (%d)" % n)
         
-        g = HostGroup.by_group_name('root_group3')
+        g = SupItemGroup.by_group_name('root_group3')
         self.assertTrue(g, "root_group3 created.")
-        n = len(g.children)
+        n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup3 has 3 children (%d)" % n)
         
-        g = HostGroup.by_group_name('root_group2')
+        g = SupItemGroup.by_group_name('root_group2')
         self.assertTrue(g, "root_group2 created.")
-        n = len(g.children)
+        n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup2 has 3 children (%d)" % n)
         
     def test_load_hostgroups_ko(self):
@@ -59,20 +59,20 @@ class XMLLoadersTest(unittest.TestCase):
     def test_load_servicegroups(self):
         servicegrouploader.load_dir('tests/testdata/xsd/servicegroups/ok')
         
-        root_group1 = ServiceGroup.by_group_name('root_group1')
+        root_group1 = SupItemGroup.by_group_name('root_group1')
         self.assertTrue(root_group1, "root_group1 created.")
         
-        self.assertEquals(len(root_group1.children), 3, "root group1 has 3 children")
+        self.assertEquals(len(root_group1.get_children()), 3, "root group1 has 3 children")
         
-        root_group2 = ServiceGroup.by_group_name('root_group2')
+        root_group2 = SupItemGroup.by_group_name('root_group2')
         self.assertTrue(root_group2, "root_group2 created.")
         
-        self.assertEquals(len(root_group2.children), 3, "root group2 has 3 children")
+        self.assertEquals(len(root_group2.get_children()), 3, "root group2 has 3 children")
         
-        root_group = ServiceGroup.by_group_name('root_group')
+        root_group = SupItemGroup.by_group_name('root_group')
         self.assertTrue(root_group, "root_group created.")
         
-        self.assertEquals(len(root_group.children), 3, "root group has 3 children")
+        self.assertEquals(len(root_group.get_children()), 3, "root group has 3 children")
         
     def test_load_dependencies(self):
         # let's create hosts and services
@@ -296,6 +296,7 @@ class XMLLoadersTest(unittest.TestCase):
         """
         hostgrouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         gh = hostgrouploader.get_groups_hierarchy()
+        print gh
         self.assertEquals(len(gh.keys()), 3, "3 top hostgroups")
         self.assertEquals(gh["root_group3"]["hgroup31"], 1)
         self.assertEquals(gh["root_group3"]["hgroup33"]["Linux servers 3"], 1)

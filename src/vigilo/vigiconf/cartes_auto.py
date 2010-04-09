@@ -19,8 +19,11 @@
 ################################################################################
 from datetime import datetime
 
-from vigilo.models.tables import HostGroup, MapGroup, Map
+from vigilo.models.tables import SupItemGroup, MapGroup, Map
+from vigilo.models.tables import MapNodeHost
 from vigilo.models.session import DBSession
+
+from sqlalchemy import and_
 
 """
 Manager de cartes automatiques.
@@ -42,7 +45,7 @@ class CartesAutoManager:
     def process(self):
         """ lance la génération des cartes auto
         """
-        for top in HostGroup.get_top_groups():
+        for top in SupItemGroup.get_top_groups():
             self.process_top_group(top)
             self._process_children(top)
             
@@ -67,8 +70,8 @@ class CartesAutoManager:
     def _process_children(self, group):
         """ méthode récursive pour traiter les hiérarchies de groupes
         """
-        for g in group.children:
-            if len(g.children) > 0:
+        for g in group.get_children():
+            if g.has_children():
                 self.process_mid_group(g)
                 self._process_children(g)          
             else:
@@ -94,8 +97,14 @@ class CartesAutoManager:
                 # génération des Map
                 if context['map']['generate']:
                     map = Map.by_map_title(gmap.name)
+                    created = False
                     if not map:
-                        self.create_map(gname, (gmap,), context['map']['defaults'])
+                        map = self.create_map(gname, (gmap,), context['map']['defaults'])
+                        created = True
+                    if map.generated:
+                        # on gère le contenu uniquement pour les cartes auto
+                        self.populate_map(map, group, context['map']['defaults'], created=created)
+                        
         DBSession.flush()
     
     def gen_map_midgroup(self, group, context):
@@ -105,6 +114,8 @@ class CartesAutoManager:
         pass
     
     def create_map(self, title, groups, data):
+        """ création d'une carte
+        """
         map = Map(title=title, generated=True,
                   mtime=datetime.now(),
                   background_color=data['background_color'],
@@ -114,3 +125,39 @@ class CartesAutoManager:
                   )
         map.groups = list(groups)
         DBSession.add(map)
+        return map
+    
+    def populate_map(self, map, hostgroup, data, created=True):
+        """ ajout de contenu dans une carte
+        """
+        # ajout des nodes hosts
+        hosts = list(hostgroup.get_hosts())
+        for host in hosts:
+            # on regarde si un nodeexiste
+            nodes = DBSession.query(MapNodeHost).filter(
+                                            and_(MapNodeHost.map == map,
+                                                 MapNodeHost.host == host)
+                                            ).all()
+            if not nodes:
+                node = MapNodeHost(label=host.name,
+                                   map=map,
+                                   host=host,
+                                   hosticon=data['hosticon'],
+                                   hoststateicon=data['hoststateicon'])
+                DBSession.add(node)
+            else:
+                if len(nodes) > 1:
+                    raise Exception("host has more than one node in a map")
+                # on ne fait rien sur ls éléments présents
+        
+        # on supprime les éléments qui ne font pas partie des éléments
+        # qu'on devrait ajouter (on fait ça seulement pour les cartes auto)
+        if map.generated:
+            nodes = DBSession.query(MapNodeHost)\
+                        .filter(MapNodeHost.map == map)
+            # nodes dont les hosts ne font plus partie du groupe hostgroup
+            for node in nodes:
+                if not node.host in hosts:
+                    DBSession.delete(node)
+                
+                

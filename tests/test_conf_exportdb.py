@@ -15,7 +15,7 @@ from vigilo.vigiconf.dbexportator import export_conf_db
 
 from confutil import setup_db, teardown_db, reload_conf
 
-from vigilo.models.tables import Host, HostGroup
+from vigilo.models.tables import Host, SupItemGroup
 from vigilo.models.session import DBSession
 from vigilo.models.tables import ConfItem, Service
 
@@ -42,7 +42,7 @@ class ExportDBTest(unittest.TestCase):
         # check host groups
         nb = len(conf.hostsGroups.keys())
         # 2 groups created for new hosts and services (see settings)
-        nbdb = DBSession.query(HostGroup).count()
+        nbdb = DBSession.query(SupItemGroup).count()
         self.assertEquals(nb, nbdb, "nb hostgroups conf:%d db:%d" % (nb, nbdb))
         
         # check if localhost exists in db
