@@ -3,9 +3,9 @@ from test_xsdutil import XSDTest
 class HostGroupXSD(XSDTest):
     """ Test of the hostgroup.xsd file.
     
-    The hostgroup.xsd file is used to validate host groups xml files"""
+    The group.xsd file is used to validate host/service groups xml files"""
     
-    xsd_file = "src/vigilo/vigiconf/validation/xsd/hostgroup.xsd"
+    xsd_file = "src/vigilo/vigiconf/validation/xsd/group.xsd"
     
     xml_ok_files = {"tests/testdata/xsd/hostgroups/ok":[
                                       "hostgroups.xml",
