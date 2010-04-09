@@ -91,7 +91,7 @@ class CartesAutoManager:
                 gmap = MapGroup(name=gname)
                 parent = context['map_group']['parent']
                 if parent:
-                    gmap.parent = MapGroup.by_group_name(parent)
+                    gmap.set_parent(MapGroup.by_group_name(parent))
                 DBSession.add(gmap)
                 
                 # génération des Map

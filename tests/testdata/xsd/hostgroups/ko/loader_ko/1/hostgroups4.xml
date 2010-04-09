@@ -2,25 +2,25 @@
 
 <!-- invalid for loader: Linux servers 4 should have one parent -->
 
-<hostgroups>
+<groups>
 
-	<hostgroup name="root_group4" >
+	<group name="root_group4" >
 		<children>
 		
-			<hostgroup name="hgroup41"/>
-			<hostgroup name="hgroup42"/>
+			<group name="hgroup41"/>
+			<group name="hgroup42"/>
 		
-			<hostgroup name="Linux servers 4" />
+			<group name="Linux servers 4" />
 
 		</children>
-	</hostgroup>
-	<hostgroup name="root_group4b" >
+	</group>
+	<group name="root_group4b" >
 		<children>
 		
-			<hostgroup name="hgroup41b"/>
-			<hostgroup name="Linux servers 4" />
+			<group name="hgroup41b"/>
+			<group name="Linux servers 4" />
 
 		</children>
-	</hostgroup>
+	</group>
 
-</hostgroups>
+</groups>

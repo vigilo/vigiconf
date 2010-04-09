@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<!--
+# VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
+#   configurations de la supervision en mode CLI
+#
+#   configuration des groupes d'hôtes : ajout/modification/suppression d'un
+#   groupe d'hôte
+
+# N°1.VIGILO_EXIG_VIGILO_CONFIGURATION_0030 : Interface programmatique de
+#   configuration
+#   mise à jour de la totalité de la configuration via l'interface programmatique
+#     pour l'ensemble des configurations
+-->
+
+
+<xs:element name="group">
+	  <xs:complexType>
+	  
+	    <xs:sequence>
+	    	
+	    	<xs:element maxOccurs="1" minOccurs="0" name="children">
+			  <xs:complexType>
+				<xs:sequence>
+				
+					<!-- group is recursive -->
+					
+	    			<xs:element maxOccurs="unbounded" minOccurs="1" ref="group"/>
+			     </xs:sequence>
+			  </xs:complexType>
+	    	</xs:element>
+	    	
+  	    </xs:sequence>
+  	    
+    	<xs:attribute name="name" type="xs:string" use="required"/>
+    	
+	  </xs:complexType>
+
+</xs:element> 
+
+
+<xs:element name="groups">
+  <xs:complexType>
+	<xs:sequence>
+		
+		
+		<xs:element maxOccurs="unbounded" minOccurs="1" ref="group"/>
+		
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>

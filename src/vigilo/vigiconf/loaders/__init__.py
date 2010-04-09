@@ -19,13 +19,12 @@
 ################################################################################
 from xmlloader import *
 
-from group import HostGroupLoader, ServiceGroupLoader
+from group import GroupLoader
 from dependency import DependencyLoader
 from hlservice import HLServiceLoader
 from map import MapLoader
 
-hostgrouploader    = HostGroupLoader()
-servicegrouploader = ServiceGroupLoader()
+grouploader    = GroupLoader()
 dependencyloader = DependencyLoader()
 hlserviceloader = HLServiceLoader()
 maploader = MapLoader()

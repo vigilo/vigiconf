@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<groups>
+
+	<group name="root_host_group" >
+		<children>
+		
+			<group name="P-F"/>
+			<group name="Servers"/>
+			<group name="Telecom" />
+
+			<group name="Linux servers" />
+			<group name="Windows servers" />
+			<group name="Switches" />
+			<group name="Firewalls" />
+			<group name="Routers" />
+			<group name="Modems" />
+			<group name="AIX servers" />
+			<group name="Solaris servers" />
+			<group name="AS400 servers" />
+			<group name="CISCO devices" />
+			<group name="Nokia firewalls" />
+			<group name="NetApp proxies" />
+			<group name="Nortel devices" />
+			<group name="Netware servers" />
+		</children>
+	</group>
+
+</groups>

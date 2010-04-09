@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 
-<hostgroups>
+<groups>
 	<!-- existing group -->
-	<hostgroup name="hgroup1"/>
+	<group name="hgroup1"/>
 	
 	<!-- a new group group -->
-	<hostgroup name="Linux servers new"/>
-</hostgroups>
+	<group name="Linux servers new"/>
+</groups>

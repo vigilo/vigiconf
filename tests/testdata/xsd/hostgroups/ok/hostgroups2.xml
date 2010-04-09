@@ -1,25 +1,25 @@
 <?xml version="1.0"?>
 
-<hostgroups>
+<groups>
 
-	<hostgroup name="root_group2" >
+	<group name="root_group2" >
 		<children>
 		
-			<hostgroup name="hgroup21"/>
-			<hostgroup name="hgroup22"/>
+			<group name="hgroup21"/>
+			<group name="hgroup22"/>
 		
-			<hostgroup name="hgroup23" >
+			<group name="hgroup23" >
 				<children>
 				
-					<hostgroup name="hgroup231"/>
-					<hostgroup name="hgroup232"/>
+					<group name="hgroup231"/>
+					<group name="hgroup232"/>
 				
-					<hostgroup name="Linux servers 2" />
+					<group name="Linux servers 2" />
 		
 				</children>
-			</hostgroup>
+			</group>
 
 		</children>
-	</hostgroup>
+	</group>
 
-</hostgroups>
+</groups>

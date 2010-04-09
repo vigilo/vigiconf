@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<groups>
+
+	<group name="hlservices_group" >
+		
+		<children>
+		
+			<group name="hlsgroup1"/>
+			<group name="hlsgroup2"/>
+			
+		</children>
+	</group>
+
+</groups>

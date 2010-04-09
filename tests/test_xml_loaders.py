@@ -10,8 +10,7 @@ loaders test.
 
 import os, unittest, shutil
 
-from vigilo.vigiconf.loaders import hostgrouploader, \
-                                    servicegrouploader, \
+from vigilo.vigiconf.loaders import grouploader, \
                                     dependencyloader
 
 import vigilo.vigiconf.conf as conf
@@ -34,7 +33,7 @@ class XMLLoadersTest(unittest.TestCase):
 
         
     def test_load_hostgroups(self):
-        hostgrouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
+        grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         
         g = SupItemGroup.by_group_name('root_group')
         self.assertTrue(g, "root_group created.")
@@ -54,25 +53,7 @@ class XMLLoadersTest(unittest.TestCase):
     def test_load_hostgroups_ko(self):
         basedir = 'tests/testdata/xsd/hostgroups/ko/loader_ko'
         
-        self.assertRaises(Exception, hostgrouploader.load_dir, '%s/1' % basedir)
-        
-    def test_load_servicegroups(self):
-        servicegrouploader.load_dir('tests/testdata/xsd/servicegroups/ok')
-        
-        root_group1 = SupItemGroup.by_group_name('root_group1')
-        self.assertTrue(root_group1, "root_group1 created.")
-        
-        self.assertEquals(len(root_group1.get_children()), 3, "root group1 has 3 children")
-        
-        root_group2 = SupItemGroup.by_group_name('root_group2')
-        self.assertTrue(root_group2, "root_group2 created.")
-        
-        self.assertEquals(len(root_group2.get_children()), 3, "root group2 has 3 children")
-        
-        root_group = SupItemGroup.by_group_name('root_group')
-        self.assertTrue(root_group, "root_group created.")
-        
-        self.assertEquals(len(root_group.get_children()), 3, "root group has 3 children")
+        self.assertRaises(Exception, grouploader.load_dir, '%s/1' % basedir)
         
     def test_load_dependencies(self):
         # let's create hosts and services
@@ -290,12 +271,12 @@ class XMLLoadersTest(unittest.TestCase):
         self.assertRaises(Exception, dependencyloader.load_dir, "%s/4" % basedir)
         
     def test_hostgroups_hierarchy(self):
-        """ Test de hostgrouploader.get_groups_hierarchy().
+        """ Test de grouploader.get_groups_hierarchy().
         
         réimplémentation avec db du dico python conf.groupsHierarchy
         """
-        hostgrouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
-        gh = hostgrouploader.get_groups_hierarchy()
+        grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
+        gh = grouploader.get_groups_hierarchy()
         print gh
         self.assertEquals(len(gh.keys()), 3, "3 top hostgroups")
         self.assertEquals(gh["root_group3"]["hgroup31"], 1)

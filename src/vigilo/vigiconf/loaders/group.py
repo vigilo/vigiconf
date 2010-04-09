@@ -32,9 +32,9 @@ class GroupLoader(XMLLoader):
     classe de base.
     """
     
-    # should be set in subclass
-    _classgroup = None
-    _tag_group = None
+    _classgroup = SupItemGroup
+    _tag_group = "group"
+    _xsd_filename = "group.xsd"
     
     def __init__(self, tag_group=None, xsd_filename=None):
         """
@@ -47,6 +47,43 @@ class GroupLoader(XMLLoader):
         if tag_group: self._tag_group = tag_group
         if xsd_filename: self._xsd_filename = xsd_filename
         XMLLoader.__init__(self)
+
+    
+    def delete_all(self):
+        """ efface la totalité des entités de la base
+        
+        """
+        DBSession.query(SupItemGroup).delete()
+    
+    def get_hosts_conf(self):
+        """ reconstruit le dico hostsGroup v1
+        
+        TODO: refactoring
+        """
+        hostsgroups = {}
+        for g in DBSession.query(SupItemGroup).all():
+            hostsgroups[g.name] = g.name
+        return hostsgroups
+    
+    def get_groups_hierarchy(self):
+        """ reconstruit le dico groupsHierarchy v1
+        
+        TODO: refactoring
+        """
+        hgroups = {}
+        for top in SupItemGroup.get_top_groups():
+            hgroups[top.name] = self._get_children_hierarchy(top)
+        return hgroups
+    
+    def _get_children_hierarchy(self, hostgroup):
+        """ fonction récursive construisant un dictionnaire hiérarchique.
+        """
+        if not hostgroup.has_children():
+            return 1
+        hchildren = {}
+        for g in hostgroup.get_children():
+            hchildren[g.name] = self._get_children_hierarchy(g)
+        return hchildren
 
     
     def load(self, path):
@@ -145,7 +182,7 @@ class HostGroupLoader(GroupLoader):
     def _get_children_hierarchy(self, hostgroup):
         """ fonction récursive construisant un dictionnaire hiérarchique.
         """
-        if hostgroup.has_children():
+        if not hostgroup.has_children():
             return 1
         hchildren = {}
         for g in hostgroup.get_children():

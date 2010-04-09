@@ -42,8 +42,7 @@ from vigilo.models.tables import ConfItem
 from . import conf
 
 # chargement de données xml
-from vigilo.vigiconf.loaders import hostgrouploader,\
-                                    servicegrouploader,\
+from vigilo.vigiconf.loaders import grouploader,\
                                     dependencyloader,\
                                     hlserviceloader
 
@@ -171,15 +170,12 @@ def export_conf_db():
     
     confdir = settings['vigiconf'].get('confdir')
     # hiérarchie groupes hosts (fichier xml)
-    hostgrouploader.load_dir(os.path.join(confdir, 'hostgroups'), delete_all=True)
+    grouploader.load_dir(os.path.join(confdir, 'groups'), delete_all=True)
     
     # TODO: refactoring à prévoir
     # les groupes se chargent maintenant avec loader XML
-    conf.hostsGroups = hostgrouploader.get_hosts_conf()
-    conf.groupsHierarchy = hostgrouploader.get_groups_hierarchy()
-    
-    # hiérarchies groupes services
-    servicegrouploader.load_dir(os.path.join(confdir, 'servicegroups'), delete_all=True)
+    conf.hostsGroups = grouploader.get_hosts_conf()
+    conf.groupsHierarchy = grouploader.get_groups_hierarchy()
     
     # high level services
     hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'), delete_all=True)

@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 
-<hostgroup name="not_authorized" />
+<group name="not_authorized" />
 
-<hostgroups>
+<groups>
 
-	<hostgroup name="root_group" >
+	<group name="root_group" >
 		<children>
 		
-			<hostgroup name="hgroup1"/>
-			<hostgroup name="hgroup2"/>
+			<group name="hgroup1"/>
+			<group name="hgroup2"/>
 		
-			<hostgroup name="Linux servers" />
+			<group name="Linux servers" />
 
 		</children>
-	</hostgroup>
+	</group>
 
-</hostgroups>
+</groups>
