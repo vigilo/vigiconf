@@ -188,8 +188,8 @@ def export_conf_db():
     dependencyloader.detect_change()
     
     # on détruit les groupes spéciaux
-    del group_newhosts_def
-    del group_newservices_def
+    DBSession.delete(group_newhosts_def)
+    DBSession.delete(group_newservices_def)
     DBSession.flush()
 
 def _export_host_graphgroups(graphgroups, h):

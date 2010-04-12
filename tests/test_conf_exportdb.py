@@ -41,8 +41,9 @@ class ExportDBTest(unittest.TestCase):
         export_conf_db()
         # check host groups
         nb = len(conf.hostsGroups.keys())
-        # 2 groups created for new hosts and services (see settings)
+        
         nbdb = DBSession.query(SupItemGroup).count()
+        for g in DBSession.query(SupItemGroup).all(): print g.name
         self.assertEquals(nb, nbdb, "nb hostgroups conf:%d db:%d" % (nb, nbdb))
         
         # check if localhost exists in db
