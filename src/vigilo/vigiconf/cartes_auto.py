@@ -59,13 +59,13 @@ class CartesAutoManager:
         """ traitement des hostgroups de niveau intermédiaire
         """
         if self.params['mid_groups']['map_group']['generate']:
-            self.gen_map_midgroup(group, self.params['mid_groups']['map_group'])
+            self.gen_map_midgroup(group, self.params['mid_groups'])
     
     def process_leaf_group(self, group):
         """ traitement des hostgroups de niveau final
         """
         if self.params['leaf_groups']['map_group']['generate']:
-            self.gen_map_leafgroup(group, self.params['leaf_groups']['map_group'])
+            self.gen_map_leafgroup(group, self.params['leaf_groups'])
     
     def _process_children(self, group):
         """ méthode récursive pour traiter les hiérarchies de groupes
@@ -87,6 +87,10 @@ class CartesAutoManager:
         # génération des MapGroup
         for name in context['map_group']['groups']:
             gname = name % {'hostgroup':group.name}
+            
+            if not context['map_group'].has_key('parent'):
+                context['map_group']['parent'] = None
+                
             if not MapGroup.by_group_name(gname):
                 gmap = MapGroup(name=gname)
                 parent = context['map_group']['parent']
@@ -111,7 +115,8 @@ class CartesAutoManager:
         pass
     
     def gen_map_leafgroup(self, group, context):
-        pass
+        # on fait comme pour les top groups
+        self.gen_map_topgroup(group, context)
     
     def create_map(self, title, groups, data):
         """ création d'une carte

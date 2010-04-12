@@ -70,6 +70,16 @@ def export_conf_db():
     hostsConf = conf.hostsConf
     hostsGroups = conf.hostsGroups
     
+    confdir = settings['vigiconf'].get('confdir')
+    # hiérarchie groupes hosts (fichier xml)
+    # en premier, pour éviter d'effacer les groupes déclarés dans les hosts.
+    grouploader.load_dir(os.path.join(confdir, 'groups'), delete_all=True)
+    
+    # TODO: refactoring à prévoir
+    # les groupes se chargent maintenant avec loader XML
+    conf.hostsGroups = grouploader.get_hosts_conf()
+    conf.groupsHierarchy = grouploader.get_groups_hierarchy()
+    
     # groups for new entities
     group_newhosts_def = settings['vigiconf'].get('GROUPS_DEF_NEW_HOSTS',
                                           u'new_hosts_to_ventilate')
@@ -79,7 +89,8 @@ def export_conf_db():
     # add if needed these groups
     if not SupItemGroup.by_group_name(group_newhosts_def):
         DBSession.add(SupItemGroup(name=unicode(group_newhosts_def)))
-    
+    group_newhosts_def = SupItemGroup.by_group_name(group_newhosts_def)
+        
     if not SupItemGroup.by_group_name(group_newservices_def):
         DBSession.add(SupItemGroup(name=unicode(group_newservices_def)))
     group_newservices_def = SupItemGroup.by_group_name(group_newservices_def)
@@ -120,7 +131,7 @@ def export_conf_db():
                         snmpoidsperpdu=host['snmpOIDsPerPDU'], weight=1,
                         snmpversion=host['snmpVersion'])
                 DBSession.add(h)
-                h.groups = [SupItemGroup.by_group_name(group_newhosts_def), ]
+                h.groups = [group_newhosts_def, ]
             
             # low level services
             # TODO: implémenter les détails: op_dep, weight, command
@@ -168,15 +179,6 @@ def export_conf_db():
     
     DBSession.flush()
     
-    confdir = settings['vigiconf'].get('confdir')
-    # hiérarchie groupes hosts (fichier xml)
-    grouploader.load_dir(os.path.join(confdir, 'groups'), delete_all=True)
-    
-    # TODO: refactoring à prévoir
-    # les groupes se chargent maintenant avec loader XML
-    conf.hostsGroups = grouploader.get_hosts_conf()
-    conf.groupsHierarchy = grouploader.get_groups_hierarchy()
-    
     # high level services
     hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'), delete_all=True)
     
@@ -184,6 +186,11 @@ def export_conf_db():
     dependencyloader.reset_change()
     dependencyloader.load_dir(os.path.join(confdir, 'dependencies'), delete_all=True)
     dependencyloader.detect_change()
+    
+    # on détruit les groupes spéciaux
+    del group_newhosts_def
+    del group_newservices_def
+    DBSession.flush()
 
 def _export_host_graphgroups(graphgroups, h):
     """
