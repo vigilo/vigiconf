@@ -20,7 +20,7 @@
 from datetime import datetime
 
 from vigilo.models.tables import SupItemGroup, MapGroup, Map
-from vigilo.models.tables import MapNodeHost
+from vigilo.models.tables import MapNodeHost, MapNodeService
 from vigilo.models.session import DBSession
 
 from sqlalchemy import and_
@@ -132,13 +132,13 @@ class CartesAutoManager:
         DBSession.add(map)
         return map
     
-    def populate_map(self, map, hostgroup, data, created=True):
+    def populate_map(self, map, group, data, created=True):
         """ ajout de contenu dans une carte
         """
         # ajout des nodes hosts
-        hosts = list(hostgroup.get_hosts())
+        hosts = list(group.get_hosts())
         for host in hosts:
-            # on regarde si un nodeexiste
+            # on regarde si un node existe
             nodes = DBSession.query(MapNodeHost).filter(
                                             and_(MapNodeHost.map == map,
                                                  MapNodeHost.host == host)
@@ -155,14 +155,42 @@ class CartesAutoManager:
                     raise Exception("host has more than one node in a map")
                 # on ne fait rien sur ls éléments présents
         
+        # ajout des nodes services
+        services = list(group.get_services())
+        for service in services:
+            # on regarde si un node existe
+            nodes = DBSession.query(MapNodeService).filter(
+                                        and_(MapNodeService.map == map,
+                                             MapNodeService.service == service)
+                                            ).all()
+            
+            if not nodes:
+                node = MapNodeService(label=service.servicename,
+                                    map=map,
+                                    service=service,
+                                    serviceicon=data['serviceicon'],
+                                    servicestateicon=data['servicestateicon'])
+                DBSession.add(node)
+            else:
+                if len(nodes) > 1:
+                    raise Exception("service has more than one node in a map")
+                # on ne fait rien sur ls éléments présents
+        
         # on supprime les éléments qui ne font pas partie des éléments
         # qu'on devrait ajouter (on fait ça seulement pour les cartes auto)
         if map.generated:
             nodes = DBSession.query(MapNodeHost)\
                         .filter(MapNodeHost.map == map)
-            # nodes dont les hosts ne font plus partie du groupe hostgroup
+            # nodes dont les hosts ne font plus partie du groupe group
             for node in nodes:
                 if not node.host in hosts:
+                    DBSession.delete(node)
+            
+            nodes = DBSession.query(MapNodeService)\
+                        .filter(MapNodeService.map == map)
+            # nodes dont les services ne font plus partie du groupe group
+            for node in nodes:
+                if not node.service in services:
                     DBSession.delete(node)
                 
                 
