@@ -20,7 +20,7 @@
 from datetime import datetime
 
 from vigilo.models.tables import SupItemGroup, MapGroup, Map
-from vigilo.models.tables import MapNodeHost, MapNodeService
+from vigilo.models.tables import MapNodeHost, MapNodeHls
 from vigilo.models.session import DBSession
 
 from sqlalchemy import and_
@@ -159,13 +159,13 @@ class CartesAutoManager:
         services = list(group.get_services())
         for service in services:
             # on regarde si un node existe
-            nodes = DBSession.query(MapNodeService).filter(
-                                        and_(MapNodeService.map == map,
-                                             MapNodeService.service == service)
+            nodes = DBSession.query(MapNodeHls).filter(
+                                        and_(MapNodeHls.map == map,
+                                             MapNodeHls.service == service)
                                             ).all()
             
             if not nodes:
-                node = MapNodeService(label=service.servicename,
+                node = MapNodeHls(label=service.servicename,
                                     map=map,
                                     service=service,
                                     serviceicon=data['serviceicon'],
@@ -186,8 +186,8 @@ class CartesAutoManager:
                 if not node.host in hosts:
                     DBSession.delete(node)
             
-            nodes = DBSession.query(MapNodeService)\
-                        .filter(MapNodeService.map == map)
+            nodes = DBSession.query(MapNodeHls)\
+                        .filter(MapNodeHls.map == map)
             # nodes dont les services ne font plus partie du groupe group
             for node in nodes:
                 if not node.service in services:
