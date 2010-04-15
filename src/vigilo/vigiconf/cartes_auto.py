@@ -20,7 +20,7 @@
 from datetime import datetime
 
 from vigilo.models.tables import SupItemGroup, MapGroup, Map
-from vigilo.models.tables import MapNodeHost, MapNodeHls
+from vigilo.models.tables import MapNodeHost, MapNodeHls, MapNodeLls
 from vigilo.models.session import DBSession
 
 from sqlalchemy import and_
@@ -154,6 +154,25 @@ class CartesAutoManager:
                 if len(nodes) > 1:
                     raise Exception("host has more than one node in a map")
                 # on ne fait rien sur ls éléments présents
+            
+            # services de bas niveau liés à l'hôte
+            for lls in host.services:
+                # on regarde si un node existe
+                nodes = DBSession.query(MapNodeLls).filter(
+                                                and_(MapNodeLls.map == map,
+                                                     MapNodeLls.service == lls)
+                                                ).all()
+                if not nodes:
+                    node = MapNodeLls(label=lls.servicename,
+                                        map=map,
+                                        service=lls,
+                                        serviceicon=data['lls_icon'],
+                                        servicestateicon=data['lls_stateicon'])
+                    DBSession.add(node)
+                else:
+                    if len(nodes) > 1:
+                        raise Exception("service lls has more than one node in a map")
+                    # on ne fait rien sur ls éléments présents
         
         # ajout des nodes services
         services = list(group.get_services())
@@ -168,12 +187,12 @@ class CartesAutoManager:
                 node = MapNodeHls(label=service.servicename,
                                     map=map,
                                     service=service,
-                                    serviceicon=data['serviceicon'],
-                                    servicestateicon=data['servicestateicon'])
+                                    serviceicon=data['hls_icon'],
+                                    servicestateicon=data['hls_stateicon'])
                 DBSession.add(node)
             else:
                 if len(nodes) > 1:
-                    raise Exception("service has more than one node in a map")
+                    raise Exception("service Hls has more than one node in a map")
                 # on ne fait rien sur ls éléments présents
         
         # on supprime les éléments qui ne font pas partie des éléments
