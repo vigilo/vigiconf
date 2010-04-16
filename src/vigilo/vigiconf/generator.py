@@ -43,6 +43,8 @@ from . import generators
 # module d'export base de données
 from .dbexportator import update_apps_db, export_conf_db, export_ventilation_DB
 
+from .cartes_auto import generate_cartes_auto
+
 # permet l'option commit/rollback de la base
 from vigilo.models.session import DBSession
 import transaction
@@ -88,6 +90,9 @@ def generate(gendir, commit_db=False):
     
     # mise à jour de la base de données
     export_conf_db()
+    
+    # génération cartes automatiques
+    generate_cartes_auto()
     
     h = getventilation()
     

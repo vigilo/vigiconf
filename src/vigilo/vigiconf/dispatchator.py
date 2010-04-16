@@ -42,6 +42,13 @@ import shutil
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
+from vigilo.models.configure import configure_db
+configure_db(settings['database'], 'sqlalchemy_',
+    settings['database']['db_basename'])
+
+from vigilo.models.session import metadata
+metadata.create_all()
+
 from . import conf
 from . import generator
 from .lib.application import Application, ApplicationError

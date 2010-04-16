@@ -25,6 +25,8 @@ from vigilo.models.session import DBSession
 
 from sqlalchemy import and_
 
+from . import conf
+
 """
 Manager de cartes automatiques.
 
@@ -33,14 +35,20 @@ CartesAutoManager.
 """
 
 class CartesAutoManager:
-    """ Classe de base pour un manager de cartes auto
+    """ Classe de base pour un manager de cartes auto.
+    
+    Les paramètres sont en conf dans general/cartes_auto.py
     """
-    def init(self, params):
+    def __init__(self, params=None):
         """ charge les paramètres de génération
         
         TODO: fichier xml
         """
         self.params = params
+        if not params:
+            self.params = conf.param_cartes_auto
+            self.params['manager'] = self.__class__
+            
     
     def process(self):
         """ lance la génération des cartes auto
@@ -212,4 +220,11 @@ class CartesAutoManager:
                 if not node.service in services:
                     DBSession.delete(node)
                 
-                
+
+def generate_cartes_auto(class_manager=CartesAutoManager):
+    """ génère les cartes automatiques
+    """
+    mgr = class_manager()
+    mgr.process()
+    DBSession.flush()
+   
