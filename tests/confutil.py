@@ -15,6 +15,9 @@ from vigilo.models.tables import VigiloServer
 
 import vigilo.vigiconf.conf as conf
 
+# test postgres: appeler abort() avant teardown
+import transaction
+
 
 def setUpModule(self):
     """Call once, before loading all the test cases."""
@@ -56,6 +59,9 @@ def setup_db():
 #Teardown that database 
 def teardown_db():
     """Supprime toutes les tables du modèle de la BDD."""
+    # pour postgres, sinon ça bloque
+    transaction.abort()
+    
     metadata.drop_all()
 
 
