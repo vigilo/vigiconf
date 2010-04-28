@@ -311,7 +311,7 @@ CODEDIR = os.path.dirname(__file__)
 apps = {}
 appsByAppGroups = {}
 
-param_cartes_auto = {}
+param_maps_auto = {}
 
 # TODO: en base, plus de python
 hostsGroups     = {}
