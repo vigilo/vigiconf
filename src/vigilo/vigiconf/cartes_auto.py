@@ -155,8 +155,7 @@ class CartesAutoManager:
                 node = MapNodeHost(label=host.name,
                                    map=map,
                                    host=host,
-                                   hosticon=data['hosticon'],
-                                   hoststateicon=data['hoststateicon'])
+                                   icon=data['hosticon'])
                 DBSession.add(node)
             else:
                 if len(nodes) > 1:
@@ -174,8 +173,7 @@ class CartesAutoManager:
                     node = MapNodeLls(label=lls.servicename,
                                         map=map,
                                         service=lls,
-                                        serviceicon=data['lls_icon'],
-                                        servicestateicon=data['lls_stateicon'])
+                                        icon=data['lls_icon'])
                     DBSession.add(node)
                 else:
                     if len(nodes) > 1:
@@ -195,8 +193,7 @@ class CartesAutoManager:
                 node = MapNodeHls(label=service.servicename,
                                     map=map,
                                     service=service,
-                                    serviceicon=data['hls_icon'],
-                                    servicestateicon=data['hls_stateicon'])
+                                    icon=data['hls_icon'])
                 DBSession.add(node)
             else:
                 if len(nodes) > 1:
