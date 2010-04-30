@@ -7,6 +7,12 @@
 		
 			<group name="hlsgroup1"/>
 			<group name="hlsgroup2"/>
+			<group name="hlsgroup3">
+				<children>
+					<group name="hlsgroup31"/>
+					<group name="hlsgroup32"/>
+				</children>
+			</group>
 			
 		</children>
 	</group>
