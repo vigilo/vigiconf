@@ -6,10 +6,6 @@ Générateur de cartes automatiques basique.
 """
 from . import AutoMap
 
-from vigilo.models.tables import MapNodeHost, MapNodeHls, MapNodeLls
-from vigilo.models.session import DBSession
-
-from sqlalchemy import and_
 
 class BasicAutoMap(AutoMap):
     
@@ -55,17 +51,20 @@ class BasicAutoMap(AutoMap):
             map = Map.by_map_title(group.name)
             created = False
             if not map:
-                map = self.create_map(group.name, mapgroups, map_defaults)
+                map = self.create_map(group.name, mapgroups, self.map_defaults)
                 created = True
             if map.generated:
                 # on gère le contenu uniquement pour les cartes auto
-                self.populate_map(map, group, map_defaults, created=created)
+                self.populate_map(map, group, self.map_defaults, created=created)
         
         DBSession.flush()
         
     def populate_map(self, map, group, data, created=True):
         """ ajout de contenu dans une carte
         """
+        from vigilo.models.tables import MapNodeHls, MapNodeHost
+        from sqlalchemy import and_
+        from vigilo.models.session import DBSession        
         # ajout des nodes hosts
         hosts = list(group.get_hosts())
         for host in hosts:
@@ -88,9 +87,10 @@ class BasicAutoMap(AutoMap):
         
         # ajout des nodes services
         services = list(group.get_services())
+                
         for service in services:
             # on regarde si un node existe
-            nodes = DBSession.query(MapNodeHls).filter(
+            nodes = DBSession.query( MapNodeHls ).filter(
                                         and_(MapNodeHls.map == map,
                                              MapNodeHls.service == service)
                                             ).all()

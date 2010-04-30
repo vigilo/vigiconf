@@ -31,6 +31,7 @@ import types
 from datetime import datetime
 
 from vigilo.models.tables import SupItemGroup, MapGroup, Map
+from vigilo.models.session import DBSession
 
 class AutoMap:
     """ Classe de base pour un manager de cartes auto.
