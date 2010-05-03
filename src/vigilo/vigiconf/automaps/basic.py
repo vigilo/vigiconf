@@ -33,20 +33,22 @@ class BasicAutoMap(AutoMap):
             gname = name % {'hostgroup':group.name}
             gmap = self.get_or_create_mapgroup(gname, parent_name=self.parent_topgroups)
         
-        # génération des Map
-        self.generate_maps(group, mapgroups=self.map_groups)
+        # génération de la Map
+        self.generate_map(group, mapgroups=self.map_groups)
     
     def process_leaf_group(self, group):
         # génération des Map
-        self.generate_maps(group, mapgroups=self.map_groups)
+        self.generate_map(group, mapgroups=self.map_groups)
         # on fait la hiérarchie des mapgroup
         map = Map.by_map_title(group.name)
         if map:
             if group.has_parent():
-                map.groups = [self.get_groupmap(group.get_parent()),]
+                gmap = self.build_mapgroup_hierarchy(group.get_parent())
+                print "map %s groups[0]=%s" % (group.name, gmap.name)
+                map.groups = [gmap,]
                 DBSession.flush()
     
-    def generate_maps(self, group, mapgroups=[]):
+    def generate_map(self, group, mapgroups=[]):
         nbelts = len(group.get_hosts()) + len(group.get_services())
         if nbelts > 0:
             map = Map.by_map_title(group.name)
@@ -54,6 +56,7 @@ class BasicAutoMap(AutoMap):
             if not map:
                 map = self.create_map(group.name, mapgroups, self.map_defaults)
                 created = True
+                #print "map %s genererated groups[0]=%s" % (group.name, map.groups[0].name)
             if map.generated:
                 # on gère le contenu uniquement pour les cartes auto
                 self.populate_map(map, group, self.map_defaults, created=created)

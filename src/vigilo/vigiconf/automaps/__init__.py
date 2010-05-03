@@ -87,14 +87,16 @@ class AutoMap:
                 self.process_leaf_group(g)
     
     
-    def get_groupmap(self, group):
+    def build_mapgroup_hierarchy(self, group):
         """ recursive
+        reconstruit une hiérachie de MapGroup en fonction de la hiérarchie
+        du groupe.
         """
         gmap = MapGroup.by_group_name(group.name)
         if not gmap:
             gmap = MapGroup(name=group.name)
             if group.has_parent():
-                pgmap = self.get_groupmap(group.get_parent())
+                pgmap = self.build_mapgroup_hierarchy(group.get_parent())
                 gmap.set_parent(pgmap)
             DBSession.add(gmap)
         return gmap
