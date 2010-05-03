@@ -37,13 +37,14 @@ class BasicAutoMap(AutoMap):
         self.generate_maps(group, mapgroups=self.map_groups)
     
     def process_leaf_group(self, group):
-        # on fait comme pour les top groups
-        self.process_top_group(group)
+        # génération des Map
+        self.generate_maps(group, mapgroups=self.map_groups)
         # on fait la hiérarchie des mapgroup
         map = Map.by_map_title(group.name)
         if map:
             if group.has_parent():
                 map.groups = [self.get_groupmap(group.get_parent()),]
+                DBSession.flush()
     
     def generate_maps(self, group, mapgroups=[]):
         nbelts = len(group.get_hosts()) + len(group.get_services())
