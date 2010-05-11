@@ -1,32 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Generators for the Vigilo Config Manager
-
-En plus du moteur de template existant (classe de base Templator), il
-est possible maintenant d'utiliser le moteur de template Genshi au moyen
-de la classe de base View définie ici. A priori moins performante (en cours
-d'évaluation) cette 2nde solution devrait faciliter l'écriture des handlers
-python (views) et des fichiers templates.
-
-A noter également que le moteur genshi pour générer des fichiers textes possède
-2 syntaxes, mais que la dernière, pourtant conseillée (à-la-django) n'est
-peut-être pas mature (voir tests), donc préférer l'ancienne (avec des #
-et non pas des {%})
-
-Voir l'exemple de générateur connector-metro, qui possède les deux
-implémentations.
-
-"""
-import glob
-import os, sys
-import os.path
-import types
-
-from ..lib.generators.templator import Templator
-from ..lib.generators.view import View
-
-from vigilo.common.conf import settings
+################################################################################
+#
+# ConfigMgr Nagios Collector plugin configuration file generator
+# Copyright (C) 2007 CS-SI
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+################################################################################
 
 class GeneratorManager(object):
     """
@@ -77,5 +69,3 @@ class GeneratorManager(object):
         for genclass in self.genclasses:
             generator = genclass(gendir, h, v)
             generator.generate()
-
-

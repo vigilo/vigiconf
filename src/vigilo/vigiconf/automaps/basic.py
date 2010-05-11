@@ -4,8 +4,6 @@
 Générateur de cartes automatiques basique.
 
 """
-from . import AutoMap
-
 
 class BasicAutoMap(AutoMap):
     
@@ -37,6 +35,7 @@ class BasicAutoMap(AutoMap):
         self.generate_map(group, mapgroups=self.map_groups)
     
     def process_leaf_group(self, group):
+        from vigilo.models.tables import Map
         # génération des Map
         self.generate_map(group, mapgroups=self.map_groups)
         # on fait la hiérarchie des mapgroup
@@ -66,9 +65,7 @@ class BasicAutoMap(AutoMap):
     def populate_map(self, map, group, data, created=True):
         """ ajout de contenu dans une carte
         """
-        from vigilo.models.tables import MapNodeHls, MapNodeHost
         from sqlalchemy import and_
-        from vigilo.models.session import DBSession        
         # ajout des nodes hosts
         hosts = list(group.get_hosts())
         for host in hosts:
@@ -109,7 +106,7 @@ class BasicAutoMap(AutoMap):
             else:
                 if len(nodes) > 1:
                     raise Exception("service Hls has more than one node in a map")
-                # on ne fait rien sur ls éléments présents
+                # on ne fait rien sur les éléments présents
         
         # on supprime les éléments qui ne font pas partie des éléments
         # qu'on devrait ajouter (on fait ça seulement pour les cartes auto)
