@@ -56,7 +56,7 @@ def update_apps_db():
     
     # apps
     for name in apps.keys():
-        app = Application.by_app_name(name)
+        app = Application.by_app_name(unicode(name))
         if not app:
             app = Application(name=unicode(name))
             DBSession.add(app)
@@ -81,26 +81,27 @@ def export_conf_db():
     conf.groupsHierarchy = grouploader.get_groups_hierarchy()
     
     # groups for new entities
-    group_newhosts_def = settings['vigiconf'].get('GROUPS_DEF_NEW_HOSTS',
-                                          u'new_hosts_to_ventilate')
-    group_newservices_def = settings['vigiconf'].get('GROUPS_DEF_NEW_SERVICES',
-                                          u'new_services')
+    group_newhosts_def = unicode(settings['vigiconf'].get('GROUPS_DEF_NEW_HOSTS',
+                                          u'new_hosts_to_ventilate'))
+    group_newservices_def = unicode(settings['vigiconf'].get('GROUPS_DEF_NEW_SERVICES',
+                                          u'new_services'))
     
     # add if needed these groups
     if not SupItemGroup.by_group_name(group_newhosts_def):
-        DBSession.add(SupItemGroup(name=unicode(group_newhosts_def)))
+        DBSession.add(SupItemGroup(name=group_newhosts_def))
     group_newhosts_def = SupItemGroup.by_group_name(group_newhosts_def)
         
     if not SupItemGroup.by_group_name(group_newservices_def):
-        DBSession.add(SupItemGroup(name=unicode(group_newservices_def)))
+        DBSession.add(SupItemGroup(name=group_newservices_def))
     group_newservices_def = SupItemGroup.by_group_name(group_newservices_def)
     
     # hosts groups
     try:
         for name in hostsGroups.keys():
+            name = unicode(name)
             hg = SupItemGroup.by_group_name(name)
             if not hg:
-                hg = SupItemGroup(name=unicode(name))
+                hg = SupItemGroup(name=name)
             DBSession.add(hg)
         DBSession.flush()
     except:
@@ -109,27 +110,30 @@ def export_conf_db():
     # hosts
     try:
         for hostname, host in hostsConf.iteritems():
+            hostname = unicode(hostname)
             h = Host.by_host_name(hostname)
             if h:
                 # update host object
-                h.checkhostcmd = host['checkHostCMD']
-                h.hosttpl = host['hostTPL']
-                h.snmpcommunity = host['community']
-                h.snmpoidsperpdu = host['snmpOIDsPerPDU']
-                h.snmpversion = host['snmpVersion']
-                h.mainip = host['mainIP']
-                h.snmpport = host['port']
+                h.checkhostcmd = unicode(host['checkHostCMD'])
+                h.hosttpl = unicode(host['hostTPL'])
+                h.snmpcommunity = unicode(host['community'])
+                h.snmpoidsperpdu = unicode(host['snmpOIDsPerPDU'])
+                h.snmpversion = unicode(host['snmpVersion'])
+                h.mainip = unicode(host['mainIP'])
+                h.snmpport = unicode(host['port'])
                 # add groups to host
-                h.groups = [SupItemGroup.by_group_name(host['serverGroup']), ]
+                h.groups = [SupItemGroup.by_group_name(unicode(host['serverGroup'])), ]
             else:
                 # create host object
                 h = Host(name=unicode(hostname),
-                         checkhostcmd=host['checkHostCMD'],
-                         hosttpl=host['hostTPL'],
-                        snmpcommunity=host['community'],
-                        mainip=host['mainIP'], snmpport=host['port'],
-                        snmpoidsperpdu=host['snmpOIDsPerPDU'], weight=1,
-                        snmpversion=host['snmpVersion'])
+                         checkhostcmd=unicode(host['checkHostCMD']),
+                         hosttpl=unicode(host['hostTPL']),
+                        snmpcommunity=unicode(host['community']),
+                        mainip=unicode(host['mainIP']),
+                        snmpport=unicode(host['port']),
+                        snmpoidsperpdu=unicode(host['snmpOIDsPerPDU']),
+                        weight=1,
+                        snmpversion=unicode(host['snmpVersion']))
                 DBSession.add(h)
                 h.groups = [group_newhosts_def, ]
             
@@ -137,15 +141,18 @@ def export_conf_db():
             # TODO: implémenter les détails: op_dep, weight, command
             
             for service in host['services'].keys():
+                service = unicode(service)
                 lls = LowLevelService.by_host_service_name(hostname, service)
                 if not lls:
-                    lls = LowLevelService(host=h, servicename=unicode(service),
+                    lls = LowLevelService(host=h, servicename=service,
                                           op_dep=u'+', weight=1)
                     lls.groups = [group_newservices_def, ]
                     DBSession.add(lls)
                 # nagios generic directives for services
                 if host['nagiosSrvDirs'].has_key(service):
                     for name, value in host['nagiosSrvDirs'][service].iteritems():
+                        name = unicode(name)
+                        value = unicode(value)
                         ci = ConfItem.by_host_service_confitem_name(hostname, service, name)
                         if ci:
                             ci.value = value
@@ -155,6 +162,8 @@ def export_conf_db():
             
             # nagios generic directives for host
             for name, value in host['nagiosDirectives'].iteritems():
+                name = unicode(name)
+                value = unicode(value)
                 ci = ConfItem.by_host_confitem_name(hostname, name)
                 if ci:
                     ci.value = value
@@ -164,7 +173,7 @@ def export_conf_db():
             
             
             for og in host['otherGroups']:
-                h.groups.append(SupItemGroup.by_group_name(og))
+                h.groups.append(SupItemGroup.by_group_name(unicode(og)))
             
             # export graphes groups
             _export_host_graphgroups(host['graphGroups'], h)
@@ -209,13 +218,15 @@ def _export_host_graphgroups(graphgroups, h):
         graph.groups = []
         
     for groupname, graphnames in graphgroups.iteritems():
+        groupname = unicode(groupname)
         group = GraphGroup.by_group_name(groupname)
         if group:
             group.remove_children() # redundant with graph.groups = [] ?
         else:
-            group = GraphGroup(name=unicode(groupname))
+            group = GraphGroup(name=groupname)
             DBSession.add(group)
         for name in graphnames:
+            name = unicode(name)
             graph = DBSession.query(Graph).filter(Graph.name == name).first()
             if not graph:
                 graph = Graph(name=name, template=u'lines', vlabel=u'unknown')
@@ -238,6 +249,7 @@ def _export_host_graphitems(graphitems, h):
     @returns: None
     """
     for name, graph in graphitems.iteritems():
+        name = unicode(name)
         g = DBSession.query(Graph).filter(Graph.name == name).first()
         g.template = graph['template']
         g.vlabel = graph['vlabel']

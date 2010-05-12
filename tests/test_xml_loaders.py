@@ -35,17 +35,17 @@ class XMLLoadersTest(unittest.TestCase):
     def test_load_hostgroups(self):
         grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         
-        g = SupItemGroup.by_group_name('root_group')
+        g = SupItemGroup.by_group_name(u'root_group')
         self.assertTrue(g, "root_group created.")
         n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup has 3 children (%d)" % n)
         
-        g = SupItemGroup.by_group_name('root_group3')
+        g = SupItemGroup.by_group_name(u'root_group3')
         self.assertTrue(g, "root_group3 created.")
         n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup3 has 3 children (%d)" % n)
         
-        g = SupItemGroup.by_group_name('root_group2')
+        g = SupItemGroup.by_group_name(u'root_group2')
         self.assertTrue(g, "root_group2 created.")
         n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup2 has 3 children (%d)" % n)
@@ -142,8 +142,8 @@ class XMLLoadersTest(unittest.TestCase):
         self.assertEquals(8, DBSession.query(Dependency).count(), "8 dependencies")
         # host11/service11 is a dependence of host1
         
-        si_host1 = SupItem.get_supitem(hostname="host1", servicename=None)
-        si_host11 = SupItem.get_supitem(hostname="host11", servicename="service11")
+        si_host1 = SupItem.get_supitem(hostname=u"host1", servicename=None)
+        si_host11 = SupItem.get_supitem(hostname=u"host11", servicename="service11")
         self.assertTrue(si_host1, "si_host1 not null")
         self.assertTrue(si_host11, "si_host11 not null")
         self.assertEquals(1,
@@ -153,7 +153,7 @@ class XMLLoadersTest(unittest.TestCase):
           "One dependency: host11/service11 is a dependence of host1")
         
         # host11/service11 is a dependence of hlservice1
-        si_hls1 = SupItem.get_supitem(hostname=None, servicename="hlservice1")
+        si_hls1 = SupItem.get_supitem(hostname=None, servicename=u"hlservice1")
         self.assertEquals(1,
           DBSession.query(Dependency).filter(Dependency.idsupitem1==si_hls1)\
                                      .filter(Dependency.idsupitem2==si_host11)\
@@ -277,7 +277,7 @@ class XMLLoadersTest(unittest.TestCase):
         """
         grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         gh = grouploader.get_groups_hierarchy()
-        print gh
+        #print gh
         self.assertEquals(len(gh.keys()), 3, "3 top hostgroups")
         self.assertEquals(gh["root_group3"]["hgroup31"], 1)
         self.assertEquals(gh["root_group3"]["hgroup33"]["Linux servers 3"], 1)

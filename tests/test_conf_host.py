@@ -105,7 +105,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_collector_metro_reroute(self):
         """Test for the add_collector_metro host method with rerouting"""
-        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
+        host2 = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers")
         host2.add_collector_metro( "TestAddCSReRoute", "TestAddCSRRMFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 "GAUGE", label="TestAddCSReRouteLabel",
@@ -122,7 +122,7 @@ class HostMethods(unittest.TestCase):
     def test_add_nagios_directive(self):
         """ Test for the add_nagios_directive method
         """
-        host = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
+        host = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers")
         host.add_nagios_directive("max_check_attempts", "5")
         self.assertEquals(conf.hostsConf["testserver2"]["nagiosDirectives"]["max_check_attempts"],
                           "5")
@@ -132,7 +132,7 @@ class HostMethods(unittest.TestCase):
     def test_add_nagios_service_directive(self):
         """ Test for the add_nagios_service_directive method
         """
-        host = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
+        host = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers")
         host.add_nagios_service_directive("Interface", "retry_interval", "10")
         self.assertEquals(
             conf.hostsConf["testserver2"]["nagiosSrvDirs"]["Interface"]["retry_interval"],

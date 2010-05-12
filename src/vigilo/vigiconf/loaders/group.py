@@ -62,7 +62,8 @@ class GroupLoader(XMLLoader):
         """
         hostsgroups = {}
         for g in DBSession.query(SupItemGroup).all():
-            hostsgroups[g.name] = g.name
+            uname = unicode(g.name)
+            hostsgroups[uname] = uname
         return hostsgroups
     
     def get_groups_hierarchy(self):
@@ -72,7 +73,8 @@ class GroupLoader(XMLLoader):
         """
         hgroups = {}
         for top in SupItemGroup.get_top_groups():
-            hgroups[top.name] = self._get_children_hierarchy(top)
+            uname = unicode(top.name)
+            hgroups[uname] = self._get_children_hierarchy(top)
         return hgroups
     
     def _get_children_hierarchy(self, hostgroup):
@@ -82,7 +84,7 @@ class GroupLoader(XMLLoader):
             return 1
         hchildren = {}
         for g in hostgroup.get_children():
-            hchildren[g.name] = self._get_children_hierarchy(g)
+            hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
         return hchildren
 
     
@@ -176,7 +178,7 @@ class HostGroupLoader(GroupLoader):
         """
         hgroups = {}
         for top in SupItemGroup.get_top_groups():
-            hgroups[top.name] = self._get_children_hierarchy(top)
+            hgroups[unicode(top.name)] = self._get_children_hierarchy(top)
         return hgroups
     
     def _get_children_hierarchy(self, hostgroup):
@@ -186,7 +188,7 @@ class HostGroupLoader(GroupLoader):
             return 1
         hchildren = {}
         for g in hostgroup.get_children():
-            hchildren[g.name] = self._get_children_hierarchy(g)
+            hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
         return hchildren
         
 

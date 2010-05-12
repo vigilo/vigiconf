@@ -98,7 +98,8 @@ class Dispatchator(object):
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
         self.deploy_revision = None
-        self.mode_db = None
+        
+        self.mode_db = 'commit'
         # mode simulation: on recopie simplement la commande svn pour
         # verification
         self.simulate = settings["vigiconf"].get("simulate", False)
@@ -780,9 +781,6 @@ def main():
     parser.add_option("-d", "--deploy", action="store_true", dest="deploy",
                       help="Deploys the configuration on each server if this "
                           +"configuration has changed.")
-    parser.add_option("-m", "--modedb", action="store", dest="modedb",
-                      help="use MODEDB=commit to commit data in the database."
-                      +"Should be used with --deploy option.")
     parser.add_option("-r", "--restart", action="store_true", dest="restart",
                       help="Restart all the applications if a new "
                           +"configuration has been deployed. "
@@ -804,7 +802,8 @@ def main():
     parser.add_option("-i", "--info", action="store_true", dest="info",
                       help="Prints a summary of the actual configuration.")
     parser.add_option("-n", "--dry-run", action="store_true", dest="simulate",
-                      help="Simulate only, no copy will be actually made.")
+                      help="Simulate only, no copy will be actually made,"
+                          +"no commit in the database.")
 
 
     # parse the command line
@@ -825,15 +824,14 @@ def main():
     # Handle command-line options
     if (options.simulate):
         settings["vigiconf"]["simulate"] = True
-
+        # pas de commit sur la base de données
+        _dispatchator.mode_db = 'no_commit'
+        
     if (options.force):
         _dispatchator.setModeForce(True)
     
     if (options.revision):
         _dispatchator.deploy_revision = int(options.revision)
-    
-    if (options.modedb == 'commit'):
-        _dispatchator.mode_db = 'commit'
 
     if ( len(_dispatchator.getServers()) <= 0):
         syslog.syslog(syslog.LOG_WARNING, "No server to manage.")

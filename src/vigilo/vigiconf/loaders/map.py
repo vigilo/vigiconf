@@ -43,7 +43,9 @@ class MapLoader(XMLLoader):
         if   tag == "map":
             if self._bloclist == ['maps', 'map']: self.start_map()
             elif 'submaps' in self._bloclist: self.start_submap()
-            else: print self._bloclist
+            else:
+                pass
+                # print self._bloclist
         elif tag == "nodes": self.node_mode = True
         elif tag == "host": self.start_host()
         elif tag == "service": pass
@@ -75,7 +77,9 @@ class MapLoader(XMLLoader):
         if   tag == "map":
             if self._bloclist == ['maps', 'map']: self.end_map()
             elif 'submaps' in self._bloclist: self.end_submap()
-            else: print self._bloclist
+            else:
+                pass
+                #print self._bloclist
         elif tag == "nodes": self.node_mode = False
         elif tag == "host": self.end_host()
         elif tag == "service": pass
@@ -114,7 +118,7 @@ class MapLoader(XMLLoader):
                 background_repeat=self.bg_repeat
                 )
         DBSession.add(map)
-        print self.title
+        #print self.title
         if len(self.groups) > 0:
             map.groups = list(self.groups)
             DBSession.flush()

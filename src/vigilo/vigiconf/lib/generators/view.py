@@ -86,7 +86,7 @@ class View:
         """
         tmpl = self.loader.load(template, cls=TextTemplate)
         stream = tmpl.generate(**context)
-        print context
+        #print context
         if not filename:
             return stream.render()
         

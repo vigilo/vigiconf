@@ -26,7 +26,7 @@ class Generator(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         conf.hosttemplatefactory.load_templates()
         reload_conf()
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers")
         self.mapping = generator.getventilation()
 
     def tearDown(self):

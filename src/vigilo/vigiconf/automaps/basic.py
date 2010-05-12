@@ -45,7 +45,7 @@ class BasicAutoMap(AutoMap):
         if map:
             if group.has_parent():
                 gmap = self.build_mapgroup_hierarchy(group.get_parent())
-                print "map %s groups[0]=%s" % (group.name, gmap.name)
+                #print "map %s groups[0]=%s" % (group.name, gmap.name)
                 map.groups = [gmap,]
                 DBSession.flush()
     

@@ -51,34 +51,34 @@ class ExportDBTest(unittest.TestCase):
         self.assertEquals(h.name, u'localhost')
     
     def test_export_host_confitem(self):
-        host = conf.hostsConf['localhost']
-        host['nagiosDirectives'] = {"max_check_attempts":"8",
-                                    "check_interval":"2"}
+        host = conf.hostsConf[u'localhost']
+        host['nagiosDirectives'] = {u"max_check_attempts":u"8",
+                                    u"check_interval":u"2"}
         
         export_conf_db()
         
-        ci = ConfItem.by_host_confitem_name(u'localhost', "max_check_attempts")
+        ci = ConfItem.by_host_confitem_name(u'localhost', u"max_check_attempts")
         self.assertTrue(ci, "confitem max_check_attempts exists")
         self.assertEquals(ci.value, "8", "max_check_attempts=8")
         
-        ci = ConfItem.by_host_confitem_name(u'localhost', "check_interval")
+        ci = ConfItem.by_host_confitem_name(u'localhost', u"check_interval")
         self.assertTrue(ci, "confitem check_interval exists")
         self.assertEquals(ci.value, "2", "check_interval=2")
         
     def test_export_service_confitem(self):
-        host = conf.hostsConf['localhost']
-        host['nagiosSrvDirs']['Interface eth0'] = {"max_check_attempts":"7",
-                                    "retry_interval":"3"}
+        host = conf.hostsConf[u'localhost']
+        host['nagiosSrvDirs'][u'Interface eth0'] = {u"max_check_attempts":u"7",
+                                    u"retry_interval":u"3"}
         
         export_conf_db()
         
         ci = ConfItem.by_host_service_confitem_name(
-                            u'localhost', u'Interface eth0', "max_check_attempts")
+                            u'localhost', u'Interface eth0', u"max_check_attempts")
         self.assertTrue(ci, "confitem max_check_attempts exists")
         self.assertEquals(ci.value, "7", "max_check_attempts=7")
         
         ci = ConfItem.by_host_service_confitem_name(
-                            u'localhost', u'Interface eth0', "retry_interval")
+                            u'localhost', u'Interface eth0', u"retry_interval")
         self.assertTrue(ci, "confitem retry_interval exists")
         self.assertEquals(ci.value, "3", "retry_interval=3")
     
