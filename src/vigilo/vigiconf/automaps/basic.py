@@ -6,6 +6,48 @@ Générateur de cartes automatiques basique.
 """
 
 class BasicAutoMap(AutoMap):
+    """
+    Implémentation d'un générateur de cartes automatique.
+    
+    Les spécifications sont les suivantes:
+    
+    * la génération est paramétrable au moyen d'un fichier en conf, automaps.py dans le répertoire conf.d/general.
+    * Un jeu de groupe de cartes est généré de façon paramétrable, dont un groupe de cartes par groupe de plus haut niveau.
+    * Une carte (entité Map) est générée pour un groupe terminal (dans la hiérarchie des groupes) contenant des éléments à superviser (hôtes ou services), si cette carte n'existe pas.
+    * lorsqu'une carte est créée, elle est associée à un ou plusieurs groupes de cartes, dont la hiérarchie suit celle des groupes d'éléments à superviser correspondants.
+    * Le contenu d'une carte (éléments de classe MapNodeHost et MapNodeHls) est généré si la carte est une carte générée automatiquement.
+    * Dans le cas d'une carte générée automatiquement, les éléments affichant des entités n'existant plus sont supprimés. 
+    * Les modifications d'un élément affiché dans une carte générée automatiquement ne sont pas prises en compte.
+    
+    La génération est paramétrable au moyen du fichier en conf
+    general/automaps.py; ce fichier contient des données de fond de carte
+    comme ceci:
+    
+        'map_defaults': {
+           'background_color': u'white',
+           'background_image': u'bg',
+           'background_position': u'top right',
+           'background_repeat': u'no-repeat',
+           'host_icon':u'server',
+           'hls_icon':u'switch',
+           'lls_icon':u'serviceicon'
+        }
+        
+    Le paramétrage de la génération est effectué comme dans l'exemple suivant:
+    
+        'BasicAutoMap': {
+            'top_groups':[ u'Groupes', u'%(hostgroup)s'],
+            'parent_topgroups':None,
+            'map_groups':['Groupes',]
+        }
+
+
+
+    @ivar top_groups: liste des groupes de premier niveau à générer.
+    @ivar parent_topgroups: liste de groupes à positionner comme parent pour\
+          les groupes de premier niveau à générer.
+    @ivar map_groups: liste des groupes par défaut à associer aux cartes à générer.
+    """
     
     # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['top_groups']
     top_groups = []
@@ -26,7 +68,8 @@ class BasicAutoMap(AutoMap):
     def process_top_group(self, group):
         """ génération des entités liées à un groupe d'hosts de niveau supérieur.
         
-        TODO: spec, rm context
+        @param group: groupe de premier niveau
+        @type group: C{SupItemGroup}
         """
         # génération des MapGroup
         for name in self.top_groups:
@@ -37,6 +80,11 @@ class BasicAutoMap(AutoMap):
         self.generate_map(group, mapgroups=self.map_groups)
     
     def process_leaf_group(self, group):
+        """ traitement des hostgroups de niveau final
+        
+        @param group: groupe de niveau final
+        @type group: C{SupItemGroup}
+        """
         from vigilo.models.tables import Map
         # génération des Map
         self.generate_map(group, mapgroups=self.map_groups)
@@ -50,6 +98,14 @@ class BasicAutoMap(AutoMap):
                 DBSession.flush()
     
     def generate_map(self, group, mapgroups=[]):
+        """ génère une carte à partir d'un groupe d'éléments supervisés.
+        
+        @param group: groupe associé à la carte
+        @type group: C{SupItemGroup}
+        @param mapgroups: liste de noms de groupes de cartes à associer à\
+               la carte
+        @type mapgroups: C{List}
+        """
         nbelts = len(group.get_hosts()) + len(group.get_services())
         if nbelts > 0:
             map = Map.by_map_title(group.name)
@@ -65,7 +121,14 @@ class BasicAutoMap(AutoMap):
         DBSession.flush()
         
     def populate_map(self, map, group, data, created=True):
-        """ ajout de contenu dans une carte
+        """ ajout de contenu dans une carte.
+        
+        @param map: carte
+        @type map: C{Map}
+        @param group: groupe associé à la carte
+        @type group: C{SupItemGroup}
+        @param data: dictionnaire de données fond de carte
+        @type data: C{Dic}
         """
         from sqlalchemy import and_
         # ajout des nodes hosts

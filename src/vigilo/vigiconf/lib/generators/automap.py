@@ -20,7 +20,7 @@
 ################################################################################
 
 """
-Générateurs de cartes automatiques pour Vigilo
+Générateur de cartes automatiques pour Vigilo
 """
 
 from datetime import datetime
@@ -39,6 +39,19 @@ class AutoMap:
     * process_mid_group
     * process_leaf_group
     
+    La génération est paramétrable au moyen du fichier en conf
+    general/automaps.py; ce fichier contient des données de fond de carte
+    comme ceci:
+    
+        'map_defaults': {
+           'background_color': u'white',
+           'background_image': u'bg',
+           'background_position': u'top right',
+           'background_repeat': u'no-repeat',
+           'host_icon':u'server',
+           'hls_icon':u'switch',
+           'lls_icon':u'serviceicon'
+        }
     """
     
     # voir conf.d/general/automaps.py : param_maps_auto['AutoMap']['map_defaults']
@@ -64,21 +77,41 @@ class AutoMap:
             
     def process_top_group(self, group):
         """ traitement des hostgroups de haut niveau
+        
+        @param group: groupe de premier niveau
+        @type group: C{SupItemGroup}
+        
+        A redéfinir dans la classe dérivée.
         """
         pass
     
     def process_mid_group(self, group, parent):
         """ traitement des hostgroups de niveau intermédiaire
+        
+        @param group: groupe de premier niveau
+        @type group: C{SupItemGroup}
+        @param parent: groupe parent
+        @type parent: C{SupItemGroup}
+        
+        A redéfinir dans la classe dérivée.
         """
         pass
     
     def process_leaf_group(self, group):
         """ traitement des hostgroups de niveau final
+        
+        @param group: groupe de niveau final
+        @type group: C{SupItemGroup}
+        
+        A redéfinir dans la classe dérivée.
         """
         pass
     
     def process_children(self, group):
         """ méthode récursive pour traiter les hiérarchies de groupes
+        
+        @param group: groupe
+        @type group: C{SupItemGroup}
         """
         for g in group.get_children():
             if g.has_children():
@@ -89,9 +122,11 @@ class AutoMap:
     
     
     def build_mapgroup_hierarchy(self, group):
-        """ recursive
-        reconstruit une hiérachie de MapGroup en fonction de la hiérarchie
-        du groupe.
+        """ reconstruit une hiérachie de MapGroup en fonction de la hiérarchie
+        du groupe. Cette méthode est récursive.
+        
+        @param group: groupe
+        @type group: C{MapGroup}
         """
         gmap = MapGroup.by_group_name(group.name)
         if not gmap:
@@ -103,6 +138,14 @@ class AutoMap:
         return gmap
         
     def get_or_create_mapgroup(self, name, parent_name=None):
+        """ renvoie et éventuellement génère un groupe de cartes.
+        
+        @param name: nom de groupe de carte
+        @type group: C{Str}
+        
+        @return: le groupe de cartes
+        @rtype: C{MapGroup}
+        """
         gmap = MapGroup.by_group_name(name)
         if not gmap:
             gmap = MapGroup(name=name)
@@ -112,7 +155,17 @@ class AutoMap:
         return gmap
     
     def create_map(self, title, groupnames, data):
-        """ création d'une carte
+        """ création d'une carte.
+        
+        @param title: titre de la carte
+        @type title: C{Str}
+        @param groupnames: liste de noms de groupes à associer à la carte
+        @type groupnames: C{List}
+        @param data: dictionnaire de données fond de carte
+        @type data: C{Dic}
+        
+        @return: une carte
+        @rtype: C{Map}
         """
         map = Map(title=title, generated=True,
                   mtime=datetime.now(),
@@ -128,7 +181,19 @@ class AutoMap:
         return map
     
     def session(self):
+        """ renvoie la session SQLAlchemy.
+        
+        @return: session base de données
+        @rtype: C{Session}
+        """
         return DBSession
     
     def get_conf(self):
+        """ renvoie la configuration.
+        
+        Il s'agit du module vigilo.vigiconf.conf
+        
+        @return: module conf
+        @rtype: C{module}
+        """
         return conf

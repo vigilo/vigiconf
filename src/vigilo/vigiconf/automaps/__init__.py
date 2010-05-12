@@ -18,6 +18,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
+"""
+Module de génération de cartes automatiques
+"""
 import glob
 import os, sys
 import os.path
