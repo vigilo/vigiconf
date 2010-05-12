@@ -27,6 +27,7 @@ from datetime import datetime
 
 from vigilo.models.tables import SupItemGroup, MapGroup, Map
 from vigilo.models.session import DBSession
+from ... import conf
 
 class AutoMap:
     """ Classe de base pour un générateur de cartes auto.
@@ -40,6 +41,7 @@ class AutoMap:
     
     """
     
+    # voir conf.d/general/automaps.py : param_maps_auto['AutoMap']['map_defaults']
     map_defaults = {'background_color': u'white',
                    'background_image': u'bg',
                    'background_position': u'top right',
@@ -48,6 +50,10 @@ class AutoMap:
                    'hls_icon':u'switch',
                    'lls_icon':u'serviceicon'
                    }
+    
+    def __init__(self):
+        conf = self.get_conf()
+        self.map_defaults = conf.param_maps_auto['AutoMap']['map_defaults']
     
     def generate(self):
         """ lance la génération des cartes auto
@@ -123,3 +129,6 @@ class AutoMap:
     
     def session(self):
         return DBSession
+    
+    def get_conf(self):
+        return conf

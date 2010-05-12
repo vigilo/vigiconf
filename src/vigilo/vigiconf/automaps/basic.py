@@ -7,19 +7,21 @@ Générateur de cartes automatiques basique.
 
 class BasicAutoMap(AutoMap):
     
-    top_groups = [ u'Groupes',
-                   u'%(hostgroup)s',
-                   u'Frégate',
-                   u'Porte-avion',
-                   u'Sous-marin nucléaire lanceur d\'engins',
-                   u'Sous-marin nucléaire d\'attaque',
-                   u'Bâtiment de projection et de commandement',
-                   u'Pétrolier ravitailleur' ,
-                   u'Chasseur de mines']
+    # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['top_groups']
+    top_groups = []
     
+    # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['parent_topgroups']
     parent_topgroups = None
     
-    map_groups = ['Groupes',]
+    # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['map_groups']
+    map_groups = []
+    
+    def __init__(self):
+        AutoMap.__init__(self)
+        conf = self.get_conf()
+        self.top_groups = conf.param_maps_auto['BasicAutoMap']['top_groups']
+        self.parent_topgroups = conf.param_maps_auto['BasicAutoMap']['parent_topgroups']
+        self.map_groups = conf.param_maps_auto['BasicAutoMap']['map_groups']
     
     def process_top_group(self, group):
         """ génération des entités liées à un groupe d'hosts de niveau supérieur.
