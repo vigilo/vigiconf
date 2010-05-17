@@ -19,8 +19,20 @@
 ################################################################################
 
 """
-This module contains the DBExportator, a tool to export
-hosts and services configuration into the vigilo database.
+Ce module contient des fonctions permettant d'exporter dans la base
+de données vigilo certaines données de configuration.
+
+ * update_apps_db
+   exporte en base les noms des applications
+
+ * export_conf_db
+   exporte en base les données groupes, les hôtes et les services de bas
+   niveaux, les groupes de graphes, les services de haut niveau, les
+   dépendances.
+   
+ * export_ventilation_DB
+   exporte en base les données la ventilation des hôtes par application
+   sur les serveurs de supervision.
 """
 
 from __future__ import absolute_import
@@ -65,7 +77,6 @@ def update_apps_db():
 
 def export_conf_db():
     """ Update database with hostConf data.
-    @returns: None
     """
     hostsConf = conf.hostsConf
     hostsGroups = conf.hostsGroups

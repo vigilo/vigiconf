@@ -37,10 +37,11 @@ class GroupLoader(XMLLoader):
     _xsd_filename = "group.xsd"
     
     def __init__(self, tag_group=None, xsd_filename=None):
-        """
-        @param tag_group balise xml "hostgroup" or "servicegroup"
+        """ Constructeur.
+        
+        @param tag_group: balise xml "hostgroup" or "servicegroup"
         @type  tag_group: C{str}
-        @param xsd_filename fichier schema xsd pour validation
+        @param xsd_filename: fichier schema xsd pour validation
         @type  xsd_filename: C{str}
         """
         self._classgroup = SupItemGroup
@@ -77,13 +78,16 @@ class GroupLoader(XMLLoader):
             hgroups[uname] = self._get_children_hierarchy(top)
         return hgroups
     
-    def _get_children_hierarchy(self, hostgroup):
+    def _get_children_hierarchy(self, group):
         """ fonction récursive construisant un dictionnaire hiérarchique.
+        
+        @param group: an XML file
+        @type  group: C{Group}
         """
-        if not hostgroup.has_children():
+        if not group.has_children():
             return 1
         hchildren = {}
-        for g in hostgroup.get_children():
+        for g in group.get_children():
             hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
         return hchildren
 
@@ -91,8 +95,8 @@ class GroupLoader(XMLLoader):
     def load(self, path):
         """ Charge des groupes génériques depuis un fichier xml.
         
-            @param filepath: an XML file
-            @type  filepath: C{str}
+        @param path: an XML file
+        @type  path: C{str}
         """
         parent_stack = []
         current_parent = None
@@ -155,11 +159,6 @@ class HostGroupLoader(GroupLoader):
     _tag_group = "hostgroup"
     _xsd_filename = "hostgroup.xsd"
     
-    def delete_all(self):
-        """ efface la totalité des entités de la base
-        
-        """
-        DBSession.query(SupItemGroup).delete()
     
     def get_hosts_conf(self):
         """ reconstruit le dico hostsGroup v1
@@ -170,27 +169,7 @@ class HostGroupLoader(GroupLoader):
         for g in DBSession.query(SupItemGroup).all():
             hostsgroups[g.name] = g.name
         return hostsgroups
-    
-    def get_groups_hierarchy(self):
-        """ reconstruit le dico groupsHierarchy v1
-        
-        TODO: refactoring
-        """
-        hgroups = {}
-        for top in SupItemGroup.get_top_groups():
-            hgroups[unicode(top.name)] = self._get_children_hierarchy(top)
-        return hgroups
-    
-    def _get_children_hierarchy(self, hostgroup):
-        """ fonction récursive construisant un dictionnaire hiérarchique.
-        """
-        if not hostgroup.has_children():
-            return 1
-        hchildren = {}
-        for g in hostgroup.get_children():
-            hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
-        return hchildren
-        
+       
 
 
 # VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
@@ -206,10 +185,4 @@ class ServiceGroupLoader(GroupLoader):
     _classgroup = SupItemGroup
     _tag_group = "servicegroup"
     _xsd_filename = "servicegroup.xsd"
-    
-    def delete_all(self):
-        """ efface la totalité des entités de la base
-        
-        """
-        DBSession.query(SupItemGroup).delete()
 

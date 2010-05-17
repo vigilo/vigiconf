@@ -43,10 +43,9 @@ from .. import conf
 __docformat__ = "epytext"
 
 def getFromDB(servername):
-    """
-    Get the state from DB
+    """ Get the state from DB
     @param servername: the name of the server to load from
-    @type  fileName: C{str}
+    @type  servername: C{str}
     
     @return: the same list as getFromFile
     """

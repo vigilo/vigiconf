@@ -65,6 +65,7 @@ class AutoMap:
                    }
     
     def __init__(self):
+        """Constructeur. """
         conf = self.get_conf()
         self.map_defaults = conf.param_maps_auto['AutoMap']['map_defaults']
     
@@ -141,7 +142,9 @@ class AutoMap:
         """ renvoie et éventuellement génère un groupe de cartes.
         
         @param name: nom de groupe de carte
-        @type group: C{Str}
+        @type name: C{Str}
+        @param parent_name: nom de groupe parent (opt)
+        @type parent_name: C{Str}
         
         @return: le groupe de cartes
         @rtype: C{MapGroup}

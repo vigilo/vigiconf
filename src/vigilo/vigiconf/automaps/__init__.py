@@ -31,17 +31,20 @@ from vigilo.models.session import DBSession
 from vigilo.models.tables import Map, MapNodeHls, MapNodeHost
 
 class AutoMapManager(object):
-    """
-    Handles the generator library.
+    """ Handles the generator library.
+    
     @cvar genclasses: the list of available generators.
     @type genclasses: C{list}
     
-    TODO: factoriser avec generators
+    TODO: factoriser avec generators. refactoring délicat en raison
+          du chargement dynamique des classes. La directive import
+          est sensible à cela.
     """
 
     genclasses = []
 
     def __init__(self):
+        """ Constructeur """
         if not self.genclasses:
             self.__load()
 

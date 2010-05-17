@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<tags>
+	<tag name="mco">
+		<value>1</value>
+		<supitem>
+			<host name="host1.example.com" />
+		</supitem>
+	</tag>
+	
+	<tag name="silence">
+		<value>1</value>
+		<supitem>
+			<host name="host1.example.com" />
+		</supitem>
+		<supitem>
+			<host name="host2.example.com" />
+		</supitem>
+		<supitem>
+			<host name="host5.example.com" />
+		</supitem>
+	</tag>
+	
+	<tag name="rf1">
+		<value>1</value>
+		<supitem>
+			<host name="host1.example.com" />
+		</supitem>
+		<supitem>
+			<host name="host3.example.com" />
+		</supitem>
+	</tag>
+</tags>

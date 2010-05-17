@@ -20,8 +20,10 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 """
-new template engine (genshi)
+Classe de base pour un générateur de fichier de configuration.
 
+L'implémentation fournie par la classe View utilise le moteur de template
+Genshi, en cohérence avec les modules web de vigilo.
 """
 import os
 import os.path
@@ -45,6 +47,17 @@ class View:
     """
     
     def __init__(self, gendir, mapping={}, validator=None, template_dir=None):
+        """ Constructeur.
+        
+        @param gendir: répertoire conteneur pour la génération
+        @type  gendir: C{str}
+        @param mapping: dictionnaire mapping ventilation
+        @type  mapping: C{dict}
+        @param validator: valideur
+        @type validator: L{Validator<lib.validator.Validator>}
+        @param template_dir: répertoire templates
+        @type  template_dir: C{str}
+        """
         self.mapping = mapping
         self.baseDir = gendir
         
@@ -56,6 +69,7 @@ class View:
     def create_dir_if_missing(self, filename):
         """
         Creates all directories on the path of the provided filename
+        
         @param filename: a file path
         @type  filename: C{str}
         """
@@ -64,7 +78,13 @@ class View:
             os.makedirs(destdir)
     
     def get_hosts_by_server(self, app_key):
-        """
+        """ renvoie la liste des hôtes gérés par serveur pour une
+            application.
+        
+        @param app_key: application
+        @type  app_key: C{str}
+        @return: dictionnaire
+        @rtype:  C{dict}
         """
         servers = {}
         for (hostname, ventilation) in self.mapping.iteritems():
@@ -83,6 +103,15 @@ class View:
     def render(self, template, context, filename=None):
         """ génération de texte à partir d'un template genshi.
         
+        @param template: fichier template (chemin relatif à
+                         <confdir>/filetemplates)
+        @type  template: C{str}
+        @param context: contexte (cf. doc genshi)
+        @type  context: C{dict}
+        @param filename: nom de fichier (optionnel)
+        @type  filename: C{str}
+        @return: texte généré si filename n'est pas renseigné.
+        @rtype:  C{str}
         """
         tmpl = self.loader.load(template, cls=TextTemplate)
         stream = tmpl.generate(**context)

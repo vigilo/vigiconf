@@ -27,6 +27,8 @@ from vigilo.models.session import DBSession
 from .xmlloader import XMLLoader
 
 class MapLoader(XMLLoader):
+    """ Charge des cartes depuis un fichier XML.
+    """
     
     do_validation = True
     
@@ -38,7 +40,10 @@ class MapLoader(XMLLoader):
     label = None
     
     def start_element(self, tag):
-        """ start element event handler
+        """ événement début de bloc XML.
+        
+        @param tag: balise
+        @type  tag: C{str}
         """
         if   tag == "map":
             if self._bloclist == ['maps', 'map']: self.start_map()
@@ -72,7 +77,10 @@ class MapLoader(XMLLoader):
             raise Exception("balise inconnue: <%s>" % tag)
     
     def end_element(self, tag):
-        """ end element event handler
+        """ événement fin de bloc XML.
+        
+        @param tag: balise
+        @type  tag: C{str}
         """
         if   tag == "map":
             if self._bloclist == ['maps', 'map']: self.end_map()
@@ -105,10 +113,14 @@ class MapLoader(XMLLoader):
             raise Exception("balise inconnue: <%s>" % tag)
         
     def start_map(self):
+        """ événement début de bloc "map".
+        """
         self.mapid = self.get_uattrib("id")
         self.groups = []
     
     def end_map(self):
+        """ événement fin de bloc "map".
+        """
         map = Map(
                 mtime=datetime.today(),
                 title=self.title,
@@ -129,6 +141,8 @@ class MapLoader(XMLLoader):
         
     
     def start_host(self):
+        """ événement début de bloc "host".
+        """
         if not self.node_mode: raise Exception("host node must be in a nodes block.")
         
         name = self.get_uattrib("name")
@@ -139,12 +153,16 @@ class MapLoader(XMLLoader):
         self.hosts[id] = host
     
     def end_host(self):
+        """ événement fin de bloc "host".
+        """
         if not self.node_mode:  raise Exception("host node must be in a nodes block.")
         self.host, self.name, self.id = (None,) * 3
         self.label = None
         self.x, self.y, self.minimize = (None,) * 3
      
     def start_group(self):
+        """ événement début de bloc "group".
+        """
         groupname = self.get_utext()
         group = MapGroup.by_group_name(groupname)
         if not group:
@@ -153,19 +171,19 @@ class MapLoader(XMLLoader):
         self.groups.append(group)
     
     def start_submap(self):
+        """ événement début de bloc "submap".
+        """
         pass
     
     def end_submap(self):
+        """ événement fin de bloc "submap".
+        """
         pass
     
     def start_position(self):
+        """ événement début de bloc "position".
+        """
         self.x = int(self.get_attrib("x"))
         self.y = int(self.get_attrib("y"))
         self.minimize = self.get_attrib("minimize") == 'true'
-    
-    def start_(self):
-        pass
-    
-    def end_(self):
-        pass
    

@@ -74,15 +74,17 @@ def get_local_ventilation():
     return mapping
 
 def generate(gendir, commit_db=False):
-    """
-    Main routine of this module, produces the configuration files.
-    TODO: implementer l'option commit db
+    """ Main routine of this module, produces the configuration files.
+    
+    TODO: implementer l'option commit db.
+    
     @param gendir generation directory
-    @type C{str}
+    @type gendir C{str}
     @param commit_db True means that data is commited in the database
            after generation; if False, a rollback is done.
     @type commit_db C{boolean}
-    @return: True if sucessful, False otherwise.
+    @return: True if sucessful, False otherwise
+    @rtype: C{boolean}
     """
     
     # mise à jour de la liste des application en base

@@ -44,9 +44,9 @@ class XMLLoader:
     La méthode load doit être redéfinie obligatoirement.
     
     Caractéristiques:
-    - chargement de données XML dans une hiérarchie de répertoires
-    - exclusion de certains répertoires
-    - validation XSD 
+      - chargement de données XML dans une hiérarchie de répertoires
+      - exclusion de certains répertoires
+      - validation XSD 
     """
     
     _xsd_dir = os.path.join(os.path.dirname(__file__),
@@ -67,6 +67,11 @@ class XMLLoader:
     change = False
     
     def __init__(self, xsd_filename=None):
+        """ Constructeur.
+        @param  xsd_filename: an XSD file name (present in the validation/xsd dir)
+        @type  xsd_filename: C{str}
+        """
+        
         if xsd_filename: self._xsd_filename = xsd_filename
         if self._xsd_filename:
             self._xsd_file_path = os.path.join(self._xsd_dir,
@@ -93,8 +98,6 @@ class XMLLoader:
         @todo: use lxml for python-based validation
         @param xmlfile: an XML file
         @type  xmlfile: C{str}
-        @param  xsdfilename: an XSD file name (present in the validation/xsd dir)
-        @type  xsdfilename: C{str}
         """
         xsd = self._xsd_file_path
         devnull = open("/dev/null", "w")
@@ -105,8 +108,12 @@ class XMLLoader:
             raise ParsingError("XML validation failed (%s/%s)" % (xmlfile, xsd))
     
     def visit_dir(self, dirname):
-        """
-        @return True if dirname should be visited to load data
+        """ validate the exploration of a directory.
+        
+        @param dirname: a directory name
+        @type  dirname: C{str}
+        @return:  True if dirname should be visited to load data
+        @rtype: C{boolean}
         """
         if dirname.startswith("."):
             return False
@@ -118,12 +125,11 @@ class XMLLoader:
     def get_xml_parser(self, path, events=("start", "end")):
         """ get an XML parser.
         
-        Usage:
-        
-            for event, elem in self.get_xml_parser(filepath):
-                if event == "start":
-                    if elem.tag == "map":
-                        # DO SOMETHING
+        Usage::
+        for event, elem in self.get_xml_parser(filepath):
+            if event == "start":
+                if elem.tag == "map":
+                    # DO SOMETHING
         
         @param path: an XML file
         @type  path: C{str}
@@ -136,12 +142,12 @@ class XMLLoader:
         """ Default parser.
         
         The XMLLoader subclass should implement  the 2 methods:
-        - start_element(tag)
-        - end_element(tag)
+          - start_element(tag)
+          - end_element(tag)
         
         and should use the following methods:
-        - get_attrib(name)
-        - get_text()
+          - get_attrib(name)
+          - get_text()
         
         @param path: an XML file
         @type  path: C{str}
@@ -165,12 +171,15 @@ class XMLLoader:
         Does nothing
         
         one should use the following methods:
-        - get_attrib(name)
-        - get_text()
+          - get_attrib(name)
+          - get_text()
         
         and attributes
-        - _bloclist that contains current bloc hierarchy
+          - _bloclist that contains current bloc hierarchy
           ie. ['nodes', 'node', 'item']
+        
+        @param tag: an XML tag
+        @type  tag: C{str}
         """
         pass
     
@@ -180,12 +189,15 @@ class XMLLoader:
         Does nothing
         
         one should use the following methods:
-        - get_attrib(name)
-        - get_text()
+          - get_attrib(name)
+          - get_text()
         
         and attributes
-        - _bloclist that contains current bloc hierarchy
+          - _bloclist that contains current bloc hierarchy
           ie. ['nodes', 'node', 'item']
+        
+        @param tag: an XML tag
+        @type  tag: C{str}
         """
         pass
     
@@ -193,6 +205,9 @@ class XMLLoader:
         """ Obtient le bloc texte entre deux tags XML.
         
         Les blancs début et fin sont retirés.
+        
+        @param elem: élément (élément courant par défaut)
+        @type  elem: C{object}
         """
         if elem == None: elem = self._elem
         return elem.text.strip()
@@ -201,6 +216,10 @@ class XMLLoader:
         """ Obtient la valeur d'un attribut XML.
         
         Les blancs début et fin sont retirés.
+        @param name: nom de l'attribut
+        @type  name: C{str}
+        @param elem: élément (élément courant par défaut)
+        @type  elem: C{object}
         """
         if elem == None: elem = self._elem
         return elem.attrib[name].strip()
@@ -209,6 +228,8 @@ class XMLLoader:
         """ Obtient le bloc texte unicode entre deux tags XML.
         
         Les blancs début et fin sont retirés.
+        @param elem: élément (élément courant par défaut)
+        @type  elem: C{object}
         """
         return unicode(self.get_text(elem))
     
@@ -216,6 +237,10 @@ class XMLLoader:
         """ Obtient la valeur d'un attribut XML en unicode.
         
         Les blancs début et fin sont retirés.
+        @param name: nom de l'attribut
+        @type  name: C{str}
+        @param elem: élément (élément courant par défaut)
+        @type  elem: C{object}
         """
         return unicode(self.get_attrib(name, elem))
     
@@ -238,7 +263,7 @@ class XMLLoader:
         
         méthode à redéfinir dans la classe héritière.
         
-c        @return: True si changement détecté
+        @return: True si changement détecté
         """
         raise Exception("not implemented.")
         
@@ -255,10 +280,10 @@ c        @return: True si changement détecté
             Interface programmatique de configuration.
             
             Les modes de configuration sont les suivants :
-                mise à jour de la totalité de la configuration via l'interface
-                  programmatique pour l'ensemble des configurations
-                mise à jour unitaire d'un élément de la configuration via
-                  l'interface programmatique
+              - mise à jour de la totalité de la configuration via l'interface
+                programmatique pour l'ensemble des configurations
+              - mise à jour unitaire d'un élément de la configuration via
+                l'interface programmatique
             --------------------------------------
         
             @param basedir: a directory containing xml files
