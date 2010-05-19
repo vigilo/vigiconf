@@ -22,15 +22,6 @@
 
 """Generator for connector-metro, the RRD db generator
 
-Ce générateur est implémenté avec les deux moteurs de templates
-- Templator (spécifique vigilo)
-- Genshi (fourni par TG)
-
-La génération Genshi est activée au moyen d'une option dans settings.ini:
-enable_genshi_generation = True
-
-Pour éviter une double génération la génération Templator est
-désactivée pour ce module en supprimant la classe de base Templator
 """
 
 from __future__ import absolute_import
@@ -42,8 +33,8 @@ from .. import conf
 from . import Templator 
 
 # générateur désactivé
-#class ConnectorMetroTpl(Templator):
-class ConnectorMetroTpl:
+class ConnectorMetroTpl(Templator):
+#class ConnectorMetroTpl:
     """Generator for connector-metro, the RRD db generator"""
 
     def generate(self):
@@ -79,42 +70,3 @@ class ConnectorMetroTpl:
                 self.templateAppend(fileName, templates["ds"], tplvars)
 
 
-from . import View
-
-class ConnectorMetroView(View):
-    """Generator for connector-metro, the RRD db generator
-    
-    Version utilisant le moteur de template genshi de TurboGears
-    """
-    
-    def generate(self):
-        """Generate files"""
-        hosts = {}
-        
-        servers = self.get_hosts_by_server('connector-metro')
-        
-        for server, hosts in servers.iteritems():
-            data_hosts = []
-            
-            for hostname in hosts:
-                h = conf.hostsConf[hostname]
-                if not h.has_key("dataSources") or len(h['dataSources']) == 0:
-                    continue
-                keys = h['dataSources'].keys()
-                keys.sort()
-                
-                data_list = []
-                
-                for k2 in keys:
-                    v2 = h['dataSources'][k2]
-                    rrdname = urllib.quote(k2).strip()
-                    data_list.append({
-                             'type':v2['dsType'],
-                             'name':rrdname, 'label':v2["label"]
-                             })
-                data_hosts.append({'hostname':hostname, 'data':data_list})
-                
-            self.render('connector-metro/connector-metro.conf',
-                        {'hosts':data_hosts, 'confid':conf.confid},
-                        "%s/connector-metro.conf.py" % server)
-            

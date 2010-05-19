@@ -21,19 +21,6 @@
 """
 Generators for the Vigilo Config Manager
 
-En plus du moteur de template existant (classe de base Templator), il
-est possible maintenant d'utiliser le moteur de template Genshi au moyen
-de la classe de base View définie ici. A priori moins performante (en cours
-d'évaluation) cette 2nde solution devrait faciliter l'écriture des handlers
-python (views) et des fichiers templates.
-
-A noter également que le moteur genshi pour générer des fichiers textes possède
-2 syntaxes, mais que la dernière, pourtant conseillée (à-la-django) n'est
-peut-être pas mature (voir tests), donc préférer l'ancienne (avec des #
-et non pas des {%})
-
-Voir l'exemple de générateur connector-metro, qui possède les deux
-implémentations.
 
 """
 import glob
@@ -42,7 +29,6 @@ import os.path
 import types
 
 from ..lib.generators.templator import Templator
-from ..lib.generators.view import View
 
 from vigilo.common.conf import settings
 
@@ -79,9 +65,6 @@ class GeneratorManager(object):
         for name, genclass in locals().iteritems():
             if isinstance(genclass, (type, types.ClassType)):
                 if issubclass(genclass, Templator) and  name != "Templator":
-                    self.genclasses.append(genclass)
-                if self.genshi_enabled and issubclass(genclass, View)\
-                                       and  name != "View":
                     self.genclasses.append(genclass)
             elif isinstance(genclass, (type, types.ModuleType)) and \
                     name not in globals():
