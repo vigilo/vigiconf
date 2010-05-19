@@ -64,7 +64,7 @@ setup(name='vigilo-vigiconf',
             "vigilo-common",
             "psycopg2",
             "vigilo-models",
-            "vigilo-turbogears"
+            "Genshi",
             ],
         extras_require={
             'tests': tests_require,
