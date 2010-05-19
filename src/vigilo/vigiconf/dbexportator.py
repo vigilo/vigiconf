@@ -81,6 +81,16 @@ def export_conf_db():
     hostsConf = conf.hostsConf
     hostsGroups = conf.hostsGroups
     
+    """# mise à jour des serveurs de supervision
+    for app, dic in conf.appsGroupsByServer.iteritems():
+        for appgroup, servers in dic.iteritems():
+            servername = conf.appsGroupsByServer[appGroup][hostGroup]
+        
+        if not VigiloServer.by_vigiloserver_name(servername):
+            server = VigiloServer(name=servername)
+            DBSession.add(server)
+    DBSession.flush()
+    """
     confdir = settings['vigiconf'].get('confdir')
     # hiérarchie groupes hosts (fichier xml)
     # en premier, pour éviter d'effacer les groupes déclarés dans les hosts.
@@ -319,9 +329,8 @@ def export_ventilation_DB(ventilation):
             vigiloserver = VigiloServer.by_vigiloserver_name(server)
             
             if not vigiloserver:
-                msg = "Vigilo server %s does not exists in db." % server
-                syslog.syslog(syslog.LOG_ERR, msg)
-                raise Exception(msg)
+                vigiloserver = VigiloServer(name=server)
+                DBSession.add(vigiloserver)
             
             v = Ventilation(host=Host.by_host_name(host),
                         vigiloserver=vigiloserver,

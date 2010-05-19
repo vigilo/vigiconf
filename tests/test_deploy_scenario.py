@@ -13,7 +13,7 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import dispatchmodes
 
 from confutil import reload_conf, setup_tmpdir
-from confutil import setup_db, teardown_db, create_vigiloserver
+from confutil import setup_db, teardown_db
 from confutil import setup_deploy_dir, teardown_deploy_dir
 
 import transaction
@@ -26,7 +26,6 @@ class DeployScenario(unittest.TestCase):
         # TODO: commenter les divers repertoires
         setup_deploy_dir()
         setup_db()
-        create_vigiloserver(u'localhost')
         transaction.commit()
         
         # Deploy on the localhost only -> switch to Community Edition
