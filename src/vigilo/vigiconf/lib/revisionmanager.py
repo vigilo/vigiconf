@@ -26,6 +26,7 @@ from __future__ import absolute_import
 import re
 import locale
 import syslog
+from os.path import isfile
 
 from vigilo.common.conf import settings
 
@@ -192,27 +193,22 @@ class RevisionManager(object):
         @returns: The SVN revision
         @rtype: C{int}
         """
-        try:
-            _rc = iServer.createCommand("cat %s" % (iFilename))
-            _rc.execute()
-            #from pprint import pprint; pprint(_rc.getResult())
-            _re = re.compile('^Revision: (\d+)$')
-            _blocks = _re.findall(_rc.getResult())
-            #from pprint import pprint; pprint(_blocks)
-            if( len(_blocks) == 1 ):
-                return locale.atoi(_blocks[0])
-            else:
-                #print("%s"%(_rc.getResult()))
-                return None
-        except Exception, e:
-            # TODO: à revoir
-            _re = re.compile("No such file or directory")
-            _refr = re.compile("Aucun fichier ou dossier")
-            if( _re.search(str(e)) != None ):
-                return 0
-            if( _refr.search(str(e)) != None ):
-                return 0
-            raise e
+        
+        # test if iFilename exists
+        if not isfile(iFilename):
+            return 0
+        
+        _rc = iServer.createCommand("cat %s" % (iFilename))
+        _rc.execute()
+        #from pprint import pprint; pprint(_rc.getResult())
+        _re = re.compile('^Revision: (\d+)$')
+        _blocks = _re.findall(_rc.getResult())
+        #from pprint import pprint; pprint(_blocks)
+        if( len(_blocks) == 1 ):
+            return locale.atoi(_blocks[0])
+        else:
+            #print("%s"%(_rc.getResult()))
+            return None
     
     def update(self, iServer):
         """
