@@ -205,8 +205,12 @@ class RevisionManager(object):
                 #print("%s"%(_rc.getResult()))
                 return None
         except Exception, e:
+            # TODO: à revoir
             _re = re.compile("No such file or directory")
+            _refr = re.compile("Aucun fichier ou dossier")
             if( _re.search(str(e)) != None ):
+                return 0
+            if( _refr.search(str(e)) != None ):
                 return 0
             raise e
     
