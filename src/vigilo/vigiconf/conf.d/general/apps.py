@@ -43,8 +43,8 @@ apps = {
                    },
     u'supnav'    : { 
                    u'priority' : -1,
-                   u'validationMethod' :  './validation/supnav.sh',
-                   u'qualificationMethod' : './validation/supnav.sh',
+                   u'validationMethod' :  '',
+                   u'qualificationMethod' : '',
                    u'startMethod' : '',
                    u'stopMethod' : ''
                    },
