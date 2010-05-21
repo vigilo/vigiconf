@@ -50,7 +50,7 @@ def getFromDB(servername):
     @return: the same list as getFromFile
     """
     vlist = DBSession.query(Ventilation)\
-                    .filter(Ventilation.vigiloserver.has(name=servername))\
+                    .filter(Ventilation.vigiloserver.has(name=unicode(servername)))\
                     .filter(Ventilation.application.has(name=APP_VENTILATION))
     
     hosts = []
@@ -66,7 +66,7 @@ def getSize(serverName):
     @rtype: C{int}
     """
     size = DBSession.query(Ventilation)\
-                    .filter(Ventilation.vigiloserver.has(name=serverName))\
+                    .filter(Ventilation.vigiloserver.has(name=unicode(serverName)))\
                     .filter(Ventilation.application.has(name=APP_VENTILATION))\
                     .count()
     return size
@@ -83,8 +83,8 @@ def appendHost(serverName, host):
     # TODO: check nagios is a convenient application for this
     # ressource file is used here to reimplement the old pickled dict
     hostapp = Ventilation(
-                    vigiloserver=VigiloServer.by_vigiloserver_name(serverName),
-                    host=Host.by_host_name(host),
+                    vigiloserver=VigiloServer.by_vigiloserver_name(unicode(serverName)),
+                    host=Host.by_host_name(unicode(host)),
                     application=Application.by_app_name(APP_VENTILATION)
                           )
     DBSession.add(hostapp)

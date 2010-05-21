@@ -326,15 +326,15 @@ def export_ventilation_DB(ventilation):
     
     for host, serverbyapp in ventilation.iteritems():
         for app, server in serverbyapp.iteritems():
-            vigiloserver = VigiloServer.by_vigiloserver_name(server)
+            vigiloserver = VigiloServer.by_vigiloserver_name(unicode(server))
             
             if not vigiloserver:
-                vigiloserver = VigiloServer(name=server)
+                vigiloserver = VigiloServer(name=unicode(server))
                 DBSession.add(vigiloserver)
             
-            v = Ventilation(host=Host.by_host_name(host),
+            v = Ventilation(host=Host.by_host_name(unicode(host)),
                         vigiloserver=vigiloserver,
-                        application=Application.by_app_name(app))
+                        application=Application.by_app_name(unicode(app)))
             
             DBSession.add(v)
     DBSession.flush()
