@@ -90,7 +90,7 @@ class NagiosTpl(Templator):
             # Groups
             self.__fillgroups(hostname, newhash, files)
             # Notification periods
-            if h.has_key("notification_period"):
+            if h.has_key("notification_period") and h["notification_period"]:
                 newhash["notification_period"] = "notification_period " \
                                                  + h["notification_period"]
             else:
@@ -198,7 +198,7 @@ class NagiosTpl(Templator):
             else:
                 perfdata = ""
             # Handle notification periods
-            if srvdata.has_key("notification_period"):
+            if srvdata.has_key("notification_period") and srvdata["notification_period"]:
                 srvdata["notification_period"] = "notification_period " \
                                             + srvdata["notification_period"]
             else:
