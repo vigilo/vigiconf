@@ -32,8 +32,14 @@ from . import ConfMgrError
 class SystemCommandError(ConfMgrError):
     """Exceptions involving L{SystemCommand} instances"""
 
+    def __init__(self, returncode, message):
+        super(SystemCommandError, self).__init__(message)
+        self.returncode = returncode
+        self.message = self.value
+
     def __str__(self):
-        return repr("SystemCommandError : "+self.value)
+        return "<%s: code %d and message %>" \
+                % (self.__name__, self.returncode, self.value)
 
 
 class SystemCommand(object):
@@ -93,8 +99,10 @@ class SystemCommand(object):
                                         env=newenv)
         self.mResult = self.process.communicate()
         if self.process.returncode != 0: # command failed
-            raise SystemCommandError("command %s failed: %s" \
-                    % (self.getCommand(), self.getResult()) )
+            raise SystemCommandError(self.process.returncode,
+                        "command %s failed with code %s and message: %s" 
+                        % (self.getCommand(), self.process.returncode,
+                           self.getResult()) )
     
     def integerReturnCode(self):
         """

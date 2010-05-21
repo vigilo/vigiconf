@@ -48,6 +48,10 @@ from . import ConfMgrError
 class ApplicationError(ConfMgrError):
     """Exception concerning an application"""
 
+    def __init__(self, *args, **kwargs):
+        super(ApplicationError, self).__init__(*args, **kwargs)
+        self.cause = None
+
     def __str__(self):
         return repr("ApplicationError : "+self.value)
 
@@ -239,14 +243,17 @@ class Application(object):
             _filesDir = os.path.join(iBaseDir, iServer.getName())
             if not os.path.exists(os.path.join(_filesDir, "validation")):
                 iServer.insertValidationDir()
+            os.chdir(_filesDir)
             _commandStr = _validationCommand + " " + _filesDir
             _command = SystemCommand(_commandStr)
             try:
                 _command.execute()
             except SystemCommandError, e:
-                raise ApplicationError("%s : Validation failed for : %s "
-                                       % (self.getName(), iServer)
-                                      +"- REASON %s" % e.value)    
+                error = ApplicationError("%s : Validation failed for : %s "
+                                       % (self.getName(), iServer.getName())
+                                      +"- REASON %s" % e.value)
+                error.cause = e
+                raise error
         syslog.syslog(syslog.LOG_INFO, "%s : Validation successful for "
                                    % self.getName() + "server: %s" % iServer.getName())
 
@@ -294,9 +301,11 @@ class Application(object):
             try:
                 _command.execute()
             except SystemCommandError, e:
-                raise ApplicationError("%s : Qualification failed on : %s - "
+                error = ApplicationError("%s : Qualification failed on : %s - "
                                        % (self.getName(), iServer.getName())
                                       +"REASON : %s" % e.value)
+                error.cause = e
+                raise error
         syslog.syslog(syslog.LOG_INFO, "%s : Qualification successful on "
                                        % self.getName() + "server : %s"
                                        % iServer.getName())
@@ -383,8 +392,9 @@ class Application(object):
             try:
                 _command.execute()
             except SystemCommandError, e:
-                raise ApplicationError("Can't Start %s on %s - REASON %s\n" \
+                error = ApplicationError("Can't Start %s on %s - REASON %s\n" \
                                % (self.getName(), iServer.getName(), e.value))
+                error.cause = e
             syslog.syslog(syslog.LOG_INFO,
                          ("%s started on %s\n" \
                          % (self.getName(), iServer.getName())))
@@ -466,8 +476,9 @@ class Application(object):
             try:
                 _command.execute()
             except SystemCommandError, e:
-                raise ApplicationError("Can't Stop %s on %s - REASON %s\n" \
+                error = ApplicationError("Can't Stop %s on %s - REASON %s\n" \
                                % (self.getName(), iServer.getName(), e.value))
+                error.cause = e
             syslog.syslog(syslog.LOG_INFO,
                          ("%s stopped on %s\n" \
                           % (self.getName(), iServer.getName())))
