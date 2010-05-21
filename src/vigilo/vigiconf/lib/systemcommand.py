@@ -54,7 +54,7 @@ class SystemCommand(object):
         self.process = None
         
     def __str__(self):
-        return "SystemCommand"
+        return "<SystemCommand: %s>" % self.mCommand
     
     def setCommand(self, iCommand):
         """

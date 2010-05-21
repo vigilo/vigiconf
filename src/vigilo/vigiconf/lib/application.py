@@ -31,6 +31,7 @@
 
 from __future__ import absolute_import
 
+import os
 import syslog
 import Queue
 import threading
@@ -235,7 +236,10 @@ class Application(object):
         # iterate through the servers
         _validationCommand = self.getValidationMethod()
         if len(_validationCommand) > 0: # if there's a command for validation
-            _commandStr = _validationCommand + " " + iBaseDir + "/" + iServer.getName()
+            _filesDir = os.path.join(iBaseDir, iServer.getName())
+            if not os.path.exists(os.path.join(_filesDir, "validation")):
+                iServer.insertValidationDir()
+            _commandStr = _validationCommand + " " + _filesDir
             _command = SystemCommand(_commandStr)
             try:
                 _command.execute()
@@ -244,7 +248,7 @@ class Application(object):
                                        % (self.getName(), iServer)
                                       +"- REASON %s" % e.value)    
         syslog.syslog(syslog.LOG_INFO, "%s : Validation successful for "
-                                   % self.getName() + "server: %s" % iServer)
+                                   % self.getName() + "server: %s" % iServer.getName())
 
 
 
