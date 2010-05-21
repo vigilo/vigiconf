@@ -149,6 +149,7 @@ class AutoMap:
         @return: le groupe de cartes
         @rtype: C{MapGroup}
         """
+        name = unicode(name)
         gmap = MapGroup.by_group_name(name)
         if not gmap:
             gmap = MapGroup(name=name)
@@ -170,16 +171,16 @@ class AutoMap:
         @return: une carte
         @rtype: C{Map}
         """
-        map = Map(title=title, generated=True,
+        map = Map(title=unicode(title), generated=True,
                   mtime=datetime.now(),
-                  background_color=data['background_color'],
-                  background_image=data['background_image'],
-                  background_position=data['background_position'],
-                  background_repeat=data['background_repeat']
+                  background_color=unicode(data['background_color']),
+                  background_image=unicode(data['background_image']),
+                  background_position=unicode(data['background_position']),
+                  background_repeat=unicode(data['background_repeat']),
                   )
         map.groups = []
         for name in groupnames:
-            map.groups.append(MapGroup.by_group_name(name))
+            map.groups.append(MapGroup.by_group_name(unicode(name)))
         DBSession.add(map)
         return map
     

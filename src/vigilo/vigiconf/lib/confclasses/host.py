@@ -388,7 +388,8 @@ class Host(object):
             name = reroutefor['service']
         else:
             target = self.name
-        graph = Graph(self.hosts, label, [ name ], template, vlabel, group=group)
+        graph = Graph(self.hosts, unicode(label), [ unicode(name) ],
+                      unicode(template), unicode(vlabel), group=unicode(group))
         graph.add_to_host(target)
 
     def add_graph(self, title, dslist, template, vlabel,
@@ -408,8 +409,9 @@ class Host(object):
         @param factors: the factors to use, if any
         @type  factors: C{dict}
         """
-        graph = Graph(self.hosts, title, dslist, template, vlabel,
-                      group=group, factors=factors)
+        graph = Graph(self.hosts, unicode(title), map(unicode, dslist),
+                      unicode(template), unicode(vlabel),
+                      group=unicode(group), factors=factors)
         graph.add_to_host(self.name)
 
     def add_to_graph(self, title, ds, factor=None):

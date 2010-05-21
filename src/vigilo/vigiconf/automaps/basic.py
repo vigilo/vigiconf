@@ -54,14 +54,14 @@ class BasicAutoMap(AutoMap):
     
         'BasicAutoMap': {
             'top_groups':[ u'Groupes', u'%(hostgroup)s'],
-            'parent_topgroups':None,
+            'parent_topgroup':None,
             'map_groups':['Groupes',]
         }
 
 
 
     @ivar top_groups: liste des groupes de premier niveau à générer.
-    @ivar parent_topgroups: liste de groupes à positionner comme parent pour\
+    @ivar parent_topgroup: nom du groupe à positionner comme parent pour\
           les groupes de premier niveau à générer.
     @ivar map_groups: liste des groupes par défaut à associer aux cartes à générer.
     """
@@ -69,8 +69,8 @@ class BasicAutoMap(AutoMap):
     # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['top_groups']
     top_groups = []
     
-    # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['parent_topgroups']
-    parent_topgroups = None
+    # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['parent_topgroup']
+    parent_topgroup = None
     
     # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['map_groups']
     map_groups = []
@@ -79,9 +79,9 @@ class BasicAutoMap(AutoMap):
         """Constructeur. """
         AutoMap.__init__(self)
         conf = self.get_conf()
-        self.top_groups = conf.param_maps_auto['BasicAutoMap']['top_groups']
-        self.parent_topgroups = conf.param_maps_auto['BasicAutoMap']['parent_topgroups']
-        self.map_groups = conf.param_maps_auto['BasicAutoMap']['map_groups']
+        self.top_groups = map(unicode, conf.param_maps_auto['BasicAutoMap']['top_groups'])
+        self.parent_topgroup = conf.param_maps_auto['BasicAutoMap']['parent_topgroup']
+        self.map_groups = map(unicode, conf.param_maps_auto['BasicAutoMap']['map_groups'])
     
     def process_top_group(self, group):
         """ génération des entités liées à un groupe d'hosts de niveau supérieur.
@@ -92,7 +92,7 @@ class BasicAutoMap(AutoMap):
         # génération des MapGroup
         for name in self.top_groups:
             gname = name % {'hostgroup':group.name}
-            gmap = self.get_or_create_mapgroup(gname, parent_name=self.parent_topgroups)
+            gmap = self.get_or_create_mapgroup(gname, parent_name=self.parent_topgroup)
         
         # génération de la Map
         self.generate_map(group, mapgroups=self.map_groups)
