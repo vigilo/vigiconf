@@ -38,8 +38,8 @@ class SystemCommandError(ConfMgrError):
         self.message = self.value
 
     def __str__(self):
-        return "<%s: code %d and message %>" \
-                % (self.__name__, self.returncode, self.value)
+        return "<%s: code %d and message %s>" \
+                % (self.__class__, self.returncode, self.value)
 
 
 class SystemCommand(object):
