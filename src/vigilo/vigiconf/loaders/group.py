@@ -126,7 +126,7 @@ class GroupLoader(XMLLoader):
                                 if group.get_parent().name != current_parent.name:
                                     raise Exception(
                     "%s %s should have one parent (%s, %s)" %
-                    (tag_group, group.name, group.parent.name,
+                    (tag_group, group.name, group.get_parent().name,
                      current_parent.name)
                                         )
                             group.set_parent(current_parent)

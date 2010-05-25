@@ -1,16 +1,15 @@
 <?xml version="1.0"?>
 <groups>
 
-	<group name="hlservices_group" >
-		
+	<group name="High Level Services" >
+
 		<children>
-		
-			<group name="hlsgroup1"/>
-			<group name="hlsgroup2"/>
-			<group name="hlsgroup3">
+			<group name="HLS group 1"/>
+			<group name="HLS group 2"/>
+			<group name="HLS group 3">
 				<children>
-					<group name="hlsgroup31"/>
-					<group name="hlsgroup32"/>
+					<group name="HLS group 3.1"/>
+					<group name="HLS group 3.2"/>
 				</children>
 			</group>
 			

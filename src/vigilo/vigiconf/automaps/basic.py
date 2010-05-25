@@ -53,35 +53,26 @@ class BasicAutoMap(AutoMap):
     Le paramétrage de la génération est effectué comme dans l'exemple suivant:
     
         'BasicAutoMap': {
-            'top_groups':[ u'Groupes', u'%(hostgroup)s'],
             'parent_topgroup':None,
-            'map_groups':['Groupes',]
         }
 
 
 
-    @ivar top_groups: liste des groupes de premier niveau à générer.
     @ivar parent_topgroup: nom du groupe à positionner comme parent pour\
           les groupes de premier niveau à générer.
-    @ivar map_groups: liste des groupes par défaut à associer aux cartes à générer.
     """
-    
-    # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['top_groups']
-    top_groups = []
     
     # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['parent_topgroup']
     parent_topgroup = None
-    
-    # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['map_groups']
-    map_groups = []
     
     def __init__(self):
         """Constructeur. """
         AutoMap.__init__(self)
         conf = self.get_conf()
-        self.top_groups = map(unicode, conf.param_maps_auto['BasicAutoMap']['top_groups'])
         self.parent_topgroup = conf.param_maps_auto['BasicAutoMap']['parent_topgroup']
-        self.map_groups = map(unicode, conf.param_maps_auto['BasicAutoMap']['map_groups'])
+        if not self.parent_topgroup:
+            # XXX: dossier "virtuel" de plus haut niveau. Hardcodé pour l'instant
+            self.parent_topgroup = "Root"
     
     def process_top_group(self, group):
         """ génération des entités liées à un groupe d'hosts de niveau supérieur.
@@ -90,12 +81,11 @@ class BasicAutoMap(AutoMap):
         @type group: C{SupItemGroup}
         """
         # génération des MapGroup
-        for name in self.top_groups:
-            gname = name % {'hostgroup':group.name}
-            gmap = self.get_or_create_mapgroup(gname, parent_name=self.parent_topgroup)
-        
+        if group.has_children():
+            gmap = self.get_or_create_mapgroup(group.name,
+                                       parent_name=self.parent_topgroup)
         # génération de la Map
-        self.generate_map(group, mapgroups=self.map_groups)
+        self.generate_map(group, mapgroups=[self.parent_topgroup,])
     
     def process_leaf_group(self, group):
         """ traitement des hostgroups de niveau final
@@ -105,15 +95,16 @@ class BasicAutoMap(AutoMap):
         """
         from vigilo.models.tables import Map
         # génération des Map
-        self.generate_map(group, mapgroups=self.map_groups)
+        self.generate_map(group)
         # on fait la hiérarchie des mapgroup
         map = Map.by_map_title(group.name)
-        if map:
-            if group.has_parent():
-                gmap = self.build_mapgroup_hierarchy(group.get_parent())
-                #print "map %s groups[0]=%s" % (group.name, gmap.name)
-                map.groups = [gmap,]
-                DBSession.flush()
+        if not map:
+            return
+        if group.has_parent():
+            gmap = self.build_mapgroup_hierarchy(group.get_parent())
+            #print "map %s groups[0]=%s" % (group.name, gmap.name)
+            map.groups = [gmap,]
+            DBSession.flush()
     
     def generate_map(self, group, mapgroups=[]):
         """ génère une carte à partir d'un groupe d'éléments supervisés.
@@ -125,17 +116,17 @@ class BasicAutoMap(AutoMap):
         @type mapgroups: C{List}
         """
         nbelts = len(group.get_hosts()) + len(group.get_services())
-        if nbelts > 0:
-            map = Map.by_map_title(group.name)
-            created = False
-            if not map:
-                map = self.create_map(group.name, mapgroups, self.map_defaults)
-                created = True
-                #print "map %s genererated groups[0]=%s" % (group.name, map.groups[0].name)
-            if map.generated:
-                # on gère le contenu uniquement pour les cartes auto
-                self.populate_map(map, group, self.map_defaults, created=created)
-        
+        if nbelts == 0:
+            return
+        map = Map.by_map_title(group.name)
+        created = False
+        if not map:
+            map = self.create_map(group.name, mapgroups, self.map_defaults)
+            created = True
+            #print "map %s genererated groups[0]=%s" % (group.name, map.groups[0].name)
+        if map.generated:
+            # on gère le contenu uniquement pour les cartes auto
+            self.populate_map(map, group, self.map_defaults, created=created)
         DBSession.flush()
         
     def populate_map(self, map, group, data, created=True):
@@ -162,7 +153,7 @@ class BasicAutoMap(AutoMap):
                                    map=map,
                                    host=host,
                                    widget=u"ServiceElement",
-                                   icon=data['host_icon'])
+                                   icon=unicode(data['host_icon']))
                 DBSession.add(node)
             else:
                 if len(nodes) > 1:
@@ -184,7 +175,7 @@ class BasicAutoMap(AutoMap):
                                     map=map,
                                     service=service,
                                     widget=u"ServiceElement",
-                                    icon=data['hls_icon'])
+                                    icon=unicode(data['hls_icon']))
                 DBSession.add(node)
             else:
                 if len(nodes) > 1:

@@ -131,7 +131,7 @@ class AutoMap:
         """
         gmap = MapGroup.by_group_name(group.name)
         if not gmap:
-            gmap = MapGroup(name=group.name)
+            gmap = MapGroup.create(name=group.name)
             if group.has_parent():
                 pgmap = self.build_mapgroup_hierarchy(group.get_parent())
                 gmap.set_parent(pgmap)
@@ -152,9 +152,13 @@ class AutoMap:
         name = unicode(name)
         gmap = MapGroup.by_group_name(name)
         if not gmap:
-            gmap = MapGroup(name=name)
+            gmap = MapGroup.create(name=name)
             if parent_name:
                 gmap.set_parent(self.get_or_create_mapgroup(parent_name))
+            else:
+                # XXX: dossier "virtuel" de plus haut niveau
+                # Hardcodé pour l'instant
+                gmap.set_parent(self.get_or_create_mapgroup("Root"))
             DBSession.add(gmap)
         return gmap
     

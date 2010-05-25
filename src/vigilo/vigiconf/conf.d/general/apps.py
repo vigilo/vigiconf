@@ -20,13 +20,6 @@ apps = {
                    u'startMethod' : '/etc/init.d/vigilo-connector-metro reload',
                    u'stopMethod' : ''
                    },
-    u'apacheRP'    : { 
-                   u'priority' : -1,
-                   u'validationMethod' :  '',
-                   u'qualificationMethod' : '',
-                   u'startMethod' : '/etc/init.d/httpd reload',
-                   u'stopMethod' : ''
-                   },
     u'collector'    : { 
                    u'priority' : -1,
                    u'validationMethod' :  './validation/collector.sh',
@@ -41,32 +34,11 @@ apps = {
                    u'startMethod' : '',
                    u'stopMethod' : ''
                    },
-    u'supnav'    : { 
-                   u'priority' : -1,
-                   u'validationMethod' :  '',
-                   u'qualificationMethod' : '',
-                   u'startMethod' : '',
-                   u'stopMethod' : ''
-                   },
-    u'nagvis'    : { 
-                   u'priority' : -1,
-                   u'validationMethod' :  './validation/nagvis.sh',
-                   u'qualificationMethod' : './validation/nagvis.sh',
-                   u'startMethod' : '',
-                   u'stopMethod' : ''
-                   },
     u'rrdgraph'    : { 
                    u'priority' : -1,
                    u'validationMethod' :  './validation/rrdgraph.sh',
                    u'qualificationMethod' : './validation/rrdgraph.sh',
                    u'startMethod' : '/etc/init.d/httpd reload',
-                   u'stopMethod' : ''
-                   },
-    u'reportingv2' : {
-                   u'priority' : -1,
-                   u'validationMethod' :  '',
-                   u'qualificationMethod' : '',
-                   u'startMethod' : '',
                    u'stopMethod' : ''
                    },
 }
@@ -75,8 +47,6 @@ apps = {
 appsByAppGroups = {
     u'collect'           : [u'nagios', u'collector', u'perfdata'],
     u'metrology'         : [u'connector-metro', u'rrdgraph'],
-    u'corrpres'          : [u'supnav', u'apacheRP', u'nagvis'],
-    u'reporting'         : [u'reportingv2'],
     u'trap'              : [u'corrtrap'],
 }
 
