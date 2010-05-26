@@ -183,7 +183,8 @@ class NagiosTpl(Templator):
         """Fill the services section in the configuration file"""
         h = conf.hostsConf[hostname]
         for (srvname, srvdata) in h['services'].iteritems():
-            
+            scopy = srvdata.copy()
+
             #   directives generiques
             generic_directives = ""
             if newhash['nagiosSrvDirs'].has_key(srvname):
@@ -198,23 +199,23 @@ class NagiosTpl(Templator):
             else:
                 perfdata = ""
             # Handle notification periods
-            if srvdata.has_key("notification_period") and srvdata["notification_period"]:
-                srvdata["notification_period"] = "notification_period " \
-                                            + srvdata["notification_period"]
+            if copy.has_key("notification_period"):
+                scopy["notification_period"] = "notification_period " \
+                                            + scopy["notification_period"]
             else:
-                srvdata["notification_period"] = ""
-            if srvdata['type'] == 'passive':
+                scopy["notification_period"] = ""
+            if scopy['type'] == 'passive':
                 # append a passive service template
                 self.templateAppend(self.fileName, self.templates["collector"],
                         {'name': h['name'],
                          'serviceName': srvname,
                          'quietOrNot': newhash['quietOrNot'],
                          'perfDataOrNot': perfdata,
-                         'maxchecks': srvdata.get('maxchecks', 1),
-                         "notification_period": srvdata["notification_period"],
+                         'maxchecks': scopy.get('maxchecks', 1),
+                         "notification_period": scopy["notification_period"],
                          "generic_sdirectives":generic_directives})
             else:
-                if srvdata['command'].count("$METROSERVER$") > 0:
+                if scopy['command'].count("$METROSERVER$") > 0:
                     # Replace the keyword
                     if not ventilation.has_key("storeme"):
                         # Hey, I have no metro server! I can't check that!
@@ -222,19 +223,19 @@ class NagiosTpl(Templator):
                                         +"server for an RRD-based service")
                     else:
                         mserver = ventilation['storeme']
-                        newcmd = srvdata['command']
+                        newcmd = scopy['command']
                         newcmd = newcmd.replace("$METROSERVER$", mserver)
-                        srvdata['command'] = newcmd
+                        scopy['command'] = newcmd
                 # append an active service, nammed external, as "not handled by
                 # Collector"
                 self.templateAppend(self.fileName, self.templates["ext"],
                         {'name': h['name'],
                          'desc': srvname,
-                         'command': srvdata['command'],
+                         'command': scopy['command'],
                          'quietOrNot': newhash['quietOrNot'],
                          'perfDataOrNot': perfdata,
-                         'maxchecks': srvdata.get('maxchecks', 1),
-                         "notification_period": srvdata["notification_period"],
+                         'maxchecks': scopy.get('maxchecks', 1),
+                         "notification_period": scopy["notification_period"],
                          "generic_sdirectives":generic_directives})
 
 
