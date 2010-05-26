@@ -207,7 +207,7 @@ class Server(object):
     def insertValidationDir(self):
         """Prepare the directory with the validation scripts"""
         try:
-            _commandStr = "mkdir %s/%s/validation && " \
+            _commandStr = "mkdir -p %s/%s/validation && " \
                           % (self.getBaseDir(), self.getName()) \
                          +"cp %s/validation/*.sh %s/%s/validation/" \
                           % (conf.CODEDIR, self.getBaseDir(), self.getName())

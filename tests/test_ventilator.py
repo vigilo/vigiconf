@@ -60,7 +60,7 @@ class VentilatorTest(unittest.TestCase):
         ici.
         """
         ventilation = generator.get_local_ventilation()
-        self.assertEquals(len(ventilation['localhost'].keys()), 10, "10 apps (%d)" % len(ventilation['localhost'].keys()))
+        self.assertEquals(len(ventilation['localhost'].keys()), 6, "6 apps (%d)" % len(ventilation['localhost'].keys()))
         
         # need locahost in db
         host = self._create_localhost()
@@ -69,7 +69,7 @@ class VentilatorTest(unittest.TestCase):
         
         #need apps in DB
         dbexportator.update_apps_db()
-        self.assertEquals(DBSession.query(Application).count(), 10, "10 apps in DB")
+        self.assertEquals(DBSession.query(Application).count(), 6, "6 apps in DB")
         
         dbexportator.export_ventilation_DB(ventilation)
         
@@ -86,7 +86,7 @@ class VentilatorTest(unittest.TestCase):
         host = self._create_localhost()
         
         # need server
-        create_vigiloserver(u'supserver.example.com')
+        create_vigiloserver(u'localhost')
         
         # need nagios application
         nagios = Application(name=u'nagios')
@@ -98,7 +98,7 @@ class VentilatorTest(unittest.TestCase):
                 l = conf.appsGroupsByServer[appGroup][hostGroup]
                 server = getServerToUse(l, host.name)
                 if one_server:
-                    self.assertEquals(server, u'supserver.example.com')
+                    self.assertEquals(server, u'localhost')
         
     def test_getservertouse_multi(self):
         """ Test de la ventilation sur plusieurs serveurs vigilo.
