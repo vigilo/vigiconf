@@ -50,11 +50,7 @@ class EnterpriseEdition(unittest.TestCase):
                         "P-F":     ["sup.example.com"],
                         "Servers": ["sup.example.com"],
                     },
-                    "corrpres": {
-                        "P-F":     ["sup.example.com"],
-                        "Servers": ["sup.example.com"],
-                    },
-                    "reporting": {
+                    "trap": {
                         "P-F":     ["sup.example.com"],
                         "Servers": ["sup.example.com"],
                     },
