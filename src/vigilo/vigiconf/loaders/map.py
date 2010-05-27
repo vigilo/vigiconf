@@ -166,7 +166,7 @@ class MapLoader(XMLLoader):
         groupname = self.get_utext()
         group = MapGroup.by_group_name(groupname)
         if not group:
-            group = MapGroup(name=groupname)
+            group = MapGroup.create(name=groupname)
             DBSession.add(group)
         self.groups.append(group)
     
