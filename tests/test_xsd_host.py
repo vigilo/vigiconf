@@ -9,7 +9,6 @@ class HostXSD(XSDTest):
     
     xml_ok_files = {"tests/testdata/conf.d/hosts":[
                                       "localhost.xml",
-                                      "example.xml.dist",
                                       ],
                     "tests/testdata/xsd/hosts/ok":[
                                     "example_nagios_spec.xml", ]
