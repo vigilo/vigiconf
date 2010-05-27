@@ -109,11 +109,11 @@ def export_conf_db():
     
     # add if needed these groups
     if not SupItemGroup.by_group_name(group_newhosts_def):
-        DBSession.add(SupItemGroup(name=group_newhosts_def))
+        DBSession.add(SupItemGroup.create(name=group_newhosts_def))
     group_newhosts_def = SupItemGroup.by_group_name(group_newhosts_def)
         
     if not SupItemGroup.by_group_name(group_newservices_def):
-        DBSession.add(SupItemGroup(name=group_newservices_def))
+        DBSession.add(SupItemGroup.create(name=group_newservices_def))
     group_newservices_def = SupItemGroup.by_group_name(group_newservices_def)
     
     # hosts groups
@@ -122,7 +122,7 @@ def export_conf_db():
             name = unicode(name)
             hg = SupItemGroup.by_group_name(name)
             if not hg:
-                hg = SupItemGroup(name=name)
+                hg = SupItemGroup.create(name=name)
             DBSession.add(hg)
         DBSession.flush()
     except:
@@ -244,7 +244,7 @@ def _export_host_graphgroups(graphgroups, h):
         if group:
             group.remove_children() # redundant with graph.groups = [] ?
         else:
-            group = GraphGroup(name=groupname)
+            group = GraphGroup.create(name=groupname)
             DBSession.add(group)
         for name in graphnames:
             name = unicode(name)

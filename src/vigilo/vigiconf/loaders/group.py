@@ -112,7 +112,7 @@ class GroupLoader(XMLLoader):
                         name = unicode(elem.attrib["name"].strip())
                         group = classgroup.by_group_name(groupname=name)
                         if not group:
-                            group = classgroup(name=name)
+                            group = classgroup.create(name=name)
                             DBSession.add(group)
                         else:
                             if deleting_mode:
