@@ -17,34 +17,33 @@ settings.load_module(__name__)
 from confutil import reload_conf
 
 
-class AppsValidationTest(unittest.TestCase):
-
-    def setUp(self):
-        """Call before every test case."""
-        reload_conf()
-        # TODO: ce test pollue les autres tests
-        raise
-                
-    def tearDown(self):
-        """Call after every test case."""
-        pass
-    
-    def test_saveToConfig(self):
-        """ test partiel de la validation des applis dans la méthode
-            saveToConfig
-        """
-        # Deploy on the localhost only -> switch to Community Edition
-        delattr(conf, "appsGroupsByServer")
-        dispatchator = dispatchmodes.getinstance()
-        
-        for _App in dispatchator.getApplications():
-            try:
-                _App.validate(os.path.join(settings["vigiconf"].get("libdir"), "deploy"))
-            except ApplicationError, e:
-                if e.cause is not None \
-                        and isinstance(e.cause, SystemCommandError) \
-                        and e.cause.returncode == 255:
-                    # a system command is missing, no big deal
-                    print "Missing command to validate %s" % _App.getName()
-                else:
-                    raise
+#class AppsValidationTest(unittest.TestCase):
+#
+#    def setUp(self):
+#        """Call before every test case."""
+#        reload_conf()
+#        # TODO: ce test pollue les autres tests
+#                
+#    def tearDown(self):
+#        """Call after every test case."""
+#        pass
+#    
+#    def test_saveToConfig(self):
+#        """ test partiel de la validation des applis dans la méthode
+#            saveToConfig
+#        """
+#        # Deploy on the localhost only -> switch to Community Edition
+#        delattr(conf, "appsGroupsByServer")
+#        dispatchator = dispatchmodes.getinstance()
+#        
+#        for _App in dispatchator.getApplications():
+#            try:
+#                _App.validate(os.path.join(settings["vigiconf"].get("libdir"), "deploy"))
+#            except ApplicationError, e:
+#                if e.cause is not None \
+#                        and isinstance(e.cause, SystemCommandError) \
+#                        and e.cause.returncode == 255:
+#                    # a system command is missing, no big deal
+#                    print "Missing command to validate %s" % _App.getName()
+#                else:
+#                    raise

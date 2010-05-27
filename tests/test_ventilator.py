@@ -69,6 +69,7 @@ class VentilatorTest(unittest.TestCase):
         
         #need apps in DB
         dbexportator.update_apps_db()
+        DBSession.flush()
         self.assertEquals(DBSession.query(Application).count(), 6, "6 apps in DB")
         
         dbexportator.export_ventilation_DB(ventilation)

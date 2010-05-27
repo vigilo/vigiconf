@@ -64,13 +64,13 @@ class ChangeManagementTest(unittest.TestCase):
         DBSession.add(interface)
         
         dependencyloader.reset_change()
-        dependencyloader.load_dir('src/vigilo/vigiconf/conf.d/dependencies', delete_all=False)
+        dependencyloader.load_dir('tests/testdata/conf.d/dependencies', delete_all=False)
         self.assertTrue(
                         dependencyloader.detect_change(),
                         "changes: entities creation")
         
         dependencyloader.reset_change()
-        dependencyloader.load_dir('src/vigilo/vigiconf/conf.d/dependencies', delete_all=True)
+        dependencyloader.load_dir('tests/testdata/conf.d/dependencies', delete_all=True)
         self.assertFalse(
                         dependencyloader.detect_change(),
                         "no change")
@@ -79,7 +79,7 @@ class ChangeManagementTest(unittest.TestCase):
         DBSession.delete( DBSession.query(Dependency).all()[-1] )
         
         dependencyloader.reset_change()
-        dependencyloader.load_dir('src/vigilo/vigiconf/conf.d/dependencies', delete_all=True)
+        dependencyloader.load_dir('tests/testdata/conf.d/dependencies', delete_all=True)
         
         self.assertTrue(
                         dependencyloader.detect_change(),

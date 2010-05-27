@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<groups>
+
+	<group name="High Level Services" >
+
+		<children>
+			<group name="HLS group 1"/>
+			<group name="HLS group 2"/>
+			<group name="HLS group 3">
+				<children>
+					<group name="HLS group 3.1"/>
+					<group name="HLS group 3.2"/>
+				</children>
+			</group>
+			
+		</children>
+	</group>
+
+</groups>

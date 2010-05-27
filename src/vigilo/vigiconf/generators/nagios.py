@@ -199,7 +199,7 @@ class NagiosTpl(Templator):
             else:
                 perfdata = ""
             # Handle notification periods
-            if copy.has_key("notification_period"):
+            if scopy.has_key("notification_period"):
                 scopy["notification_period"] = "notification_period " \
                                             + scopy["notification_period"]
             else:

@@ -193,7 +193,7 @@ class XMLLoadersTest(unittest.TestCase):
         )
         DBSession.add(interface)
         
-        dependencyloader.load_dir('src/vigilo/vigiconf/conf.d/dependencies')
+        dependencyloader.load_dir('tests/testdata/conf.d/dependencies')
     
     def test_load_dependencies_ko(self):
         """ Test de fichiers xml valides selon XSD mais invalides pour le loader.
