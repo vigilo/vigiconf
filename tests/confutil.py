@@ -27,7 +27,8 @@ def setUpModule(self):
 def setup_path():
     conf.CODEDIR = os.path.join(os.path.dirname(__file__), "..", "src",
             "vigilo", "vigiconf")
-    settings["vigiconf"]["confdir"] = os.path.join(conf.CODEDIR, "conf.d")
+    settings["vigiconf"]["confdir"] = os.path.join(os.path.dirname(__file__),
+                                                   "testdata", "conf.d")
 
 def reload_conf(hostsdir=None):
     """We changed the paths, reload the factories"""
