@@ -143,7 +143,7 @@ class XMLLoadersTest(unittest.TestCase):
         # host11/service11 is a dependence of host1
         
         si_host1 = SupItem.get_supitem(hostname=u"host1", servicename=None)
-        si_host11 = SupItem.get_supitem(hostname=u"host11", servicename="service11")
+        si_host11 = SupItem.get_supitem(hostname=u"host11", servicename=u"service11")
         self.assertTrue(si_host1, "si_host1 not null")
         self.assertTrue(si_host11, "si_host11 not null")
         self.assertEquals(1,

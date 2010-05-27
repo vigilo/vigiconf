@@ -321,10 +321,7 @@ hostsConf = {}
 dependencies = {}
 dynamicGroups = {}
 dns = {}
-notificationServers = {}
-defaultNotificationServer = "127.0.0.1:50003"
 mode = "onedir"
-#mode = "byday"
 confid = ""
 
 # Initialize global objects and only use those

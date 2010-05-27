@@ -1,18 +1,18 @@
 appsGroupsByServer = {
-    u'collect' : {
-        u'P-F'             : [u'localhost'],
-        u'Servers'         : [u'localhost'],
-        u'Telecom'         : [u'localhost'],
+    'collect' : {
+        'P-F'             : ['localhost'],
+        'Servers'         : ['localhost'],
+        'Telecom'         : ['localhost'],
     },
-    u'metrology' : {
-        u'P-F'             : [u'localhost'],
-        u'Servers'         : [u'localhost'],
-        u'Telecom'         : [u'localhost'],
+    'metrology' : {
+        'P-F'             : ['localhost'],
+        'Servers'         : ['localhost'],
+        'Telecom'         : ['localhost'],
     },
-    u'trap' : {
-        u'P-F'             : [u'localhost'],
-        u'Servers'         : [u'localhost'],
-        u'Telecom'         : [u'localhost'],
+    'trap' : {
+        'P-F'             : ['localhost'],
+        'Servers'         : ['localhost'],
+        'Telecom'         : ['localhost'],
     },
 }
 
