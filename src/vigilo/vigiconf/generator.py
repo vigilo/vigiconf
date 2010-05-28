@@ -132,7 +132,7 @@ def generate(gendir, commit_db=False):
 
         try:
             silent = settings['vigiconf'].as_bool('silent')
-        except
+        except KeyError:
             silent = False
 
         if not silent:
