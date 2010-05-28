@@ -102,7 +102,10 @@ class Dispatchator(object):
         self.mode_db = 'commit'
         # mode simulation: on recopie simplement la commande svn pour
         # verification
-        self.simulate = settings["vigiconf"].get("simulate", False)
+        try:
+            self.simulate = settings["vigiconf"].as_bool("simulate")
+        except KeyError:
+            self.simulate = False
         self.svn_cmd = ""
         
         # initialize applications

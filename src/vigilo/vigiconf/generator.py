@@ -129,8 +129,13 @@ def generate(gendir, commit_db=False):
             transaction.abort()
             sys.stdout.write("transaction rollbacked\n")
             return False
-            
-        if not settings["vigiconf"].get("silent", False):
+
+        try:
+            silent = settings['vigiconf'].as_bool('silent')
+        except
+            silent = False
+
+        if not silent:
             sys.stdout.write("\n".join(v.getSummary(details=True, stats=True)
                                       +['']))
             sys.stdout.write("Generation Successful\n")

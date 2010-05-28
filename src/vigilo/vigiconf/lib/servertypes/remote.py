@@ -70,7 +70,10 @@ class ServerRemote(Server):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = RemoteCommand(self.getName(), iCommand, self.getCommandUser())
-        c.simulate = settings["vigiconf"].as_bool("simulate")
+        try:
+            c.simulate = settings["vigiconf"].as_bool("simulate")
+        except KeyError:
+            c.simulate = False
         return c
 
     def _builddepcmd(self):

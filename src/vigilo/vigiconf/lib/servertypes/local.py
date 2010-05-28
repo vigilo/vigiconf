@@ -41,7 +41,10 @@ class ServerLocal(Server):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = SystemCommand(iCommand)
-        c.simulate = settings["vigiconf"].as_bool("simulate")
+        try:
+            c.simulate = settings["vigiconf"].as_bool("simulate")
+        except KeyError:
+            c.simulate = False
         return c
 
     def _builddepcmd(self):

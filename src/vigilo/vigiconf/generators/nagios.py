@@ -149,7 +149,7 @@ class NagiosTpl(Templator):
                                      "hostgroupAlias": conf.hostsGroups[i]})
         else:
             newhash['hostGroups'] = "# no hostgroups defined"
-        # WARNING: Ugly hask, use a hard-coded membership in an group to
+        # WARNING: Ugly hack, use a hard-coded membership in an group to
         # make notifications silent or not !!!
         # TODO: use tags
         if "PrepaInstallation" in h['otherGroups']:

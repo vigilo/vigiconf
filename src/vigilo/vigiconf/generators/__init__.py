@@ -43,9 +43,12 @@ class GeneratorManager(object):
     genshi_enabled = False
 
     def __init__(self):
-        self.genshi_enabled = ('True' == settings["vigiconf"].get(
-                                                "enable_genshi_generation",
-                                                False) )
+        try:
+            self.genshi_enabled = settings['vigiconf'].as_bool(
+                                    'enable_genshi_generation')
+        except KeyError:
+            self.genshi_enabled = False
+
         if not self.genclasses:
             self.__load()
 
