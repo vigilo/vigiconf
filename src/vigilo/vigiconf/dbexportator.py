@@ -47,7 +47,7 @@ settings.load_module(__name__)
 from vigilo.models.session import DBSession
 
 from vigilo.models.tables import Host, SupItemGroup, LowLevelService
-from vigilo.models.tables import Graph, GraphGroup
+from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import Application, Ventilation, VigiloServer
 from vigilo.models.tables import ConfItem
 
@@ -224,7 +224,7 @@ def export_conf_db():
 
 def _export_host_graphgroups(graphgroups, h):
     """
-    Update database with graph groups for a host.
+    Update database with graphes and graph groups for a host.
     
     TODO: lien avec host ?
     
@@ -270,10 +270,25 @@ def _export_host_graphitems(graphitems, h):
     @returns: None
     """
     for name, graph in graphitems.iteritems():
+        #print name, graph
         name = unicode(name)
         g = DBSession.query(Graph).filter(Graph.name == name).first()
         g.template = graph['template']
         g.vlabel = graph['vlabel']
+        
+        # création PerfDataSources
+        
+        for ds in graph['ds']:
+            lls = LowLevelService.by_host_service_name(h.name, ds)
+            if not lls:
+                continue
+            pds = PerfDataSource.by_service_and_source_name(lls, ds)
+            if not pds:
+                pds = PerfDataSource(service=lls, name=ds, label=graph['vlabel'])
+                pds.graphs = [g,]
+            if graph['factors'].has_key(ds):
+                pds.factor = float(graph['factors'][ds])
+            DBSession.add(pds)
     
     DBSession.flush()
 

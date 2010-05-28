@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
 
-<xs:element name="mapgroup">
+<xs:element name="graphgroup">
 	  <xs:complexType>
 	  
 	    <xs:sequence>
@@ -11,9 +11,9 @@
 			  <xs:complexType>
 				<xs:sequence>
 				
-					<!-- mapgroup is recursive -->
+					<!-- graphgroup is recursive -->
 					
-	    			<xs:element maxOccurs="unbounded" minOccurs="1" ref="mapgroup"/>
+	    			<xs:element maxOccurs="unbounded" minOccurs="1" ref="graphgroup"/>
 			     </xs:sequence>
 			  </xs:complexType>
 	    	</xs:element>
@@ -27,12 +27,12 @@
 </xs:element> 
 
 
-<xs:element name="mapgroups">
+<xs:element name="graphgroups">
   <xs:complexType>
 	<xs:sequence>
 		
 		
-		<xs:element maxOccurs="unbounded" minOccurs="1" ref="mapgroup"/>
+		<xs:element maxOccurs="unbounded" minOccurs="1" ref="graphgroup"/>
 		
     </xs:sequence>
   </xs:complexType>
