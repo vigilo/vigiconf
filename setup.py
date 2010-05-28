@@ -60,11 +60,8 @@ setup(name='vigilo-vigiconf',
         install_requires=[
             # dashes become underscores
             # order is important
-            'SQLAlchemy',
             "vigilo-common",
-            "psycopg2",
             "vigilo-models",
-            # "Genshi",
             ],
         extras_require={
             'tests': tests_require,
