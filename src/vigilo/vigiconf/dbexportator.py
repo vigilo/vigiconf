@@ -279,12 +279,9 @@ def _export_host_graphitems(graphitems, h):
         # création PerfDataSources
         
         for ds in graph['ds']:
-            lls = LowLevelService.by_host_service_name(h.name, ds)
-            if not lls:
-                continue
-            pds = PerfDataSource.by_service_and_source_name(lls, ds)
+            pds = PerfDataSource.by_host_and_source_name(h, ds)
             if not pds:
-                pds = PerfDataSource(service=lls, name=ds, label=graph['vlabel'])
+                pds = PerfDataSource(host=h, name=ds, label=graph['vlabel'])
                 pds.graphs = [g,]
             if graph['factors'].has_key(ds):
                 pds.factor = float(graph['factors'][ds])
