@@ -21,6 +21,7 @@
 from .xmlloader import XMLLoader
 
 from vigilo.models.tables import SupItemGroup
+from vigilo.models.tables.grouphierarchy import GroupHierarchy
 
 from vigilo.models.session import DBSession
 
@@ -54,6 +55,7 @@ class GroupLoader(XMLLoader):
         """ efface la totalité des entités de la base
         
         """
+        DBSession.query(GroupHierarchy).delete()
         DBSession.query(SupItemGroup).delete()
     
     def get_hosts_conf(self):
