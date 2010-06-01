@@ -24,6 +24,19 @@ les objets qui ne sont plus en conf.
 from vigilo.models.session import DBSession
 
 class DBUpdater:
+    """ Classe utilisée pour gérer la suppression des entités retirées de la conf.
+    
+    Usage::
+        dbu = DBUpdater(Host, "name")
+        dbu.load_instances()
+        ...
+        for hostname in hosts_in_conf():
+            dbu.in_conf(hostname)
+            ...
+        ...
+        dbu.update()
+        
+    """
     _class = None
     _instances = None
     _key_attr = None
@@ -39,7 +52,12 @@ class DBUpdater:
         """ charge toutes les instances depuis la base de données
         """
         for inst in DBSession.query(self._class).all():
-            self._instances[getattr(inst, self._key_attr)] = inst
+            self._instances[self.get_key(inst)] = inst
+    
+    def get_key(self, inst):
+        """ obtient la clé d'une entité stockée en base.
+        """
+        return getattr(inst, self._key_attr)
     
     def in_conf(self, key):
         """ Marque une instance comme étant en conf
@@ -57,4 +75,11 @@ class DBUpdater:
         DBSession.flush()
     
     
+class DBUpdater2(DBUpdater):
+    """ Variante DBUpdater; la clé de l'entité est obtenue par un appel de
+        méthode.
+    """
+    def get_key(self, inst):
+        return getattr(inst, self._key_attr)()
     
+        

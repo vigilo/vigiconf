@@ -51,7 +51,7 @@ from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import Application, Ventilation, VigiloServer
 from vigilo.models.tables import ConfItem
 
-from .lib.dbupdater import DBUpdater
+from .lib.dbupdater import DBUpdater, DBUpdater2
 
 from . import conf
 
@@ -136,6 +136,12 @@ def export_conf_db():
     host_updater = DBUpdater(Host, "name")
     host_updater.load_instances()
     
+    lls_updater = DBUpdater2(LowLevelService, "get_key")
+    lls_updater.load_instances()
+    
+    pds_updater = DBUpdater2(PerfDataSource, "get_key")
+    pds_updater.load_instances()
+    
     for hostname, host in hostsConf.iteritems():
         hostname = unicode(hostname)
         h = Host.by_host_name(hostname)
@@ -178,6 +184,9 @@ def export_conf_db():
                                       op_dep=u'+', weight=1)
                 lls.groups = [group_newservices_def, ]
                 DBSession.add(lls)
+            
+            lls_updater.in_conf(lls.get_key())
+            
             # nagios generic directives for services
             if host['nagiosSrvDirs'].has_key(service):
                 for name, value in host['nagiosSrvDirs'][service].iteritems():
@@ -209,12 +218,16 @@ def export_conf_db():
         _export_host_graphgroups(host['graphGroups'], h)
         
         # export graphes
-        _export_host_graphitems(host['graphItems'], h)
+        _export_host_graphitems(host['graphItems'], h, pds_updater)
         
     DBSession.flush()
     
     # suppression des hosts qui ne sont plus en conf
     host_updater.update()
+    # suppression des lowlevelservices qui ne sont plus en conf
+    lls_updater.update()
+    # suppression des perfdatasources qui ne sont plus en conf
+    pds_updater.update()
     
     # high level services
     hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'), delete_all=True)
@@ -264,7 +277,7 @@ def _export_host_graphgroups(graphgroups, h):
         
 
 
-def _export_host_graphitems(graphitems, h):
+def _export_host_graphitems(graphitems, h, dbupdater):
     """
     Update database with graph items for a host.
     
@@ -274,6 +287,8 @@ def _export_host_graphitems(graphitems, h):
     @type graphitems: C{dict}
     @param h: host
     @param h: C{Host}
+    @param dbupdater: gestionnaire de mise à jour pour les perfdatasources
+    @param dbupdater: L{DBUpdater}
     @returns: None
     """
     for name, graph in graphitems.iteritems():
@@ -290,6 +305,9 @@ def _export_host_graphitems(graphitems, h):
             if not pds:
                 pds = PerfDataSource(host=h, name=ds, label=graph['vlabel'])
                 pds.graphs = [g,]
+            
+            dbupdater.in_conf(pds.get_key())
+            
             if graph['factors'].has_key(ds):
                 pds.factor = float(graph['factors'][ds])
             DBSession.add(pds)
