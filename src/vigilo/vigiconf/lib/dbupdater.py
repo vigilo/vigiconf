@@ -71,7 +71,7 @@ class DBUpdater:
         """
         for inst in self._instances.values():
             if inst:
-                inst.delete()
+                DBSession.delete(inst)
         DBSession.flush()
     
     

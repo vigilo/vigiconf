@@ -65,6 +65,8 @@ class XMLLoader:
     
     # change detection
     change = False
+    # gestion de la suppression des entités
+    dbupdater = None
     
     def __init__(self, xsd_filename=None):
         """ Constructeur.
@@ -87,8 +89,13 @@ class XMLLoader:
         @param path: an XML file
         @type  path: C{str}
         """
+        if self.dbupdater:
+            self.dbupdater.load_instances()
+        
         self.parse(path)
         
+        if self.dbupdater:
+            self.dbupdater.update()
     
     def validate(self, xmlfile):
         """

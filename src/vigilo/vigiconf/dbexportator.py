@@ -95,10 +95,8 @@ def export_conf_db():
     """
     confdir = settings['vigiconf'].get('confdir')
     # hiérarchie groupes hosts (fichier xml)
-    # en premier, pour éviter d'effacer les groupes déclarés dans les hosts.
     grouploader.load_dir(os.path.join(confdir, 'groups'), delete_all=True)
     
-    # TODO: refactoring à prévoir
     # les groupes se chargent maintenant avec loader XML
     conf.hostsGroups = grouploader.get_hosts_conf()
     conf.groupsHierarchy = grouploader.get_groups_hierarchy()
@@ -117,20 +115,7 @@ def export_conf_db():
     if not SupItemGroup.by_group_name(group_newservices_def):
         DBSession.add(SupItemGroup.create(name=group_newservices_def))
     group_newservices_def = SupItemGroup.by_group_name(group_newservices_def)
-    
-    # hosts groups
-    try:
-        for name in hostsGroups.keys():
-            name = unicode(name)
-            hg = SupItemGroup.by_group_name(name)
-            if not hg:
-                hg = SupItemGroup.create(name=name)
-            DBSession.add(hg)
-        DBSession.flush()
-    except:
-        raise
-    
-    # hosts
+
     
     # updater: gestion des entités à supprimer
     host_updater = DBUpdater(Host, "name")
@@ -141,6 +126,8 @@ def export_conf_db():
     
     pds_updater = DBUpdater2(PerfDataSource, "get_key")
     pds_updater.load_instances()
+    
+    # hosts
     
     for hostname, host in hostsConf.iteritems():
         hostname = unicode(hostname)
