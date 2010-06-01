@@ -51,6 +51,8 @@ from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import Application, Ventilation, VigiloServer
 from vigilo.models.tables import ConfItem
 
+from .lib.dbupdater import DBUpdater
+
 from . import conf
 
 # chargement de données xml
@@ -129,85 +131,90 @@ def export_conf_db():
         raise
     
     # hosts
-    try:
-        for hostname, host in hostsConf.iteritems():
-            hostname = unicode(hostname)
-            h = Host.by_host_name(hostname)
-            if h:
-                # update host object
-                h.checkhostcmd = unicode(host['checkHostCMD'])
-                h.hosttpl = unicode(host['hostTPL'])
-                h.snmpcommunity = unicode(host['community'])
-                h.snmpoidsperpdu = unicode(host['snmpOIDsPerPDU'])
-                h.snmpversion = unicode(host['snmpVersion'])
-                h.mainip = unicode(host['mainIP'])
-                h.snmpport = unicode(host['port'])
-                # add groups to host
-                h.groups = [SupItemGroup.by_group_name(unicode(host['serverGroup'])), ]
+    
+    # updater: gestion des entités à supprimer
+    host_updater = DBUpdater(Host, "name")
+    host_updater.load_instances()
+    
+    for hostname, host in hostsConf.iteritems():
+        hostname = unicode(hostname)
+        h = Host.by_host_name(hostname)
+        # on marque cet host "en conf"
+        host_updater.in_conf(hostname)
+        
+        if h:
+            # update host object
+            h.checkhostcmd = unicode(host['checkHostCMD'])
+            h.hosttpl = unicode(host['hostTPL'])
+            h.snmpcommunity = unicode(host['community'])
+            h.snmpoidsperpdu = unicode(host['snmpOIDsPerPDU'])
+            h.snmpversion = unicode(host['snmpVersion'])
+            h.mainip = unicode(host['mainIP'])
+            h.snmpport = unicode(host['port'])
+            # add groups to host
+            h.groups = [SupItemGroup.by_group_name(unicode(host['serverGroup'])), ]
+        else:
+            # create host object
+            h = Host(name=unicode(hostname),
+                     checkhostcmd=unicode(host['checkHostCMD']),
+                     hosttpl=unicode(host['hostTPL']),
+                    snmpcommunity=unicode(host['community']),
+                    mainip=unicode(host['mainIP']),
+                    snmpport=unicode(host['port']),
+                    snmpoidsperpdu=unicode(host['snmpOIDsPerPDU']),
+                    weight=1,
+                    snmpversion=unicode(host['snmpVersion']))
+            DBSession.add(h)
+            h.groups = [group_newhosts_def, ]
+        
+        # low level services
+        # TODO: implémenter les détails: op_dep, weight, command
+        
+        for service in host['services'].keys():
+            service = unicode(service)
+            lls = LowLevelService.by_host_service_name(hostname, service)
+            if not lls:
+                lls = LowLevelService(host=h, servicename=service,
+                                      op_dep=u'+', weight=1)
+                lls.groups = [group_newservices_def, ]
+                DBSession.add(lls)
+            # nagios generic directives for services
+            if host['nagiosSrvDirs'].has_key(service):
+                for name, value in host['nagiosSrvDirs'][service].iteritems():
+                    name = unicode(name)
+                    value = unicode(value)
+                    ci = ConfItem.by_host_service_confitem_name(hostname, service, name)
+                    if ci:
+                        ci.value = value
+                    else:
+                        ci = ConfItem(supitem=lls, name=name, value=value)
+                        DBSession.add(ci)
+        
+        # nagios generic directives for host
+        for name, value in host['nagiosDirectives'].iteritems():
+            name = unicode(name)
+            value = unicode(value)
+            ci = ConfItem.by_host_confitem_name(hostname, name)
+            if ci:
+                ci.value = value
             else:
-                # create host object
-                h = Host(name=unicode(hostname),
-                         checkhostcmd=unicode(host['checkHostCMD']),
-                         hosttpl=unicode(host['hostTPL']),
-                        snmpcommunity=unicode(host['community']),
-                        mainip=unicode(host['mainIP']),
-                        snmpport=unicode(host['port']),
-                        snmpoidsperpdu=unicode(host['snmpOIDsPerPDU']),
-                        weight=1,
-                        snmpversion=unicode(host['snmpVersion']))
-                DBSession.add(h)
-                h.groups = [group_newhosts_def, ]
-            
-            # low level services
-            # TODO: implémenter les détails: op_dep, weight, command
-            
-            for service in host['services'].keys():
-                service = unicode(service)
-                lls = LowLevelService.by_host_service_name(hostname, service)
-                if not lls:
-                    lls = LowLevelService(host=h, servicename=service,
-                                          op_dep=u'+', weight=1)
-                    lls.groups = [group_newservices_def, ]
-                    DBSession.add(lls)
-                # nagios generic directives for services
-                if host['nagiosSrvDirs'].has_key(service):
-                    for name, value in host['nagiosSrvDirs'][service].iteritems():
-                        name = unicode(name)
-                        value = unicode(value)
-                        ci = ConfItem.by_host_service_confitem_name(hostname, service, name)
-                        if ci:
-                            ci.value = value
-                        else:
-                            ci = ConfItem(supitem=lls, name=name, value=value)
-                            DBSession.add(ci)
-            
-            # nagios generic directives for host
-            for name, value in host['nagiosDirectives'].iteritems():
-                name = unicode(name)
-                value = unicode(value)
-                ci = ConfItem.by_host_confitem_name(hostname, name)
-                if ci:
-                    ci.value = value
-                else:
-                    ci = ConfItem(supitem=h, name=name, value=value)
-                    DBSession.add(ci)
-            
-            
-            for og in host['otherGroups']:
-                h.groups.append(SupItemGroup.by_group_name(unicode(og)))
-            
-            # export graphes groups
-            _export_host_graphgroups(host['graphGroups'], h)
-            
-            # export graphes
-            _export_host_graphitems(host['graphItems'], h)
-            
-        DBSession.flush()
-    except:
-        raise
-    
-    
+                ci = ConfItem(supitem=h, name=name, value=value)
+                DBSession.add(ci)
+        
+        
+        for og in host['otherGroups']:
+            h.groups.append(SupItemGroup.by_group_name(unicode(og)))
+        
+        # export graphes groups
+        _export_host_graphgroups(host['graphGroups'], h)
+        
+        # export graphes
+        _export_host_graphitems(host['graphItems'], h)
+        
     DBSession.flush()
+    
+    # suppression des hosts qui ne sont plus en conf
+    host_updater.update()
     
     # high level services
     hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'), delete_all=True)
