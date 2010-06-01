@@ -358,21 +358,28 @@ def export_ventilation_DB(ventilation):
       }
     
     """
-    # delete all associations
-    DBSession.query(Ventilation).delete()
+    # les associations ventilation ne doivent pas être détruites
     
     for host, serverbyapp in ventilation.iteritems():
+        inst_host=Host.by_host_name(unicode(host))
+        
         for app, server in serverbyapp.iteritems():
             vigiloserver = VigiloServer.by_vigiloserver_name(unicode(server))
+            application =  Application.by_app_name(unicode(app))
             
             if not vigiloserver:
                 vigiloserver = VigiloServer(name=unicode(server))
                 DBSession.add(vigiloserver)
             
-            v = Ventilation(host=Host.by_host_name(unicode(host)),
-                        vigiloserver=vigiloserver,
-                        application=Application.by_app_name(unicode(app)))
-            
-            DBSession.add(v)
+            # on créé une association si il n'en existe pas encore
+            vexist = DBSession.query(Ventilation).filter(
+                                            Ventilation.host == inst_host
+                                       ).filter(
+                                            Ventilation.application == application
+                                       ).count()
+            if vexist == 0:
+                v = Ventilation(host=inst_host, vigiloserver=vigiloserver,
+                                application=application)
+                DBSession.add(v)
     DBSession.flush()
 
