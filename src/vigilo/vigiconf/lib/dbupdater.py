@@ -69,7 +69,7 @@ class DBUpdater:
         
         Les instances non marquées comme étant en conf sont supprimées.
         """
-        for inst in self._instances.values():
+        for inst in self._instances.itervalues():
             if inst:
                 DBSession.delete(inst)
         DBSession.flush()

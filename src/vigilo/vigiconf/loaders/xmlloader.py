@@ -88,14 +88,8 @@ class XMLLoader:
         
         @param path: an XML file
         @type  path: C{str}
-        """
-        if self.dbupdater:
-            self.dbupdater.load_instances()
-        
+        """        
         self.parse(path)
-        
-        if self.dbupdater:
-            self.dbupdater.update()
     
     def validate(self, xmlfile):
         """
@@ -302,6 +296,9 @@ class XMLLoader:
         if  delete_all:
             self.delete_all()
         
+        if self.dbupdater:
+            self.dbupdater.load_instances()
+        
         for root, dirs, files in os.walk(basedir):
             final = False
             
@@ -330,4 +327,7 @@ class XMLLoader:
             for d in dirs: # Don't visit subversion/CVS directories
                 if not self.visit_dir(d):
                     dirs.remove(d)
+        
+        if self.dbupdater:
+            self.dbupdater.update()
 

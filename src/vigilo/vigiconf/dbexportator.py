@@ -95,7 +95,7 @@ def export_conf_db():
     """
     confdir = settings['vigiconf'].get('confdir')
     # hiérarchie groupes hosts (fichier xml)
-    grouploader.load_dir(os.path.join(confdir, 'groups'), delete_all=True)
+    grouploader.load_dir(os.path.join(confdir, 'groups'))
     
     # les groupes se chargent maintenant avec loader XML
     conf.hostsGroups = grouploader.get_hosts_conf()
@@ -217,7 +217,7 @@ def export_conf_db():
     pds_updater.update()
     
     # high level services
-    hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'), delete_all=True)
+    hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'))
     
     # dépendances
     dependencyloader.reset_change()

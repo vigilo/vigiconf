@@ -25,6 +25,8 @@ from vigilo.models.tables.grouphierarchy import GroupHierarchy
 
 from vigilo.models.session import DBSession
 
+from ..lib.dbupdater import DBUpdater
+
 class GroupLoader(XMLLoader):
     """ Classe de base pour charger des fichiers XML groupes .
     
@@ -49,6 +51,8 @@ class GroupLoader(XMLLoader):
         if tag_group: self._tag_group = tag_group
         if xsd_filename: self._xsd_filename = xsd_filename
         XMLLoader.__init__(self)
+        # gestion de la suppression des groupes non lus
+        self.dbupdater = DBUpdater(self._classgroup, "name")
 
     
     def delete_all(self):
@@ -100,6 +104,7 @@ class GroupLoader(XMLLoader):
         @param path: an XML file
         @type  path: C{str}
         """
+        
         parent_stack = []
         current_parent = None
         deleting_mode = False
@@ -107,48 +112,48 @@ class GroupLoader(XMLLoader):
         classgroup = self._classgroup
         tag_group = self._tag_group
         
-        try:
-            for event, elem in self.get_xml_parser(path):
-                if event == "start":
-                    if elem.tag == tag_group:
-                        name = unicode(elem.attrib["name"].strip())
-                        group = classgroup.by_group_name(groupname=name)
-                        if not group:
-                            group = classgroup.create(name=name)
-                            DBSession.add(group)
-                        else:
-                            if deleting_mode:
-                                DBSession.delete(group)
-                                continue
-                            
-                            group.remove_children()
+        for event, elem in self.get_xml_parser(path):
+            if event == "start":
+                if elem.tag == tag_group:
+                    name = unicode(elem.attrib["name"].strip())
+                    
+                    self.dbupdater.in_conf(name)
+                    
+                    group = classgroup.by_group_name(groupname=name)
+                    if not group:
+                        group = classgroup.create(name=name)
+                        DBSession.add(group)
+                    else:
+                        if deleting_mode:
+                            DBSession.delete(group)
+                            continue
                         
-                        if current_parent:
-                            if group.has_parent():
-                                if group.get_parent().name != current_parent.name:
-                                    raise Exception(
-                    "%s %s should have one parent (%s, %s)" %
-                    (tag_group, group.name, group.get_parent().name,
-                     current_parent.name)
-                                        )
-                            group.set_parent(current_parent)
-                        # update parent stack
-                        parent_stack.append(group)
-                    elif elem.tag == "children":
-                        current_parent = parent_stack[-1]
-                    elif elem.tag == "todelete":
-                        deleting_mode = True
-                else:
-                    if elem.tag == tag_group:
-                        if len(parent_stack) > 0:
-                            parent_stack.pop()
-                    elif elem.tag == "children":
-                        current_parent = None
-                    elif elem.tag == "todelete":
-                        deleting_mode = False
-            DBSession.flush()
-        except:
-            raise
+                        group.remove_children()
+                    
+                    if current_parent:
+                        if group.has_parent():
+                            if group.get_parent().name != current_parent.name:
+                                raise Exception(
+                "%s %s should have one parent (%s, %s)" %
+                (tag_group, group.name, group.get_parent().name,
+                 current_parent.name)
+                                    )
+                        group.set_parent(current_parent)
+                    # update parent stack
+                    parent_stack.append(group)
+                elif elem.tag == "children":
+                    current_parent = parent_stack[-1]
+                elif elem.tag == "todelete":
+                    deleting_mode = True
+            else:
+                if elem.tag == tag_group:
+                    if len(parent_stack) > 0:
+                        parent_stack.pop()
+                elif elem.tag == "children":
+                    current_parent = None
+                elif elem.tag == "todelete":
+                    deleting_mode = False
+        DBSession.flush()
 
 
 # VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
