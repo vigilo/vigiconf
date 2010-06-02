@@ -45,12 +45,12 @@ class DBUpdater:
         """ Constructeur.
         """
         self._class = cls
-        self._instances = {}
         self._key_attr = key_attr
     
     def load_instances(self):
         """ charge toutes les instances depuis la base de données
         """
+        self._instances = {}
         for inst in DBSession.query(self._class).all():
             self._instances[self.get_key(inst)] = inst
     
