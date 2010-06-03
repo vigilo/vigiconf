@@ -205,7 +205,7 @@ def export_conf_db():
         _export_host_graphgroups(host['graphGroups'], h)
         
         # export graphes
-        _export_host_graphitems(host['graphItems'], h, pds_updater)
+        _export_host_graphitems(host['graphItems'], h, host['dataSources'], pds_updater)
         
     DBSession.flush()
     
@@ -264,7 +264,7 @@ def _export_host_graphgroups(graphgroups, h):
         
 
 
-def _export_host_graphitems(graphitems, h, dbupdater):
+def _export_host_graphitems(graphitems, h, datasources, dbupdater):
     """
     Update database with graph items for a host.
     
@@ -274,12 +274,14 @@ def _export_host_graphitems(graphitems, h, dbupdater):
     @type graphitems: C{dict}
     @param h: host
     @param h: C{Host}
+    @param datasources: a dict describing the datasources for a host.
+    @type datasources: C{dict}
     @param dbupdater: gestionnaire de mise à jour pour les perfdatasources
     @param dbupdater: L{DBUpdater}
     @returns: None
     """
     for name, graph in graphitems.iteritems():
-        #print name, graph
+        print name, graph
         name = unicode(name)
         g = DBSession.query(Graph).filter(Graph.name == name).first()
         g.template = graph['template']
@@ -290,8 +292,12 @@ def _export_host_graphitems(graphitems, h, dbupdater):
         for ds in graph['ds']:
             pds = PerfDataSource.by_host_and_source_name(h, ds)
             if not pds:
-                pds = PerfDataSource(host=h, name=ds, label=graph['vlabel'])
+                pds = PerfDataSource(host=h, name=ds, label=graph['vlabel'],
+                                     type=datasources[ds]['dsType'])
                 pds.graphs = [g,]
+            else:
+                pds.label = graph['vlabel']
+                pds.type = datasources[ds]
             
             dbupdater.in_conf(pds.get_key())
             
