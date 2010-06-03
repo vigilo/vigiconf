@@ -281,7 +281,7 @@ def _export_host_graphitems(graphitems, h, datasources, dbupdater):
     @returns: None
     """
     for name, graph in graphitems.iteritems():
-        print name, graph
+        #print name, graph
         name = unicode(name)
         g = DBSession.query(Graph).filter(Graph.name == name).first()
         g.template = graph['template']
@@ -291,13 +291,14 @@ def _export_host_graphitems(graphitems, h, datasources, dbupdater):
         
         for ds in graph['ds']:
             pds = PerfDataSource.by_host_and_source_name(h, ds)
+            type = unicode(datasources[ds]['dsType'])
             if not pds:
                 pds = PerfDataSource(host=h, name=ds, label=graph['vlabel'],
-                                     type=datasources[ds]['dsType'])
+                                     type=type)
                 pds.graphs = [g,]
             else:
                 pds.label = graph['vlabel']
-                pds.type = datasources[ds]['dsType']
+                pds.type = type
             
             dbupdater.in_conf(pds.get_key())
             
