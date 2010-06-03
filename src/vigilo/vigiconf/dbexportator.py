@@ -148,7 +148,7 @@ def export_conf_db():
             h.groups = [SupItemGroup.by_group_name(unicode(host['serverGroup'])), ]
         else:
             # create host object
-            h = Host(name=unicode(hostname),
+            h = Host(name=hostname,
                      checkhostcmd=unicode(host['checkHostCMD']),
                      hosttpl=unicode(host['hostTPL']),
                     snmpcommunity=unicode(host['community']),
@@ -290,15 +290,15 @@ def _export_host_graphitems(graphitems, h, datasources, dbupdater):
         # création PerfDataSources
         
         for ds in graph['ds']:
-            pds = PerfDataSource.by_host_and_source_name(h, ds)
-            type = unicode(datasources[ds]['dsType'])
+            pds = PerfDataSource.by_host_and_source_name(h, unicode(ds))
+            dstype = unicode(datasources[ds]['dsType'])
             if not pds:
-                pds = PerfDataSource(host=h, name=ds, label=graph['vlabel'],
-                                     type=type)
+                pds = PerfDataSource(host=h, name=ds, type=dstype,
+                                     label=unicode(graph['vlabel']))
                 pds.graphs = [g,]
             else:
-                pds.label = graph['vlabel']
-                pds.type = type
+                pds.label = unicode(graph['vlabel'])
+                pds.type = dstype
             
             dbupdater.in_conf(pds.get_key())
             
