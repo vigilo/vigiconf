@@ -297,7 +297,7 @@ def _export_host_graphitems(graphitems, h, datasources, dbupdater):
                 pds.graphs = [g,]
             else:
                 pds.label = graph['vlabel']
-                pds.type = datasources[ds]
+                pds.type = datasources[ds]['dsType']
             
             dbupdater.in_conf(pds.get_key())
             
