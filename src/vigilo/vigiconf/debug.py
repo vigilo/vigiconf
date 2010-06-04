@@ -46,14 +46,14 @@ def main():
         if 0:
             import hotshot, hotshot.stats
             _prof = hotshot.Profile("/tmp/generator.prof")
-            _prof.runcall(generator.generate, _gendir)
+            _prof.runcall(generator.generate)
             _prof.close()
             _stats = hotshot.stats.load("/tmp/generator.prof")
             _stats.strip_dirs()
             _stats.sort_stats('time', 'calls')
             _stats.print_stats(20)
         else:
-            if not generator.generate(_gendir):
+            if not generator.generate():
                 sys.exit(1)
 
 if __name__ == "__main__":

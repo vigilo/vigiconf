@@ -33,36 +33,27 @@ import shutil
 
 from vigilo.common.conf import settings
 
-class Templator(object):
+from . import Generator
+
+class FileGenerator(Generator):
     """
-    The base class for the generators
+    La classe de base pour les générateurs qui produisent des fichiers
     
-    TODO: refactoring: utiliser le template engine Genshi ?
+    TODO: refactoring: utiliser le template engine Genshi ou Mako ?
+    voir http://genshi.edgewall.org/wiki/GenshiPerformance
     
-    @ivar mapping: ventilation mapping
-    @type mapping: C{dict}, see the L{lib.ventilator.findAServerForEachHost}()
-        function
-    @ivar baseDir: generation directory
+    @ivar baseDir: répertoire de generation
     @type baseDir: C{str}
-    @ivar validator: validator instance for warnings and errors
-    @type validator: L{Validator<lib.validator.Validator>}
     @ivar openFiles: cache of the open template files
     @type openFiles: C{dict}
-    @ivar prettyName: pretty name for this generator
-    @type prettyName: C{str}
     """
 
     COMMON_PERL_LIB_FOOTER = "1;\n"
 
-    def __init__(self, gendir, mapping, validator):
-        self.mapping = mapping
-        self.baseDir = gendir
-        self.validator = validator
+    def __init__(self, mapping, validator):
+        super(FileGenerator, self).__init__(mapping, validator)
+        self.baseDir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         self.openFiles = {}
-        self.prettyName = str(self.__class__.__name__)
-        self.prettyName = self.prettyName.replace("__main__.","")
-        self.prettyName = self.prettyName.replace("Tpl","")
-        validator.addAGenerator()
 
     def copyFile(self, src, dst):
         """
@@ -76,26 +67,6 @@ class Templator(object):
         if not os.path.exists(dstdir):
             os.makedirs(dstdir)
         shutil.copyfile(src, dst)
-
-    def addWarning(self, element, msg):
-        """
-        Add a warning in the validator
-        @param element: the element emitting the warning (usually a host)
-        @type  element: C{str}
-        @param msg: the warning message
-        @type  msg: C{str}
-        """
-        self.validator.addWarning(self.prettyName, element, msg)
-
-    def addError(self, element, msg):
-        """
-        Add a error in the validator
-        @param element: the element emitting the error (usually a host)
-        @type  element: C{str}
-        @param msg: the error message
-        @type  msg: C{str}
-        """
-        self.validator.addError(self.prettyName, element, msg)
 
     def createDirIfMissing(self, filename):
         """
@@ -161,9 +132,3 @@ class Templator(object):
             f.close()
         return templates
 
-    def generate(self):
-        """
-        The main generation method.
-        @note: To be reimplemented by sub-classes
-        """
-        pass

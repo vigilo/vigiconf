@@ -275,8 +275,7 @@ class Dispatchator(object):
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir, ignore_errors=True)
         
-        result = generator.generate(gendir,
-                                    commit_db=(self.mode_db == 'commit'))
+        result = generator.generate(commit_db=(self.mode_db == 'commit'))
         if not result:
             raise DispatchatorError("Can't generate configuration")
 

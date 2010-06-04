@@ -71,7 +71,7 @@ def get_local_ventilation():
             mapping[host][app] = "localhost"
     return mapping
 
-def generate(gendir, commit_db=False):
+def generate(commit_db=False):
     """ Main routine of this module, produces the configuration files.
     
     TODO: implementer l'option commit db.
@@ -105,7 +105,7 @@ def generate(gendir, commit_db=False):
         sys.stderr.write("Generation Failed!!\n")
         return False
     genmanager = generators.GeneratorManager()
-    genmanager.generate(gendir, h, v)
+    genmanager.generate(h, v)
             
     if v.hasErrors():
         sys.stderr.write("\n".join(v.getSummary(details=True, stats=True)+['']))
@@ -147,14 +147,14 @@ if __name__ == "__main__":
     if 0:
         import hotshot, hotshot.stats
         _prof = hotshot.Profile("/tmp/generator.prof")
-        _prof.runcall(generate, _gendir)
+        _prof.runcall(generate)
         _prof.close()
         _stats = hotshot.stats.load("/tmp/generator.prof")
         _stats.strip_dirs()
         _stats.sort_stats('time', 'calls')
         _stats.print__stats(20)
     else:
-        if not generate(_gendir):
+        if not generate():
             sys.exit(1)
 
 

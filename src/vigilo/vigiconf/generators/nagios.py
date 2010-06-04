@@ -27,9 +27,9 @@ from vigilo.common.conf import settings
 import os.path
 
 from .. import conf
-from . import Templator 
+from . import FileGenerator 
 
-class NagiosTpl(Templator):
+class NagiosTpl(FileGenerator):
     """
     This class is in charge of generating a nagios compliant configuration
     file given the internal data model of ConfMgr (see conf.py)

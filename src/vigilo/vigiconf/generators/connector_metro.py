@@ -30,10 +30,10 @@ import os.path
 import urllib
 
 from .. import conf
-from . import Templator 
+from . import FileGenerator 
 
 # générateur désactivé
-class ConnectorMetroTpl(Templator):
+class ConnectorMetroTpl(FileGenerator):
 #class ConnectorMetroTpl:
     """Generator for connector-metro, the RRD db generator"""
 

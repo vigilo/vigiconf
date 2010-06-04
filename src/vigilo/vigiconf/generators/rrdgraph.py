@@ -25,9 +25,9 @@ from __future__ import absolute_import
 import os.path
 
 from .. import conf
-from . import Templator 
+from . import FileGenerator 
 
-class RRDgraphTpl(Templator):
+class RRDgraphTpl(FileGenerator):
     """Generator for RRD graph generator"""
 
     def generate(self):

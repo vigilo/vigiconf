@@ -46,10 +46,13 @@ def reload_conf(hostsdir=None):
 
 def setup_tmpdir(dirpath=None):
     """Prepare the temporary directory"""
-    if not dirpath:
-        dirpath = tempfile.mkdtemp(dir="/dev/shm", prefix="tests-vigiconf")
-    tmpdir = dirpath
+    #if not dirpath:
+    #    dirpath = tempfile.mkdtemp(dir="/dev/shm", prefix="tests-vigiconf")
+    #tmpdir = dirpath
+    tmpdir = settings["vigiconf"].get("libdir")
     conf.LIBDIR = tmpdir
+    if not os.path.exists(tmpdir):
+        os.makedirs(tmpdir)
     return tmpdir
 
 #Create an empty database before we start our tests for this module

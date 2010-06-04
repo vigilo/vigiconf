@@ -51,14 +51,14 @@ class Generator(unittest.TestCase):
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )
         # Try the generation
-        generator.generate(self.basedir)
+        generator.generate()
 
     def test_add_metro_service_nagios(self):
         """Test for the add_metro_service method"""
         test_list = conf.testfactory.get_test("Interface", self.host.classes)
         self.host.add_tests(test_list, label="eth1", ifname="eth1")
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
-        generator.generate(self.basedir)
+        generator.generate()
         nagiosconf = os.path.join(self.basedir,
                                   self.get_supserver(self.host, "nagios"),
                                   "nagios.cfg")
@@ -114,7 +114,7 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         h = generator.getventilation()
         v = generator.Validator(h)
         
-        tpl = NagiosGeneratorForTest(self.basedir, h, v)
+        tpl = NagiosGeneratorForTest(h, v)
         tpl.generate()
         # recuperation de la generation pour host
         nagdirs = tpl.test_host_data['generic_directives']

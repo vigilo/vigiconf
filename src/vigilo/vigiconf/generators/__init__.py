@@ -28,7 +28,10 @@ import os, sys
 import os.path
 import types
 
-from ..lib.generators.templator import Templator
+from pkg_resources import working_set
+
+from ..lib.generators import Generator
+from ..lib.generators.filegenerator import FileGenerator
 
 from vigilo.common.conf import settings
 
@@ -39,7 +42,6 @@ class GeneratorManager(object):
     @type genclasses: C{list}
     """
 
-    genclasses = []
     genshi_enabled = False
 
     def __init__(self):
@@ -49,37 +51,12 @@ class GeneratorManager(object):
         except KeyError:
             self.genshi_enabled = False
 
-        if not self.genclasses:
-            self.__load()
-
-    def __load(self):
-        """Load the available generators"""
-        generator_files = glob.glob(os.path.join(
-                                os.path.dirname(__file__), "*.py"))
-        for filename in generator_files:
-            if os.path.basename(filename).startswith("__"):
-                continue
-            try:
-                execfile(filename, globals(), locals())
-            except Exception, e:
-                sys.stderr.write("Error while parsing %s: %s\n" \
-                                 % (filename, str(e)))
-                raise
-        for name, genclass in locals().iteritems():
-            if isinstance(genclass, (type, types.ClassType)):
-                if issubclass(genclass, Templator) and  name != "Templator":
-                    self.genclasses.append(genclass)
-            elif isinstance(genclass, (type, types.ModuleType)) and \
-                    name not in globals():
-                # This is an import statement and we don't have it yet,
-                # re-bind it here
-                globals()[name] = genclass
-                continue
-
-    def generate(self, gendir, h, v):
+    def generate(self, h, v):
         """Execute each subclass' generate() method"""
-        for genclass in self.genclasses:
-            generator = genclass(gendir, h, v)
+        for entry in working_set.iter_entry_points("vigilo.vigiconf.generators"):
+            # Charge les tables spécifiques
+            genclass = entry.load()
+            generator = genclass(h, v)
             generator.generate()
 
 

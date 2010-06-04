@@ -28,9 +28,9 @@ import os.path
 from vigilo.common.conf import settings
 
 from .. import conf
-from . import Templator 
+from . import FileGenerator 
 
-class CorrTrapTpl(Templator):
+class CorrTrapTpl(FileGenerator):
     """Generator for the SNMP trap collector (CorrTrap)"""
             
     def generate(self):

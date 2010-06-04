@@ -25,9 +25,9 @@ from __future__ import absolute_import
 import urllib
 
 from .. import conf
-from . import Templator 
+from . import FileGenerator 
 
-class CollectorTpl(Templator):
+class CollectorTpl(FileGenerator):
     """Generator for the Collector"""
 
     def generate(self):

@@ -25,9 +25,9 @@ from __future__ import absolute_import
 import urllib
 
 from .. import conf
-from . import Templator 
+from . import FileGenerator 
 
-class PerfDataTpl(Templator):
+class PerfDataTpl(FileGenerator):
     """Generator for PerfData handler"""
 
     def generate(self):
