@@ -135,8 +135,21 @@ class Server(object):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = SystemCommand(iCommand)
-        c.simulate = settings["vigiconf"].as_bool("simulate")
+        c.simulate = self.is_simulation()
         return c
+    
+    def is_simulation(self):
+        """ get simulation mode.
+        
+        @return: simulation or not
+        @rtype: C{boolean}
+        """
+        simulate = False
+        try:
+            simulate = settings["vigiconf"].as_bool("simulate")
+        except KeyError:
+            pass
+        return simulate
 
     # methods
     def switchDirectories(self):

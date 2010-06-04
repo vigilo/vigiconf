@@ -254,6 +254,13 @@ class Discoverator(object):
 
 
 def indent(elem, level=0):
+    """ indentation function.
+    
+    @param elem: element
+    @type  elem: L{Element}
+    @param level: indentation level
+    @type  level: C{int}
+    """
     i = "\n" + level*"    "
     if len(elem):
         # pylint: disable-msg=W0631

@@ -13,6 +13,7 @@ import sys
 import os
 
 def main():
+    """ main function """
     if len(sys.argv) != 2:
         print "Usage: debug.py <module>"
         sys.exit(2)

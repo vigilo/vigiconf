@@ -88,6 +88,12 @@ class Dispatchator(object):
     @type mModeForce: C{boolean}
     @ivar mAppsList: list of all the applications contained in the configuration.
     @type mAppsList: C{list} of C{str}
+    @ivar commandsQueue: commands queue
+    @type commandsQueue: L{Queue}
+    @ivar returnsQueue: commands queue
+    @type returnsQueue: L{Queue}
+    @ivar deploy_revision:
+    @type deploy_revision:
     """
 
     def __init__(self):
@@ -269,7 +275,8 @@ class Dispatchator(object):
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir, ignore_errors=True)
         
-        result = generator.generate(gendir, commit_db=(self.mode_db == 'commit'))
+        result = generator.generate(gendir,
+                                    commit_db=(self.mode_db == 'commit'))
         if not result:
             raise DispatchatorError("Can't generate configuration")
 
@@ -282,7 +289,8 @@ class Dispatchator(object):
 
         #Validate Configuration
         for _App in self.getApplications():
-            _App.validate(os.path.join(settings["vigiconf"].get("libdir"), "deploy"))
+            _App.validate(os.path.join(settings["vigiconf"].get("libdir"),
+                                       "deploy"))
         syslog.syslog(syslog.LOG_INFO, "Validation Successful\n")
 
         #Commit Configuration
@@ -800,8 +808,9 @@ def main():
                           +"other option. Should be followed by the restart "
                           +"command.")
     parser.add_option("-v", "--revision", action="store", dest="revision",
-                      help="Deploy the given revision. Should be used with --deploy option."
-                          +" Should be followed by the restart command.")
+                      help="Deploy the given revision. Should be used with"
+                          +" --deploy option. Should be followed by the"
+                          +" restart command.")
     parser.add_option("-i", "--info", action="store_true", dest="info",
                       help="Prints a summary of the actual configuration.")
     parser.add_option("-n", "--dry-run", action="store_true", dest="simulate",
@@ -814,7 +823,7 @@ def main():
 
     try:
         conf.loadConf()
-    except Exception,e :
+    except Exception, e :
         syslog.syslog(syslog.LOG_ERR, "Cannot load the conf.")
         syslog.syslog(syslog.LOG_ERR, str(e) )
         sys.exit(-1)

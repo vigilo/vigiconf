@@ -56,8 +56,8 @@ from .lib.dbupdater import DBUpdater, DBUpdater2
 from . import conf
 
 # chargement de données xml
-from vigilo.vigiconf.loaders import grouploader,\
-                                    dependencyloader,\
+from vigilo.vigiconf.loaders import grouploader, \
+                                    dependencyloader, \
                                     hlserviceloader
 
 __docformat__ = "epytext"
@@ -81,18 +81,7 @@ def export_conf_db():
     """ Update database with hostConf data.
     """
     hostsConf = conf.hostsConf
-    hostsGroups = conf.hostsGroups
     
-    """# mise à jour des serveurs de supervision
-    for app, dic in conf.appsGroupsByServer.iteritems():
-        for appgroup, servers in dic.iteritems():
-            servername = conf.appsGroupsByServer[appGroup][hostGroup]
-        
-        if not VigiloServer.by_vigiloserver_name(servername):
-            server = VigiloServer(name=servername)
-            DBSession.add(server)
-    DBSession.flush()
-    """
     confdir = settings['vigiconf'].get('confdir')
     # hiérarchie groupes hosts (fichier xml)
     grouploader.load_dir(os.path.join(confdir, 'groups'))
@@ -102,9 +91,12 @@ def export_conf_db():
     conf.groupsHierarchy = grouploader.get_groups_hierarchy()
     
     # groups for new entities
-    group_newhosts_def = unicode(settings['vigiconf'].get('GROUPS_DEF_NEW_HOSTS',
-                                          u'new_hosts_to_ventilate'))
-    group_newservices_def = unicode(settings['vigiconf'].get('GROUPS_DEF_NEW_SERVICES',
+    group_newhosts_def = unicode(
+                            settings['vigiconf'].get('GROUPS_DEF_NEW_HOSTS',
+                                     u'new_hosts_to_ventilate'))
+    group_newservices_def = unicode(
+                              settings['vigiconf'].get(
+                                          'GROUPS_DEF_NEW_SERVICES',
                                           u'new_services'))
     
     # add if needed these groups
@@ -145,7 +137,9 @@ def export_conf_db():
             h.mainip = unicode(host['mainIP'])
             h.snmpport = unicode(host['port'])
             # add groups to host
-            h.groups = [SupItemGroup.by_group_name(unicode(host['serverGroup'])), ]
+            h.groups = [SupItemGroup.by_group_name(
+                                            unicode(host['serverGroup'])
+                                            ), ]
         else:
             # create host object
             h = Host(name=hostname,
@@ -179,7 +173,8 @@ def export_conf_db():
                 for name, value in host['nagiosSrvDirs'][service].iteritems():
                     name = unicode(name)
                     value = unicode(value)
-                    ci = ConfItem.by_host_service_confitem_name(hostname, service, name)
+                    ci = ConfItem.by_host_service_confitem_name(hostname,
+                                                                service, name)
                     if ci:
                         ci.value = value
                     else:
@@ -202,10 +197,11 @@ def export_conf_db():
             h.groups.append(SupItemGroup.by_group_name(unicode(og)))
         
         # export graphes groups
-        _export_host_graphgroups(host['graphGroups'], h)
+        _export_host_graphgroups(host['graphGroups'])
         
         # export graphes
-        _export_host_graphitems(host['graphItems'], h, host['dataSources'], pds_updater)
+        _export_host_graphitems(host['graphItems'], h,
+                                host['dataSources'], pds_updater)
         
     DBSession.flush()
     
@@ -221,7 +217,8 @@ def export_conf_db():
     
     # dépendances
     dependencyloader.reset_change()
-    dependencyloader.load_dir(os.path.join(confdir, 'dependencies'), delete_all=True)
+    dependencyloader.load_dir(os.path.join(confdir, 'dependencies'),
+                              delete_all=True)
     dependencyloader.detect_change()
     
     # on détruit les groupes spéciaux
@@ -229,17 +226,12 @@ def export_conf_db():
     DBSession.delete(group_newservices_def)
     DBSession.flush()
 
-def _export_host_graphgroups(graphgroups, h):
+def _export_host_graphgroups(graphgroups):
     """
     Update database with graphes and graph groups for a host.
     
-    TODO: lien avec host ?
-    
     @param graphgroups: a dict describing the graph groups hierarchy for a host
     @type graphgroups: C{dict}
-    @param h: host
-    @param h: C{Host}
-    @returns: None
     """
     # reset hierarchy
     for graph in DBSession.query(Graph):
@@ -268,8 +260,6 @@ def _export_host_graphitems(graphitems, h, datasources, dbupdater):
     """
     Update database with graph items for a host.
     
-    TODO: lien avec host ?
-    
     @param graphitems: a dict describing the graph items for a host.
     @type graphitems: C{dict}
     @param h: host
@@ -295,7 +285,7 @@ def _export_host_graphitems(graphitems, h, datasources, dbupdater):
             if not pds:
                 pds = PerfDataSource(host=h, name=ds, type=dstype,
                                      label=unicode(graph['vlabel']))
-                pds.graphs = [g,]
+                pds.graphs = [g, ]
             else:
                 pds.label = unicode(graph['vlabel'])
                 pds.type = dstype
@@ -308,21 +298,6 @@ def _export_host_graphitems(graphitems, h, datasources, dbupdater):
     
     DBSession.flush()
 
-
-if __name__ == "__main__":
-    syslog.openlog('DBExportator' , syslog.LOG_PERROR)
-    syslog.syslog(syslog.LOG_INFO, "DBExportator Begin")
-
-    try:
-        conf.loadConf()
-    except Exception, e :
-        syslog.syslog(syslog.LOG_ERR, "Cannot load the conf.")
-        syslog.syslog(syslog.LOG_ERR, str(e) )
-        sys.exit(-1)
-
-    export_conf_db()
-    
-    syslog.syslog(syslog.LOG_INFO, "DBExportator End")
 
 def export_ventilation_DB(ventilation):
     """Export ventilation in DB
@@ -355,7 +330,7 @@ def export_ventilation_DB(ventilation):
     # les associations ventilation ne doivent pas être détruites
     
     for host, serverbyapp in ventilation.iteritems():
-        inst_host=Host.by_host_name(unicode(host))
+        inst_host = Host.by_host_name(unicode(host))
         
         for app, server in serverbyapp.iteritems():
             vigiloserver = VigiloServer.by_vigiloserver_name(unicode(server))
@@ -367,13 +342,30 @@ def export_ventilation_DB(ventilation):
             
             # on créé une association si il n'en existe pas encore
             vexist = DBSession.query(Ventilation).filter(
-                                            Ventilation.host == inst_host
+                                         Ventilation.host == inst_host
                                        ).filter(
-                                            Ventilation.application == application
+                                         Ventilation.application == application
                                        ).count()
             if vexist == 0:
                 v = Ventilation(host=inst_host, vigiloserver=vigiloserver,
                                 application=application)
                 DBSession.add(v)
     DBSession.flush()
+
+
+
+if __name__ == "__main__":
+    syslog.openlog('DBExportator' , syslog.LOG_PERROR)
+    syslog.syslog(syslog.LOG_INFO, "DBExportator Begin")
+
+    try:
+        conf.loadConf()
+    except Exception, e :
+        syslog.syslog(syslog.LOG_ERR, "Cannot load the conf.")
+        syslog.syslog(syslog.LOG_ERR, str(e) )
+        sys.exit(-1)
+
+    export_conf_db()
+    
+    syslog.syslog(syslog.LOG_INFO, "DBExportator End")
 

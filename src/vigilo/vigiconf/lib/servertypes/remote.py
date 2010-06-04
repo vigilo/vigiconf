@@ -26,7 +26,6 @@ import os
 
 from vigilo.common.conf import settings
 
-from ... import conf
 from ..server import Server, ServerError
 from ..systemcommand import SystemCommand
 from ..remotecommand import RemoteCommand, CommandUser
@@ -70,10 +69,7 @@ class ServerRemote(Server):
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = RemoteCommand(self.getName(), iCommand, self.getCommandUser())
-        try:
-            c.simulate = settings["vigiconf"].as_bool("simulate")
-        except KeyError:
-            c.simulate = False
+        c.simulate = self.is_simulation()
         return c
 
     def _builddepcmd(self):

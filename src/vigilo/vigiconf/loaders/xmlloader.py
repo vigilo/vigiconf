@@ -70,7 +70,8 @@ class XMLLoader:
     
     def __init__(self, xsd_filename=None):
         """ Constructeur.
-        @param  xsd_filename: an XSD file name (present in the validation/xsd dir)
+        @param  xsd_filename: an XSD file name (present in the
+                              validation/xsd dir)
         @type  xsd_filename: C{str}
         """
         
@@ -83,8 +84,8 @@ class XMLLoader:
         """ Charge des données depuis un fichier xml.
         
         Cette méthode peut être redéfinie dans une classe dérivée.
-        L'implémentation par défaut (méthode parse) nécessite d'implémenter dans la
-        classe dérivée les méthodes start_element et end_element.
+        L'implémentation par défaut (méthode parse) nécessite d'implémenter
+        dans la classe dérivée les méthodes start_element et end_element.
         
         @param path: an XML file
         @type  path: C{str}
@@ -102,11 +103,13 @@ class XMLLoader:
         """
         xsd = self._xsd_file_path
         devnull = open("/dev/null", "w")
-        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, xmlfile],
+        result = subprocess.call(
+                    ["xmllint", "--noout", "--schema", xsd, xmlfile],
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
         if result != 0:
-            raise ParsingError("XML validation failed (%s/%s)" % (xmlfile, xsd))
+            raise ParsingError("XML validation failed (%s/%s)"
+                               % (xmlfile, xsd))
     
     def visit_dir(self, dirname):
         """ validate the exploration of a directory.
@@ -164,7 +167,8 @@ class XMLLoader:
                 
                 start_tag = self._bloclist.pop()
                 if start_tag != elem.tag:
-                    raise Exception("End tag mismatch error: %s/%s" % (start_tag, elem.tag))
+                    raise Exception("End tag mismatch error: %s/%s"
+                                    % (start_tag, elem.tag))
     
     def start_element(self, tag):
         """ should be implemented by the subclass when using parse method

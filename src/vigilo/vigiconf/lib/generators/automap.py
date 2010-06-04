@@ -54,7 +54,8 @@ class AutoMap:
         }
     """
     
-    # voir conf.d/general/automaps.py : param_maps_auto['AutoMap']['map_defaults']
+    # voir conf.d/general/automaps.py :
+    #   param_maps_auto['AutoMap']['map_defaults']
     map_defaults = {'background_color': u'white',
                    'background_image': u'bg',
                    'background_position': u'top right',
@@ -156,7 +157,7 @@ class AutoMap:
             if parent_name:
                 gmap.set_parent(self.get_or_create_mapgroup(parent_name))
             else:
-                # XXX: dossier "virtuel" de plus haut niveau
+                # dossier "virtuel" de plus haut niveau
                 # Hardcodé pour l'instant
                 gmap.set_parent(self.get_or_create_mapgroup("Root"))
             DBSession.add(gmap)

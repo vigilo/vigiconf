@@ -27,15 +27,11 @@ Generators for the Vigilo Config Manager
 from __future__ import absolute_import
 
 import glob
-import sys
 import os
 import os.path
 import shutil
-import types
 
 from vigilo.common.conf import settings
-
-from ... import conf
 
 class Templator(object):
     """

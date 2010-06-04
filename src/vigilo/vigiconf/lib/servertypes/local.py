@@ -22,7 +22,6 @@ from __future__ import absolute_import
 
 from vigilo.common.conf import settings
 
-from ... import conf
 from ..server import Server
 from ..systemcommand import SystemCommand
 
@@ -32,21 +31,7 @@ class ServerLocal(Server):
     def __init__(self, iName):
         # Superclass constructor
         Server.__init__(self, iName)
-
-    def createCommand(self, iCommand):
-        """
-        @param iCommand: command to execute
-        @type  iCommand: C{str}
-        @return: the command instance
-        @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
-        """
-        c = SystemCommand(iCommand)
-        try:
-            c.simulate = settings["vigiconf"].as_bool("simulate")
-        except KeyError:
-            c.simulate = False
-        return c
-
+    
     def _builddepcmd(self):
         """
         Build the deployment command line

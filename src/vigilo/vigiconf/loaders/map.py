@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-################################################################################
+###############################################################################
 #
 # ConfigMgr configuration files generation wrapper
 # Copyright (C) 2007-2009 CS-SI
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-################################################################################
+###############################################################################
 
 from datetime import datetime
 
@@ -143,7 +143,8 @@ class MapLoader(XMLLoader):
     def start_host(self):
         """ événement début de bloc "host".
         """
-        if not self.node_mode: raise Exception("host node must be in a nodes block.")
+        if not self.node_mode:
+            raise Exception("host node must be in a nodes block.")
         
         name = self.get_uattrib("name")
         id = self.get_attrib("id")
@@ -155,7 +156,8 @@ class MapLoader(XMLLoader):
     def end_host(self):
         """ événement fin de bloc "host".
         """
-        if not self.node_mode:  raise Exception("host node must be in a nodes block.")
+        if not self.node_mode:
+            raise Exception("host node must be in a nodes block.")
         self.host, self.name, self.id = (None,) * 3
         self.label = None
         self.x, self.y, self.minimize = (None,) * 3

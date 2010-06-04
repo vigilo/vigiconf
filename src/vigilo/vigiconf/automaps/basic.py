@@ -28,13 +28,22 @@ class BasicAutoMap(AutoMap):
     
     Les spécifications sont les suivantes:
     
-    * la génération est paramétrable au moyen d'un fichier en conf, automaps.py dans le répertoire conf.d/general.
-    * Un jeu de groupe de cartes est généré de façon paramétrable, dont un groupe de cartes par groupe de plus haut niveau.
-    * Une carte (entité Map) est générée pour un groupe terminal (dans la hiérarchie des groupes) contenant des éléments à superviser (hôtes ou services), si cette carte n'existe pas.
-    * lorsqu'une carte est créée, elle est associée à un ou plusieurs groupes de cartes, dont la hiérarchie suit celle des groupes d'éléments à superviser correspondants.
-    * Le contenu d'une carte (éléments de classe MapNodeHost et MapNodeHls) est généré si la carte est une carte générée automatiquement.
-    * Dans le cas d'une carte générée automatiquement, les éléments affichant des entités n'existant plus sont supprimés. 
-    * Les modifications d'un élément affiché dans une carte générée automatiquement ne sont pas prises en compte.
+    * la génération est paramétrable au moyen d'un fichier en conf, automaps.py
+      dans le répertoire conf.d/general.
+    * Un jeu de groupe de cartes est généré de façon paramétrable, dont un
+      groupe de cartes par groupe de plus haut niveau.
+    * Une carte (entité Map) est générée pour un groupe terminal (dans la
+      hiérarchie des groupes) contenant des éléments à superviser (hôtes ou
+      services), si cette carte n'existe pas.
+    * lorsqu'une carte est créée, elle est associée à un ou plusieurs groupes
+      de cartes, dont la hiérarchie suit celle des groupes d'éléments à
+      superviser correspondants.
+    * Le contenu d'une carte (éléments de classe MapNodeHost et MapNodeHls) est
+      généré si la carte est une carte générée automatiquement.
+    * Dans le cas d'une carte générée automatiquement, les éléments affichant
+      des entités n'existant plus sont supprimés. 
+    * Les modifications d'un élément affiché dans une carte générée
+      automatiquement ne sont pas prises en compte.
     
     La génération est paramétrable au moyen du fichier en conf
     general/automaps.py; ce fichier contient des données de fond de carte
@@ -62,20 +71,23 @@ class BasicAutoMap(AutoMap):
           les groupes de premier niveau à générer.
     """
     
-    # voir conf.d/general/automaps.py : param_maps_auto['BasicAutoMap']['parent_topgroup']
+    # voir conf.d/general/automaps.py :
+    #  param_maps_auto['BasicAutoMap']['parent_topgroup']
     parent_topgroup = None
     
     def __init__(self):
         """Constructeur. """
         AutoMap.__init__(self)
         conf = self.get_conf()
-        self.parent_topgroup = conf.param_maps_auto['BasicAutoMap']['parent_topgroup']
+        self.parent_topgroup = conf.param_maps_auto['BasicAutoMap'][
+                                                    'parent_topgroup']
         if not self.parent_topgroup:
-            # XXX: dossier "virtuel" de plus haut niveau. Hardcodé pour l'instant
+            # dossier "virtuel" de plus haut niveau. Hardcodé pour l'instant
             self.parent_topgroup = "Root"
     
     def process_top_group(self, group):
-        """ génération des entités liées à un groupe d'hosts de niveau supérieur.
+        """ génération des entités liées à un groupe d'hosts de niveau
+            supérieur.
         
         @param group: groupe de premier niveau
         @type group: C{SupItemGroup}
@@ -85,7 +97,7 @@ class BasicAutoMap(AutoMap):
             gmap = self.get_or_create_mapgroup(group.name,
                                        parent_name=self.parent_topgroup)
         # génération de la Map
-        self.generate_map(group, mapgroups=[self.parent_topgroup,])
+        self.generate_map(group, mapgroups=[self.parent_topgroup, ])
     
     def process_leaf_group(self, group):
         """ traitement des hostgroups de niveau final
@@ -103,7 +115,7 @@ class BasicAutoMap(AutoMap):
         if group.has_parent():
             gmap = self.build_mapgroup_hierarchy(group.get_parent())
             #print "map %s groups[0]=%s" % (group.name, gmap.name)
-            map.groups = [gmap,]
+            map.groups = [gmap, ]
             DBSession.flush()
     
     def generate_map(self, group, mapgroups=[]):
@@ -123,7 +135,8 @@ class BasicAutoMap(AutoMap):
         if not map:
             map = self.create_map(group.name, mapgroups, self.map_defaults)
             created = True
-            #print "map %s genererated groups[0]=%s" % (group.name, map.groups[0].name)
+            #print "map %s genererated groups[0]=%s"
+            #       % (group.name, map.groups[0].name)
         if map.generated:
             # on gère le contenu uniquement pour les cartes auto
             self.populate_map(map, group, self.map_defaults, created=created)
@@ -179,7 +192,8 @@ class BasicAutoMap(AutoMap):
                 DBSession.add(node)
             else:
                 if len(nodes) > 1:
-                    raise Exception("service Hls has more than one node in a map")
+                    raise Exception(
+                                "service Hls has more than one node in a map")
                 # on ne fait rien sur les éléments présents
         
         # on supprime les éléments qui ne font pas partie des éléments
