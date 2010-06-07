@@ -217,12 +217,12 @@ class NagiosTpl(FileGenerator):
             else:
                 if scopy['command'].count("$METROSERVER$") > 0:
                     # Replace the keyword
-                    if not ventilation.has_key("storeme"):
+                    if not ventilation.has_key("connector-metro"):
                         # Hey, I have no metro server! I can't check that!
                         self.addWarning(hostname, "Can't find the metro "
                                         +"server for an RRD-based service")
                     else:
-                        mserver = ventilation['storeme']
+                        mserver = ventilation['connector-metro']
                         newcmd = scopy['command']
                         newcmd = newcmd.replace("$METROSERVER$", mserver)
                         scopy['command'] = newcmd
