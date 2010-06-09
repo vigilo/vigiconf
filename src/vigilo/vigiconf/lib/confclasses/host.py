@@ -651,7 +651,7 @@ class HostFactory(object):
                     #if group not in self.groupsHierarchy:
                     #    self.groupsHierarchy[group] = set()
                     self.hosttemplatefactory.apply(cur_host, "default")
-                    LOGGER.debug("Created host %s, ip %s, group %s" % (name, ip, group))
+                    LOGGER.debug("Loaded host %s, ip %s, group %s" % (name, ip, group))
                 elif elem.tag == "test":
                     inside_test = True
                     test_name = elem.attrib["name"].strip()

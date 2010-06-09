@@ -37,14 +37,12 @@ class DBUpdater:
         dbu.update()
         
     """
-    _class = None
-    _instances = None
-    _key_attr = None
     
     def __init__(self, cls, key_attr):
         """ Constructeur.
         """
         self._class = cls
+        self._instances = None
         self._key_attr = key_attr
     
     def load_instances(self):
