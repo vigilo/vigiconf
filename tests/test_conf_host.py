@@ -27,6 +27,11 @@ class HostMethods(unittest.TestCase):
                 "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/aW5ldGgx 10 20 1", \
                 "add_metro_service does not work"
 
+    def test_priority_host_hosttemplate(self):
+        """Test priorité du paramétrage des host sur les hosttemplates"""
+        assert conf.hostsConf["localhost"]["services"]["Traffic in eth0"]["command"] == \
+                "check_nrpe_rerouted!$METROSERVER$!check_rrd!localhost/aW5ldGgw 15 35 8"
+
     def test_add_metro_service_INTF(self):
         """Test for the add_metro_service function in the Interface test"""
         test_list = conf.testfactory.get_test("Interface", self.host.classes)

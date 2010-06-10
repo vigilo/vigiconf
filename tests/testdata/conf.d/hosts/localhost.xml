@@ -8,6 +8,8 @@
     <test name="Interface">
         <arg name="label">eth0</arg>
         <arg name="ifname">eth0</arg>
+        <arg name="warn">15,25</arg>
+        <arg name="crit">35,45</arg>
     </test>
     <group>Linux servers</group>
 </host>
