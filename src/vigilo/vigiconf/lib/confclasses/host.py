@@ -24,7 +24,7 @@ This module contains the Host class
 from __future__ import absolute_import
 
 import os
-import base64
+import urllib
 import subprocess
 from xml.etree import ElementTree as ET # Python 2.5
 
@@ -507,7 +507,7 @@ class Host(object):
         """
         self.add_external_sup_service(servicename,
             "check_nrpe_rerouted!$METROSERVER$!check_rrd!%s/%s %s %s %s" % \
-            (self.name, base64.b64encode(metroname), warn, crit, factor)
+            (self.name, urllib.quote(metroname), warn, crit, factor)
         )
 
     def add_tag(self, service, name, value):
