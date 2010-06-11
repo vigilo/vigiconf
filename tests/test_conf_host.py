@@ -29,7 +29,7 @@ class HostMethods(unittest.TestCase):
                 "add_metro_service does not work"
 
     def test_priority_host_hosttemplate(self):
-        """Test priorité du paramétrage des host sur les hosttemplates"""
+        """Test priorite du parametrage des host sur les hosttemplates"""
         assert conf.hostsConf["localhost"]["services"]["Traffic in eth0"]["command"] == \
                 "check_nrpe_rerouted!$METROSERVER$!check_rrd!localhost/aW5ldGgw 15 35 8"
 

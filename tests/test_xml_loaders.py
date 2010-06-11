@@ -139,7 +139,7 @@ class XMLLoadersTest(unittest.TestCase):
         </dependency>
         """
         # 8 dependencies
-        self.assertEquals(8, DBSession.query(Dependency).count(), "8 dependencies")
+        self.assertEquals(4, DBSession.query(Dependency).count(), "4 dependencies")
         # host11/service11 is a dependence of host1
         
         si_host1 = SupItem.get_supitem(hostname=u"host1", servicename=None)

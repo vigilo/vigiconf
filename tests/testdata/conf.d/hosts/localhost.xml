@@ -11,6 +11,10 @@
         <arg name="warn">15,25</arg>
         <arg name="crit">35,45</arg>
     </test>
+    <test name="TCPConn">
+		<arg name="warn">50</arg>
+		<arg name="crit">55</arg>
+    </test>
     <group>Linux servers</group>
 </host>
 </hosts>
