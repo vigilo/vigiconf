@@ -25,23 +25,24 @@ class HostMethods(unittest.TestCase):
         self.host.add_tests(test_list, label="eth1", ifname="eth1")
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         assert conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]["command"] == \
-                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/aW5ldGgx 10 20 1", \
+                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/ineth1 10 20 1", \
                 "add_metro_service does not work"
 
     def test_priority_host_hosttemplate(self):
         """Test priorite du parametrage des host sur les hosttemplates"""
         assert conf.hostsConf["localhost"]["services"]["Traffic in eth0"]["command"] == \
-                "check_nrpe_rerouted!$METROSERVER$!check_rrd!localhost/aW5ldGgw 15 35 8"
+                "check_nrpe_rerouted!$METROSERVER$!check_rrd!localhost/ineth0 15 35 8"
 
     def test_add_metro_service_INTF(self):
         """Test for the add_metro_service function in the Interface test"""
         test_list = conf.testfactory.get_test("Interface", self.host.classes)
         self.host.add_tests(test_list, label="eth0", ifname="eth0", warn="10,20", crit="30,40")
         assert conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]["command"] == \
-                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/aW5ldGgw 10 30 8", \
+                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/ineth0 10 30 8", \
                 "add_metro_service does not work in Interface (in) test"
+        
         assert conf.hostsConf["testserver1"]["services"]["Traffic out eth0"]["command"] == \
-                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/b3V0ZXRoMA== 20 40 8", \
+                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/outeth0 20 40 8", \
                 "add_metro_service does not work in Interface (out) test"
 
     def test_add_tag_hosts(self):
