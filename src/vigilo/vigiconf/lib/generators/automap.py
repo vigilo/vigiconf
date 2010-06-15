@@ -29,7 +29,7 @@ from vigilo.models.tables import SupItemGroup, MapGroup, Map
 from vigilo.models.session import DBSession
 from ... import conf
 
-class AutoMap:
+class AutoMap(object):
     """ Classe de base pour un générateur de cartes auto.
     
     Un générateur de cartes automatiques doit dériver cette classe

@@ -23,7 +23,7 @@ les objets qui ne sont plus en conf.
 """
 from vigilo.models.session import DBSession
 
-class DBUpdater:
+class DBUpdater(object):
     """ Classe utilisée pour gérer la suppression des entités retirées de la conf.
     
     Usage::

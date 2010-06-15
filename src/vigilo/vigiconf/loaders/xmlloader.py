@@ -38,7 +38,7 @@ from ..lib import ParsingError
 
 __docformat__ = "epytext"
 
-class XMLLoader:
+class XMLLoader(object):
     """ Classe abstraite de chargement des données XML de la configuration.
     
     La méthode load doit être redéfinie obligatoirement.
