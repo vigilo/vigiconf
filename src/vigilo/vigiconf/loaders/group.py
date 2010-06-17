@@ -18,14 +18,19 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-from .xmlloader import XMLLoader
+import os
+
+from vigilo.common.conf import settings
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
 
 from vigilo.models.tables import SupItemGroup
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 
 from vigilo.models.session import DBSession
 
-from ..lib.dbupdater import DBUpdater
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib.xmlloader import XMLLoader
 
 class GroupLoader(XMLLoader):
     """ Classe de base pour charger des fichiers XML groupes .
@@ -33,35 +38,26 @@ class GroupLoader(XMLLoader):
     Peut être directement instanciée, ou comme c'est le cas
     pour les groupes d'hosts ou de services, être utilisée comme
     classe de base.
+        
+    @ivar _tag_group: balise xml "hostgroup" or "servicegroup"
+    @type _tag_group: C{str}
+    @ivar _xsd_filename: fichier schema xsd pour validation
+    @type _xsd_filename: C{str}
     """
     
-    _classgroup = SupItemGroup
     _tag_group = "group"
     _xsd_filename = "group.xsd"
     
-    def __init__(self, tag_group=None, xsd_filename=None):
-        """ Constructeur.
-        
-        @param tag_group: balise xml "hostgroup" or "servicegroup"
-        @type  tag_group: C{str}
-        @param xsd_filename: fichier schema xsd pour validation
-        @type  xsd_filename: C{str}
-        """
-        self._classgroup = SupItemGroup
-        if tag_group: self._tag_group = tag_group
-        if xsd_filename: self._xsd_filename = xsd_filename
-        XMLLoader.__init__(self)
-        # gestion de la suppression des groupes non lus
-        self.dbupdater = DBUpdater(self._classgroup, "name")
+    def __init__(self):
+        super(GroupLoader, self).__init__(SupItemGroup, "name")
 
-    
-    def delete_all(self):
-        """ efface la totalité des entités de la base
-        
-        """
-        DBSession.query(GroupHierarchy).delete()
-        DBSession.query(SupItemGroup).delete()
-    
+    def load_conf(self):
+        confdir = settings['vigiconf'].get('confdir')
+        self.load_dir(os.path.join(confdir, 'groups'))
+        # les groupes se chargent maintenant avec loader XML
+        conf.hostsGroups = self.get_hosts_conf()
+        conf.groupsHierarchy = self.get_groups_hierarchy()
+
     def get_hosts_conf(self):
         """ reconstruit le dico hostsGroup v1
         
@@ -72,7 +68,7 @@ class GroupLoader(XMLLoader):
             uname = unicode(g.name)
             hostsgroups[uname] = uname
         return hostsgroups
-    
+
     def get_groups_hierarchy(self):
         """ reconstruit le dico groupsHierarchy v1
         
@@ -83,7 +79,7 @@ class GroupLoader(XMLLoader):
             uname = unicode(top.name)
             hgroups[uname] = self._get_children_hierarchy(top)
         return hgroups
-    
+
     def _get_children_hierarchy(self, group):
         """ fonction récursive construisant un dictionnaire hiérarchique.
         
@@ -97,99 +93,86 @@ class GroupLoader(XMLLoader):
             hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
         return hchildren
 
-    
-    def load(self, path):
+    def update(self, instance):
+        LOGGER.debug("Updating: %s" % instance)
+        instance = self._class.by_group_name(instance.name)
+        self._in_conf[self.get_key(instance)] = instance
+        instance.set_parent(self._current_parent)
+        DBSession.flush()
+        return instance
+
+    def insert(self, instance):
+        LOGGER.debug("Inserting: %s" % instance)
+        instance = self._class.create(instance.name, self._current_parent)
+        self._in_conf[self.get_key(instance)] = instance
+        DBSession.flush()
+        return instance
+
+    def delete(self, instance):
+        instance.remove_children()
+        super(GroupLoader, self).delete(instance)
+
+    def start_element(self, elem):
+        if elem.tag == self._tag_group:
+            name = unicode(elem.attrib["name"].strip())
+            instance = self._class(name=name)
+            instance = self.add(instance)
+            # update parent stack
+            self._parent_stack.append(instance)
+        elif elem.tag == "children":
+            self._current_parent = self._parent_stack[-1]
+
+    def end_element(self, elem):
+        if elem.tag == self._tag_group:
+            if len(self._parent_stack) > 0:
+                self._parent_stack.pop()
+        elif elem.tag == "children":
+            self._current_parent = None
+
+    def load_file(self, path):
         """ Charge des groupes génériques depuis un fichier xml.
         
         @param path: an XML file
         @type  path: C{str}
         """
         
-        parent_stack = []
-        current_parent = None
-        deleting_mode = False
-        
-        classgroup = self._classgroup
-        tag_group = self._tag_group
-        
-        for event, elem in self.get_xml_parser(path):
-            if event == "start":
-                if elem.tag == tag_group:
-                    name = unicode(elem.attrib["name"].strip())
-                    
-                    self.dbupdater.in_conf(name)
-                    
-                    group = classgroup.by_group_name(groupname=name)
-                    if not group:
-                        group = classgroup.create(name=name)
-                        DBSession.add(group)
-                    else:
-                        if deleting_mode:
-                            DBSession.delete(group)
-                            continue
-                        
-                        group.remove_children()
-                    
-                    if current_parent:
-                        if group.has_parent():
-                            if group.get_parent().name != current_parent.name:
-                                raise Exception(
-                "%s %s should have one parent (%s, %s)" %
-                (tag_group, group.name, group.get_parent().name,
-                 current_parent.name)
-                                    )
-                        group.set_parent(current_parent)
-                    # update parent stack
-                    parent_stack.append(group)
-                elif elem.tag == "children":
-                    current_parent = parent_stack[-1]
-                elif elem.tag == "todelete":
-                    deleting_mode = True
-            else:
-                if elem.tag == tag_group:
-                    if len(parent_stack) > 0:
-                        parent_stack.pop()
-                elif elem.tag == "children":
-                    current_parent = None
-                elif elem.tag == "todelete":
-                    deleting_mode = False
-        DBSession.flush()
+        self._parent_stack = []
+        self._current_parent = None
+        return super(GroupLoader, self).load_file(path)
 
 
-# VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
-#   configurations de la supervision en mode CLI
+## VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
+##   configurations de la supervision en mode CLI
+##
+##   configuration des groupes d'hôtes : ajout/modification/suppression d'un
+##   groupe d'hôte
+#class HostGroupLoader(GroupLoader):
+#    
+#    _tag_group = "hostgroup"
+#    _xsd_filename = "hostgroup.xsd"
 #
-#   configuration des groupes d'hôtes : ajout/modification/suppression d'un
-#   groupe d'hôte
-class HostGroupLoader(GroupLoader):
-    _classgroup = SupItemGroup
-    _tag_group = "hostgroup"
-    _xsd_filename = "hostgroup.xsd"
-    
-    
-    def get_hosts_conf(self):
-        """ reconstruit le dico hostsGroup v1
-        
-        TODO: refactoring
-        """
-        hostsgroups = {}
-        for g in DBSession.query(SupItemGroup).all():
-            hostsgroups[g.name] = g.name
-        return hostsgroups
-       
-
-
-# VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
-#   configurations de la supervision en mode CLI
+#    def get_hosts_conf(self):
+#        """ reconstruit le dico hostsGroup v1
+#        
+#        TODO: refactoring
+#        """
+#        hostsgroups = {}
+#        for g in DBSession.query(SupItemGroup).all():
+#            hostsgroups[g.name] = g.name
+#        return hostsgroups
 #
-#   configuration d'un groupe de service : ajout/modification/suppression d'un
-#     groupe de service
-#   configuration des services de haut niveau : ajout/modification/suppression
-#     d'un service
-#   configuration des règles de corrélations associé à un service de haut
-#     niveau : ajout/modification/suppression d'une règle de corrélation
-class ServiceGroupLoader(GroupLoader):
-    _classgroup = SupItemGroup
-    _tag_group = "servicegroup"
-    _xsd_filename = "servicegroup.xsd"
+#
+## VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
+##   configurations de la supervision en mode CLI
+##
+##   configuration d'un groupe de service : ajout/modification/suppression d'un
+##     groupe de service
+##   configuration des services de haut niveau : ajout/modification/suppression
+##     d'un service
+##   configuration des règles de corrélations associé à un service de haut
+##     niveau : ajout/modification/suppression d'une règle de corrélation
+#class ServiceGroupLoader(GroupLoader):
+#
+#    _tag_group = "servicegroup"
+#    _xsd_filename = "servicegroup.xsd"
 

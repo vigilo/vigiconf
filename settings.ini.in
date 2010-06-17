@@ -26,6 +26,50 @@ sqlalchemy_url = postgres://vigilo:vigilo@localhost/vigilo
 db_basename = vigilo_
 external_auth=False
 
-[groups_def]
-new_hosts = new_hosts_to_ventilate
-new_services = new_services
+
+;
+; LOGGING
+;
+[loggers]
+keys=root
+
+[handlers]
+keys=console,syslog
+
+[formatters]
+keys=consoleFormatter,syslogFormatter
+
+[logger_root]
+level=INFO
+handlers=console,syslog
+
+[handler_console]
+class=StreamHandler
+level=DEBUG
+formatter=consoleFormatter
+args=(sys.stdout, )
+
+[handler_syslog]
+class=handlers.SysLogHandler
+level=DEBUG
+formatter=syslogFormatter
+; Le premier argument correspond à l'emplacement du syslog.
+; Il peut s'agir d'un fichier (ex : socket Unix, '/dev/log')
+; ou d'une adresse IP avec un port, auquel cas il faut saisir
+; le tout sous forme de tuple (args=('127.0.0.1', 514), 'daemon').
+;
+; Le 2ème argument correspond à la facility à utiliser lors
+; de l'envoi à syslog (voir logger(1) pour la liste des noms
+; des facilities).
+args='/dev/log', 'daemon'
+
+[formatter_consoleFormatter]
+format=[%(created)f] %(levelname)s::%(name)s::%(message)s
+datefmt=
+class=vigilo.common.logging.VigiloFormatter
+
+[formatter_syslogFormatter]
+format=%(processName)s[%(process)d]: %(levelname)s::%(name)s::%(message)s
+datefmt=
+class=vigilo.common.logging.VigiloFormatter
+

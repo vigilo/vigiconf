@@ -67,13 +67,13 @@ class Generator(unittest.TestCase):
         nagios = open(nagiosconf).read()
         
         regexp = re.compile(r"""
-            define\s+service\s*\{
-                [^\}]+
-                host_name\s+testserver1
-                [^\}]+
+            define\s+service\s*\{       # Inside an service definition
+                [^\}]+                  # Any previous declaration
+                host_name\s+testserver1 # Working on the testserver1 host
+                [^\}]+                  # Any following declaration
                 check_command\s+check_nrpe_rerouted!localhost!check_rrd!testserver1/ineth1\s10\s20\s1
-                [^\}]+
-                \}
+                [^\}]+                  # Any following declaration
+                \}                      # End of the host definition
             """,
             re.MULTILINE | re.VERBOSE)
         assert regexp.search(nagios) is not None, \

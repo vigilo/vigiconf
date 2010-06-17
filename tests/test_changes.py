@@ -8,7 +8,7 @@ Gestion du changement lors du chargement de
 
 import unittest
 
-from vigilo.vigiconf.loaders import dependencyloader
+from vigilo.vigiconf.loaders.dependency import DependencyLoader
 
 import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
@@ -24,15 +24,9 @@ class ChangeManagementTest(unittest.TestCase):
         """Call before every test case."""
         reload_conf()
         setup_db()
-        
-    def tearDown(self):
-        """Call after every test case."""
-        teardown_db()
+        self.dependencyloader = DependencyLoader()
 
-    
-    def test_change_dependencies(self):
-        """ Test de la gestion des changements des dépendances.
-        """
+        # Présents dans les fichiers XML
         localhost =  Host(
             name=u'localhost',
             checkhostcmd=u'halt -f',
@@ -44,7 +38,6 @@ class ChangeManagementTest(unittest.TestCase):
             weight=44,
         )
         DBSession.add(localhost)
-        
         hlservice1 = HighLevelService(
             servicename=u'hlservice1',
             op_dep=u'+',
@@ -54,7 +47,6 @@ class ChangeManagementTest(unittest.TestCase):
             priority=1
         )
         DBSession.add(hlservice1)
-        
         interface = LowLevelService(
             servicename=u'Interface eth0',
             op_dep=u'+',
@@ -63,24 +55,61 @@ class ChangeManagementTest(unittest.TestCase):
         )
         DBSession.add(interface)
         
-        dependencyloader.reset_change()
-        dependencyloader.load_dir('tests/testdata/conf.d/dependencies', delete_all=False)
-        self.assertTrue(
-                        dependencyloader.detect_change(),
-                        "changes: entities creation")
+        # Pour les tests
+        self.testhost1 =  Host(
+            name=u'test_change_deps_1',
+            checkhostcmd=u'halt -f',
+            snmpcommunity=u'public',
+            description=u'my localhost',
+            hosttpl=u'template',
+            mainip=u'127.0.0.1',
+            snmpport=42,
+            weight=42,
+        )
+        DBSession.add(self.testhost1)
+        self.testhost2 =  Host(
+            name=u'test_change_deps_2',
+            checkhostcmd=u'halt -f',
+            snmpcommunity=u'public',
+            description=u'my localhost',
+            hosttpl=u'template',
+            mainip=u'127.0.0.1',
+            snmpport=42,
+            weight=42,
+        )
+        DBSession.add(self.testhost2)
+        DBSession.flush()
         
-        dependencyloader.reset_change()
-        dependencyloader.load_dir('tests/testdata/conf.d/dependencies', delete_all=True)
-        self.assertFalse(
-                        dependencyloader.detect_change(),
-                        "no change")
+    def tearDown(self):
+        """Call after every test case."""
+        teardown_db()
+
+    
+    def test_change_dependencies_suppr(self):
+        """ Test de la gestion des changements des dépendances.
+        """
+        self.dependencyloader.load()
+        dep = Dependency(supitem1=self.testhost1, supitem2=self.testhost2)
+        DBSession.add(dep)
+        DBSession.flush()
+        depnum_before = DBSession.query(Dependency).count()
+        self.dependencyloader.load()
+        depnum_after = DBSession.query(Dependency).count()
+        self.assertEquals(depnum_after, depnum_before - 1)
         
-        # suppression d'une dép
-        DBSession.delete( DBSession.query(Dependency).all()[-1] )
+    def test_change_dependencies_add(self):
+        self.dependencyloader.load()
+        DBSession.delete( DBSession.query(Dependency).all()[0] )
+        DBSession.flush()
+        depnum_before = DBSession.query(Dependency).count()
+        self.dependencyloader.load()
+        depnum_after = DBSession.query(Dependency).count()
+        self.assertEquals(depnum_after, depnum_before + 1)
         
-        dependencyloader.reset_change()
-        dependencyloader.load_dir('tests/testdata/conf.d/dependencies', delete_all=True)
-        
-        self.assertTrue(
-                        dependencyloader.detect_change(),
-                        "one dependency re-created")
+    def test_change_dependencies_nothing(self):
+        self.dependencyloader.load()
+        depnum_before = DBSession.query(Dependency).count()
+        self.dependencyloader.load()
+        depnum_after = DBSession.query(Dependency).count()
+        self.assertEquals(depnum_after, depnum_before)
+

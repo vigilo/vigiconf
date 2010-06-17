@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ################################################################################
 #
-# ConfigMgr configuration files generation wrapper
+# VigiConf configuration files generation wrapper
 # Copyright (C) 2007-2009 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
@@ -26,19 +26,19 @@ TODO: confclasses refactoring needed ?
 """
 import os
 import subprocess
-
-from xml.etree import ElementTree as ET # Python 2.5
+from xml.etree import ElementTree as ET # Python >= 2.5
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
-from .. import conf
+from vigilo.models.session import DBSession
 
-from ..lib import ParsingError
+from vigilo.vigiconf.lib.dbloader import DBLoader
+from vigilo.vigiconf.lib import ParsingError
 
 __docformat__ = "epytext"
 
-class XMLLoader(object):
+class XMLLoader(DBLoader):
     """ Classe abstraite de chargement des données XML de la configuration.
     
     La méthode load doit être redéfinie obligatoirement.
@@ -47,51 +47,37 @@ class XMLLoader(object):
       - chargement de données XML dans une hiérarchie de répertoires
       - exclusion de certains répertoires
       - validation XSD 
+
+    Le parsing est basé sur SAX plutôt que sur DOM pour des questions de
+    performances : on peut très bien avoir plusieurs dizaines de milliers
+    d'hôtes dans le même fichier XML.
+
+    @ivar  _xsd_filename: an XSD file name (present in the validation/xsd dir)
+    @type  _xsd_filename: C{str}
     """
     
-    _xsd_dir = os.path.join(os.path.dirname(__file__),
-                            '..', "validation", "xsd")
-    _xsd_file_path = None
     _xsd_filename = None
-    
     _unit_filename = "final.xml"
     
-    # current bloc list (ie. ['nodes', 'node', 'item'])
-    _bloclist = []
-    # current element
-    _elem = None
+    def __init__(self, cls, key_attr=None):
+        super(XMLLoader, self).__init__(cls, key_attr)
+        # current bloc list (ie. ['nodes', 'node', 'item'])
+        self._bloclist = []
+        # current element
+        self._elem = None
+        self.do_validation = True
+        # change detection
+        self.change = False
     
-    do_validation = True
-    
-    # change detection
-    change = False
-    # gestion de la suppression des entités
-    dbupdater = None
-    
-    def __init__(self, xsd_filename=None):
-        """ Constructeur.
-        @param  xsd_filename: an XSD file name (present in the
-                              validation/xsd dir)
-        @type  xsd_filename: C{str}
-        """
-        
-        if xsd_filename: self._xsd_filename = xsd_filename
-        if self._xsd_filename:
-            self._xsd_file_path = os.path.join(self._xsd_dir,
-                                               self._xsd_filename)
-    
-    def load(self, path):
-        """ Charge des données depuis un fichier xml.
-        
-        Cette méthode peut être redéfinie dans une classe dérivée.
-        L'implémentation par défaut (méthode parse) nécessite d'implémenter
-        dans la classe dérivée les méthodes start_element et end_element.
-        
-        @param path: an XML file
-        @type  path: C{str}
-        """        
-        self.parse(path)
-    
+
+    def get_xsd_file(self):
+        if not self._xsd_filename:
+            return None
+        # TODO: utiliser pkg_resources pour pouvoir fonctionner en mode egg
+        xsd_dir = os.path.join(os.path.dirname(__file__),
+                               '..', "validation", "xsd")
+        return os.path.join(xsd_dir, self._xsd_filename)
+
     def validate(self, xmlfile):
         """
         Validate the XML against the XSD using xmllint
@@ -101,8 +87,14 @@ class XMLLoader(object):
         @param xmlfile: an XML file
         @type  xmlfile: C{str}
         """
-        xsd = self._xsd_file_path
+        xsd = self.get_xsd_file()
+        if not xsd:
+            raise Exception("An XSD schema should be provided for validation.")
+        if not os.path.exists(xsd):
+            raise OSError("XSD file does not exist: %s" % xsd)
+
         devnull = open("/dev/null", "w")
+        # TODO: validation avec lxml plutôt que xmllint ?
         result = subprocess.call(
                     ["xmllint", "--noout", "--schema", xsd, xmlfile],
                     stdout=devnull, stderr=subprocess.STDOUT)
@@ -123,7 +115,6 @@ class XMLLoader(object):
             return False
         if dirname == "CVS":
             return False
-        
         return True
     
     def get_xml_parser(self, path, events=("start", "end")):
@@ -142,7 +133,8 @@ class XMLLoader(object):
         """
         return ET.iterparse(path, events=("start", "end"))
     
-    def parse(self, path):
+
+    def load_file(self, path):
         """ Default parser.
         
         The XMLLoader subclass should implement  the 2 methods:
@@ -161,17 +153,18 @@ class XMLLoader(object):
             if event == "start":
                 self._bloclist.append(elem.tag)
                 
-                self.start_element(elem.tag)
+                self.start_element(elem)
             elif event == "end":
-                self.end_element(elem.tag)
+                self.end_element(elem)
                 
                 start_tag = self._bloclist.pop()
                 if start_tag != elem.tag:
                     raise Exception("End tag mismatch error: %s/%s"
                                     % (start_tag, elem.tag))
+        DBSession.flush()
     
     def start_element(self, tag):
-        """ should be implemented by the subclass when using parse method
+        """ should be implemented by the subclass when using load_file method
         
         Does nothing
         
@@ -189,7 +182,7 @@ class XMLLoader(object):
         pass
     
     def end_element(self, tag):
-        """ should be implemented by the subclass when using parse method
+        """ should be implemented by the subclass when using load_file method
         
         Does nothing
         
@@ -272,7 +265,7 @@ class XMLLoader(object):
         """
         raise Exception("not implemented.")
         
-    def load_dir(self, basedir, delete_all=False):
+    def load_dir(self, basedir):
         """ Chargement de données dans une hiérarchie de fichiers XML.
         
             Dans chaque répertoire, un fichier spécifique self._unit_filename
@@ -293,16 +286,8 @@ class XMLLoader(object):
         
             @param basedir: a directory containing xml files
             @type  basedir: C{str}
-            @param delete_all: delete all entities before loading (default)
-            @type delete_all: C{boolean}
         """
-        
-        if  delete_all:
-            self.delete_all()
-        
-        if self.dbupdater:
-            self.dbupdater.load_instances()
-        
+
         for root, dirs, files in os.walk(basedir):
             final = False
             
@@ -311,27 +296,20 @@ class XMLLoader(object):
                     continue
                 path = os.path.join(root, f)
                 if self.do_validation:
-                    if self._xsd_file_path:
-                        self.validate(path)
-                    else:
-                        raise Exception("A XSD Schema should be provided.")
+                    self.validate(path)
                 # load data
                 if f == self._unit_filename:
                     final = True
                 else:
-                    self.load(path)
-                
-                LOGGER.debug("Sucessfully parsed %s" % path)
+                    self.load_file(path)
+                    LOGGER.debug("Sucessfully parsed %s" % path)
             
             # parsing du dernier fichier à traiter pour des mises
             # à jour unitaires
             if final:
-                self.load(self._unit_filename)
+                self.load_file(self._unit_filename)
                 
             for d in dirs: # Don't visit subversion/CVS directories
                 if not self.visit_dir(d):
                     dirs.remove(d)
-        
-        if self.dbupdater:
-            self.dbupdater.update()
 

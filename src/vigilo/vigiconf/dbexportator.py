@@ -41,6 +41,8 @@ import sys
 import syslog
 import os
 
+from pkg_resources import working_set
+
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
@@ -51,321 +53,60 @@ from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import Application, Ventilation, VigiloServer
 from vigilo.models.tables import ConfItem
 
-from .lib.dbupdater import DBUpdater, DBUpdater2
+from vigilo.vigiconf.loaders.group import GroupLoader
+from vigilo.vigiconf.loaders.dependency import DependencyLoader
+from vigilo.vigiconf.loaders.hlservice import HLServiceLoader
+from vigilo.vigiconf.loaders.host import HostLoader
+from vigilo.vigiconf.loaders.application import ApplicationLoader
+from vigilo.vigiconf.loaders.vigiloserver import VigiloServerLoader
+from vigilo.vigiconf.loaders.ventilation import VentilationLoader
 
-from . import conf
+from vigilo.vigiconf  import conf
 
-# chargement de données xml
-from vigilo.vigiconf.loaders import grouploader, \
-                                    dependencyloader, \
-                                    hlserviceloader
 
 __docformat__ = "epytext"
 
 
 def update_apps_db():
-    """ Update database with new apps.
-    """
-    apps = conf.apps
-    
-    # apps
-    for name in apps.keys():
-        app = Application.by_app_name(unicode(name))
-        if not app:
-            app = Application(name=unicode(name))
-            DBSession.add(app)
-    
+    apploader = ApplicationLoader()
+    apploader.load()
     DBSession.flush()
 
 def export_conf_db():
     """ Update database with hostConf data.
     """
-    hostsConf = conf.hostsConf
-    
-    confdir = settings['vigiconf'].get('confdir')
-    # hiérarchie groupes hosts (fichier xml)
-    grouploader.load_dir(os.path.join(confdir, 'groups'))
-    
-    # les groupes se chargent maintenant avec loader XML
-    conf.hostsGroups = grouploader.get_hosts_conf()
-    conf.groupsHierarchy = grouploader.get_groups_hierarchy()
-    
-    # groups for new entities
-    group_newhosts_def = unicode(
-                            settings['vigiconf'].get('GROUPS_DEF_NEW_HOSTS',
-                                     u'new_hosts_to_ventilate'))
-    group_newservices_def = unicode(
-                              settings['vigiconf'].get(
-                                          'GROUPS_DEF_NEW_SERVICES',
-                                          u'new_services'))
-    
-    # add if needed these groups
-    if not SupItemGroup.by_group_name(group_newhosts_def):
-        DBSession.add(SupItemGroup.create(name=group_newhosts_def))
-    group_newhosts_def = SupItemGroup.by_group_name(group_newhosts_def)
-        
-    if not SupItemGroup.by_group_name(group_newservices_def):
-        DBSession.add(SupItemGroup.create(name=group_newservices_def))
-    group_newservices_def = SupItemGroup.by_group_name(group_newservices_def)
+    # hiérarchie des groupes
+    grouploader = GroupLoader()
+    grouploader.load()
 
-    
-    # updater: gestion des entités à supprimer
-    host_updater = DBUpdater(Host, "name")
-    host_updater.load_instances()
-    
-    lls_updater = DBUpdater2(LowLevelService, "get_key")
-    lls_updater.load_instances()
-    
-    pds_updater = DBUpdater2(PerfDataSource, "get_key")
-    pds_updater.load_instances()
-    
-    # hosts
-    
-    for hostname, host in hostsConf.iteritems():
-        hostname = unicode(hostname)
-        h = Host.by_host_name(hostname)
-        # on marque cet host "en conf"
-        host_updater.in_conf(hostname)
-        
-        if h:
-            # update host object
-            h.checkhostcmd = unicode(host['checkHostCMD'])
-            h.hosttpl = unicode(host['hostTPL'])
-            h.snmpcommunity = unicode(host['community'])
-            h.snmpoidsperpdu = unicode(host['snmpOIDsPerPDU'])
-            h.snmpversion = unicode(host['snmpVersion'])
-            h.mainip = unicode(host['mainIP'])
-            h.snmpport = unicode(host['port'])
-            # add groups to host
-            h.groups = [SupItemGroup.by_group_name(
-                                            unicode(host['serverGroup'])
-                                            ), ]
-        else:
-            # create host object
-            h = Host(name=hostname,
-                     checkhostcmd=unicode(host['checkHostCMD']),
-                     hosttpl=unicode(host['hostTPL']),
-                    snmpcommunity=unicode(host['community']),
-                    mainip=unicode(host['mainIP']),
-                    snmpport=unicode(host['port']),
-                    snmpoidsperpdu=unicode(host['snmpOIDsPerPDU']),
-                    weight=1,
-                    snmpversion=unicode(host['snmpVersion']))
-            DBSession.add(h)
-            h.groups = [group_newhosts_def, ]
-        
-        # low level services
-        # TODO: implémenter les détails: op_dep, weight, command
-        
-        for service in host['services'].keys():
-            service = unicode(service)
-            lls = LowLevelService.by_host_service_name(hostname, service)
-            if not lls:
-                lls = LowLevelService(host=h, servicename=service,
-                                      op_dep=u'+', weight=1)
-                lls.groups = [group_newservices_def, ]
-                DBSession.add(lls)
-            
-            lls_updater.in_conf(lls.get_key())
-            
-            # nagios generic directives for services
-            if host['nagiosSrvDirs'].has_key(service):
-                for name, value in host['nagiosSrvDirs'][service].iteritems():
-                    name = unicode(name)
-                    value = unicode(value)
-                    ci = ConfItem.by_host_service_confitem_name(hostname,
-                                                                service, name)
-                    if ci:
-                        ci.value = value
-                    else:
-                        ci = ConfItem(supitem=lls, name=name, value=value)
-                        DBSession.add(ci)
-        
-        # nagios generic directives for host
-        for name, value in host['nagiosDirectives'].iteritems():
-            name = unicode(name)
-            value = unicode(value)
-            ci = ConfItem.by_host_confitem_name(hostname, name)
-            if ci:
-                ci.value = value
-            else:
-                ci = ConfItem(supitem=h, name=name, value=value)
-                DBSession.add(ci)
-        
-        
-        for og in host['otherGroups']:
-            h.groups.append(SupItemGroup.by_group_name(unicode(og)))
-        
-        # export graphes groups
-        _export_host_graphgroups(host['graphGroups'])
-        
-        # export graphes
-        _export_host_graphitems(host['graphItems'], h,
-                                host['dataSources'], pds_updater)
-        
+    # hôtes
+    hostloader = HostLoader()
+    hostloader.load()
+
+    # services de haut niveau
+    hlserviceloader = HLServiceLoader()
+    hlserviceloader.load()
+
+    # dépendances topologiques
+    dependencyloader = DependencyLoader()
+    dependencyloader.load()
+
     DBSession.flush()
     
-    # suppression des hosts qui ne sont plus en conf
-    host_updater.update()
-    # suppression des lowlevelservices qui ne sont plus en conf
-    lls_updater.update()
-    # suppression des perfdatasources qui ne sont plus en conf
-    pds_updater.update()
-    
-    # high level services
-    hlserviceloader.load_dir(os.path.join(confdir, 'hlservices'))
-    
-    # dépendances
-    dependencyloader.reset_change()
-    dependencyloader.load_dir(os.path.join(confdir, 'dependencies'),
-                              delete_all=True)
-    dependencyloader.detect_change()
-    
-    # on détruit les groupes spéciaux
-    DBSession.delete(group_newhosts_def)
-    DBSession.delete(group_newservices_def)
-    DBSession.flush()
-
-def _export_host_graphgroups(graphgroups):
-    """
-    Update database with graphes and graph groups for a host.
-    
-    @param graphgroups: a dict describing the graph groups hierarchy for a host
-    @type graphgroups: C{dict}
-    """
-    # reset hierarchy
-    for graph in DBSession.query(Graph):
-        graph.groups = []
-        
-    for groupname, graphnames in graphgroups.iteritems():
-        groupname = unicode(groupname)
-        group = GraphGroup.by_group_name(groupname)
-        if group:
-            group.remove_children() # redundant with graph.groups = [] ?
-        else:
-            group = GraphGroup.create(name=groupname)
-            DBSession.add(group)
-        for name in graphnames:
-            name = unicode(name)
-            graph = DBSession.query(Graph).filter(Graph.name == name).first()
-            if not graph:
-                graph = Graph(name=name, template=u'lines', vlabel=u'unknown')
-            graph.groups.append(group)
-    
-    DBSession.flush()
-        
-
-
-def _export_host_graphitems(graphitems, h, datasources, dbupdater):
-    """
-    Update database with graph items for a host.
-    
-    @param graphitems: a dict describing the graph items for a host.
-    @type graphitems: C{dict}
-    @param h: host
-    @param h: C{Host}
-    @param datasources: a dict describing the datasources for a host.
-    @type datasources: C{dict}
-    @param dbupdater: gestionnaire de mise à jour pour les perfdatasources
-    @param dbupdater: L{DBUpdater}
-    @returns: None
-    """
-    for name, graph in graphitems.iteritems():
-        #print name, graph
-        name = unicode(name)
-        g = DBSession.query(Graph).filter(Graph.name == name).first()
-        g.template = graph['template']
-        g.vlabel = graph['vlabel']
-        
-        # création PerfDataSources
-        
-        for ds in graph['ds']:
-            pds = PerfDataSource.by_host_and_source_name(h, unicode(ds))
-            dstype = unicode(datasources[ds]['dsType'])
-            if not pds:
-                pds = PerfDataSource(host=h, name=ds, type=dstype,
-                                     label=unicode(graph['vlabel']))
-                pds.graphs = [g, ]
-            else:
-                pds.label = unicode(graph['vlabel'])
-                pds.type = dstype
-            
-            dbupdater.in_conf(pds.get_key())
-            
-            if graph['factors'].has_key(ds):
-                pds.factor = float(graph['factors'][ds])
-            DBSession.add(pds)
-    
-    DBSession.flush()
-
+    # loaders spécifiques
+    for entry in working_set.iter_entry_points("vigilo.vigiconf.loaders"):
+        loadclass = entry.load()
+        loader = loadclass()
+        loader.load()
+        DBSession.flush()
 
 def export_ventilation_DB(ventilation):
-    """Export ventilation in DB
-    @param ventilation: dict generated by findAServerForEachHost
-    @type ventilation: C{dict}
-    @returns: None
-    
-    Example:
-      >>> findAServerForEachHost()
-      {
-      ...
-      "my_host_name":
-        {
-          'apacheRP': 'presentation_server.domain.name',
-          'collector': 'collect_server_pool1.domain.name',
-          'corrsup': 'correlation_server.domain.name',
-          'corrtrap': 'correlation_server.domain.name',
-          'dns': 'infra_server.domain.name',
-          'nagios': 'collect_server_pool1.domain.name',
-          'nagvis': 'presentation_server.domain.name',
-          'perfdata': 'collect_server_pool1.domain.name',
-          'rrdgraph': 'store_server_pool2.domain.name',
-          'storeme': 'store_server_pool2.domain.name',
-          'supnav': 'presentation_server.domain.name'
-        }
-      ...
-      }
-    
-    """
-    # les associations ventilation ne doivent pas être détruites
-    
-    for host, serverbyapp in ventilation.iteritems():
-        inst_host = Host.by_host_name(unicode(host))
-        
-        for app, server in serverbyapp.iteritems():
-            vigiloserver = VigiloServer.by_vigiloserver_name(unicode(server))
-            application =  Application.by_app_name(unicode(app))
-            
-            if not vigiloserver:
-                vigiloserver = VigiloServer(name=unicode(server))
-                DBSession.add(vigiloserver)
-            
-            # on créé une association si il n'en existe pas encore
-            vexist = DBSession.query(Ventilation).filter(
-                                         Ventilation.host == inst_host
-                                       ).filter(
-                                         Ventilation.application == application
-                                       ).count()
-            if vexist == 0:
-                v = Ventilation(host=inst_host, vigiloserver=vigiloserver,
-                                application=application)
-                DBSession.add(v)
-    DBSession.flush()
+    """Export de la ventilation en base"""
+    # serveurs Vigilo
+    vserver_loader = VigiloServerLoader()
+    vserver_loader.load()
 
-
-
-if __name__ == "__main__":
-    syslog.openlog('DBExportator' , syslog.LOG_PERROR)
-    syslog.syslog(syslog.LOG_INFO, "DBExportator Begin")
-
-    try:
-        conf.loadConf()
-    except Exception, e :
-        syslog.syslog(syslog.LOG_ERR, "Cannot load the conf.")
-        syslog.syslog(syslog.LOG_ERR, str(e) )
-        sys.exit(-1)
-
-    export_conf_db()
-    
-    syslog.syslog(syslog.LOG_INFO, "DBExportator End")
+    # ventilation
+    ventilationloader = VentilationLoader(ventilation)
+    ventilationloader.load()
 

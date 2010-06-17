@@ -43,5 +43,5 @@ class XSDTest(unittest.TestCase):
                 if r != 0:
                     ko_list.append(file)
         if len(ko_list) > 0:
-            self.assertFalse(True, "files %s should be valid" % ", ".join(ko_list))
+            self.fail("files %s should be valid" % ", ".join(ko_list))
         

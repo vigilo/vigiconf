@@ -24,7 +24,7 @@ from vigilo.models.tables import Map, MapGroup, Host, LowLevelService
 
 from vigilo.models.session import DBSession
 
-from .xmlloader import XMLLoader
+from vigilo.vigiconf.lib.xmlloader import XMLLoader
 
 class MapLoader(XMLLoader):
     """ Charge des cartes depuis un fichier XML.

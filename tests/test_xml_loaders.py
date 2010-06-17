@@ -10,8 +10,8 @@ loaders test.
 
 import os, unittest, shutil
 
-from vigilo.vigiconf.loaders import grouploader, \
-                                    dependencyloader
+from vigilo.vigiconf.loaders.group import GroupLoader
+from vigilo.vigiconf.loaders.dependency import DependencyLoader
 
 import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
@@ -20,7 +20,8 @@ from vigilo.models.tables import SupItemGroup, SupItemGroup, Host, SupItem
 from vigilo.models.tables import LowLevelService, HighLevelService, Dependency
 from vigilo.models.session import DBSession
 
-class XMLLoadersTest(unittest.TestCase):
+
+class XMLLoaderTest(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
@@ -32,8 +33,14 @@ class XMLLoadersTest(unittest.TestCase):
         teardown_db()
 
         
+class GroupLoaderTest(XMLLoaderTest):
+
+    def setUp(self):
+        super(GroupLoaderTest, self).setUp()
+        self.grouploader = GroupLoader()
+
     def test_load_hostgroups(self):
-        grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
+        self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         
         g = SupItemGroup.by_group_name(u'root_group')
         self.assertTrue(g, "root_group created.")
@@ -53,11 +60,16 @@ class XMLLoadersTest(unittest.TestCase):
     def test_load_hostgroups_ko(self):
         basedir = 'tests/testdata/xsd/hostgroups/ko/loader_ko'
         
-        self.assertRaises(Exception, grouploader.load_dir, '%s/1' % basedir)
-        
-    def test_load_dependencies(self):
-        # let's create hosts and services
-        host1 =  Host(
+        self.assertRaises(Exception, self.grouploader.load_dir, '%s/1' % basedir)
+
+
+class DepLoaderTest(XMLLoaderTest):
+
+    def setUp(self):
+        super(DepLoaderTest, self).setUp()
+        self.grouploader = GroupLoader()
+        self.dependencyloader = DependencyLoader()
+        self.host1 =  Host(
             name=u'host1',
             checkhostcmd=u'halt -f',
             snmpcommunity=u'public',
@@ -67,8 +79,8 @@ class XMLLoadersTest(unittest.TestCase):
             snmpport=1234,
             weight=42,
         )
-        DBSession.add(host1)
-        host11 =  Host(
+        DBSession.add(self.host1)
+        self.host11 =  Host(
             name=u'host11',
             checkhostcmd=u'halt -f',
             snmpcommunity=u'public',
@@ -78,8 +90,8 @@ class XMLLoadersTest(unittest.TestCase):
             snmpport=123,
             weight=43,
         )
-        DBSession.add(host11)
-        host12 =  Host(
+        DBSession.add(self.host11)
+        self.host12 =  Host(
             name=u'host12',
             checkhostcmd=u'halt -f',
             snmpcommunity=u'public',
@@ -89,9 +101,8 @@ class XMLLoadersTest(unittest.TestCase):
             snmpport=124,
             weight=44,
         )
-        DBSession.add(host12)
-        
-        hlservice1 = HighLevelService(
+        DBSession.add(self.host12)
+        self.hlservice1 = HighLevelService(
             servicename=u'hlservice1',
             op_dep=u'+',
             message=u'Hello world',
@@ -99,26 +110,29 @@ class XMLLoadersTest(unittest.TestCase):
             critical_threshold=80,
             priority=1
         )
-        DBSession.add(hlservice1)
-        
-        service11 = LowLevelService(
+        DBSession.add(self.hlservice1)
+        self.service11 = LowLevelService(
             servicename=u'service11',
             op_dep=u'+',
             weight=100,
-            host=host11
+            host=self.host11
         )
-        DBSession.add(service11)
-        
-        service12 = LowLevelService(
+        DBSession.add(self.service11)
+        self.service12 = LowLevelService(
             servicename=u'service12',
             op_dep=u'+',
             weight=100,
-            host=host12
+            host=self.host12
         )
-        DBSession.add(service12)
+        DBSession.add(self.service12)
         DBSession.flush()
+
+    def test_load_dependencies(self):
+        # let's create hosts and services
         
-        dependencyloader.load_dir('tests/testdata/xsd/dependencies/ok/loader')
+        
+        print DBSession.query(Dependency).count()
+        self.dependencyloader.load_dir('tests/testdata/xsd/dependencies/ok/loader')
         
         """ The dependency links are as following:
         <dependency>
@@ -138,7 +152,7 @@ class XMLLoadersTest(unittest.TestCase):
             
         </dependency>
         """
-        # 8 dependencies
+        # 4 dependencies
         self.assertEquals(4, DBSession.query(Dependency).count(), "4 dependencies")
         # host11/service11 is a dependence of host1
         
@@ -175,16 +189,6 @@ class XMLLoadersTest(unittest.TestCase):
         )
         DBSession.add(localhost)
         
-        hlservice1 = HighLevelService(
-            servicename=u'hlservice1',
-            op_dep=u'+',
-            message=u'Hello world',
-            warning_threshold=50,
-            critical_threshold=80,
-            priority=1
-        )
-        DBSession.add(hlservice1)
-        
         interface = LowLevelService(
             servicename=u'Interface eth0',
             op_dep=u'+',
@@ -192,91 +196,25 @@ class XMLLoadersTest(unittest.TestCase):
             host=localhost
         )
         DBSession.add(interface)
+        DBSession.flush()
         
-        dependencyloader.load_dir('tests/testdata/conf.d/dependencies')
+        self.dependencyloader.load_dir('tests/testdata/conf.d/dependencies')
     
     def test_load_dependencies_ko(self):
         """ Test de fichiers xml valides selon XSD mais invalides pour le loader.
         
         """
-        host1 =  Host(
-            name=u'host1',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'My Host 1',
-            hosttpl=u'template',
-            mainip=u'127.0.0.1',
-            snmpport=1234,
-            weight=42,
-        )
-        DBSession.add(host1)
-        host11 =  Host(
-            name=u'host11',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'My Host 11',
-            hosttpl=u'tSemplate',
-            mainip=u'127.0.0.2',
-            snmpport=123,
-            weight=43,
-        )
-        DBSession.add(host11)
-        host12 =  Host(
-            name=u'host12',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'My Host 12',
-            hosttpl=u'template',
-            mainip=u'127.0.0.3',
-            snmpport=124,
-            weight=44,
-        )
-        DBSession.add(host12)
-        
-        hlservice1 = HighLevelService(
-            servicename=u'hlservice1',
-            op_dep=u'+',
-            message=u'Hello world',
-            warning_threshold=50,
-            critical_threshold=80,
-            priority=1
-        )
-        DBSession.add(hlservice1)
-        
-        service11 = LowLevelService(
-            servicename=u'service11',
-            op_dep=u'+',
-            weight=100,
-            host=host11
-        )
-        DBSession.add(service11)
-        
-        service12 = LowLevelService(
-            servicename=u'service12',
-            op_dep=u'+',
-            weight=100,
-            host=host12
-        )
-        DBSession.add(service12)
-        DBSession.flush()
-        
         basedir = 'tests/testdata/xsd/dependencies/ok/loader_ko'
         
-        self.assertRaises(Exception, dependencyloader.load_dir, "%s/1" % basedir)
-        
-        self.assertRaises(Exception, dependencyloader.load_dir, "%s/2" % basedir)
-        
-        self.assertRaises(Exception, dependencyloader.load_dir, "%s/3" % basedir)
-        
-        self.assertRaises(Exception, dependencyloader.load_dir, "%s/4" % basedir)
+        self.assertRaises(ValueError, self.dependencyloader.load_dir, basedir)
         
     def test_hostgroups_hierarchy(self):
         """ Test de grouploader.get_groups_hierarchy().
         
         réimplémentation avec db du dico python conf.groupsHierarchy
         """
-        grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
-        gh = grouploader.get_groups_hierarchy()
+        self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
+        gh = self.grouploader.get_groups_hierarchy()
         #print gh
         self.assertEquals(len(gh.keys()), 3, "3 top hostgroups")
         self.assertEquals(gh["root_group3"]["hgroup31"], 1)
