@@ -874,8 +874,9 @@ def main():
                 if options.start:
                     _dispatchator.startApplications()
                 else:
-                    print "Nothing to do."
-                    syslog.syslog(syslog.LOG_ERR, "Nothing to do.")
+                    msg = "You did not ask me to do anything. Use '--help' for the available actions."
+                    syslog.syslog(syslog.LOG_ERR, msg)
+                    parser.error(msg)
         except (DispatchatorError, ApplicationError), e:
             syslog.syslog(syslog.LOG_ERR, "%s"%(e.value))
 
