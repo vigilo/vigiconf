@@ -68,17 +68,6 @@ class VigiloServerLoader(DBLoader):
                 for vserver in vservers:
                     servers.add(vserver)
         for servername in servers:
-            server = VigiloServer(name=servername)
-            self.add(server)
+            self.add({"name": servername})
 
-    def update(self, instance):
-        """
-        On est plus simple que la classe parent : on a qu'un seul attribut (le
-        nom)
-        """
-        LOGGER.debug("Updating: %s" % instance)
-        instance = self._class.by_vigiloserver_name(instance.name)
-        self._in_conf[self.get_key(instance)] = instance
-        DBSession.flush()
-        return instance
 

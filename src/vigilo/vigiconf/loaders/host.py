@@ -54,7 +54,7 @@ class HostLoader(DBLoader):
         for hostname, hostdata in conf.hostsConf.iteritems():
             LOGGER.info("Loading host %s", hostname)
             hostname = unicode(hostname)
-            host = Host(name=hostname,
+            host = dict(name=hostname,
                         checkhostcmd=unicode(hostdata['checkHostCMD']),
                         hosttpl=unicode(hostdata['hostTPL']),
                         snmpcommunity=unicode(hostdata['community']),
@@ -111,8 +111,8 @@ class ServiceLoader(DBLoader):
         # TODO: implémenter les détails: op_dep, weight, command
         for service in conf.hostsConf[self.host.name]['services']:
             service = unicode(service)
-            lls = LowLevelService(host=self.host, servicename=service,
-                                  op_dep=u'+', weight=1)
+            lls = dict(host=self.host, servicename=service,
+                       op_dep=u'+', weight=1)
             lls = self.add(lls)
             # directives Nagios du service
             nagios_directives = conf.hostsConf[self.host.name]['nagiosSrvDirs']
@@ -130,21 +130,20 @@ class NagiosConfLoader(DBLoader):
     """
     
     def __init__(self, supitem, directives):
-        super(NagiosConfLoader, self).__init__(ConfItem)
+        # On ne travaille que sur les directives d'un seul supitem à la fois,
+        # la clé "name" est donc unique
+        super(NagiosConfLoader, self).__init__(ConfItem, "name")
         self.supitem = supitem
         self.directives = directives
 
     def _list_db(self):
         return DBSession.query(self._class).filter_by(supitem=self.supitem).all()
 
-    def get_key(self, instance):
-        return instance.get_key()
-
     def load_conf(self):
         for name, value in self.directives.iteritems():
             name = unicode(name)
             value = unicode(value)
-            ci = ConfItem(supitem=self.supitem, name=name, value=value)
+            ci = dict(supitem=self.supitem, name=name, value=value)
             self.add(ci)
 
 
@@ -157,24 +156,23 @@ class PDSLoader(DBLoader):
     """
     
     def __init__(self, host):
-        super(PDSLoader, self).__init__(PerfDataSource)
+        # On ne travaille que sur les directives d'un seul host à la fois,
+        # la clé "name" est donc unique
+        super(PDSLoader, self).__init__(PerfDataSource, "name")
         self.host = host
 
     def _list_db(self):
         return DBSession.query(self._class).filter_by(host=self.host).all()
 
-    def get_key(self, instance):
-        return instance.get_key()
-
     def load_conf(self):
         datasources = conf.hostsConf[self.host.name]['dataSources']
         for dsname, dsdata in datasources.iteritems():
-            pds = PerfDataSource(host=self.host, name=unicode(dsname),
-                                 type=unicode(dsdata["dsType"]),
-                                 label=unicode(dsdata['label']))
+            pds = dict(host=self.host, name=unicode(dsname),
+                       type=unicode(dsdata["dsType"]),
+                       label=unicode(dsdata['label']))
             for graphname, graphdata in conf.hostsConf[self.host.name]['graphItems'].iteritems():
                 if graphdata['factors'].has_key(dsname):
-                    pds.factor = float(graphdata['factors'][dsname])
+                    pds["factor"] = float(graphdata['factors'][dsname])
             self.add(pds)
 
 
@@ -225,10 +223,10 @@ class GraphLoader(DBLoader):
     def load_conf(self):
         for graphname, graphdata in conf.hostsConf[self.host.name]['graphItems'].iteritems():
             graphname = unicode(graphname)
-            graph = Graph(name=graphname,
-                          template=unicode(graphdata['template']),
-                          vlabel=unicode(graphdata["vlabel"]),
-                         )
+            graph = dict(name=graphname,
+                         template=unicode(graphdata['template']),
+                         vlabel=unicode(graphdata["vlabel"]),
+                        )
             graph = self.add(graph)
             # lien avec les PerfDataSources
             graph.perfdatasources = []

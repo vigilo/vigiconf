@@ -57,11 +57,15 @@ class DBLoader(object):
         """        
         raise NotImplementedError("The 'load' method must be redefined")
 
-    def add(self, instance):
-        if self.is_in_db(instance):
-            instance = self.update(instance)
+    def add(self, data):
+        """
+        @param data: un dictionnaire des données à insérer ou à mettre à jour
+        @type  data: C{dict}
+        """
+        if self.is_in_db(data):
+            instance = self.update(data)
         else:
-            instance = self.insert(instance)
+            instance = self.insert(data)
         DBSession.flush()
         return instance
 
@@ -70,8 +74,12 @@ class DBLoader(object):
             if inst_key not in self._in_conf.keys():
                 self.delete(self._in_db[inst_key])
 
-    def is_in_db(self, instance):
-        if self.get_key(instance) in self._in_db.keys():
+    def is_in_db(self, data):
+        """
+        @param data: un dictionnaire des données à insérer ou à mettre à jour
+        @type  data: C{dict}
+        """
+        if self.get_key(data) in self._in_db.keys():
             return True
         else:
             return False
@@ -89,46 +97,43 @@ class DBLoader(object):
     def _list_db(self):
         return DBSession.query(self._class).all()
 
-    def get_key(self, instance):
+    def get_key(self, data):
+        """
+        Retourne une clé identifiante de l'instance.
+
+        Cette méthode sera probablement redéfinie pour les loaders de classes
+        plus complexes (notamment si la clé primaire est partagée sur deux
+        colonnes).
+
+        @param data: un dictionnaire des données à insérer ou à mettre à jour
+        @type  data: C{dict}
+        """
         if self._key_attr is None:
             raise NotImplementedError("The key attribute must be defined, "
                                 "or the get_key() method must be redefined")
-        return getattr(instance, self._key_attr)
-
-    def update(self, instance):
-        LOGGER.debug("Updating: %s" % instance)
-        if self._key_attr is None:
-            return self.update_by_pkey(instance)
+        if isinstance(data, self._class):
+            return getattr(data, self._key_attr)
         else:
-            return self.update_by_attr(instance)
+            return data[self._key_attr]
 
-    def update_by_pkey(self, instance):
-        instance = DBSession.merge(instance)
-        self._in_conf[self.get_key(instance)] = instance
+
+    def update(self, data):
+        """
+        @param data: un dictionnaire des données à mettre à jour
+        @type  data: C{dict}
+        """
+        LOGGER.debug("Updating: %s" % self.get_key(data))
+        instance = self._in_db[self.get_key(data)]
+        for key, value in data.iteritems():
+            setattr(instance, key, value)
+        self._in_conf[self.get_key(data)] = instance
         return instance
 
-    def update_by_attr(self, instance):
-        if self._key_attr is None:
-            raise NotImplementedError("The key attribute must be defined "
-                                "to use the update_by_attr() method")
-        key = self.get_key(instance)
-        existing_instance = DBSession.query(self._class).filter(
-                getattr(self._class, self._key_attr) == self.get_key(instance)
-            ).first()
-        # On merge à la main, c'est pas génial mais j'ai pas trouvé mieux, vu
-        # que DBSession.merge() veut tout le temps me créer une nouvelle entrée
-        # en bdd. Ce qui peut se comprendre vu que ma _key_attr n'est pas la
-        # clé primaire.
-        for prop in instance.__dict__:
-            if prop.startswith("_"):
-                continue
-            setattr(existing_instance, prop, getattr(instance, prop))
-        return self.update_by_pkey(existing_instance)
-
-    def insert(self, instance):
-        LOGGER.debug("Inserting: %s" % instance)
+    def insert(self, data):
+        LOGGER.debug("Inserting: %s" % self.get_key(data))
+        instance = self._class(**data)
         DBSession.add(instance)
-        self._in_conf[self.get_key(instance)] = instance
+        self._in_conf[self.get_key(data)] = instance
         return instance
 
     def delete(self, instance):

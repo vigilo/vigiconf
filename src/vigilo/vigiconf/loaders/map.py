@@ -18,6 +18,12 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ###############################################################################
 
+"""
+
+!! CE CODE N'EST PAS UTILISÉ POUR L'INSTANT !!
+
+"""
+
 from datetime import datetime
 
 from vigilo.models.tables import Map, MapGroup, Host, LowLevelService
@@ -121,15 +127,14 @@ class MapLoader(XMLLoader):
     def end_map(self):
         """ événement fin de bloc "map".
         """
-        map = Map(
-                mtime=datetime.today(),
-                title=self.title,
-                background_color=self.bg_color,
-                background_image=self.bg_image,
-                background_position=self.bg_position,
-                background_repeat=self.bg_repeat
-                )
-        DBSession.add(map)
+        map = dict(mtime=datetime.today(),
+                   title=self.title,
+                   background_color=self.bg_color,
+                   background_image=self.bg_image,
+                   background_position=self.bg_position,
+                   background_repeat=self.bg_repeat
+                  )
+        map = self.add(map)
         #print self.title
         if len(self.groups) > 0:
             map.groups = list(self.groups)

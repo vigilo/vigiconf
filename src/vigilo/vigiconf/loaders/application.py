@@ -45,6 +45,6 @@ class ApplicationLoader(DBLoader):
 
     def load_conf(self):
         for appname in conf.apps:
-            app = Application(name=unicode(appname))
+            app = dict(name=unicode(appname))
             self.add(app)
 

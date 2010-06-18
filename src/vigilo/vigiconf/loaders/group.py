@@ -93,18 +93,16 @@ class GroupLoader(XMLLoader):
             hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
         return hchildren
 
-    def update(self, instance):
-        LOGGER.debug("Updating: %s" % instance)
-        instance = self._class.by_group_name(instance.name)
-        self._in_conf[self.get_key(instance)] = instance
+    def update(self, data):
+        instance = super(GroupLoader, self).update(data)
         instance.set_parent(self._current_parent)
         DBSession.flush()
         return instance
 
-    def insert(self, instance):
-        LOGGER.debug("Inserting: %s" % instance)
-        instance = self._class.create(instance.name, self._current_parent)
-        self._in_conf[self.get_key(instance)] = instance
+    def insert(self, data):
+        LOGGER.debug("Inserting: %s" % self.get_key(data))
+        instance = self._class.create(data["name"], self._current_parent)
+        self._in_conf[self.get_key(data)] = instance
         DBSession.flush()
         return instance
 
@@ -115,8 +113,7 @@ class GroupLoader(XMLLoader):
     def start_element(self, elem):
         if elem.tag == self._tag_group:
             name = unicode(elem.attrib["name"].strip())
-            instance = self._class(name=name)
-            instance = self.add(instance)
+            instance = self.add({"name": name})
             # update parent stack
             self._parent_stack.append(instance)
         elif elem.tag == "children":
