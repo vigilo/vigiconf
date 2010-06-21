@@ -25,10 +25,12 @@ from __future__ import absolute_import
 
 import re
 import locale
-import syslog
 from os.path import isfile
 
 from vigilo.common.conf import settings
+
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
 
 from .. import conf
 from . import ConfMgrError
@@ -162,8 +164,7 @@ class RevisionManager(object):
             _file.write("Revision: %d"%(self.getSubversion()))
             _file.close()
         except Exception, e:
-            syslog.syslog(syslog.LOG_ERR,
-                         "Cannot write the revision file %s" % str(e))
+            LOGGER.exception("Cannot write the revision file: %s", e)
     
     def isDeployNeeded(self):
         """

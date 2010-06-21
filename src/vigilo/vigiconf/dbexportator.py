@@ -38,7 +38,6 @@ de données vigilo certaines données de configuration.
 from __future__ import absolute_import
 
 import sys
-import syslog
 import os
 
 from pkg_resources import working_set

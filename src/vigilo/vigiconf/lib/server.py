@@ -23,10 +23,12 @@ Describes a Server to push and commit new software configurations to
 from __future__ import absolute_import
 
 import shutil, os
-import syslog
 import socket
 
 from vigilo.common.conf import settings
+
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
 
 from .. import conf
 from . import ConfMgrError, EditionError
@@ -199,8 +201,7 @@ class Server(object):
         except SystemCommandError, e:
             raise ServerError("Can't deploy server. REASON : %s" % (e.value),
                               self.getName())
-        syslog.syslog(syslog.LOG_INFO, "%s : deployement successful." \
-                                       % (self.getName()))
+        LOGGER.info("%s : deployement successful.", self.getName())
 
     def copy(self, iDestination, iSource):
         """
@@ -278,8 +279,7 @@ class Server(object):
                 raise ServerError("UNDO failed on %s." \
                                   % (self.getName()), self.getName())
             else:
-                syslog.syslog(syslog.LOG_INFO,
-                              "UNDO done on %s." % (self.getName()))
+                LOGGER.info("UNDO successful on %s.", self.getName())
         except SystemCommandError, e:
             raise ServerError("UNDO can't be done. %s" % (str(e)),
                               self.getName())

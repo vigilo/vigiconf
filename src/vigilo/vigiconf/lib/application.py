@@ -32,13 +32,15 @@
 from __future__ import absolute_import
 
 import os
-import syslog
 import Queue
 import threading
 # Warning, the "threading" module overwrites the built-in function enumerate()
 # if used as import * !!
 
 from vigilo.common.conf import settings
+
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
 
 from .. import conf
 from .systemcommand import SystemCommand, SystemCommandError
@@ -211,7 +213,7 @@ class Application(object):
         while not self.returnsQueue.empty(): # syslog each item of the queue
             _result = False
             _error = self.returnsQueue.get()
-            syslog.syslog(syslog.LOG_WARNING, "%s" % _error)
+            LOGGER.warning(_error)
         return _result
 
 
@@ -254,8 +256,8 @@ class Application(object):
                                       +"- REASON %s" % e.value)
                 error.cause = e
                 raise error
-        syslog.syslog(syslog.LOG_INFO, "%s : Validation successful for "
-                                   % self.getName() + "server: %s" % iServer.getName())
+        LOGGER.info("%s : Validation successful for server: %s",
+                    self.getName(), iServer.getName())
 
 
 
@@ -306,9 +308,8 @@ class Application(object):
                                       +"REASON : %s" % e.value)
                 error.cause = e
                 raise error
-        syslog.syslog(syslog.LOG_INFO, "%s : Qualification successful on "
-                                       % self.getName() + "server : %s"
-                                       % iServer.getName())
+        LOGGER.info("%s : Qualification successful on server : %s",
+                    self.getName(), iServer.getName())
 
 
     def startThread(self):
@@ -384,9 +385,8 @@ class Application(object):
         @type  iServer: L{Server<lib.server.Server>}
         """
         if len(self.getStartMethod()) > 0:
-            syslog.syslog(syslog.LOG_INFO,
-                          "Starting %s on %s ...\n" \
-                          % (self.getName(), iServer.getName()))
+            LOGGER.info("Starting %s on %s ...",
+                        self.getName(), iServer.getName())
             _commandStr = "sudo " + self.getStartMethod()
             _command = iServer.createCommand(_commandStr)
             try:
@@ -395,9 +395,7 @@ class Application(object):
                 error = ApplicationError("Can't Start %s on %s - REASON %s\n" \
                                % (self.getName(), iServer.getName(), e.value))
                 error.cause = e
-            syslog.syslog(syslog.LOG_INFO,
-                         ("%s started on %s\n" \
-                         % (self.getName(), iServer.getName())))
+            LOGGER.info("%s started on %s", self.getName(), iServer.getName())
 
     def stopThread(self):
         """Stops applications on a server taken from the top of the queue"""
@@ -469,8 +467,8 @@ class Application(object):
         @type  iServer: L{Server<lib.server.Server>}
         """
         if (len(self.getStopMethod()) > 0):
-            syslog.syslog(syslog.LOG_INFO, "Stopping %s on %s ...\n" \
-                                       % (self.getName(), iServer.getName()))
+            LOGGER.info("Stopping %s on %s ...",
+                        self.getName(), iServer.getName())
             _commandStr = "sudo " + self.getStopMethod()
             _command = iServer.createCommand(_commandStr)
             try:
@@ -479,9 +477,7 @@ class Application(object):
                 error = ApplicationError("Can't Stop %s on %s - REASON %s\n" \
                                % (self.getName(), iServer.getName(), e.value))
                 error.cause = e
-            syslog.syslog(syslog.LOG_INFO,
-                         ("%s stopped on %s\n" \
-                          % (self.getName(), iServer.getName())))
+            LOGGER.info("%s stopped on %s", self.getName(), iServer.getName())
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -27,8 +27,8 @@ This file is part of the Enterprise Edition.
 
 from __future__ import absolute_import
 
-import syslog
-#from pprint import pprint
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
 
 from ... import conf
 from ...dispatchator import Dispatchator
@@ -94,9 +94,8 @@ class DispatchatorRemote(Dispatchator):
         appgroup = app.getGroup()
         # If we're not listed in the appsGroupsByServer matrix, bail out
         if not conf.appsGroupsByServer.has_key(appgroup):
-            syslog.syslog(syslog.LOG_WARNING,
-                          "WARNING: the %s app group is " % appgroup
-                         +"not listed in appsGroupsByServer")
+            LOGGER.warning("The %s app group is not listed in "
+                           "appsGroupsByServer", appgroup)
             return []
         # Then, find all hostgroups
         hostgroups = set()
@@ -125,8 +124,8 @@ class DispatchatorRemote(Dispatchator):
             for _ser in server_objs:
                 _ser_name = _ser.getName()
                 if _ser_name not in self.getServersList():
-                    syslog.syslog(syslog.LOG_WARNING,
-                              "Incorrect servername (not in conf list): "+_ser_name)
+                    LOGGER.warning("Incorrect servername (not in conf list): "
+                                   "%s", _ser_name)
 
     def restrictServersList(self, servers):
         """

@@ -35,12 +35,14 @@ import os
 import sys
 import Queue # Requires: python >= 2.5
 from optparse import OptionParser
-import syslog
 from threading import Thread
 import shutil
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
+
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
 
 from vigilo.models.configure import configure_db
 configure_db(settings['database'], 'sqlalchemy_',
@@ -290,11 +292,11 @@ class Dispatchator(object):
         for _App in self.getApplications():
             _App.validate(os.path.join(settings["vigiconf"].get("libdir"),
                                        "deploy"))
-        syslog.syslog(syslog.LOG_INFO, "Validation Successful\n")
+        LOGGER.info("Validation Successful")
 
         #Commit Configuration
         self.commitLastRevision()
-        syslog.syslog(syslog.LOG_INFO, "Commit Successful\n")
+        LOGGER.info("Commit Successful")
     
     
     def loadRevision(self, revision):
@@ -338,9 +340,8 @@ class Dispatchator(object):
         confdir = settings["vigiconf"].get("confdir")
         
         if not settings["vigiconf"].get("svnrepository", False):
-            syslog.syslog(syslog.LOG_WARNING,
-                    "Not committing because the 'svnrepository' configuration "
-                   +"parameter is empty\n")
+            LOGGER.warning("Not committing because the 'svnrepository' "
+                           "configuration parameter is empty")
             return 0
         
         _cmd = self._get_auth_svn_cmd_prefix('ci')
@@ -409,9 +410,8 @@ class Dispatchator(object):
         @type  iRevision: C{int}
         """
         if not settings["vigiconf"].get("svnrepository", False):
-            syslog.syslog(syslog.LOG_WARNING,
-                    "Not updating because the 'svnrepository' configuration "
-                   +"parameter is empty")
+            LOGGER.warning("Not updating because the 'svnrepository' "
+                           "configuration parameter is empty")
             return 0
         _cmd = "svn up "
         svnusername = settings["vigiconf"].get("svnusername", False)
@@ -437,7 +437,7 @@ class Dispatchator(object):
         while not self.returnsQueue.empty(): # syslog each item of the queue
             _result = False
             _error = self.returnsQueue.get()
-            syslog.syslog(syslog.LOG_ERR, "%s" %(_error))
+            LOGGER.error(str(_error))
         return _result
 
     def actionThread(self, iAction, iServers):
@@ -547,8 +547,7 @@ class Dispatchator(object):
                 if _srv.needsDeployment():
                     _servers.append(_srv)
             if len(_servers) <= 0:
-                syslog.syslog(syslog.LOG_INFO, "All servers are up-to-date. "
-                                              +"Nothing to do.")    
+                LOGGER.info("All servers are up-to-date. Nothing to do.")
         else: # by default, takes all the servers  
             _servers = self.getServers()
         # 2 - deploy on those servers
@@ -690,11 +689,9 @@ class Dispatchator(object):
                 if _srv.needsRestart():
                     _servers.append(_srv)
                 if _srv.needsDeployment():
-                    syslog.syslog(syslog.LOG_INFO,
-                            "Server %s should be deployed." % _srv.getName())
+                    LOGGER.info("Server %s should be deployed." % _srv.getName())
             if len(_servers) <= 0:
-                syslog.syslog(syslog.LOG_INFO,
-                        "All servers are up-to-date. No restart needed.")    
+                LOGGER.info("All servers are up-to-date. No restart needed.")
         else: # by default, takes all the servers  
             _servers = self.getServers()
         # do the operations
@@ -751,7 +748,7 @@ class Dispatchator(object):
             try:
                 _srv.undo()
             except ServerError, se:
-                syslog.syslog(syslog.LOG_ERR, str(se))
+                LOGGER.exception(se)
 
 
     def printState(self):
@@ -772,9 +769,8 @@ class Dispatchator(object):
                       (_srv.getName(), str(_srv.getRevisionManager()),
                        _deploymentStr, _restartStr)
             except Exception, e:
-                syslog.syslog(syslog.LOG_WARNING,
-                        "Cannot get revision for server: %s. " % _srv.getName()
-                       +"REASON : %s" % str(e))
+                LOGGER.warning("Cannot get revision for server: %s. "
+                               "REASON : %s", _srv.getName(), str(e))
 
 
 
@@ -823,9 +819,8 @@ def main():
     try:
         conf.loadConf()
     except Exception, e :
-        syslog.syslog(syslog.LOG_ERR, "Cannot load the conf.")
-        syslog.syslog(syslog.LOG_ERR, str(e) )
-        sys.exit(-1)
+        LOGGER.error("Cannot load the configuration: %s", e)
+        sys.exit(1)
 
     _dispatchator = dispatchmodes.getinstance()
 
@@ -845,7 +840,7 @@ def main():
         _dispatchator.deploy_revision = int(options.revision)
 
     if ( len(_dispatchator.getServers()) <= 0):
-        syslog.syslog(syslog.LOG_WARNING, "No server to manage.")
+        LOGGER.warning("No server to manage.")
     else:
 
         # if "restart" is selected, then all the corresponding actions are
@@ -875,30 +870,27 @@ def main():
                     _dispatchator.startApplications()
                 else:
                     msg = "You did not ask me to do anything. Use '--help' for the available actions."
-                    syslog.syslog(syslog.LOG_ERR, msg)
                     parser.error(msg)
         except (DispatchatorError, ApplicationError), e:
-            syslog.syslog(syslog.LOG_ERR, "%s"%(e.value))
+            LOGGER.exception(e)
 
 if __name__ == "__main__":
-    syslog.openlog('Dispatchator' , syslog.LOG_PERROR)
-    syslog.syslog(syslog.LOG_INFO, "Dispatchator Begin")
+    LOGGER.info("Dispatchator Begin")
 
     f = open(settings["vigiconf"].get("lockfile"),'a+')
     try:
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception, exp:
-        syslog.syslog(syslog.LOG_ERR,
-                "Can't obtain lock on lockfile. Dispatchator already "
-               +"running ? REASON : %s" % str(exp))
+        LOGGER.error("Can't obtain lock on lockfile. Dispatchator already "
+                    +"running ? REASON : %s", exp)
         sys.exit(1)
     try:
         main()
     except Exception, exp:
-        syslog.syslog(syslog.LOG_ERR, "Execution error.REASON : %s" % str(exp))
-        for l in traceback.format_exc().split("\n"):
-            syslog.syslog(syslog.LOG_ERR, l)
-    syslog.syslog(syslog.LOG_INFO, "Dispatchator End")
+        LOGGER.exception("Execution error.REASON : %s", exp)
+        #for l in traceback.format_exc().split("\n"):
+        #    LOGGER.error(l)
+    LOGGER.info("Dispatchator End")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
