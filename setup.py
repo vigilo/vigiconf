@@ -60,6 +60,7 @@ setup(name='vigilo-vigiconf',
         install_requires=[
             # dashes become underscores
             # order is important
+            "argparse",
             "vigilo-common",
             "vigilo-models",
             ],
@@ -78,8 +79,7 @@ setup(name='vigilo-vigiconf',
         #    ],
         entry_points={
             'console_scripts': [
-                'vigiconf-dispatchator = vigilo.vigiconf.dispatchator:main',
-                'vigiconf-discoverator = vigilo.vigiconf.discoverator:main',
+                'vigiconf = vigilo.vigiconf.commandline:main',
                 'vigiconf-debug = vigilo.vigiconf.debug:main',
                 ],
             'vigilo.vigiconf.generators': [

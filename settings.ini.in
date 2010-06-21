@@ -47,7 +47,7 @@ handlers=console,syslog
 class=StreamHandler
 level=DEBUG
 formatter=consoleFormatter
-args=(sys.stdout, )
+;args=(sys.stdout, )
 
 [handler_syslog]
 class=handlers.SysLogHandler

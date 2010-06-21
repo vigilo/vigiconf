@@ -18,6 +18,7 @@ Requires:   subversion
 Requires:   openssh-clients
 Requires:   tar
 Requires:   libxml2-utils
+Requires:   python-argparse
 Requires:   vigilo-models
 # Pour CorrTrap
 Requires:   sec
