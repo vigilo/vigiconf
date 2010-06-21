@@ -126,6 +126,7 @@ class DBLoader(object):
         instance = self._in_db[self.get_key(data)]
         for key, value in data.iteritems():
             setattr(instance, key, value)
+        DBSession.merge(instance)
         self._in_conf[self.get_key(data)] = instance
         return instance
 
