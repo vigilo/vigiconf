@@ -33,6 +33,11 @@ import argparse
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
+from vigilo.models.configure import configure_db
+configure_db(settings['database'], 'sqlalchemy_',
+    settings['database']['db_basename'])
+
+
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -46,10 +51,6 @@ from .lib import dispatchmodes
 
 
 def get_dispatchator(args):
-    from vigilo.models.configure import configure_db
-    configure_db(settings['database'], 'sqlalchemy_',
-        settings['database']['db_basename'])
-
     from vigilo.models.session import metadata
     metadata.create_all()
 
