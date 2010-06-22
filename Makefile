@@ -31,8 +31,6 @@ install_users:
 
 install: settings.ini
 	python setup.py install --single-version-externally-managed --root=$(DESTDIR) --record=INSTALLED_FILES
-	install -p -m 755 pkg/vigiconf.sh $(DESTDIR)$(PREFIX)/bin/vigiconf
-	echo $(PREFIX)/bin/vigiconf >> INSTALLED_FILES
 	chmod 750 $(DESTDIR)$(VARDIR)
 
 install_permissions:
