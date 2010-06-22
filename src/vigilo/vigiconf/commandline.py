@@ -136,6 +136,8 @@ def parse_args():
     parser_info = subparsers.add_parser("info", 
                       help="Prints a summary of the current configuration.")
     parser_info.set_defaults(func=info)
+    parser_info.add_argument('server', nargs='?',
+                      help=_("Servers to query, all of them if not specified."))
 
     # APPS
     parser_apps = subparsers.add_parser("apps",
