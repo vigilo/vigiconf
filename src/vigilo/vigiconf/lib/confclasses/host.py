@@ -26,6 +26,7 @@ from __future__ import absolute_import
 import os
 import urllib
 import subprocess
+import inspect
 from xml.etree import ElementTree as ET # Python 2.5
 
 #from vigilo.common.conf import settings
@@ -125,7 +126,20 @@ class Host(object):
         @type  kw: C{dict}
         """
         for test_class in test_list:
-            test_class().add_test(self, **kw)
+            inst = test_class()
+            try:
+                inst.add_test(self, **kw)
+            except TypeError:
+                spec = inspect.getargspec(inst.add_test)
+                # On récupère la liste des arguments obligatoires.
+                args = spec[0][2:-len(spec[3])]
+                LOGGER.error('Test "%(test_name)s" on "%(host)s" needs the '
+                            'following arguments: %(args)s (and only those)', {
+                                'test_name': str(test_class.__name__),
+                                'host': self.name,
+                                'args': ', '.join(args),
+                            })
+                raise
 
 #    def apply_template(self, tpl):
 #        """

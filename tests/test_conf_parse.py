@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys, os, unittest, tempfile, shutil, glob, subprocess
 
 from vigilo.common.conf import settings
@@ -239,6 +240,39 @@ class ParseHost(unittest.TestCase):
         assert ('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"], \
                 "The \"test\" tag parsing does not strip whitespaces"
 
+    def test_test_missing_args(self):
+        """Ajout d'un test auquel il manque des arguments sur un hôte."""
+        # Le test "TCP" nécessite normalement un argument "port".
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <test name="TCP"/>
+        </host>""")
+        self.host.close()
+        # Une exception TypeError indiquant qu'il n'y pas assez d'arguments
+        # doit être levée.
+        self.assertRaises(TypeError,
+            conf.hostfactory._loadhosts,
+            os.path.join(self.tmpdir, "hosts", "host.xml")
+        )
+
+    def test_test_additional_args(self):
+        """Ajout d'un test avec trop d'arguments sur un hôte."""
+        # Le test "TCP" n'accepte pas d'argument "unknown".
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <test name="TCP">
+            <arg name="port">1234</arg>
+            <arg name="unknown_arg"> ... </arg>
+        </test>
+        </host>""")
+        self.host.close()
+        # Une exception TypeError indiquant qu'un paramètre inconnu
+        # a été passé doit être levée.
+        self.assertRaises(TypeError,
+            conf.hostfactory._loadhosts,
+            os.path.join(self.tmpdir, "hosts", "host.xml")
+        )
+
 
 class ParseHostTemplate(unittest.TestCase):
 
@@ -433,6 +467,5 @@ class ParseHostTemplate(unittest.TestCase):
             self.fail("The \"parent\" tag parsing does not strip whitespaces")
         assert "test1" in conf.hosttemplatefactory.templates["test2"]["parent"], \
                "The \"parent\" tag parsing does not strip whitespaces"
-
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
