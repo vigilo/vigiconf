@@ -122,10 +122,11 @@ class DBLoader(object):
         @param data: un dictionnaire des données à mettre à jour
         @type  data: C{dict}
         """
-        LOGGER.debug("Updating: %s" % self.get_key(data))
+        LOGGER.debug("Updating: %s (%s)" % (self.get_key(data), self._class.__name__))
         instance = self._in_db[self.get_key(data)]
         for key, value in data.iteritems():
-            setattr(instance, key, value)
+            if getattr(instance, key) != value:
+                setattr(instance, key, value)
         DBSession.merge(instance)
         self._in_conf[self.get_key(data)] = instance
         return instance

@@ -48,8 +48,8 @@ hosts element contains one ore more host elements
 	
 		  	<xs:sequence>
 		  	
-			<xs:element maxOccurs="unbounded" minOccurs="1" name="class" type="xs:string"/>
-			<xs:element maxOccurs="1" minOccurs="1" name="template" type="xs:string"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="class" type="xs:string"/>
+			<xs:element maxOccurs="1" minOccurs="0" name="template" type="xs:string"/>
 			
 			<xs:element maxOccurs="unbounded" minOccurs="0" name="attribute">
 			  <xs:complexType>

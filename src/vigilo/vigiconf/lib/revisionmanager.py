@@ -23,6 +23,7 @@ Handles the revisions deployed, running, planned on the ConfMgr system
 
 from __future__ import absolute_import
 
+import os
 import re
 import locale
 from os.path import isfile
@@ -159,6 +160,9 @@ class RevisionManager(object):
         """
         Write the SVN revision to our state file
         """
+        directory = os.path.dirname(self.getFilename())
+        if not os.path.exists(directory):
+            os.makedirs(directory)
         try:
             _file = open(self.getFilename(), 'wb')
             _file.write("Revision: %d"%(self.getSubversion()))

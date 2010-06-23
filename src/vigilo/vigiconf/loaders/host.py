@@ -66,29 +66,40 @@ class HostLoader(DBLoader):
             host = self.add(host)
             
             # groupes
-            host.groups = []
-            for og in hostdata['otherGroups']:
-                host.groups.append(SupItemGroup.by_group_name(unicode(og)))
+            LOGGER.debug("Loading groups for host %s", hostname)
+            hostgroups_old = set([ g.name for g in host.groups ])
+            hostgroups_new = set(hostdata['otherGroups'])
+            if hostgroups_old != hostgroups_new:
+                hostgroups = []
+                for og in hostdata['otherGroups']:
+                    hostgroups.append(SupItemGroup.by_group_name(unicode(og)))
+                host.groups = hostgroups
             
             # services
+            LOGGER.debug("Loading services for host %s", hostname)
             service_loader = ServiceLoader(host)
             service_loader.load()
 
             # directives Nagios de l'hôte
+            LOGGER.debug("Loading nagios conf for host %s", hostname)
             nagiosconf_loader = NagiosConfLoader(host, hostdata['nagiosDirectives'])
             nagiosconf_loader.load()
 
-            # groupes de graphes
-            graphgroup_loader = GraphGroupLoader(host)
-            graphgroup_loader.load()
-
             # données de performance
+            LOGGER.debug("Loading perfdatasources for host %s", hostname)
             pds_loader = PDSLoader(host)
             pds_loader.load()
 
             # graphes
+            LOGGER.debug("Loading graphs for host %s", hostname)
             graph_loader = GraphLoader(host)
             graph_loader.load()
+
+        # Nettoyage des graphes et les groupes de graphes vides
+        LOGGER.debug("Cleaning up old graphs and graphgroups")
+        for graph in DBSession.query(Graph):
+            if not graph.perfdatasources:
+                DBSession.delete(graph)
 
         DBSession.flush()
 
@@ -176,30 +187,6 @@ class PDSLoader(DBLoader):
             self.add(pds)
 
 
-class GraphGroupLoader(DBLoader):
-    """
-    Charge les groupes de graphes en base depuis le modèle mémoire.
-
-    Appelé par le HostLoader
-    """
-    
-    def __init__(self, host):
-        super(GraphGroupLoader, self).__init__(GraphGroup, "name")
-        self.host = host
-
-    def load(self):
-        self.load_conf()
-        # Pas de cleanup, c'est fait par le GraphLoader
-        DBSession.flush()
-
-    def load_conf(self):
-        for groupname in conf.hostsConf[self.host.name]['graphGroups']:
-            groupname = unicode(groupname)
-            if not GraphGroup.by_group_name(groupname):
-                group = GraphGroup(name=groupname)
-                DBSession.add(group)
-
-
 class GraphLoader(DBLoader):
     """
     Charge les graphes en base depuis le modèle mémoire.
@@ -229,29 +216,26 @@ class GraphLoader(DBLoader):
                         )
             graph = self.add(graph)
             # lien avec les PerfDataSources
-            graph.perfdatasources = []
-            for dsname in graphdata['ds']:
-                pds = PerfDataSource.by_host_and_source_name(self.host, unicode(dsname))
-                graph.perfdatasources.append(pds)
+            graph_pds_old = set([ pds.name for pds in graph.perfdatasources ])
+            graph_pds_new = set(graphdata['ds'])
+            if graph_pds_old != graph_pds_new:
+                graph_pds = []
+                for dsname in graphdata['ds']:
+                    pds = PerfDataSource.by_host_and_source_name(self.host, unicode(dsname))
+                    graph_pds.append(pds)
+                graph.perfdatasources = graph_pds
             # lien avec les GraphGroups
-            graph.groups = []
-            for groupname, graphnames in conf.hostsConf[self.host.name]['graphGroups'].iteritems():
-                if graphname not in graphnames:
-                    continue
-                group = GraphGroup.by_group_name(groupname)
-                graph.groups.append(group)
-
-    def cleanup(self):
-        """
-        En plus du cleanup normal, on supprime les graphes et les groupes de
-        graphes vides
-        """
-        super(GraphLoader, self).cleanup()
-        for graph in DBSession.query(Graph):
-            if not graph.perfdatasources:
-                DBSession.delete(graph)
-        for group in DBSession.query(GraphGroup):
-            if not group.graphs:
-                DBSession.delete(group)
+            graph_groups_old = set([ g.name for g in graph.groups ])
+            graph_groups_new = set([ groupname for groupname, graphnames
+                                     in conf.hostsConf[self.host.name]['graphGroups'].iteritems()
+                                     if graphname in graphnames ])
+            if graph_groups_old != graph_groups_new:
+                graph_groups = []
+                for groupname, graphnames in conf.hostsConf[self.host.name]['graphGroups'].iteritems():
+                    if graphname not in graphnames:
+                        continue
+                    group = GraphGroup.by_group_name(groupname)
+                    graph_groups.append(group)
+                graph.groups = graph_groups
 
 

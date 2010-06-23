@@ -33,21 +33,20 @@ import argparse
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+
 from vigilo.models.configure import configure_db
 configure_db(settings['database'], 'sqlalchemy_',
     settings['database']['db_basename'])
 
-
-from vigilo.common.logging import get_logger
-LOGGER = get_logger(__name__)
-
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-from . import conf
-from .lib.application import ApplicationError
-from .dispatchator import DispatchatorError
-from .lib import dispatchmodes
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib.application import ApplicationError
+from vigilo.vigiconf.dispatchator import DispatchatorError
+from vigilo.vigiconf.lib import dispatchmodes
 
 
 def get_dispatchator(args):
@@ -234,6 +233,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+    #import cProfile
+    #cProfile.run('main()', 'profiling')
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

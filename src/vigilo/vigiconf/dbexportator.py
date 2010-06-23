@@ -53,6 +53,7 @@ from vigilo.models.tables import Application, Ventilation, VigiloServer
 from vigilo.models.tables import ConfItem
 
 from vigilo.vigiconf.loaders.group import GroupLoader
+from vigilo.vigiconf.loaders.graphgroup import GraphGroupLoader
 from vigilo.vigiconf.loaders.dependency import DependencyLoader
 from vigilo.vigiconf.loaders.hlservice import HLServiceLoader
 from vigilo.vigiconf.loaders.host import HostLoader
@@ -77,6 +78,10 @@ def export_conf_db():
     # hiérarchie des groupes
     grouploader = GroupLoader()
     grouploader.load()
+
+    # groupes de graphes
+    graphgroup_loader = GraphGroupLoader()
+    graphgroup_loader.load()
 
     # hôtes
     hostloader = HostLoader()
