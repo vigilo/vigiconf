@@ -54,13 +54,12 @@ class Host(object):
     @type classes: C{list} of C{str}
     """
 
-    def __init__(self, hosts, name, ip, servergroup):
+    def __init__(self, hosts, name, ip, servergroup, weight):
         self.hosts = hosts
         self.name = name
         self.classes = [ "all" ]
         self.hosts[name] = {
                 "name": name,
-                "fqhn": name,
                 "mainIP": ip,
                 "serverGroup": servergroup,
                 "otherGroups": { servergroup: 1 },
@@ -81,7 +80,8 @@ class Host(object):
                 "port"           : 161,
                 "snmpOIDsPerPDU" : 10,
                 "nagiosDirectives": {},
-                "nagiosSrvDirs": {}
+                "nagiosSrvDirs"  : {},
+                "weight"         : weight,
             }
 
     def get_attribute(self, attribute, default=False):
@@ -645,8 +645,12 @@ class HostFactory(object):
 
                     ip = elem.attrib["ip"].strip()
                     group = elem.attrib["group"].strip()
+                    try:
+                        weight = int(elem.attrib["weight"].strip())
+                    except KeyError:
+                        weight = 1
                     
-                    cur_host = Host(self.hosts, name, ip, group)
+                    cur_host = Host(self.hosts, name, ip, group, weight)
                     # TODO: refactoring
                     #if group not in self.groupsHierarchy:
                     #    self.groupsHierarchy[group] = set()

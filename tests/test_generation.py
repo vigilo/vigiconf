@@ -25,7 +25,7 @@ class Generator(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         conf.hosttemplatefactory.load_templates()
         reload_conf()
-        self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers")
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers", 42)
         self.mapping = generator.getventilation()
 
     def tearDown(self):
@@ -46,7 +46,7 @@ class Generator(unittest.TestCase):
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                             "GAUGE", label="TestAddCSLabel")
-        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
+        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers", 42)
         host2.add_collector_service( "TestAddCSReRoute", "TestAddCSReRouteFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )

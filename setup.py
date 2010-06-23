@@ -60,6 +60,7 @@ setup(name='vigilo-vigiconf',
         install_requires=[
             # dashes become underscores
             # order is important
+            "setuptools",
             "argparse",
             "vigilo-common",
             "vigilo-models",

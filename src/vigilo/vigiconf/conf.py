@@ -88,7 +88,6 @@ Data Model
           host presence (Ping ?)
         - I{community}: an SNMP v1 or v2 community name, if applicable
         - I{cti}: the (Category Type Item) classification of this host
-        - I{fqhn}: the Full Qualified Host Name (string)
         - I{hostTPL}: the Nagios template to use for this host
         - I{mainIP}: the main IP address to use when talking with this host
         - I{name}: short name of the host (must be unique)

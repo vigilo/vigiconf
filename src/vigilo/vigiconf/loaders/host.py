@@ -59,9 +59,9 @@ class HostLoader(DBLoader):
                         hosttpl=unicode(hostdata['hostTPL']),
                         snmpcommunity=unicode(hostdata['community']),
                         mainip=unicode(hostdata['mainIP']),
-                        snmpport=unicode(hostdata['port']),
-                        snmpoidsperpdu=unicode(hostdata['snmpOIDsPerPDU']),
-                        weight=1,
+                        snmpport=hostdata['port'],
+                        snmpoidsperpdu=hostdata['snmpOIDsPerPDU'],
+                        weight=hostdata['weight'],
                         snmpversion=unicode(hostdata['snmpVersion']))
             host = self.add(host)
             

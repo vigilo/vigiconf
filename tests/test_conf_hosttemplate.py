@@ -18,7 +18,7 @@ class HostTemplates(unittest.TestCase):
         conf.hosttemplatefactory.load_templates()
         self.tpl = HostTemplate("testtpl1")
         conf.hosttemplatefactory.register(self.tpl)
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers", 42)
 
     def tearDown(self):
         """Call after every test case."""
