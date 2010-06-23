@@ -12,6 +12,8 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 from confutil import reload_conf, setup_tmpdir
 from confutil import setup_db, teardown_db
 
+from vigilo.vigiconf.generators.nagios import NagiosTpl
+
 import pprint
 
 class Generator(unittest.TestCase):
@@ -80,8 +82,6 @@ class Generator(unittest.TestCase):
             "add_metro_service does not generate proper nagios conf"
 
 
-from vigilo.vigiconf.generators.nagios import NagiosTpl
-
 class NagiosGeneratorForTest(NagiosTpl):
     def templateAppend(self, filename, template, args):
         """ redefinition pour tester les directives generiques nagios.
@@ -141,6 +141,6 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         
         self.assertTrue(nagdirs.find("retry_interval    1") >= 0,
                                      "nagios generator generates retry_interval=1")
-        
+
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

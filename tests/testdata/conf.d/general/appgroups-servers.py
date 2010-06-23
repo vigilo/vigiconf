@@ -14,6 +14,11 @@ appsGroupsByServer = {
         u'Servers'         : [u'localhost'],
         u'Telecom'         : [u'localhost'],
     },
+    u'correlation' : {
+        u'P-F'             : [u'localhost'],
+        u'Servers'         : [u'localhost'],
+        u'Telecom'         : [u'localhost'],
+    },
 }
 
 

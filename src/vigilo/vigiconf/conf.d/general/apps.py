@@ -1,4 +1,11 @@
 apps = {
+    'nagios-hls' : {
+                   'priority' : 3,
+                   'validationMethod' :  '',
+                   'qualificationMethod' : './validation/nagios.sh',
+                   'startMethod' : '/etc/init.d/nagios start',
+                   'stopMethod' : '/etc/init.d/nagios stop ; (while : ; do pgrep nagios >/dev/null || break; sleep 1;done)'
+                  },
     'nagios'    : { 
                    'priority' : 3,
                    'validationMethod' :  '',
@@ -48,6 +55,7 @@ appsByAppGroups = {
     'collect'           : ['nagios', 'collector', 'perfdata'],
     'metrology'         : ['connector-metro', 'rrdgraph'],
     'trap'              : ['corrtrap'],
+    'correlation'       : ['nagios-hls'],
 }
 
 

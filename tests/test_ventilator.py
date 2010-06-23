@@ -60,7 +60,7 @@ class VentilatorTest(unittest.TestCase):
         ici.
         """
         ventilation = generator.get_local_ventilation()
-        self.assertEquals(len(ventilation['localhost'].keys()), 6, "6 apps (%d)" % len(ventilation['localhost'].keys()))
+        self.assertEquals(len(ventilation['localhost'].keys()), 7, "7 apps (%d)" % len(ventilation['localhost'].keys()))
         
         # need locahost in db
         host = self._create_localhost()
@@ -70,7 +70,7 @@ class VentilatorTest(unittest.TestCase):
         #need apps in DB
         dbexportator.update_apps_db()
         DBSession.flush()
-        self.assertEquals(DBSession.query(Application).count(), 6, "6 apps in DB")
+        self.assertEquals(DBSession.query(Application).count(), 7, "7 apps in DB")
         
         dbexportator.export_ventilation_DB(ventilation)
         
