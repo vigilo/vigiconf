@@ -13,6 +13,7 @@ Group:      System/Servers
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
 License:    GPLv2
 Requires:   python >= 2.5
+Requires:   python-setuptools
 Requires:   perl
 Requires:   subversion
 Requires:   openssh-clients
