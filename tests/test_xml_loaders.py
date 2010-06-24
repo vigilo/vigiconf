@@ -10,6 +10,7 @@ loaders test.
 
 import os, unittest, shutil
 
+from vigilo.vigiconf.lib import ParsingError
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.dependency import DependencyLoader
 
@@ -56,11 +57,13 @@ class GroupLoaderTest(XMLLoaderTest):
         self.assertTrue(g, "root_group2 created.")
         n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup2 has 3 children (%d)" % n)
-        
-    def test_load_hostgroups_ko(self):
-        basedir = 'tests/testdata/xsd/hostgroups/ko/loader_ko'
-        
-        self.assertRaises(Exception, self.grouploader.load_dir, '%s/1' % basedir)
+
+        num = DBSession.query(SupItemGroup).filter_by(name=u"Linux servers 4").count()
+        self.assertEquals(num, 2, "Linux servers 4 is not doubled in DB")
+
+    #def test_load_hostgroups_ko(self):
+    #    basedir = 'tests/testdata/xsd/hostgroups/ko/loader_ko'
+    #    self.assertRaises(Exception, self.grouploader.load_dir, '%s/1' % basedir)
 
 
 class DepLoaderTest(XMLLoaderTest):
@@ -206,7 +209,7 @@ class DepLoaderTest(XMLLoaderTest):
         """
         basedir = 'tests/testdata/xsd/dependencies/ok/loader_ko'
         
-        self.assertRaises(ValueError, self.dependencyloader.load_dir, basedir)
+        self.assertRaises(ParsingError, self.dependencyloader.load_dir, basedir)
         
     def test_hostgroups_hierarchy(self):
         """ Test de grouploader.get_groups_hierarchy().

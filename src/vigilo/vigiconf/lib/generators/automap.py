@@ -65,13 +65,14 @@ class AutoMap(object):
                    'lls_icon':u'serviceicon'
                    }
     
+    # dossier "virtuel" de plus haut niveau
+    # Hardcodé pour l'instant
+    topgroup_name = "Root"
+
     def __init__(self):
         """Constructeur. """
         conf = self.get_conf()
         self.map_defaults = conf.param_maps_auto['AutoMap']['map_defaults']
-        # dossier "virtuel" de plus haut niveau
-        # Hardcodé pour l'instant
-        self.parent_topgroup = "Root"
     
     def generate(self):
         """ lance la génération des cartes auto
@@ -157,7 +158,7 @@ class AutoMap(object):
         gmap = MapGroup.by_group_name(name)
         if not gmap:
             gmap = MapGroup.create(name=name)
-            if parent_name == self.parent_topgroup:
+            if parent_name == self.topgroup_name:
                 pass # Étrange, le groupe de plus haut niveau aurait dû être créé à l'install
             elif parent_name:
                 gmap.set_parent(self.get_or_create_mapgroup(parent_name))

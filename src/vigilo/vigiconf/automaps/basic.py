@@ -83,7 +83,7 @@ class BasicAutoMap(AutoMap):
                                                     'parent_topgroup']
         if not self.parent_topgroup:
             # dossier "virtuel" de plus haut niveau. Hardcodé pour l'instant
-            self.parent_topgroup = "Root"
+            self.parent_topgroup = self.topgroup_name
     
     def process_top_group(self, group):
         """ génération des entités liées à un groupe d'hosts de niveau

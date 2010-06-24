@@ -313,7 +313,7 @@ class Dispatchator(object):
                       "configuration parameter is empty"))
                 
         _cmd = self._get_auth_svn_cmd_prefix('update')
-        _cmd.extend(['--revisions', revision])
+        _cmd.extend(['--revision', revision])
         _cmd.append(settings["vigiconf"].get("svnrepository"))
         _cmd.append(settings["vigiconf"].get("confdir"))
         _command = self.createCommand(_cmd)
