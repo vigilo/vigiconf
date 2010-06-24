@@ -51,7 +51,8 @@ class HostLoader(DBLoader):
         super(HostLoader, self).__init__(Host, "name")
 
     def load_conf(self):
-        for hostname, hostdata in conf.hostsConf.iteritems():
+        for hostname in sorted(conf.hostsConf):
+            hostdata = conf.hostsConf[hostname]
             LOGGER.info("Loading host %s", hostname)
             hostname = unicode(hostname)
             host = dict(name=hostname,
