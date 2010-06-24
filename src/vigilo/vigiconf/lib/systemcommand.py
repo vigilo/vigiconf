@@ -44,23 +44,23 @@ class SystemCommandError(VigiConfError):
 
 class SystemCommand(object):
     """
-    Provide methods for executing shell commands
+    Provide methods for executing commands
     @ivar mCommand: the command to execute
-    @type mCommand: C{str}
+    @type mCommand: C{list}
     @ivar mResult: the result of the execution
     @type mResult: C{tuple}: (stdout, stderr)
     @ivar simulate: simulation mode (actually execute or not)
     @type simulate: C{boolean}
     """
 
-    def __init__(self, iBaseCommand='', simulate=False):
+    def __init__(self, iBaseCommand=[], simulate=False):
         self.mCommand = iBaseCommand
         self.mResult = (None, None)
         self.simulate = simulate
         self.process = None
         
     def __str__(self):
-        return "<SystemCommand: %s>" % self.mCommand
+        return "<SystemCommand: %s>" % " ".join(self.mCommand)
     
     def setCommand(self, iCommand):
         """
@@ -95,7 +95,6 @@ class SystemCommand(object):
         self.process = subprocess.Popen(self.getCommand(),
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
-                                        shell=True,
                                         env=newenv)
         self.mResult = self.process.communicate()
         if self.process.returncode != 0: # command failed

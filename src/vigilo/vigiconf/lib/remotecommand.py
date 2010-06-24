@@ -75,7 +75,7 @@ class RemoteCommand(SystemCommand):
     @ivar iServer: The remote server that will execute a command
     @type iServer: C{str}
     @ivar iBaseCommand: The command to be executed (optional)
-    @type iBaseCommand: C{str}
+    @type iBaseCommand: C{list}
     @ivar iUser: The user that will execute the command (optional)
     @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
     """
@@ -86,7 +86,7 @@ class RemoteCommand(SystemCommand):
         @param iServer: the remote server that will execute a command
         @type iServer: C{str}
         @param iBaseCommand: the command to be executed (optional)
-        @type iBaseCommand: C{str}
+        @type iBaseCommand: C{list}
         @param iUser: the user that will execute the command (optional)
         @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
         @param simulate: if True, do not actually execute the command
@@ -96,8 +96,8 @@ class RemoteCommand(SystemCommand):
         self.mCommandType = 'shell'
         self.mDestinationStr = ''
         self.mSourceStr = ''
-        SystemCommand.__init__(self, iBaseCommand=iBaseCommand,
-                                     simulate=simulate)
+        super(RemoteCommand, self).__init__(iBaseCommand=iBaseCommand,
+                                            simulate=simulate)
         # public
         self.setUser(iUser)
         self.setServer(iServer) # mandatory
@@ -153,22 +153,23 @@ class RemoteCommand(SystemCommand):
         @rtype: C{str}
         """
         if self.mCommandType == 'shell':
-            return "ssh -o BatchMode=yes %s %s \"%s\"" \
-                   % (self.getConfigurationString(),
-                      self.getServerString(),
-                      self.mCommand)
+            return ["ssh"] + self.getConfigurationOpts() \
+                           + [self.getServerString()] \
+                           + self.mCommand
         elif self.mCommandType == 'copyTo':
-            return "scp -o BatchMode=yes %s %s %s:%s" \
-                   % (self.getConfigurationString(),
-                      self.mSourceStr,
-                      self.getServerString(),
-                      self.mDestinationStr)
+            _cmd = ["scp"]
+            _cmd.extend(self.getConfigurationOpts())
+            _cmd.append(self.mSourceStr)
+            _cmd.append("%s:%s" % (self.getServerString(),
+                                   self.mDestinationStr))
+            return _cmd
         elif self.mCommandType == 'copyFrom':
-            return "scp -o BatchMode=yes %s %s:%s %s" \
-                   % (self.getConfigurationString(),
-                      self.getServerString(),
-                      self.mSourceStr,
-                      self.mDestinationStr)
+            _cmd = ["scp"]
+            _cmd.extend(self.getConfigurationOpts())
+            _cmd.append("%s:%s" % (self.getServerString(),
+                                   self.mSourceStr))
+            _cmd.append(self.mDestinationStr)
+            return _cmd
         else:
             raise RemoteCommandError('Unknown command type.')
         
@@ -197,6 +198,7 @@ class RemoteCommand(SystemCommand):
             self.asCopyTo(iDestinationPath, iSourcePath)
             self.execute()
         except SystemCommandError, sce:
+            # TODO: utiliser les codes de retour
             if re.search("ssh:.*Name or service not known",
                          sce.value) != None:
                 raise RemoteCommandError('Cannot reach server.')
@@ -230,6 +232,7 @@ class RemoteCommand(SystemCommand):
             self.asCopyFrom(iDestinationPath, iSourcePath)
             self.execute()
         except SystemCommandError, e:
+            # TODO: utiliser les codes de retour
             if re.search("ssh:.*Name or service not known", e.value) != None:
                 raise RemoteCommandError('Cannot reach server.')
             elif re.search("scp:.*No such file or directory", e.value) != None:
@@ -237,29 +240,26 @@ class RemoteCommand(SystemCommand):
             else:
                 raise e.value
         
-    def getConfigurationString(self):
+    def getConfigurationOpts(self):
         """
         @returns: The SSH option to set the path to the SSH config file
         @rtype: C{str}
         """
+        opts = ["-o", "BatchMode=yes"]
         _confpath = self.getUser().getConfigurationPath()
-        if(len(_confpath)>0):
-            return "-F %s" % (_confpath)
-        return "" # else
+        if _confpath:
+            opts.extend(["-F", _confpath])
+        return opts
     
     def getServerString(self):
         """
         @returns: The complete user@server string (if any)
         @rtype: C{str}
         """
-        if(len(self.getUser().getName())>0):
+        if self.getUser().getName():
             return "%s@%s" % (self.getUser().getName(), self.getServer())
         else:
-            return "%s" % (self.getServer())
-
-
-if __name__ == "__main__":
-    doctest.testfile("remotecommand_unittest.txt")    
+            return str(self.getServer())
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

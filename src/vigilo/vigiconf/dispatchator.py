@@ -34,15 +34,19 @@ import traceback
 import os
 import sys
 import Queue # Requires: python >= 2.5
-from optparse import OptionParser
+#from optparse import OptionParser
 from threading import Thread
 import shutil
+from xml.etree import ElementTree as ET
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
+
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
 #from vigilo.models.configure import configure_db
 #configure_db(settings['database'], 'sqlalchemy_',
@@ -311,13 +315,9 @@ class Dispatchator(object):
                 +"parameter is empty\n")
                 
         _cmd = self._get_auth_svn_cmd_prefix('update')
-        
-        _cmd += '--revision %s ' % revision
-        _cmd +=  '%s %s' % (
-                    settings["vigiconf"].get("svnrepository"),
-                    confdir
-                    )
-        
+        _cmd.extend(['--revisions', revision])
+        _cmd.append(settings["vigiconf"].get("svnrepository"))
+        _cmd.append(confdir)
         _command = self.createCommand(_cmd)
         
         if self.simulate:
@@ -345,9 +345,8 @@ class Dispatchator(object):
             return 0
         
         _cmd = self._get_auth_svn_cmd_prefix('ci')
-        
-        _cmd += "-m 'Auto generate configuration %s' %s" % \
-                    (confdir, confdir)
+        _cmd.extend(["-m", "Auto generate configuration %s" % confdir])
+        _cmd.append(confdir)
         _command = self.createCommand(_cmd)
         
         try:
@@ -365,14 +364,14 @@ class Dispatchator(object):
           "svn <svn_cmd> --username user --password password "
         
         @return: the svn command prefix
-        @rtype: C{str}
+        @rtype: C{list}
         """
-        _cmd = "svn %s " % svn_cmd
+        _cmd = ["svn", svn_cmd]
         svnusername = settings["vigiconf"].get("svnusername", False)
         svnpassword =  settings["vigiconf"].get("svnpassword", False)
         if svnusername and svnpassword: # TODO: escape password
-            _cmd += "--username %s --password %s " % \
-                    (svnusername, svnpassword)
+            _cmd.extend(["--username", svnusername])
+            _cmd.extend(["--password", svnpassword])
         return _cmd
         
 
@@ -385,23 +384,20 @@ class Dispatchator(object):
         res = 0
         if not settings["vigiconf"].get("svnrepository", False):
             return res
-        # <code> UNIX only
-        # TODO: use svn info --xml and parse it
-        _command = self.createCommand("LANG=C LC_ALL=C svn info -r HEAD %s" % 
-                                     settings["vigiconf"].get("svnrepository"))
+        _cmd = ["svn", "info", "--xml", "-r", "HEAD"]
+        _cmd.append(settings["vigiconf"].get("svnrepository"))
+        _command = self.createCommand(_cmd)
         try:
             _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError("Can't execute the request to get the "
-                                   +"current revision.REASON %s" % e.value)
+                                    "current revision: %s" % e.value)
 
-        lines = _command.getResult().split("\n")
-        for line in lines:
-            if line.startswith("Revision: "):    
-                rev = line.strip().split(": ")[1]
-                res = locale.atoi(rev)
-                break 
-        return res
+        output = ET.fromstring(_command.getResult())
+        entry = output.find("entry")
+        if entry is not None:
+            res = entry.get("revision", res)
+        return int(res)
 
     def updateLocalCopy(self, iRevision):
         """
@@ -754,7 +750,7 @@ class Dispatchator(object):
     def printState(self):
         """Prints a summary"""
         _revision = self.getLastRevision()
-        print("Current revision in the repository : %d"%(_revision))
+        print _("Current revision in the repository : %d") % _revision
         for _srv in self.getServers():
             try:
                 _srv.updateRevisionManager()
