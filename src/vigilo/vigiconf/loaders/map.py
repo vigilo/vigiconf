@@ -30,6 +30,7 @@ from vigilo.models.tables import Map, MapGroup, Host, LowLevelService
 
 from vigilo.models.session import DBSession
 
+from vigilo.vigiconf.lib import ParsingError
 from vigilo.vigiconf.lib.xmlloader import XMLLoader
 
 class MapLoader(XMLLoader):
@@ -80,7 +81,7 @@ class MapLoader(XMLLoader):
         elif tag == "from_node": pass
         elif tag == "to_node": pass
         else:
-            raise Exception("balise inconnue: <%s>" % tag)
+            raise ParsingError("balise inconnue: <%s>" % tag)
     
     def end_element(self, tag):
         """ événement fin de bloc XML.
@@ -116,7 +117,7 @@ class MapLoader(XMLLoader):
         elif tag == "from_node": pass
         elif tag == "to_node": pass
         else:
-            raise Exception("balise inconnue: <%s>" % tag)
+            raise ParsingError("balise inconnue: <%s>" % tag)
         
     def start_map(self):
         """ événement début de bloc "map".
@@ -149,20 +150,20 @@ class MapLoader(XMLLoader):
         """ événement début de bloc "host".
         """
         if not self.node_mode:
-            raise Exception("host node must be in a nodes block.")
+            raise ParsingError("host node must be in a nodes block.")
         
         name = self.get_uattrib("name")
         id = self.get_attrib("id")
         host = Host.by_host_name(name)
         if not host:
-            raise Exception("host %s does not exist" % name)
+            raise ParsingError("host %s does not exist" % name)
         self.hosts[id] = host
     
     def end_host(self):
         """ événement fin de bloc "host".
         """
         if not self.node_mode:
-            raise Exception("host node must be in a nodes block.")
+            raise ParsingError("host node must be in a nodes block.")
         self.host, self.name, self.id = (None,) * 3
         self.label = None
         self.x, self.y, self.minimize = (None,) * 3

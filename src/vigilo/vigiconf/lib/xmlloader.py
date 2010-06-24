@@ -89,7 +89,7 @@ class XMLLoader(DBLoader):
         """
         xsd = self.get_xsd_file()
         if not xsd:
-            raise Exception("An XSD schema should be provided for validation.")
+            raise ValueError("An XSD schema should be provided for validation.")
         if not os.path.exists(xsd):
             raise OSError("XSD file does not exist: %s" % xsd)
 
@@ -148,20 +148,23 @@ class XMLLoader(DBLoader):
         @param path: an XML file
         @type  path: C{str}
         """
-        for event, elem in self.get_xml_parser(path, ("start", "end")):
-            self._elem = elem
-            if event == "start":
-                self._bloclist.append(elem.tag)
-                
-                self.start_element(elem)
-            elif event == "end":
-                self.end_element(elem)
-                
-                start_tag = self._bloclist.pop()
-                if start_tag != elem.tag:
-                    raise Exception("End tag mismatch error: %s/%s"
-                                    % (start_tag, elem.tag))
-        DBSession.flush()
+        try:
+            for event, elem in self.get_xml_parser(path, ("start", "end")):
+                self._elem = elem
+                if event == "start":
+                    self._bloclist.append(elem.tag)
+                    
+                    self.start_element(elem)
+                elif event == "end":
+                    self.end_element(elem)
+                    
+                    start_tag = self._bloclist.pop()
+                    if start_tag != elem.tag:
+                        raise ParsingError("End tag mismatch error: %s/%s"
+                                        % (start_tag, elem.tag))
+            DBSession.flush()
+        except ParsingError, e:
+            raise ParsingError("Syntax error in \"%s\": %s" % (path, e))
     
     def start_element(self, tag):
         """ should be implemented by the subclass when using load_file method
@@ -247,7 +250,7 @@ class XMLLoader(DBLoader):
         
         méthode à redéfinir dans la classe héritière.
         """
-        raise Exception("not implemented.")
+        raise NotImplementedError()
     
     def reset_change(self):
         """ Initialisation de la séquence de détection de changement.
@@ -263,7 +266,7 @@ class XMLLoader(DBLoader):
         
         @return: True si changement détecté
         """
-        raise Exception("not implemented.")
+        raise NotImplementedError()
         
     def load_dir(self, basedir):
         """ Chargement de données dans une hiérarchie de fichiers XML.

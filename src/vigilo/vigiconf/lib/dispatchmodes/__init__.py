@@ -29,7 +29,7 @@ import sys
 import glob
 
 from ... import conf
-from .. import ConfMgrError, EditionError
+from .. import EditionError
 
 def getinstance():
     """

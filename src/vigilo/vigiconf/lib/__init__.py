@@ -21,25 +21,28 @@ Libraries for the Vigilo Config Manager
 """
 
 
-class ConfMgrError(Exception):
-    """Generic ConfMgr Exception"""
+class VigiConfError(Exception):
+    """Generic VigiConf Exception"""
 
     def __init__(self, value):
-        Exception.__init__(self)
+        super(VigiConfError, self).__init__()
         self.value = value
 
-    def __str__(self):
+    def __repr__(self):
         return repr(self.value)
 
+    def __str__(self):
+        return str(self.value)
 
-class EditionError(ConfMgrError):
+
+class EditionError(VigiConfError):
     """
     Exception raised when Entreprise Edition features are called in the
     Community Edition
     """
     pass
 
-class ParsingError(ConfMgrError):
+class ParsingError(VigiConfError):
     """
     Exception raised when parsing of the configuration files failed
     """

@@ -30,6 +30,9 @@ from vigilo.vigiconf.lib.generators.automap import AutoMap
 from vigilo.models.session import DBSession        
 from vigilo.models.tables import Map, MapNodeHls, MapNodeHost
 
+from vigilo.vigiconf.lib import ParsingError
+
+
 class AutoMapManager(object):
     """ Handles the generator library.
     
@@ -57,7 +60,7 @@ class AutoMapManager(object):
                 continue
             try:
                 execfile(filename, globals(), locals())
-            except Exception, e:
+            except ParsingError, e:
                 sys.stderr.write("Error while parsing %s: %s\n" \
                                  % (filename, str(e)))
                 raise

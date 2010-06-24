@@ -44,10 +44,10 @@ LOGGER = get_logger(__name__)
 
 from .. import conf
 from .systemcommand import SystemCommand, SystemCommandError
-from . import ConfMgrError
+from . import VigiConfError
 
 
-class ApplicationError(ConfMgrError):
+class ApplicationError(VigiConfError):
     """Exception concerning an application"""
 
     def __init__(self, *args, **kwargs):

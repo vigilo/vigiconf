@@ -129,6 +129,7 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
                              description=_("Vigilo configuration manager"))
+    parser.add_argument("--debug", action="store_true", help=_("Debug mode."))
     subparsers = parser.add_subparsers(dest='action', title=_("Subcommands"))
 
     # INFO
@@ -225,7 +226,10 @@ def main():
     except (DispatchatorError, ApplicationError), e:
         LOGGER.exception(e)
     except Exception, e:
-        LOGGER.exception("Execution error.REASON : %s", e)
+        if args.debug:
+            LOGGER.exception(_("VigiConf error: %s"), str(e))
+        else:
+            LOGGER.error(_("VigiConf error: %s"), str(e))
         #for l in traceback.format_exc().split("\n"):
         #    LOGGER.error(l)
     LOGGER.debug("VigiConf ended.")

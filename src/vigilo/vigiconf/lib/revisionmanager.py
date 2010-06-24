@@ -34,10 +34,10 @@ from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
 from .. import conf
-from . import ConfMgrError
+from . import VigiConfError
 
 
-class RevisionManagerError(ConfMgrError):
+class RevisionManagerError(VigiConfError):
     """The exception type raised by instances of RevisionManager"""
 
     def __str__(self):

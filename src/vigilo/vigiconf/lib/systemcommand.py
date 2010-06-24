@@ -26,10 +26,10 @@ from __future__ import absolute_import
 import os
 import subprocess
 
-from . import ConfMgrError
+from . import VigiConfError
 
 
-class SystemCommandError(ConfMgrError):
+class SystemCommandError(VigiConfError):
     """Exceptions involving L{SystemCommand} instances"""
 
     def __init__(self, returncode, message):

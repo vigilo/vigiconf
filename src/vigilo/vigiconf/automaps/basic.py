@@ -170,7 +170,7 @@ class BasicAutoMap(AutoMap):
                 DBSession.add(node)
             else:
                 if len(nodes) > 1:
-                    raise Exception("host has more than one node in a map")
+                    raise ValueError("host has more than one node in a map")
                 # on ne fait rien sur ls éléments présents
         
         # ajout des nodes services
@@ -192,7 +192,7 @@ class BasicAutoMap(AutoMap):
                 DBSession.add(node)
             else:
                 if len(nodes) > 1:
-                    raise Exception(
+                    raise ValueError(
                                 "service Hls has more than one node in a map")
                 # on ne fait rien sur les éléments présents
         

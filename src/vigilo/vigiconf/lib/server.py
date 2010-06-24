@@ -31,16 +31,16 @@ from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
 from .. import conf
-from . import ConfMgrError, EditionError
+from . import VigiConfError, EditionError
 from .systemcommand import SystemCommand, SystemCommandError
 from .revisionmanager import RevisionManager
 
 
-class ServerError(ConfMgrError):
+class ServerError(VigiConfError):
     """Exception involving a L{Server} object"""
 
     def __init__(self, value, iServerName = ''):
-        ConfMgrError.__init__(self, value)
+        super(ServerError, self).__init__(value)
         self.value = value
         self.mServer = iServerName
 

@@ -55,12 +55,12 @@ from . import conf
 from . import generator
 from .lib.application import Application, ApplicationError
 from .lib.systemcommand import SystemCommand, SystemCommandError
-from .lib import ConfMgrError
+from .lib import VigiConfError
 from .lib.server import ServerFactory, ServerError
 from .lib import dispatchmodes
 
 
-class DispatchatorError(ConfMgrError):
+class DispatchatorError(VigiConfError):
     """The exception type raised by instances of Dispatchator"""
 
     def __init__(self, value):
@@ -68,7 +68,7 @@ class DispatchatorError(ConfMgrError):
         @param value: A message explaining this exception.
         @type  value: C{str}
         """
-        ConfMgrError.__init__(self, value)
+        super(DispatchatorError, self).__init__(value)
         self.value = value
 
     def __str__(self):
@@ -454,7 +454,7 @@ class Dispatchator(object):
         # does the action on this server
         try:
             iAction(_object, iServers)
-        except ConfMgrError, e: # if it fails
+        except VigiConfError, e: # if it fails
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
         
@@ -509,7 +509,7 @@ class Dispatchator(object):
         _srv = self.commandsQueue.get()
         try:
             _srv.deploy(iRevision)
-        except ConfMgrError, e: # if it fails
+        except VigiConfError, e: # if it fails
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
 
@@ -673,7 +673,7 @@ class Dispatchator(object):
         _srv = self.commandsQueue.get()
         try:
             _srv.switchDirectories()
-        except ConfMgrError, e: # if it fails
+        except VigiConfError, e: # if it fails
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
 
