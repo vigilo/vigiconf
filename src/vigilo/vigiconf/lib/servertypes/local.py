@@ -23,7 +23,6 @@ from __future__ import absolute_import
 from vigilo.common.conf import settings
 
 from ..server import Server
-from ..systemcommand import SystemCommand
 
 class ServerLocal(Server):
     """The local host"""

@@ -307,17 +307,15 @@ class Dispatchator(object):
         """
         Load a given revision in the configuration directory.
         """
-        confdir = settings["vigiconf"].get("confdir")
-        
         if not settings["vigiconf"].get("svnrepository", False):
             raise DispatchatorError(
-                "Not revision load because the 'svnrepository' configuration "
-                +"parameter is empty\n")
+                    _("Not revision load because the 'svnrepository' "
+                      "configuration parameter is empty"))
                 
         _cmd = self._get_auth_svn_cmd_prefix('update')
         _cmd.extend(['--revisions', revision])
         _cmd.append(settings["vigiconf"].get("svnrepository"))
-        _cmd.append(confdir)
+        _cmd.append(settings["vigiconf"].get("confdir"))
         _command = self.createCommand(_cmd)
         
         if self.simulate:
@@ -327,8 +325,8 @@ class Dispatchator(object):
             _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
-                    "Can't execute the request to load %s " % revision
-                    +"revision. REASON: %s" % e.value)
+                    _("Can't load revision %s: %s")
+                      % (revision, e.value))
         
     
     def commitLastRevision(self):
@@ -337,24 +335,70 @@ class Dispatchator(object):
         @return: the number of the revision
         @rtype: C{int}
         """
-        confdir = settings["vigiconf"].get("confdir")
-        
         if not settings["vigiconf"].get("svnrepository", False):
             LOGGER.warning("Not committing because the 'svnrepository' "
                            "configuration parameter is empty")
             return 0
-        
-        _cmd = self._get_auth_svn_cmd_prefix('ci')
-        _cmd.extend(["-m", "Auto generate configuration %s" % confdir])
-        _cmd.append(confdir)
+        self._svn_sync_local_copy()
+        return self._svn_commit()
+
+    def _svn_sync_local_copy(self):
+        _cmd = self._get_auth_svn_cmd_prefix('status')
+        _cmd.append("--xml")
+        _cmd.append(settings["vigiconf"].get("confdir"))
         _command = self.createCommand(_cmd)
-        
         try:
             _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
-                    "Can't execute the request to commit %s " % confdir
-                    +"revision. REASON: %s" % e.value)
+                    _("Can't get the SVN status for the configuration dir: %s")
+                      % e.value)
+        if not _command.getResult():
+            return
+        output = ET.fromstring(_command.getResult())
+        for entry in output.findall(".//entry"):
+            status = entry.find("wc-status").get("item")
+            if status == "unversioned":
+                self._svn_add(entry.get("path"))
+            elif status == "missing":
+                self._svn_remove(entry.get("path"))
+
+    def _svn_add(self, path):
+        LOGGER.debug(_("Adding new conf file in SVN: %s"), path)
+        _cmd = self._get_auth_svn_cmd_prefix('add')
+        _cmd.append(path)
+        _command = self.createCommand(_cmd)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError(
+                    _("Can't add %s in SVN: %s")
+                      % (path, e.value))
+    
+    def _svn_remove(self, path):
+        LOGGER.debug(_("Removing old conf file from SVN: %s"), path)
+        _cmd = self._get_auth_svn_cmd_prefix('remove')
+        _cmd.append(path)
+        _command = self.createCommand(_cmd)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError(
+                    _("Can't remove %s from SVN: %s")
+                      % (path, e.value))
+    
+    def _svn_commit(self):
+        confdir = settings["vigiconf"].get("confdir")
+        _cmd = self._get_auth_svn_cmd_prefix('ci')
+        _cmd.extend(["-m", "Auto generate configuration %s" % confdir])
+        _cmd.append(confdir)
+        _command = self.createCommand(_cmd)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError(
+                    _("Can't commit the configuration dir in SVN: %s")
+                      % e.value)
         return self.getLastRevision()
     
     
@@ -369,7 +413,7 @@ class Dispatchator(object):
         _cmd = ["svn", svn_cmd]
         svnusername = settings["vigiconf"].get("svnusername", False)
         svnpassword =  settings["vigiconf"].get("svnpassword", False)
-        if svnusername and svnpassword: # TODO: escape password
+        if svnusername and svnpassword:
             _cmd.extend(["--username", svnusername])
             _cmd.extend(["--password", svnpassword])
         return _cmd
@@ -384,15 +428,18 @@ class Dispatchator(object):
         res = 0
         if not settings["vigiconf"].get("svnrepository", False):
             return res
-        _cmd = ["svn", "info", "--xml", "-r", "HEAD"]
+        _cmd = self._get_auth_svn_cmd_prefix('info')
+        _cmd.extend(["--xml", "-r", "HEAD"])
         _cmd.append(settings["vigiconf"].get("svnrepository"))
         _command = self.createCommand(_cmd)
         try:
             _command.execute()
         except SystemCommandError, e:
-            raise DispatchatorError("Can't execute the request to get the "
-                                    "current revision: %s" % e.value)
+            raise DispatchatorError(_("Can't execute the request to get the "
+                                      "current revision: %s") % e.value)
 
+        if not _command.getResult():
+            return res
         output = ET.fromstring(_command.getResult())
         entry = output.find("entry")
         if entry is not None:
@@ -409,13 +456,9 @@ class Dispatchator(object):
             LOGGER.warning("Not updating because the 'svnrepository' "
                            "configuration parameter is empty")
             return 0
-        _cmd = "svn up "
-        svnusername = settings["vigiconf"].get("svnusername", False)
-        svnpassword =  settings["vigiconf"].get("svnpassword", False)
-        if svnusername and svnpassword: # TODO: escape password
-            _cmd += "--username %s --password %s " % \
-                    (svnusername, svnpassword)
-        _cmd += "-r %d %s" % (iRevision, settings["vigiconf"].get("confdir"))
+        _cmd = self._get_auth_svn_cmd_prefix('update')
+        _cmd.extend(["-r", str(iRevision)])
+        _cmd.append(settings["vigiconf"].get("confdir"))
         _command = self.createCommand(_cmd)
         try:
             _command.execute()

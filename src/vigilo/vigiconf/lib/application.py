@@ -42,6 +42,9 @@ from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from .. import conf
 from .systemcommand import SystemCommand, SystemCommandError
 from . import VigiConfError
@@ -247,13 +250,13 @@ class Application(object):
                 iServer.insertValidationDir()
             os.chdir(_filesDir)
             _commandStr = _validationCommand + " " + _filesDir
-            _command = SystemCommand(_commandStr)
+            _command = SystemCommand(_commandStr, shell=True)
             try:
                 _command.execute()
             except SystemCommandError, e:
-                error = ApplicationError("%s : Validation failed for : %s "
-                                       % (self.getName(), iServer.getName())
-                                      +"- REASON %s" % e.value)
+                error = ApplicationError(
+                            _("%s: validation failed for server '%s': %s")
+                            % (self.getName(), iServer.getName(), e))
                 error.cause = e
                 raise error
         LOGGER.info("%s : Validation successful for server: %s",

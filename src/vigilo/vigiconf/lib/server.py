@@ -24,6 +24,7 @@ from __future__ import absolute_import
 
 import shutil, os
 import socket
+import glob
 
 from vigilo.common.conf import settings
 
@@ -136,7 +137,7 @@ class Server(object):
         @return: the command instance
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
-        c = SystemCommand(iCommand)
+        c = SystemCommand(iCommand, shell=True)
         c.simulate = self.is_simulation()
         return c
     
@@ -193,7 +194,7 @@ class Server(object):
         Copy all the configuration files
         """
         _commandline = self._builddepcmd()
-        _command = SystemCommand(_commandline)
+        _command = SystemCommand(_commandline, shell=True)
         # Simulation mode ?
         _command.simulate = settings["vigiconf"].as_bool("simulate")
         try:
@@ -220,17 +221,13 @@ class Server(object):
 
     def insertValidationDir(self):
         """Prepare the directory with the validation scripts"""
-        try:
-            _commandStr = "mkdir -p %s/%s/validation && " \
-                          % (self.getBaseDir(), self.getName()) \
-                         +"cp %s/validation/*.sh %s/%s/validation/" \
-                          % (conf.CODEDIR, self.getBaseDir(), self.getName())
-            # instanciates a new systemcommand
-            _command = SystemCommand(_commandStr)
-            _command.execute()
-        except SystemCommandError, e:
-            raise ServerError("Can not insert 'validation' directory in "
-                             +"configuration: %s." % e, self.getName())
+        validation_dir = os.path.join(self.getBaseDir(), self.getName(),
+                                      "validation")
+        if not os.path.exists(validation_dir):
+            os.makedirs(validation_dir)
+        validation_scripts = os.path.join(conf.CODEDIR, "validation", "*.sh")
+        for validation_script in glob.glob(validation_scripts):
+            shutil.copy(validation_script, validation_dir)
         
     def deploy(self, iRevision):
         """Do the deployment"""

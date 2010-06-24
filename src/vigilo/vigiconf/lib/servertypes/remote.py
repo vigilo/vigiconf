@@ -61,14 +61,15 @@ class ServerRemote(Server):
         """@return: L{mCommandUser}"""
         return self.mCommandUser
     
-    def createCommand(self, iCommand):
+    def createCommand(self, iCommand, shell=False):
         """
         @param iCommand: command to execute
         @type  iCommand: C{str}
         @return: the command instance
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
-        c = RemoteCommand(self.getName(), iCommand, self.getCommandUser())
+        c = RemoteCommand(self.getName(), iCommand,
+                          self.getCommandUser(), shell=shell)
         c.simulate = self.is_simulation()
         return c
 
@@ -87,9 +88,9 @@ class ServerRemote(Server):
                            +"sudo tar xf - && " \
                            +"sudo chmod -R o-w *"
         
-        _localCommand = SystemCommand(_localCommandStr)
+        _localCommand = SystemCommand(_localCommandStr, shell=True)
         
-        _remoteCommand = self.createCommand(_remoteCommandStr)
+        _remoteCommand = self.createCommand(_remoteCommandStr, shell=True)
         _commandline = _localCommand.getCommand() + " | " \
                       +_remoteCommand.getCommand()
         return _commandline

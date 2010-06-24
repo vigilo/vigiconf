@@ -75,18 +75,19 @@ class RemoteCommand(SystemCommand):
     @ivar iServer: The remote server that will execute a command
     @type iServer: C{str}
     @ivar iBaseCommand: The command to be executed (optional)
-    @type iBaseCommand: C{list}
+    @type iBaseCommand: C{list} or C{str} if L{self.shell} is True
     @ivar iUser: The user that will execute the command (optional)
     @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
     """
 
-    def __init__(self, iServer, iBaseCommand='', iUser=None, simulate=False):
+    def __init__(self, iServer, iBaseCommand='', iUser=None,
+                 shell=False, simulate=False):
         """
         Constructor, sets L{iServer}, L{iBaseCommand}, and L{iUser}.
         @param iServer: the remote server that will execute a command
         @type iServer: C{str}
         @param iBaseCommand: the command to be executed (optional)
-        @type iBaseCommand: C{list}
+        @type iBaseCommand: C{list} or C{str} if L{self.shell} is True
         @param iUser: the user that will execute the command (optional)
         @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
         @param simulate: if True, do not actually execute the command
@@ -97,7 +98,7 @@ class RemoteCommand(SystemCommand):
         self.mDestinationStr = ''
         self.mSourceStr = ''
         super(RemoteCommand, self).__init__(iBaseCommand=iBaseCommand,
-                                            simulate=simulate)
+                                            simulate=simulate, shell=shell)
         # public
         self.setUser(iUser)
         self.setServer(iServer) # mandatory
@@ -142,7 +143,7 @@ class RemoteCommand(SystemCommand):
         """
         Builds the ssh command from the iCommand provided
         @param iCommand: Command to execute remotely
-        @type  iCommand: C{str}
+        @type  iCommand: C{str} or C{str} if L{self.shell} is True
         """
         self.mCommand = iCommand
         self.mCommandType = 'shell'
@@ -153,7 +154,7 @@ class RemoteCommand(SystemCommand):
         @rtype: C{str}
         """
         if self.mCommandType == 'shell':
-            return ["ssh"] + self.getConfigurationOpts() \
+            _cmd = ["ssh"] + self.getConfigurationOpts() \
                            + [self.getServerString()] \
                            + self.mCommand
         elif self.mCommandType == 'copyTo':
@@ -169,9 +170,11 @@ class RemoteCommand(SystemCommand):
             _cmd.append("%s:%s" % (self.getServerString(),
                                    self.mSourceStr))
             _cmd.append(self.mDestinationStr)
-            return _cmd
         else:
             raise RemoteCommandError('Unknown command type.')
+        if self.shell:
+            _cmd = "'%s'" % "' '".join(_cmd)
+        return _cmd
         
 
     def asCopyTo(self, iDestinationPath, iSourcePath):

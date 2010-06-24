@@ -46,16 +46,17 @@ class SystemCommand(object):
     """
     Provide methods for executing commands
     @ivar mCommand: the command to execute
-    @type mCommand: C{list}
+    @type mCommand: C{list} or C{str} if L{self.shell} is True
     @ivar mResult: the result of the execution
     @type mResult: C{tuple}: (stdout, stderr)
     @ivar simulate: simulation mode (actually execute or not)
     @type simulate: C{boolean}
     """
 
-    def __init__(self, iBaseCommand=[], simulate=False):
+    def __init__(self, iBaseCommand=[], shell=False, simulate=False):
         self.mCommand = iBaseCommand
         self.mResult = (None, None)
+        self.shell = shell
         self.simulate = simulate
         self.process = None
         
@@ -92,9 +93,11 @@ class SystemCommand(object):
             return self.getCommand()
         newenv = os.environ.copy()
         newenv["LANG"] = "C"
+        newenv["LC_ALL"] = "C"
         self.process = subprocess.Popen(self.getCommand(),
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
+                                        shell=self.shell,
                                         env=newenv)
         self.mResult = self.process.communicate()
         if self.process.returncode != 0: # command failed
