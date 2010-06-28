@@ -25,10 +25,24 @@
 <!-- IP type (TODO: support IPv6, improve regexp) -->
 
 <xs:simpleType name="IPType">
-	<xs:restriction base="xs:string">
-	<xs:pattern value="[0-9\.]+"/>
-	</xs:restriction>
+    <xs:restriction base="xs:string">
+    <xs:pattern value="[0-9\.]+"/>
+    </xs:restriction>
 </xs:simpleType>
+
+<xs:element name="nagios">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element maxOccurs="3" minOccurs="0" name="directive">
+                <xs:complexType>
+                    <xs:attribute name="max_check_attempts" type="xs:integer"/>
+                    <xs:attribute name="check_interval" type="xs:integer"/>
+                    <xs:attribute name="retry_interval" type="xs:integer"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:element>
 
 <!-- Element hosts
 =================================================
@@ -37,133 +51,92 @@ hosts element contains one ore more host elements
 =================================================
 -->
 <xs:element name="hosts">
-  <xs:complexType>
-	<xs:sequence>
-		
-		
-		<!-- Element host -->
-	
-		<xs:element maxOccurs="unbounded" minOccurs="1" name="host">
-		  <xs:complexType>
-	
-		  	<xs:sequence>
-		  	
-			<xs:element maxOccurs="unbounded" minOccurs="0" name="class" type="xs:string"/>
-			<xs:element maxOccurs="1" minOccurs="0" name="template" type="xs:string"/>
-			
-			<xs:element maxOccurs="unbounded" minOccurs="0" name="attribute">
-			  <xs:complexType>
-				  <xs:simpleContent>
-					  <xs:extension base="xs:integer">
-					    <xs:attribute name="name" type="xs:string"/>
-					  </xs:extension>
-				  </xs:simpleContent>
-			  </xs:complexType>
-			</xs:element>
+    <xs:complexType>
+        <xs:sequence>
+            <!-- Element host -->    
+            <xs:element maxOccurs="unbounded" minOccurs="1" name="host">
+                <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="template" type="xs:string"/>
+                    <!-- nagios host specific bloc -->
+                    <xs:element ref="nagios"/>
+                    <xs:element name="class" type="xs:string"/>
+                    <xs:element name="attribute">
+                        <xs:complexType>
+                            <xs:simpleContent>
+                                <xs:extension base="xs:integer">
+                                    <xs:attribute name="name" type="xs:string"/>
+                                </xs:extension>
+                            </xs:simpleContent>
+                        </xs:complexType>
+                    </xs:element>
 
+                    <xs:element name="test">
+                        <xs:complexType>
+                            <xs:choice maxOccurs="unbounded" minOccurs="0">
+                                <xs:element name="arg">
+                                    <xs:complexType>
+                                        <xs:simpleContent>
+                                            <xs:extension base="xs:string">
+                                                <xs:attribute name="name" type="xs:string"/>
+                                            </xs:extension>
+                                        </xs:simpleContent>
+                                    </xs:complexType>
+                                </xs:element>
 
-			<!-- test bloc -->
-			
-			<xs:element maxOccurs="unbounded" minOccurs="0" name="test">
-			  <xs:complexType>
-			  
-			    <xs:sequence>
-			    
-					<xs:element maxOccurs="unbounded" minOccurs="0" name="arg">
-					  <xs:complexType>
-						  <xs:simpleContent>
-							  <xs:extension base="xs:string">
-					    		<xs:attribute name="name" type="xs:string"/>
-							  </xs:extension>
-						  </xs:simpleContent>
-					  </xs:complexType>
-					</xs:element>
+                                <!-- nagios service specific bloc -->
+                                <xs:element ref="nagios"/>
+                            </xs:choice>
 
-					<!-- nagios service specific bloc -->
-					
-					<xs:element maxOccurs="1" minOccurs="0" name="nagios">
-					  <xs:complexType>
-					    <xs:sequence>
-					    
-							<xs:element maxOccurs="3" minOccurs="0" name="directive">
-							  <xs:complexType>
-							    <xs:attribute name="max_check_attempts" type="xs:integer"/>
-							    <xs:attribute name="check_interval" type="xs:integer"/>
-							    <xs:attribute name="retry_interval" type="xs:integer"/>
-							  </xs:complexType>
-							</xs:element>
-							
-						</xs:sequence>
-					  </xs:complexType>
-					</xs:element>
-					
-				</xs:sequence>
-				
-			    <xs:attribute name="name" type="xs:string"/>
-	    	
-			  </xs:complexType>
-			</xs:element>
+                            <xs:attribute name="name" type="xs:string"/>
+                        </xs:complexType>
+                    </xs:element>
 
+                    <xs:element name="item" type="xs:string"/>
+        
+                    <xs:element name="tag">
+                        <xs:complexType>
+                            <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                    <xs:attribute name="service" type="xs:string"/>
+                                    <xs:attribute name="name" type="xs:string"/>
+                                </xs:extension>
+                            </xs:simpleContent>
+                        </xs:complexType>
+                    </xs:element>
+        
+                    <xs:element name="trap">
+                        <xs:complexType>
+                            <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                    <xs:attribute name="service" type="xs:string"/>
+                                    <xs:attribute name="key" type="xs:string"/>
+                                </xs:extension>
+                            </xs:simpleContent>
+                        </xs:complexType>
+                    </xs:element>
+        
+                    <xs:element name="group" type="xs:string"/>
+                </xs:choice>
 
-			<!-- nagios host specific bloc -->
-			
-			<xs:element maxOccurs="1" minOccurs="0" name="nagios">
-			  <xs:complexType>
-			    <xs:sequence>
-					<xs:element maxOccurs="3" minOccurs="0" name="directive">
-					  <xs:complexType>
-					    <xs:attribute name="max_check_attempts" type="xs:integer"/>
-					    <xs:attribute name="check_interval" type="xs:integer"/>
-					    <xs:attribute name="retry_interval" type="xs:integer"/>
-					  </xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			  </xs:complexType>
-			</xs:element>
+                <!-- Nom de l'hôte (FQDN). -->
+                <xs:attribute name="name" type="xs:string" use="required"/>
 
-			
-			<xs:element maxOccurs="unbounded" minOccurs="0" name="item" type="xs:string"/>
-			
-			<xs:element maxOccurs="unbounded" minOccurs="0" name="tag">
-			  <xs:complexType>
-				  <xs:simpleContent>
-					  <xs:extension base="xs:string">
-					    <xs:attribute name="service" type="xs:string"/>
-					    <xs:attribute name="name" type="xs:string"/>
-					  </xs:extension>
-				  </xs:simpleContent>
-			  </xs:complexType>
-			</xs:element>
-			
-			<xs:element maxOccurs="unbounded" minOccurs="0" name="trap">
-			  <xs:complexType>
-				  <xs:simpleContent>
-					  <xs:extension base="xs:string">
-					    <xs:attribute name="service" type="xs:string"/>
-					    <xs:attribute name="key" type="xs:string"/>
-					  </xs:extension>
-				  </xs:simpleContent>
-			  </xs:complexType>
-			</xs:element>
-			
-			<xs:element maxOccurs="unbounded" minOccurs="0" name="group" type="xs:string"/>
-		  
-		  	</xs:sequence>
-		  	
-		    <xs:attribute name="name" type="xs:string" use="required"/>
-		    <xs:attribute name="ip" type="IPType" use="required"/>
-		    <xs:attribute name="group" type="xs:string" use="required"/>
+                <!-- Adresse IP de l'hôte. -->
+                <xs:attribute name="ip" type="IPType" use="required"/>
 
-            <!-- Poids accordé à l'hôte (entier strictement positif). -->
-		    <xs:attribute name="weight" type="xs:positiveInteger"/>
+                <!-- Groupe utilisé pour ventiler l'hôte. -->
+                <xs:attribute name="group" type="xs:string" use="required"/>
 
-		  </xs:complexType>
-		</xs:element>
-		
-		<!-- End Element host -->
-		
- 	</xs:sequence>
-  </xs:complexType>
+                <!-- Poids accordé à l'hôte (entier strictement positif). -->
+                <xs:attribute name="weight" type="xs:positiveInteger"/>
+
+                </xs:complexType>
+            </xs:element>
+            <!-- End Element host -->
+        </xs:sequence>
+    </xs:complexType>
 </xs:element>
 
 </xs:schema>
+<!-- vim: ts=4 et -->

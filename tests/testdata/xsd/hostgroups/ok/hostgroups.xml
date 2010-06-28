@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
 
 <groups>
+    <group name="root_group" >
+        <group name="hgroup1"/>
+        <group name="hgroup2"/>
 
-	<group name="root_group" >
-		<group name="hgroup1"/>
-		<group name="hgroup2"/>
-	
-		<group name="Linux servers" />
-	</group>
-
+        <group name="Linux servers" />
+    </group>
 </groups>

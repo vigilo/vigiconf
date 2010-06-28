@@ -7,21 +7,25 @@ class HosttemplateXSD(XSDTest):
     
     xsd_file = "src/vigilo/vigiconf/validation/xsd/hosttemplate.xsd"
     
-    xml_ok_files = {"tests/testdata/conf.d/hosttemplates":[
-                                      "aix.xml",
-                                      "as400.xml",
-                                      "cisco.xml",
-                                      "default.xml",
-                                      "linux.xml",
-                                      "netapp.xml",
-                                      "netware.xml",
-                                      "nokia.xml",
-                                      "nortel.xml",
-                                      "pfs.xml",
-                                      "solaris.xml",
-                                      "windows.xml",
-                                      ]
-                   }
+    xml_ok_files = {
+        "tests/testdata/conf.d/hosttemplates": [
+            "aix.xml",
+            "as400.xml",
+            "cisco.xml",
+            "default.xml",
+            "linux.xml",
+            "netapp.xml",
+            "netware.xml",
+            "nokia.xml",
+            "nortel.xml",
+            "pfs.xml",
+            "solaris.xml",
+            "windows.xml",
+        ],
+        "tests/testdata/xsd/hosttemplates/ok": [
+            "interleaved_tags.xml",
+        ],
+   }
     
     xml_ko_files = {"tests/testdata/xsd/hosttemplates/ko":[
                                     "linux.xml", ]}

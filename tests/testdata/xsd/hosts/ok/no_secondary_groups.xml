@@ -6,6 +6,5 @@
     <template>linux</template>
     <attribute name="cpulist">2</attribute>
     <test name="UpTime"/>
-    <group>Linux servers</group>
 </host>
 </hosts>
