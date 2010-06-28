@@ -30,6 +30,9 @@ from __future__ import absolute_import
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from ... import conf
 from ...dispatchator import Dispatchator
 
@@ -111,43 +114,43 @@ class DispatchatorRemote(Dispatchator):
         servers = list(set(servers))
         return servers
 
-    def restrict(self, servers):
+    def restrict(self, servernames):
         """
         Restrict applications and servers to the ones given as argument.
-        @param servers: List of servers to filter from
-        @type  servers: C{list} of L{Server<lib.server.Server>}
+        @param servernames: List of servers to filter from
+        @type  servernames: C{list} of C{str}
         """
-        if len(servers):
-            server_objs = self.buildServersFrom(servers)
-            self.restrictServersList(server_objs)
-            self.restrictApplicationsListToServers(server_objs)
-            for _ser in server_objs:
-                _ser_name = _ser.getName()
-                if _ser_name not in self.getServersList():
-                    LOGGER.warning("Incorrect servername (not in conf list): "
-                                   "%s", _ser_name)
+        if not servernames:
+            return
+        for servername in servernames:
+            if servername not in self.getServersList():
+                message = _("Invalid server name: %s. Available servers: %s"
+                            % (servername, ", ".join(self.getServersList())))
+                raise KeyError(message)
+        self.restrictServersList(servernames)
+        self.restrictApplicationsListToServers(servernames)
 
-    def restrictServersList(self, servers):
+    def restrictServersList(self, servernames):
         """
-        @param servers: List of servers to filter from
-        @type  servers: C{list} of L{Server<lib.server.Server>}
+        @param servernames: List of servers to filter from
+        @type  servernames: C{list} of C{str}
         @return: Intersection between servers and self.L{mServers}
         @rtype:  C{list} of C{str}
         """
-        if len(servers) > 0:
-            newservers = []
-            for server in self.getServers():
-                if server.getName() in servers:
-                    newservers.append(server)
-            self.setServers(newservers)
+        if not servernames:
+            return
+        newservers = []
+        for server in self.getServers():
+            if server.getName() in servernames:
+                newservers.append(server)
+        self.setServers(newservers)
 
-    def restrictApplicationsListToServers(self, servers):
+    def restrictApplicationsListToServers(self, servernames):
         """
         Restricts our applications' servers to the servers list
-        @param servers: List of servers to filter from
-        @type  servers: C{list} of L{Server<lib.server.Server>}
+        @param servernames: List of servers to filter from
+        @type  servernames: C{list} of C{str}
         """
-        servernames = [ s.getName() for s in servers ]
         newapplications = []
         for _app in self.getAppsList():
             serversforapp = []

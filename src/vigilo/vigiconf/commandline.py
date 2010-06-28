@@ -56,13 +56,20 @@ def get_dispatchator(args):
     try:
         conf.loadConf()
     except Exception, e :
-        LOGGER.error("Cannot load the configuration: %s", e)
+        LOGGER.error(_("Cannot load the configuration: %s"), e)
         sys.exit(1)
     dispatchator = dispatchmodes.getinstance()
     if args.server:
-        dispatchator.restrict(args.server)
-    if (len(dispatchator.getServers()) <= 0):
-        LOGGER.warning("No server to manage.")
+        try:
+            dispatchator.restrict(args.server)
+        except KeyError, e:
+            # on pourrait utiliser la fonction "choices" de argparse, mais
+            # ça obligerait à charger le dispatchator, et donc la conf,
+            # dès le début même si on s'en sert pas
+            LOGGER.error(_("ERROR: %s"), e.message)
+            sys.exit(1)
+    if not dispatchator.getServers():
+        LOGGER.warning(_("No server to manage."))
     return dispatchator
 
 def deploy(args):
@@ -136,7 +143,7 @@ def parse_args():
     parser_info = subparsers.add_parser("info", 
                       help="Prints a summary of the current configuration.")
     parser_info.set_defaults(func=info)
-    parser_info.add_argument('server', nargs='?',
+    parser_info.add_argument('server', nargs='*',
                       help=_("Servers to query, all of them if not specified."))
 
     # APPS
@@ -150,7 +157,7 @@ def parse_args():
                        help=_("Start the applications."))
     group.add_argument("--restart", action="store_true",
                        help=_("Restart the applications."))
-    parser_apps.add_argument("applications", nargs="?",
+    parser_apps.add_argument("applications", nargs="*",
                              help=_("Applications to manage, all of them "
                                     "if not specified."))
     # UNDO
@@ -163,7 +170,7 @@ def parse_args():
     parser_undo.add_argument("--no-restart", action="store_true",
                       help=_("Do not restart the applications after "
                              "switching the configuration."))
-    parser_undo.add_argument('server', nargs='?',
+    parser_undo.add_argument('server', nargs='*',
                       help=_("Servers to undo, all of them if not specified."))
 
     # DEPLOY
@@ -185,7 +192,7 @@ def parse_args():
     parser_deploy.add_argument("-n", "--dry-run", action="store_true",
                       dest="simulate", help=_("Simulate only, no copy will "
                       "actually be made, no commit in the database."))
-    parser_deploy.add_argument('server', nargs='?',
+    parser_deploy.add_argument('server', nargs='*',
                       help=_("Servers to deploy to, all of them if "
                              "not specified."))
 
@@ -203,7 +210,7 @@ def parse_args():
                         help=_("SNMP version. Default: %(default)s."))
     parser_discover.add_argument("-g", "--group", default="Servers",
                         help=_("Main group. Default: %(default)s."))
-    parser_discover.add_argument('target', nargs='+',
+    parser_discover.add_argument('target', nargs='+', type=list,
             help=_("Hosts or files to scan. The files must be the result "
                    "of an snmpwalk command on the '.1' OID with the "
                    "'-OnQ' options."))
