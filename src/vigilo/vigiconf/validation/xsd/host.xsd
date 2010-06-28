@@ -146,7 +146,7 @@ hosts element contains one ore more host elements
 			  </xs:complexType>
 			</xs:element>
 			
-			<xs:element maxOccurs="unbounded" minOccurs="1" name="group" type="xs:string"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="group" type="xs:string"/>
 		  
 		  	</xs:sequence>
 		  	

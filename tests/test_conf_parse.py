@@ -10,7 +10,7 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 
 from confutil import reload_conf, setup_tmpdir, setup_path
 
-class ValidateDTD(unittest.TestCase):
+class ValidateXSD(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""

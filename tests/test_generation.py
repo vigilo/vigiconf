@@ -103,7 +103,7 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         conf.hosttemplatefactory.load_templates()
         # on charge en conf un host avec directives generiques nagios
-        reload_conf(hostsdir='tests/testdata/xsd/hosts/ok')
+        reload_conf(hostsdir='tests/testdata/generators/nagios/')
         self.mapping = generator.getventilation()
 
     def tearDown(self):
