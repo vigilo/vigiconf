@@ -277,51 +277,6 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-#def main():
-#    """Start the discoverator"""
-#    conf.loadConf()
-#    # command-line arguments parsing
-#    parser = OptionParser()
-#    # declare all options
-#    parser.add_option("-f", "--file", dest="file",
-#                      help="Use FILE as the result of the SNMP walk")
-#    parser.add_option("-c", "--community", dest="community",
-#                      help="SNMP community")
-#    parser.add_option("-v", "--version", dest="version", help="SNMP version")
-#    parser.add_option("-H", "--host", dest="host", help="Host to scan")
-#    parser.add_option("-g", "--group", dest="group", default="Servers",
-#                      help="Default group")
-#
-#    # parse the command line
-#    (options, args) = parser.parse_args() # pylint: disable-msg=W0612
-#    if not options.file and not options.host:
-#        parser.error("You must specify a host or a file")
-#
-#    try:
-#        discoverator = Discoverator(options.group)
-#
-#        # Handle command-line options
-#        if options.file:
-#            discoverator.scanfile(options.file)
-#        else:
-#            if not options.host:
-#                parser.error("You must specify a host or a file")
-#            if not options.community:
-#                options.community = "public"
-#            if not options.version:
-#                options.version = "2c"
-#            discoverator.scanhost(options.host,
-#                                  options.community,
-#                                  options.version)
-#        discoverator.detect()
-#        elements = discoverator.declaration()
-#        indent(elements)
-#        print """<?xml version="1.0"?>"""
-#        print(ET.tostring(elements))
-#    except DiscoveratorError, e:
-#        sys.stderr.write(str(e)+"\n")
-#        sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
