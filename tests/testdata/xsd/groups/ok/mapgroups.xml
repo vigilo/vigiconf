@@ -1,14 +1,8 @@
 <?xml version="1.0"?>
 
 <mapgroups>
-
 	<mapgroup name="root_group" >
-		<children>
-		
-			<mapgroup name="mgroup1"/>
-			<mapgroup name="mgroup2"/>
-
-		</children>
+		<mapgroup name="mgroup1"/>
+		<mapgroup name="mgroup2"/>
 	</mapgroup>
-
 </mapgroups>

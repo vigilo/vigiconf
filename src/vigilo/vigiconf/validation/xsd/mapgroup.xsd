@@ -3,39 +3,24 @@
 
 
 <xs:element name="mapgroup">
-	  <xs:complexType>
-	  
-	    <xs:sequence>
-	    	
-	    	<xs:element maxOccurs="1" minOccurs="0" name="children">
-			  <xs:complexType>
-				<xs:sequence>
-				
-					<!-- mapgroup is recursive -->
-					
-	    			<xs:element maxOccurs="unbounded" minOccurs="1" ref="mapgroup"/>
-			     </xs:sequence>
-			  </xs:complexType>
-	    	</xs:element>
-	    	
-  	    </xs:sequence>
-  	    
-    	<xs:attribute name="name" type="xs:string" use="required"/>
-    	
-	  </xs:complexType>
+	<xs:complexType>
+		<xs:sequence>
+			<!-- mapgroup is recursive -->
+			<xs:element maxOccurs="unbounded" minOccurs="0" ref="mapgroup"/>
+		</xs:sequence>
+
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
 
 </xs:element> 
 
 
 <xs:element name="mapgroups">
-  <xs:complexType>
-	<xs:sequence>
-		
-		
-		<xs:element maxOccurs="unbounded" minOccurs="0" ref="mapgroup"/>
-		
-    </xs:sequence>
-  </xs:complexType>
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" minOccurs="0" ref="mapgroup"/>
+		</xs:sequence>
+	</xs:complexType>
 </xs:element>
 
 </xs:schema>

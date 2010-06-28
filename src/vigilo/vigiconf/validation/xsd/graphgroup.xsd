@@ -4,36 +4,20 @@
 
 <xs:element name="graphgroup">
 	  <xs:complexType>
-	  
 	    <xs:sequence>
-	    	
-	    	<xs:element maxOccurs="1" minOccurs="0" name="children">
-			  <xs:complexType>
-				<xs:sequence>
-				
-					<!-- graphgroup is recursive -->
-					
-	    			<xs:element maxOccurs="unbounded" minOccurs="1" ref="graphgroup"/>
-			     </xs:sequence>
-			  </xs:complexType>
-	    	</xs:element>
-	    	
+			<!-- graphgroup is recursive -->
+			<xs:element maxOccurs="unbounded" minOccurs="0" ref="graphgroup"/>
   	    </xs:sequence>
   	    
     	<xs:attribute name="name" type="xs:string" use="required"/>
-    	
 	  </xs:complexType>
-
 </xs:element> 
 
 
 <xs:element name="graphgroups">
   <xs:complexType>
 	<xs:sequence>
-		
-		
 		<xs:element maxOccurs="unbounded" minOccurs="1" ref="graphgroup"/>
-		
     </xs:sequence>
   </xs:complexType>
 </xs:element>

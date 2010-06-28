@@ -1,22 +1,13 @@
 <?xml version="1.0"?>
 
-
 <group name="root_group3" >
-	<children>
-	
-		<group name="hgroup31"/>
-		<group name="hgroup32"/>
-	
-		<group name="hgroup33" >
-			<children>
-			
-				<group name="hgroup331"/>
-				<group name="hgroup332"/>
-			
-				<group name="Linux servers 3" />
-	
-			</children>
-		</group>
+	<group name="hgroup31"/>
+	<group name="hgroup32"/>
 
-	</children>
+	<group name="hgroup33" >
+		<group name="hgroup331"/>
+		<group name="hgroup332"/>
+
+		<group name="Linux servers 3" />
+	</group>
 </group>

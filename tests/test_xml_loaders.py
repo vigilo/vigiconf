@@ -46,6 +46,7 @@ class GroupLoaderTest(XMLLoaderTest):
         g = SupItemGroup.by_group_name(u'root_group')
         self.assertTrue(g, "root_group created.")
         n = len(g.get_children())
+        c = SupItemGroup.by_group_name(u'hgroup1')
         self.assertEquals(n, 3, "rootgroup has 3 children (%d)" % n)
         
         g = SupItemGroup.by_group_name(u'root_group3')
@@ -218,8 +219,8 @@ class DepLoaderTest(XMLLoaderTest):
         """
         self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         gh = self.grouploader.get_groups_hierarchy()
-        #print gh
-        self.assertEquals(len(gh.keys()), 3, "3 top hostgroups")
+#        print gh
+        self.assertEquals(len(gh.keys()), 5, "5 top hostgroups")
         self.assertEquals(gh["root_group3"]["hgroup31"], 1)
         self.assertEquals(gh["root_group3"]["hgroup33"]["Linux servers 3"], 1)
-            
+

@@ -1,18 +1,10 @@
 <?xml version="1.0"?>
 
-<!-- invalid for loader: Linux servers 4 should have one parent -->
-
 <groups>
-
-	<group name="root_group" >
-		<children>
-			<group name="Linux servers 4" />
-		</children>
+	<group name="root_group4" >
+		<group name="Linux servers 4" />
 	</group>
-	<group name="root_group2" >
-		<children>
-			<group name="Linux servers 4" />
-		</children>
+	<group name="root_group4b" >
+		<group name="Linux servers 4" />
 	</group>
-
 </groups>

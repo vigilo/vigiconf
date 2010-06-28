@@ -113,18 +113,23 @@ class GroupLoader(XMLLoader):
     def start_element(self, elem):
         if elem.tag == self._tag_group:
             name = unicode(elem.attrib["name"].strip())
-            instance = self.add({"name": name})
             # update parent stack
+            if len(self._parent_stack):
+                self._current_parent = self._parent_stack[-1]
+            else:
+                self._current_parent = None
+            instance = self.add({"name": name})
             self._parent_stack.append(instance)
-        elif elem.tag == "children":
-            self._current_parent = self._parent_stack[-1]
 
     def end_element(self, elem):
         if elem.tag == self._tag_group:
-            if len(self._parent_stack) > 0:
+            if len(self._parent_stack):
                 self._parent_stack.pop()
-        elif elem.tag == "children":
-            self._current_parent = None
+
+            if len(self._parent_stack):
+                self._current_parent = self._parent_stack[-1]
+            else:
+                self._current_parent = None
 
     def load_file(self, path):
         """ Charge des groupes génériques depuis un fichier xml.

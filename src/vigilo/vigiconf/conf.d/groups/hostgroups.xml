@@ -5,27 +5,23 @@
     <group name="P-F"/>
 
 	<group name="Servers">
-		<children>
-			<group name="Linux servers"/>
-			<group name="Windows servers"/>
-			<group name="AIX servers"/>
-			<group name="Solaris servers"/>
-			<group name="AS400 servers"/>
-			<group name="Netware servers"/>
-		</children>
+		<group name="Linux servers"/>
+		<group name="Windows servers"/>
+		<group name="AIX servers"/>
+		<group name="Solaris servers"/>
+		<group name="AS400 servers"/>
+		<group name="Netware servers"/>
 	</group>
 
 	<group name="Telecom">
-		<children>
-			<group name="Switches"/>
-			<group name="Firewalls"/>
-			<group name="Routers"/>
-			<group name="Modems"/>
-			<group name="CISCO devices"/>
-			<group name="Nokia firewalls"/>
-			<group name="NetApp proxies"/>
-			<group name="Nortel devices"/>
-		</children>
+		<group name="Switches"/>
+		<group name="Firewalls"/>
+		<group name="Routers"/>
+		<group name="Modems"/>
+		<group name="CISCO devices"/>
+		<group name="Nokia firewalls"/>
+		<group name="NetApp proxies"/>
+		<group name="Nortel devices"/>
 	</group>
 
 </groups>

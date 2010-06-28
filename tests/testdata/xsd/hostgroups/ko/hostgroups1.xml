@@ -5,14 +5,10 @@
 <groups>
 
 	<group name="root_group" >
-		<children>
-		
-			<group name="hgroup1"/>
-			<group name="hgroup2"/>
-		
-			<group name="Linux servers" />
-
-		</children>
+		<group name="hgroup1"/>
+		<group name="hgroup2"/>
+	
+		<group name="Linux servers" />
 	</group>
 
 </groups>

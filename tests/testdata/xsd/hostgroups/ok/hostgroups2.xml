@@ -1,25 +1,14 @@
 <?xml version="1.0"?>
 
 <groups>
-
 	<group name="root_group2" >
-		<children>
-		
-			<group name="hgroup21"/>
-			<group name="hgroup22"/>
-		
-			<group name="hgroup23" >
-				<children>
-				
-					<group name="hgroup231"/>
-					<group name="hgroup232"/>
-				
-					<group name="Linux servers 2" />
-		
-				</children>
-			</group>
+		<group name="hgroup21"/>
+		<group name="hgroup22"/>
 
-		</children>
+		<group name="hgroup23" >
+			<group name="hgroup231"/>
+			<group name="hgroup232"/>
+			<group name="Linux servers 2" />
+		</group>
 	</group>
-
 </groups>
