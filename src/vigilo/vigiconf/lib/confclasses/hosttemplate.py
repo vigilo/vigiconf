@@ -29,6 +29,7 @@ from xml.etree import ElementTree as ET # Python 2.5
 
 from vigilo.common.conf import settings
 
+from . import get_text, get_attrib
 from .. import ParsingError
 from ..external import topsort
 
@@ -240,17 +241,18 @@ class HostTemplateFactory(object):
         for event, elem in ET.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "template":
-                    cur_tpl = HostTemplate(elem.attrib["name"].strip())
+                    name = get_attrib(elem, 'name')
+                    cur_tpl = HostTemplate(name)
                 
                 elif elem.tag == "test":
                     inside_test = True
-                    test_name = elem.attrib["name"].strip()
+                    test_name = get_attrib(elem, 'name')
                     
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
-                            tname = arg.attrib["name"].strip()
+                            tname = get_attrib(arg, 'name')
                             if tname == "label":
-                                test_name = "%s %s" % (test_name, arg.text.strip())
+                                test_name = "%s %s" % (test_name, get_text(arg))
                                 break
                 
                 elif elem.tag == "nagios":
@@ -260,35 +262,34 @@ class HostTemplateFactory(object):
                     # directive nagios
                     directives = {}
                     for dname, value in elem.attrib.iteritems():
+                        dname, value = dname.strip(), value.strip()
                         if inside_test:
                             # directive de service nagios
-                            cur_tpl.add_nagios_service_directive(test_name, dname.strip(), value.strip())
+                            cur_tpl.add_nagios_service_directive(test_name, dname, value)
                         else:
                             # directive host nagios
-                            cur_tpl.add_nagios_directive(dname.strip(), value.strip())
+                            cur_tpl.add_nagios_directive(dname, value)
                 
             else:
                 if elem.tag == "parent":
-                    cur_tpl.add_parent(elem.text.strip())
+                    cur_tpl.add_parent(get_text(elem))
                 elif elem.tag == "class":
-                    cur_tpl.classes.append(elem.text.strip())
+                    cur_tpl.classes.append(get_text(elem))
                 elif elem.tag == "attribute":
-                    value = elem.text.strip()
-                    items = [ i.text.strip() for i in elem.getchildren()
-                                     if i.tag == "item" ]
+                    value = get_text(elem)
+                    items = [get_text(i) for i in elem.getchildren()
+                                     if i.tag == "item"]
                     if items:
                         value = items
-                    else:
-                        value = elem.text.strip()
-                    cur_tpl.add_attribute(elem.attrib["name"].strip(), value)
+                    cur_tpl.add_attribute(get_attrib(elem, 'name'), value)
                 elif elem.tag == "group":
-                    cur_tpl.add_group(elem.text.strip())
+                    cur_tpl.add_group(get_text(elem))
                 elif elem.tag == "test":
                     inside_test = False
-                    test_name = elem.attrib["name"].strip()
+                    test_name = get_attrib(elem, 'name')
                     args = {}
                     for arg in elem.getchildren():
-                        args[arg.attrib["name"].strip()] = arg.text.strip()
+                        args[get_attrib(arg, 'name')] = get_text(arg)
                     cur_tpl.add_test(test_name, **args)
                     test_name = None
                 elif elem.tag == "nagios":

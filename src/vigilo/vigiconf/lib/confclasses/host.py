@@ -32,6 +32,8 @@ from xml.etree import ElementTree as ET # Python 2.5
 #from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
+
+from . import get_text, get_attrib
 from .graph import Graph
 from .. import ParsingError
 
@@ -651,18 +653,19 @@ class HostFactory(object):
             if event == "start":
                 if elem.tag == "host":
                     inside_test = False
-                    name = elem.attrib["name"].strip()
+                    name = get_attrib(elem, 'name')
                     
                     if deleting_mode:
                         self.hosts_todelete.append(name)
                         continue
 
-                    ip = elem.attrib["ip"].strip()
-                    group = elem.attrib["group"].strip()
-                    try:
-                        weight = int(elem.attrib["weight"].strip())
-                    except KeyError:
+                    ip = get_attrib(elem, 'ip')
+                    group = get_attrib(elem, 'group')
+                    weight = get_attrib(elem, 'weight')
+                    if weight is None:
                         weight = 1
+                    else:
+                        weight = int(weight)
                     
                     cur_host = Host(self.hosts, name, ip, group, weight)
                     # TODO: refactoring
@@ -672,13 +675,13 @@ class HostFactory(object):
                     LOGGER.debug("Loaded host %s, ip %s, group %s" % (name, ip, group))
                 elif elem.tag == "test":
                     inside_test = True
-                    test_name = elem.attrib["name"].strip()
+                    test_name = get_attrib(elem, 'name')
                     
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
-                            tname = arg.attrib["name"].strip()
+                            tname = get_attrib(arg, 'name')
                             if tname == "label":
-                                test_name = "%s %s" % (test_name, arg.text.strip())
+                                test_name = "%s %s" % (test_name, get_text(arg))
                                 break
                 
                 elif elem.tag == "todelete":
@@ -690,46 +693,48 @@ class HostFactory(object):
                     # directive nagios
                     directives = {}
                     for dname, value in elem.attrib.iteritems():
+                        dname, value = dname.strip(), value.strip()
                         if inside_test:
                             # directive de service nagios
-                            cur_host.add_nagios_service_directive(test_name, dname.strip(), value.strip())
+                            cur_host.add_nagios_service_directive(test_name, dname, value)
                         else:
                             # directive host nagios
-                            cur_host.add_nagios_directive(dname.strip(), value.strip())
+                            cur_host.add_nagios_directive(dname, value)
             else:
                 if elem.tag == "template":
-                    self.hosttemplatefactory.apply(cur_host, elem.text.strip())
+                    self.hosttemplatefactory.apply(cur_host, get_text(elem))
                 elif elem.tag == "class":
-                    cur_host.classes.append(elem.text.strip())
+                    cur_host.classes.append(get_text(elem))
                 elif elem.tag == "test":
                     inside_test = False
-                    test_name = elem.attrib["name"].strip()
+                    test_name = get_attrib(elem, 'name')
                     args = {}
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
-                            args[arg.attrib["name"].strip()] = arg.text.strip()
+                            args[get_attrib(arg, 'name')] = get_text(arg)
                     test_list = self.testfactory.get_test(test_name, cur_host.classes)
                     cur_host.add_tests(test_list, **args)
                     test_name = None
                 elif elem.tag == "attribute":
-                    value = elem.text.strip()
-                    items = [ i.text.strip() for i in elem.getchildren()
+                    value = get_text(elem)
+                    items = [get_text(i) for i in elem.getchildren()
                                      if i.tag == "item" ]
                     if items:
                         value = items
-                    else:
-                        value = elem.text.strip()
-                    cur_host.set_attribute(elem.attrib["name"].strip(), value)
+                    cur_host.set_attribute(get_attrib(elem, 'name'), value)
                 elif elem.tag == "tag":
-                    cur_host.add_tag(elem.attrib["service"].strip(),
-                                     elem.attrib["name"].strip(),
-                                     elem.text.strip())
+                    cur_host.add_tag(get_attrib(elem, 'service'),
+                                     get_attrib(elem, 'name'),
+                                     get_text(elem))
                 elif elem.tag == "trap":
-                    cur_host.add_trap(elem.attrib["service"].strip(),
-                                      elem.attrib["key"].strip(),
-                                      elem.text.strip())
+                    cur_host.add_trap(get_attrib(elem, 'service'),
+                                      get_attrib(elem, 'key'),
+                                      get_text(elem))
                 elif elem.tag == "group":
-                    group_name = elem.text.strip()
+                    group_name = get_text(elem)
+                    if not group_name:
+                        raise ParsingError('Empty group name')
+
                     cur_host.add_group(group_name)
                     # If the secondary group did not exist yet in the main
                     # group hashmap, add it
