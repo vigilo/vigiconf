@@ -3,6 +3,7 @@ The address of the SVN repository could be something like:
 http://supserver.example.com/svn/vigilo/trunk/conf.d/
 
 Example usage for a local repository:
+  cd /etc/vigilo/vigiconf/
   mkdir -p /var/lib/svn/vigiconf
   svnadmin create /var/lib/svn/vigiconf
   chown vigiconf:vigiconf -R /var/lib/svn/vigiconf
