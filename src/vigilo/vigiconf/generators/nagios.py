@@ -57,20 +57,6 @@ class NagiosTpl(FileGenerator):
                 # We are generating Nagios' configuration file, so we anly care
                 # about hosts that need a Nagios configuration.
                 continue
-            if 'nagvis' in ventilation:
-                # We also have a nagvis instance dealing with this host, so
-                # make sure we create at least one time the ndo file routing to
-                # the ndo server.
-                # WARNING: The first host that has to be monitored on this
-                # NagVis instance gives the name of the NagVis for anyone else
-                # in this Nagios instance!!
-                fileName = "%s/%s/ndomod.cfg" \
-                           % (self.baseDir, ventilation['nagios'])
-                if not os.path.exists(fileName):
-                    self.templateCreate(fileName, self.templates["ndomod"], 
-                                    {"confid": conf.confid,
-                                     "name": ventilation["nagios"],
-                                     "nagvis_server": ventilation["nagvis"]})
             self.fileName = "%s/%s/nagios.cfg" \
                             % (self.baseDir, ventilation['nagios'])
             if self.fileName not in files:
