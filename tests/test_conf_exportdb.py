@@ -120,28 +120,6 @@ class ExportDBTest(unittest.TestCase):
         self.assertEquals(h.name, u'localhost')
         self.assertEquals(h.weight, 42)
 
-    def test_host_suppr_mapnode(self):
-        """Suppression des mapnodes d'un host supprimé (#57)"""
-        from vigilo.models.tables import Map, MapNode, MapNodeHost
-        from vigilo.models.demo.functions import add_host, add_map
-        # Mettre localhost sur une carte
-        h = add_host(u"localhost")
-        testmap = add_map(u"Test map")
-        mnh = MapNodeHost(label=u"localhost",
-                          idmap=testmap.idmap,
-                          idhost=h.idhost,
-                          widget=u"TestWidget")
-        DBSession.add(mnh)
-        DBSession.flush()
-        DBSession.delete(h)
-        DBSession.flush()
-        # On vérifie que la suppression de l'hôte a bien supprimé ses
-        # représentations cartographiques
-        mn_count = DBSession.query(MapNode).count()
-        self.assertEquals(mn_count, 0)
-        mnh_count = DBSession.query(MapNodeHost).count()
-        self.assertEquals(mnh_count, 0)
-
 
 if __name__ == '__main__':
     unittest.main()
