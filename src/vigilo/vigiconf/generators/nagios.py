@@ -57,7 +57,7 @@ class NagiosTpl(FileGenerator):
                 # We are generating Nagios' configuration file, so we anly care
                 # about hosts that need a Nagios configuration.
                 continue
-            self.fileName = "%s/%s/nagios.cfg" \
+            self.fileName = "%s/%s/nagios/nagios.cfg" \
                             % (self.baseDir, ventilation['nagios'])
             if self.fileName not in files:
                 files[self.fileName] = {}

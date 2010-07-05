@@ -1,7 +1,7 @@
 diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
 --- /etc/nagios.orig/nagios.cfg	2009-05-13 11:28:49.000000000 +0200
 +++ /etc/nagios/nagios.cfg	2010-07-05 15:27:43.000000000 +0200
-@@ -46,16 +46,23 @@
+@@ -46,16 +46,22 @@
  #cfg_file=/etc/nagios/objects/printer.cfg
  
  # load configuration files on the fly
@@ -25,12 +25,11 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
 +cfg_file=/etc/nagios/vigilo.cfg
 +
 +# Vigiconf-generated conf file
-+cfg_file=/etc/vigilo/vigiconf/prod/nagios.cfg
-+cfg_file=/etc/vigilo/vigiconf/prod/nagios-hls.cfg
++cfg_dir=/etc/vigilo/vigiconf/prod/nagios
  
  
  # OBJECT CACHE FILE
-@@ -338,7 +345,7 @@
+@@ -338,7 +344,7 @@
  # this value to 0.  If passive checks should be logged, set
  # this value to 1.
  
@@ -39,7 +38,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -379,7 +386,7 @@
+@@ -379,7 +385,7 @@
  # program start time that an initial check of all services should
  # be completed.  Default is 30 minutes.
  
@@ -48,7 +47,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -440,7 +447,7 @@
+@@ -440,7 +446,7 @@
  # This is the frequency (in seconds!) that Nagios will process
  # the results of host and service checks.
  
@@ -57,7 +56,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -607,8 +614,8 @@
+@@ -607,8 +613,8 @@
  # ocsp command, and performance data commands.  All values are in
  # seconds.
  
@@ -68,7 +67,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  event_handler_timeout=30
  notification_timeout=30
  ocsp_timeout=5
-@@ -752,7 +759,7 @@
+@@ -752,7 +758,7 @@
  # on what aggressive host check is or check out the source code in
  # base/checks.c
  
@@ -77,7 +76,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -829,7 +836,7 @@
+@@ -829,7 +835,7 @@
  # performance data.
  # Values: 1 = process performance data, 0 = do not process performance data
  
@@ -86,7 +85,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -841,8 +848,8 @@
+@@ -841,8 +847,8 @@
  # define in your host configuration file.  Read the HTML docs for
  # more information on performance data.
  
@@ -97,7 +96,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -1013,7 +1020,7 @@
+@@ -1013,7 +1019,7 @@
  # check the "freshness" of service check results.  If you have
  # disabled service freshness checking, this option has no effect.
  
@@ -106,7 +105,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -1024,7 +1031,7 @@
+@@ -1024,7 +1030,7 @@
  # manner.
  # Values: 1 = enabled freshness checking, 0 = disable freshness checking
  
@@ -115,7 +114,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -1033,7 +1040,7 @@
+@@ -1033,7 +1039,7 @@
  # check the "freshness" of host check results.  If you have
  # disabled host freshness checking, this option has no effect.
  
@@ -124,7 +123,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -1060,7 +1067,7 @@
+@@ -1060,7 +1066,7 @@
  # Values: 1 = enable flap detection
  #         0 = disable flap detection (default)
  
@@ -133,7 +132,7 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
  
  
-@@ -1085,7 +1092,7 @@
+@@ -1085,7 +1091,7 @@
  #	strict-iso8601	(YYYY-MM-DDTHH:MM:SS)
  #
  
