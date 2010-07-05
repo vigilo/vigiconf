@@ -85,8 +85,8 @@ def deploy(args):
     if (args.revision):
         dispatchator.deploy_revision = args.revision
 
+    dispatchator.saveToConfig()
     if args.stop_after_generation:
-        dispatchator.saveToConfig()
         return
     dispatchator.deploy()
     if args.stop_after_push:
