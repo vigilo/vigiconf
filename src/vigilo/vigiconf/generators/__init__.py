@@ -31,7 +31,8 @@ import types
 from pkg_resources import working_set
 
 from ..lib.generators import Generator
-from ..lib.generators.filegenerator import FileGenerator
+from ..lib.generators.file import FileGenerator
+from ..lib.generators.map import MapGenerator
 
 from vigilo.common.conf import settings
 

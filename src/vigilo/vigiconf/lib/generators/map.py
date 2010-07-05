@@ -26,10 +26,13 @@ Générateur de cartes automatiques pour Vigilo
 from datetime import datetime
 
 from vigilo.models.tables import SupItemGroup, MapGroup, Map
+from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
+
+from . import Generator
 from ... import conf
 
-class AutoMap(object):
+class MapGenerator(Generator):
     """ Classe de base pour un générateur de cartes auto.
     
     Un générateur de cartes automatiques doit dériver cette classe
@@ -67,20 +70,19 @@ class AutoMap(object):
     
     # dossier "virtuel" de plus haut niveau
     # Hardcodé pour l'instant
-    topgroup_name = "Root"
+    rootgroup_name = "Root"
 
-    def __init__(self):
-        """Constructeur. """
-        conf = self.get_conf()
+    def __init__(self, mapping, validator):
+        super(MapGenerator, self).__init__(mapping, validator)
         self.map_defaults = conf.param_maps_auto['AutoMap']['map_defaults']
-    
-    def generate(self):
-        """ lance la génération des cartes auto
-        """
-        for top in SupItemGroup.get_top_groups():
-            self.process_top_group(top)
-            self.process_children(top)
-            
+
+    def get_root_group(self):
+        for group in MapGroup.get_top_groups():
+            if group.name == self.rootgroup_name:
+                return group
+        raise KeyError("The map group %s has not been added by the install procedure"
+                       % self.rootgroup_name)
+
     def process_top_group(self, group):
         """ traitement des hostgroups de haut niveau
         
@@ -143,39 +145,37 @@ class AutoMap(object):
             DBSession.add(gmap)
         return gmap
         
-    def get_or_create_mapgroup(self, name, parent_name=None):
+    def get_or_create_mapgroup(self, name, parent=None):
         """ renvoie et éventuellement génère un groupe de cartes.
         
         @param name: nom de groupe de carte
-        @type name: C{Str}
-        @param parent_name: nom de groupe parent (opt)
-        @type parent_name: C{Str}
+        @type  name: C{str}
+        @param parent: groupe parent (opt)
+        @type  parent: L{MapGroup}
         
         @return: le groupe de cartes
-        @rtype: C{MapGroup}
+        @rtype:  C{MapGroup}
         """
         name = unicode(name)
-        gmap = MapGroup.by_group_name(name)
+        if not parent and name == self.rootgroup_name:
+            return self.get_root_group()
+        if not parent:
+            parent = self.get_root_group()
+        gmap = MapGroup.by_parent_and_name(parent, name)
         if not gmap:
-            gmap = MapGroup.create(name=name)
-            if parent_name == self.topgroup_name:
-                pass # Étrange, le groupe de plus haut niveau aurait dû être créé à l'install
-            elif parent_name:
-                gmap.set_parent(self.get_or_create_mapgroup(parent_name))
-            else:
-                gmap.set_parent(self.get_or_create_mapgroup(self.parent_topgroup))
+            gmap = MapGroup.create(name, parent)
             DBSession.add(gmap)
         return gmap
     
-    def create_map(self, title, groupnames, data):
+    def create_map(self, title, groups, data):
         """ création d'une carte.
         
         @param title: titre de la carte
-        @type title: C{Str}
-        @param groupnames: liste de noms de groupes à associer à la carte
-        @type groupnames: C{List}
+        @type  title: C{str}
+        @param groups: liste de noms de groupes à associer à la carte
+        @type  groups: C{list} de L{MapGroup}
         @param data: dictionnaire de données fond de carte
-        @type data: C{Dic}
+        @type  data: C{dict}
         
         @return: une carte
         @rtype: C{Map}
@@ -187,26 +187,8 @@ class AutoMap(object):
                   background_position=unicode(data['background_position']),
                   background_repeat=unicode(data['background_repeat']),
                   )
-        map.groups = []
-        for name in groupnames:
-            map.groups.append(MapGroup.by_group_name(unicode(name)))
+        map.groups = groups
         DBSession.add(map)
         return map
     
-    def session(self):
-        """ renvoie la session SQLAlchemy.
-        
-        @return: session base de données
-        @rtype: C{Session}
-        """
-        return DBSession
-    
-    def get_conf(self):
-        """ renvoie la configuration.
-        
-        Il s'agit du module vigilo.vigiconf.conf
-        
-        @return: module conf
-        @rtype: C{module}
-        """
-        return conf
+

@@ -43,8 +43,6 @@ from . import generators
 # module d'export base de données
 from .dbexportator import update_apps_db, export_conf_db, export_ventilation_DB
 
-from .map_auto import generate_maps_auto
-
 import transaction
 
 __docformat__ = "epytext"
@@ -87,18 +85,15 @@ def generate(commit_db=False):
     
     # mise à jour de la liste des application en base
     update_apps_db()
-    
+
     # mise à jour de la base de données
     export_conf_db()
-    
-    # génération cartes automatiques
-    generate_maps_auto()
-    
+
     h = getventilation()
-    
+
     # export de la ventilation en base de données
     export_ventilation_DB(h)
-    
+
     v = Validator(h)
     if not v.preValidate():
         sys.stderr.write("\n".join(v.getSummary(details=True, stats=True)))

@@ -47,7 +47,7 @@ class Generator(object):
         The main generation method.
         @note: To be reimplemented by sub-classes
         """
-        pass
+        raise NotImplementedError("Genrators must define the generate() method")
 
     def addWarning(self, element, msg):
         """
