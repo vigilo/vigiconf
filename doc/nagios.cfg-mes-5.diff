@@ -1,6 +1,6 @@
 diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
---- /etc/nagios.orig/nagios.cfg	2010-07-01 14:58:13.000000000 +0200
-+++ /etc/nagios/nagios.cfg	2010-07-01 15:19:38.000000000 +0200
+--- /etc/nagios.orig/nagios.cfg	2009-05-13 11:28:49.000000000 +0200
++++ /etc/nagios/nagios.cfg	2010-07-05 15:27:43.000000000 +0200
 @@ -46,16 +46,23 @@
  #cfg_file=/etc/nagios/objects/printer.cfg
  
@@ -83,6 +83,17 @@ diff -Nru /etc/nagios.orig/nagios.cfg /etc/nagios/nagios.cfg
  
 -process_performance_data=0
 +process_performance_data=1
+ 
+ 
+ 
+@@ -841,8 +848,8 @@
+ # define in your host configuration file.  Read the HTML docs for
+ # more information on performance data.
+ 
+-#host_perfdata_command=process-host-perfdata
+-#service_perfdata_command=process-service-perfdata
++host_perfdata_command=process-host-perfdata
++service_perfdata_command=process-service-perfdata
  
  
  
@@ -186,11 +197,11 @@ diff -Nru /etc/nagios.orig/vigilo.cfg /etc/nagios/vigilo.cfg
 +}
 +define command{
 +	command_name    process-service-perfdata
-+	command_line    $USER1$/perf2store -p /etc/vigilo/vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
++	command_line    $USER1$/perfdata2vigilo -c /etc/vigilo/perfdata2vigilo/general.conf -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
 +}
 +define command{
 +	command_name    process-host-perfdata
-+	command_line    $USER1$/perf2store -p /etc/vigilo/vigiconf/prod/perfdata/ -H '$HOSTNAME$' -s 'HOST' -a '$HOSTSTATE$' -t '$LASTHOSTCHECK$' -v '$HOSTPERFDATA$'
++	command_line    $USER1$/perfdata2vigilo -c /etc/vigilo/perfdata2vigilo/general.conf -H '$HOSTNAME$' -s '$SERVICEDESC$' -a '$SERVICESTATE$' -t '$LASTSERVICECHECK$' -v '$SERVICEPERFDATA$'
 +}
 +define command{
 +	command_name            Collector
