@@ -409,3 +409,53 @@ diff -Nru /etc/nagios.orig/vigilo.cfg /etc/nagios/vigilo.cfg
 +	register                        0       ; DONT REGISTER THIS DEFINITION - ITS NOT A REAL SERVICE, JUST A TEMPLATE!
 +}
 +
+diff -Nru /etc/httpd/conf/webapps.d.old/nagios.conf /etc/httpd/conf/webapps.d/nagios.conf
+--- /etc/httpd/conf/webapps.d.old/nagios.conf	2010-07-05 11:22:38.000000000 +0200
++++ /etc/httpd/conf/webapps.d/nagios.conf	2010-07-05 11:22:56.000000000 +0200
+@@ -6,32 +6,32 @@
+ 
+     <Directory /usr/lib64/nagios/cgi>
+         Options ExecCGI
+-        order deny,allow
+-        deny from all
+-        allow from 127.0.0.1
++	Order allow,deny
++        allow from all
+ 	ErrorDocument 403 "Access denied per /etc/httpd/conf/webapps.d/nagios.conf"
+ 	AuthType Basic
+ 	AuthUserFile /etc/nagios/passwd
+-	AuthGroupFile /etc/nagios/group
+-	AuthName "Nagios Access"
+-	Require group nagios
+-	Satisfy Any
++	AuthName "login/passwd: nagios/XXXXXXXX"
++	Require valid-user
++	#AuthGroupFile /etc/nagios/group
++	#Require group nagios
++	#Satisfy Any
+     </Directory>
+ 
+     Alias /nagios /usr/share/nagios/www
+ 
+     <Directory /usr/share/nagios/www>
+         Options None
+-        order deny,allow
+-        deny from all
+-        allow from 127.0.0.1
++	Order allow,deny
++        allow from all
+ 	ErrorDocument 403 "Access denied per /etc/httpd/conf/webapps.d/nagios.conf"
+ 	AuthType Basic
+ 	AuthUserFile /etc/nagios/passwd
+-	AuthGroupFile /etc/nagios/group
+-	AuthName "Nagios Access"
+-	Require group nagios
+-	Satisfy Any
++	AuthName "login/passwd: nagios/XXXXXXXX"
++	Require valid-user
++	#AuthGroupFile /etc/nagios/group
++	#Require group nagios
++	#Satisfy Any
+     </Directory>
+ 
+ </IfModule>
