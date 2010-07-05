@@ -586,7 +586,7 @@ class Dispatchator(object):
                 if _srv.needsDeployment():
                     _servers.append(_srv)
             if len(_servers) <= 0:
-                LOGGER.info("All servers are up-to-date. Nothing to do.")
+                LOGGER.info(_("All servers are up-to-date. Nothing to do."))
         else: # by default, takes all the servers  
             _servers = self.getServers()
         # 2 - deploy on those servers
@@ -728,9 +728,9 @@ class Dispatchator(object):
                 if _srv.needsRestart():
                     _servers.append(_srv)
                 if _srv.needsDeployment():
-                    LOGGER.info("Server %s should be deployed." % _srv.getName())
+                    LOGGER.info(_("Server %s should be deployed."), _srv.getName())
             if len(_servers) <= 0:
-                LOGGER.info("All servers are up-to-date. No restart needed.")
+                LOGGER.info(_("All servers are up-to-date. No restart needed."))
         else: # by default, takes all the servers  
             _servers = self.getServers()
         # do the operations
@@ -801,15 +801,15 @@ class Dispatchator(object):
                 _deploymentStr = ""
                 _restartStr = ""
                 if _srv.needsDeployment():
-                    _deploymentStr = "(should be deployed)"
+                    _deploymentStr = _("(should be deployed)")
                 if _srv.needsRestart():
-                    _restartStr = "(should restart)"
-                print "Revisions for server %s : %s%s%s" % \
-                      (_srv.getName(), str(_srv.getRevisionManager()),
-                       _deploymentStr, _restartStr)
+                    _restartStr = _("(should restart)")
+                print _("Revisions for server %s : %s%s%s") % \
+                        (_srv.getName(), str(_srv.getRevisionManager()),
+                         _deploymentStr, _restartStr)
             except Exception, e:
-                LOGGER.warning("Cannot get revision for server: %s. "
-                               "REASON : %s", _srv.getName(), str(e))
+                LOGGER.warning(_("Cannot get revision for server: %s. "
+                                 "REASON : %s"), _srv.getName(), str(e))
 
 
 
