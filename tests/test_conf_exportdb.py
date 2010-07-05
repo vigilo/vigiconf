@@ -11,11 +11,11 @@ import vigilo.vigiconf.conf as conf
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
-from vigilo.vigiconf.dbexportator import export_conf_db
+from vigilo.vigiconf.dbexportator import export_conf_db, export_ventilation_DB, update_apps_db
 
 from confutil import setup_db, teardown_db, reload_conf
 
-from vigilo.models.tables import Host, SupItemGroup
+from vigilo.models.tables import Host, SupItemGroup, Ventilation, Application
 from vigilo.models.session import DBSession
 from vigilo.models.tables import ConfItem, Service
 
@@ -120,6 +120,20 @@ class ExportDBTest(unittest.TestCase):
         self.assertEquals(h.name, u'localhost')
         self.assertEquals(h.weight, 42)
 
+    def test_export_ventilation_db(self):
+        from vigilo.vigiconf.generator import getventilation
+        update_apps_db()
+        export_conf_db()
+        export_ventilation_DB(getventilation())
+        print DBSession.query(Ventilation).all()
+        #
+        del conf.appsGroupsByServer["trap"]
+        export_ventilation_DB(getventilation())
+        print DBSession.query(Ventilation).all()
+        trap_app = DBSession.query(Application).filter_by(name=u"corrtrap").first()
+        trap_ventil = DBSession.query(Ventilation).filter_by(application=trap_app).count()
+        self.assertEquals(trap_ventil, 0)
+    
 
 if __name__ == '__main__':
     unittest.main()

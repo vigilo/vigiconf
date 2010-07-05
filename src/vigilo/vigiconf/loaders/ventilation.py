@@ -78,6 +78,8 @@ class VentilationLoader(DBLoader):
         DBSession.flush()
 
     def load_conf(self):
+        DBSession.query(Ventilation).delete()
+        DBSession.flush()
         for hostname, serverbyapp in self.ventilation.iteritems():
             host = Host.by_host_name(unicode(hostname))
             
