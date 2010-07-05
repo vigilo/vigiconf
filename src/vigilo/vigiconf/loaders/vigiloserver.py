@@ -68,6 +68,6 @@ class VigiloServerLoader(DBLoader):
                 for vserver in vservers:
                     servers.add(vserver)
         for servername in servers:
-            self.add({"name": servername})
+            self.add({"name": unicode(servername)})
 
 
