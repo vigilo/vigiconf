@@ -89,7 +89,7 @@ class GroupLoader(XMLLoader):
         if not group.has_children():
             return 1
         hchildren = {}
-        for g in group.get_children():
+        for g in group.children:
             hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
         return hchildren
 

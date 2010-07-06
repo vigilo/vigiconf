@@ -121,7 +121,7 @@ class MapGenerator(Generator):
         @param group: groupe
         @type group: C{SupItemGroup}
         """
-        for g in group.get_children():
+        for g in group.children:
             if g.has_children():
                 self.process_mid_group(g, parent=group)
                 self.process_children(g)          
