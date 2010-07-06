@@ -85,13 +85,12 @@ def deploy(args):
     if (args.revision):
         dispatchator.deploy_revision = args.revision
 
-    dispatchator.saveToConfig()
+    stop_after = None
     if args.stop_after_generation:
-        return
-    dispatchator.deploy()
+        stop_after = "generation"
     if args.stop_after_push:
-        return
-    dispatchator.restart()
+        stop_after = "deployment"
+    dispatchator.run(stop_after=stop_after)
 
 def apps(args):
     dispatchator = get_dispatchator(args)

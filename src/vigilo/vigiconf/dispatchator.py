@@ -109,7 +109,7 @@ class Dispatchator(object):
         self.mAppsList = []
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
-        self.deploy_revision = None
+        self.deploy_revision = "HEAD"
         
         self.mode_db = 'commit'
         # mode simulation: on recopie simplement la commande svn pour
@@ -267,17 +267,18 @@ class Dispatchator(object):
         self.getAppsList().sort(reverse=True,
                     cmp=lambda x,y: cmp(x.getPriority(), y.getPriority()))
 
-    #Generate Configuration
-    def generateConfig(self):
+    def generate(self):
         """
-        Generate the configuration files for the servers, using the
-        L{generator} module.
-        
-        Selon l'option --modedb les données sont commitées ou non
-        dans la base de données; ceci afin de retrouver l'état précédent
-        facilement si le déploiement ne se passe pas correctement.
+        Génère la configuration des différents composants, en utilisant le
+        module L{generator}.
+
+        Après génération, la configuration est validée, et en cas de succès les
+        fichiers de configuration de VigiConf sont comittés en SVN
         """
-        # generate conf files
+        self.run_generator()
+        self.validate_generation()
+
+    def run_generator(self):
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir, ignore_errors=True)
         
@@ -285,64 +286,28 @@ class Dispatchator(object):
         if not result:
             raise DispatchatorError("Can't generate configuration")
 
-    def saveToConfig(self):
-        """
-        Generate, validate and commit the last revision of the files via SVN
-        """
-        #Generate Configuration
-        self.generateConfig()
-
-        #Validate Configuration
+    def validate_generation(self):
         for _App in self.getApplications():
             _App.validate(os.path.join(settings["vigiconf"].get("libdir"),
                                        "deploy"))
         LOGGER.info("Validation Successful")
-
         #Commit Configuration
-        self.commitLastRevision()
+        self._svn_commit()
         LOGGER.info("Commit Successful")
-    
-    
-    def loadRevision(self, revision):
-        """
-        Load a given revision in the configuration directory.
-        """
-        if not settings["vigiconf"].get("svnrepository", False):
-            raise DispatchatorError(
-                    _("Not revision load because the 'svnrepository' "
-                      "configuration parameter is empty"))
-                
-        _cmd = self._get_auth_svn_cmd_prefix('update')
-        _cmd.extend(['--revision', revision])
-        _cmd.append(settings["vigiconf"].get("svnrepository"))
-        _cmd.append(settings["vigiconf"].get("confdir"))
-        _command = self.createCommand(_cmd)
-        
-        if self.simulate:
-            self.svn_cmd = _cmd
-        
-        try:
-            _command.execute()
-        except SystemCommandError, e:
-            raise DispatchatorError(
-                    _("Can't load revision %s: %s")
-                      % (revision, e.value))
-        
-    
-    def commitLastRevision(self):
-        """
-        Commit the last revision of the files via SVN
-        @return: the number of the revision
-        @rtype: C{int}
-        """
-        if not settings["vigiconf"].get("svnrepository", False):
-            LOGGER.warning("Not committing because the 'svnrepository' "
-                           "configuration parameter is empty")
-            return 0
-        self._svn_sync_local_copy()
-        return self._svn_commit()
 
-    def _svn_sync_local_copy(self):
+    def prepare_svn(self):
+        """
+        Prepare the configuration dir (it's an SVN working directory)
+        """
+        status = self._svn_status()
+        if self.deploy_revision != "HEAD":
+            if status["add"] or status["remove"]:
+                raise DispatchatorError(_("You can't go back to a former "
+                    "revision if you have modified your configuration. "
+                    "Use 'svn revert' to cancel your modifications"))
+        self._svn_sync(status)
+
+    def _svn_status(self):
         _cmd = self._get_auth_svn_cmd_prefix('status')
         _cmd.append("--xml")
         _cmd.append(settings["vigiconf"].get("confdir"))
@@ -356,12 +321,27 @@ class Dispatchator(object):
         if not _command.getResult():
             return
         output = ET.fromstring(_command.getResult())
+        status = {"add": [], "remove": []}
         for entry in output.findall(".//entry"):
             status = entry.find("wc-status").get("item")
             if status == "unversioned":
-                self._svn_add(entry.get("path"))
+                status["add"].append(entry.get("path"))
             elif status == "missing":
-                self._svn_remove(entry.get("path"))
+                status["remove"].append(entry.get("path"))
+        return status
+
+    def _svn_sync(self, status=None):
+        if not settings["vigiconf"].get("svnrepository", False):
+            LOGGER.warning("Not updating because the 'svnrepository' "
+                           "configuration parameter is empty")
+            return 0
+        if status is None:
+            status = self._svn_status()
+        for item in status["add"]:
+            self._svn_add(item)
+        for item in status["remove"]:
+            self._svn_remove(item)
+        self._svn_update()
 
     def _svn_add(self, path):
         LOGGER.debug(_("Adding new conf file in SVN: %s"), path)
@@ -388,6 +368,10 @@ class Dispatchator(object):
                       % (path, e.value))
     
     def _svn_commit(self):
+        if not settings["vigiconf"].get("svnrepository", False):
+            LOGGER.warning("Not committing because the 'svnrepository' "
+                           "configuration parameter is empty")
+            return 0
         confdir = settings["vigiconf"].get("confdir")
         _cmd = self._get_auth_svn_cmd_prefix('ci')
         _cmd.extend(["-m", "Auto generate configuration %s" % confdir])
@@ -401,6 +385,21 @@ class Dispatchator(object):
                       % e.value)
         return self.getLastRevision()
     
+    def _svn_update(self):
+        """
+        Updates the local copy of the repository
+        """
+        _cmd = self._get_auth_svn_cmd_prefix('update')
+        _cmd.extend(["-r", str(self.deploy_revision)])
+        _cmd.append(settings["vigiconf"].get("confdir"))
+        _command = self.createCommand(_cmd)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError("Can't execute the request to update the "
+                                   +"local copy. COMMAND %s FAILED. REASON: %s"
+                                   % (" ".join(_cmd), e.value) )
+
     
     def _get_auth_svn_cmd_prefix(self, svn_cmd):
         """
@@ -446,27 +445,6 @@ class Dispatchator(object):
             res = entry.get("revision", res)
         return int(res)
 
-    def updateLocalCopy(self, iRevision):
-        """
-        Updates the local copy of the repository
-        @param iRevision: SVN revision to update to
-        @type  iRevision: C{int}
-        """
-        if not settings["vigiconf"].get("svnrepository", False):
-            LOGGER.warning("Not updating because the 'svnrepository' "
-                           "configuration parameter is empty")
-            return 0
-        _cmd = self._get_auth_svn_cmd_prefix('update')
-        _cmd.extend(["-r", str(iRevision)])
-        _cmd.append(settings["vigiconf"].get("confdir"))
-        _command = self.createCommand(_cmd)
-        try:
-            _command.execute()
-        except SystemCommandError, e:
-            raise DispatchatorError("Can't execute the request to update the "
-                                   +"local copy. COMMAND %s FAILED. REASON: %s"
-                                   % (_cmd, e.value) )
-
     def manageReturnQueue(self):
         """
         Manage the data in the return queue. Syslogs all the items.
@@ -506,15 +484,9 @@ class Dispatchator(object):
         @param iRevision: SVN revision number
         @type  iRevision: C{int}
         """
-        try:
-            if len(iServers) > 0:
-                ## update the local files
-                self.updateLocalCopy(iRevision)
-                ## generate the deployment directory
-                self.generateConfig()
-                self.threadedDeployFiles(iServers, iRevision)
-        except DispatchatorError, e:
-            raise e
+        if not iServers:
+            return
+        self.threadedDeployFiles(iServers, iRevision)
 
     def threadedDeployFiles(self, iServers, iRevision):
         """
@@ -568,21 +540,11 @@ class Dispatchator(object):
         Does a full deployment: deploy files, qualify files
         """
         _servers = []
-        
-        if self.deploy_revision:
-            # deploiment d'une révision donnée
-            self.loadRevision(self.deploy_revision)
-            _revision = self.deploy_revision
-        else:
-            # get the last revision on SVN
-            _revision = self.getLastRevision()
-            
         # 1 - build a list of servers that requires deployment
         if self.getModeForce() == False: 
             for _srv in self.getServers():
-                # TODO: si deploy_revision, faire quelque chose
                 _srv.updateRevisionManager()
-                _srv.getRevisionManager().setSubversion(_revision)
+                _srv.getRevisionManager().setSubversion(self.deploy_revision)
                 if _srv.needsDeployment():
                     _servers.append(_srv)
             if len(_servers) <= 0:
@@ -590,7 +552,7 @@ class Dispatchator(object):
         else: # by default, takes all the servers  
             _servers = self.getServers()
         # 2 - deploy on those servers
-        self.deploysOnServers(_servers, _revision)
+        self.deploysOnServers(_servers, self.deploy_revision)
         # 3 - qualify deployed configurations
         self.qualifyOnServers(_servers)
 
@@ -719,12 +681,11 @@ class Dispatchator(object):
     def restart(self):
         """Does a full restart on all the servers"""
         _servers = []
-        _revision = self.getLastRevision() # get the last revision on SVN
         # 1 - build a list of servers that requires restart
         if self.getModeForce() == False: 
             for _srv in self.getServers():
                 _srv.updateRevisionManager()
-                _srv.getRevisionManager().setSubversion(_revision)
+                _srv.getRevisionManager().setSubversion(self.deploy_revision)
                 if _srv.needsRestart():
                     _servers.append(_srv)
                 if _srv.needsDeployment():
@@ -811,6 +772,15 @@ class Dispatchator(object):
                 LOGGER.warning(_("Cannot get revision for server: %s. "
                                  "REASON : %s"), _srv.getName(), str(e))
 
+    def run(self, stop_after=None):
+        self.prepare_svn()
+        self.generate()
+        if stop_after == "generation":
+            return
+        self.deploy()
+        if stop_after == "deployment":
+            return
+        self.restart()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

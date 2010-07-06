@@ -100,7 +100,7 @@ class XMLLoader(DBLoader):
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
         if result != 0:
-            raise ParsingError("XML validation failed (%s/%s)"
+            raise ParsingError("XML validation failed (%s with schema %s)"
                                % (xmlfile, xsd))
     
     def visit_dir(self, dirname):
