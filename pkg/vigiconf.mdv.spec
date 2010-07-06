@@ -21,6 +21,7 @@ Requires:   tar
 Requires:   libxml2-utils
 Requires:   python-argparse
 Requires:   vigilo-models
+Requires:   vigilo-common
 # Pour CorrTrap
 Requires:   sec
 #Buildrequires: graphviz # Documentation generation
