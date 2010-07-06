@@ -51,3 +51,18 @@ class GraphGroupLoader(DBLoader):
         for groupname in groupnames: # déduplication
             self.add({"name": groupname})
 
+#    def update(self, data):
+#        instance = super(GroupLoader, self).update(data)
+#        instance.set_parent(self._current_parent)
+#        DBSession.flush()
+#        return instance
+
+    def insert(self, data):
+        LOGGER.debug("Inserting: %s" % self.get_key(data))
+        # Pour les GraphGroup, il faut utiliser la méthode create()
+        # pour générer correctement le groupe et sa hiérarchie.
+        instance = self._class.create(**data)
+        DBSession.add(instance)
+        self._in_conf[self.get_key(data)] = instance
+        return instance
+

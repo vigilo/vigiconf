@@ -8,6 +8,7 @@ import sys, os, unittest, tempfile, shutil, glob, re
 import vigilo.vigiconf.conf as conf
 import vigilo.vigiconf.generator as generator
 from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.models.tables import MapGroup
 
 from confutil import reload_conf, setup_tmpdir
 from confutil import setup_db, teardown_db
@@ -21,6 +22,7 @@ class Generator(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
+        MapGroup.create(u'Root')
         
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
@@ -63,7 +65,7 @@ class Generator(unittest.TestCase):
         generator.generate()
         nagiosconf = os.path.join(self.basedir,
                                   self.get_supserver(self.host, "nagios"),
-                                  "nagios.cfg")
+                                  "nagios", "nagios.cfg")
         assert os.path.exists(nagiosconf), \
             "Nagios conf file was not generated"
         nagios = open(nagiosconf).read()

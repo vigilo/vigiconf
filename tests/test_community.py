@@ -23,6 +23,8 @@ from vigilo.vigiconf.lib.servertypes.remote import ServerRemote
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import dispatchmodes
 
+from vigilo.models.tables import MapGroup
+
 from confutil import setup_tmpdir, reload_conf
 from confutil import setup_db, teardown_db
 
@@ -33,7 +35,8 @@ class EnterpriseEdition(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        
+        MapGroup.create(u'Root')
+
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
@@ -75,7 +78,7 @@ class EnterpriseEdition(unittest.TestCase):
         self.host.add_tests(test_list)
         generator.generate(self.basedir)
         assert os.path.exists(os.path.join(self.basedir, "sup.example.com",
-                                           "nagios.cfg"))
+                                           "nagios", "nagios.cfg"))
 
     def test_dispatchator_ent(self):
         """The dispatchator instance in E.E. must be remote"""
@@ -112,6 +115,7 @@ class CommunityEdition(unittest.TestCase):
         """Call before every test case."""
         # Prepare temporary directory
         setup_db()
+        MapGroup.create(u'Root')
         
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
@@ -139,7 +143,7 @@ class CommunityEdition(unittest.TestCase):
         self.host.add_tests(test_list)
         generator.generate(self.basedir)
         assert os.path.exists(os.path.join(self.basedir, "localhost",
-                              "nagios.cfg"))
+                              "nagios", "nagios.cfg"))
 
     def test_dispatchator_com(self):
         """The dispatchator instance in C.E. must be local"""

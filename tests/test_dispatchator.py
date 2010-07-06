@@ -6,6 +6,7 @@ Test that the dispatchator works properly
 import sys, os, unittest, tempfile, shutil, glob, re
 
 from vigilo.common.conf import settings
+from vigilo.models.tables import MapGroup
 
 import vigilo.vigiconf.conf as conf
 import vigilo.vigiconf.dispatchator as dispatchator
@@ -22,6 +23,7 @@ class Dispatchator(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
+        MapGroup.create(u'Root')
         
         # Prepare necessary directories
         # TODO: commenter les divers repertoires
