@@ -57,13 +57,13 @@ class Host(object):
     @type classes: C{list} of C{str}
     """
 
-    def __init__(self, hosts, name, ip, servergroup, weight):
+    def __init__(self, hosts, name, address, servergroup, weight):
         self.hosts = hosts
         self.name = name
         self.classes = [ "all" ]
         self.hosts[name] = {
                 "name": name,
-                "mainIP": ip,
+                "address": address,
                 "serverGroup": servergroup,
                 "otherGroups": { servergroup: 1 },
                 "services"       : {},
@@ -653,26 +653,29 @@ class HostFactory(object):
             if event == "start":
                 if elem.tag == "host":
                     inside_test = False
-                    name = get_attrib(elem, 'name')
-                    
+                    address = get_attrib(elem, 'address')
+
                     if deleting_mode:
-                        self.hosts_todelete.append(name)
+                        self.hosts_todelete.append(address)
                         continue
 
-                    ip = get_attrib(elem, 'ip')
-                    group = get_attrib(elem, 'group')
+                    name = get_attrib(elem, 'name')
+                    if not name:
+                        name = address
+                    ventilation = get_attrib(elem, 'ventilation')
                     weight = get_attrib(elem, 'weight')
                     if weight is None:
                         weight = 1
                     else:
                         weight = int(weight)
                     
-                    cur_host = Host(self.hosts, name, ip, group, weight)
+                    cur_host = Host(self.hosts, name, address, ventilation, weight)
                     # TODO: refactoring
-                    #if group not in self.groupsHierarchy:
-                    #    self.groupsHierarchy[group] = set()
+                    #if ventilation not in self.groupsHierarchy:
+                    #    self.groupsHierarchy[ventilation] = set()
                     self.hosttemplatefactory.apply(cur_host, "default")
-                    LOGGER.debug("Loaded host %s, ip %s, group %s" % (name, ip, group))
+                    LOGGER.debug("Loaded host %s, address %s, ventilation %s" %
+                        (name, address, ventilation))
                 elif elem.tag == "test":
                     inside_test = True
                     test_name = get_attrib(elem, 'name')

@@ -66,7 +66,7 @@ class Interface(Test):
                                         "inDisc%s"%label, "outDisc%s"%label ], "lines",
                                         "packets/s", group="Network interfaces")
         if ifname != label:
-            host.add_trap("%s.interfaces" % host.get("mainIP"), ifname, label)
+            host.add_trap("%s.interfaces" % host.get("address"), ifname, label)
 
         # Supervision service
         if warn and crit:

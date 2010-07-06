@@ -89,7 +89,7 @@ Data Model
         - I{community}: an SNMP v1 or v2 community name, if applicable
         - I{cti}: the (Category Type Item) classification of this host
         - I{hostTPL}: the Nagios template to use for this host
-        - I{mainIP}: the main IP address to use when talking with this host
+        - I{address}: the address to use when talking with this host
         - I{name}: short name of the host (must be unique)
         - I{serverGroup}: the main group this host belongs to. The ownership
           will determine the group of supervision servers on which it will be

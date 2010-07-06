@@ -65,7 +65,7 @@ class ParseHost(unittest.TestCase):
     def test_host(self):
         """Test the parsing of a basic host declaration"""
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -73,15 +73,15 @@ class ParseHost(unittest.TestCase):
                 "host is not properly parsed"
         assert conf.hostsConf["testserver1"]["name"] == "testserver1", \
                 "host name is not properly parsed"
-        assert conf.hostsConf["testserver1"]["mainIP"] == "192.168.1.1", \
-                "host IP is not properly parsed"
+        assert conf.hostsConf["testserver1"]["address"] == "192.168.1.1", \
+                "host address is not properly parsed"
         assert conf.hostsConf["testserver1"]["serverGroup"] == "Servers", \
                 "host main group is not properly parsed"
 
     def test_host_whitespace(self):
         """Test the handling of whitespaces in a basic host declaration"""
         self.host.write("""<?xml version="1.0"?>
-        <host name=" testserver1 " ip=" 192.168.1.1 " group=" Servers ">
+        <host name=" testserver1 " address=" 192.168.1.1 " ventilation=" Servers ">
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -90,7 +90,7 @@ class ParseHost(unittest.TestCase):
 
     def test_template(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <template>linux</template>
         </host>""")
         self.host.close()
@@ -100,7 +100,7 @@ class ParseHost(unittest.TestCase):
 
     def test_template_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <template> linux </template>
         </host>""")
         self.host.close()
@@ -111,7 +111,7 @@ class ParseHost(unittest.TestCase):
 
     def test_attribute(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <attribute name="cpulist">2</attribute>
         </host>""")
         self.host.close()
@@ -122,7 +122,7 @@ class ParseHost(unittest.TestCase):
 
     def test_attribute_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <attribute name=" cpulist "> 2 </attribute>
         </host>""")
         self.host.close()
@@ -133,7 +133,7 @@ class ParseHost(unittest.TestCase):
 
     def test_tag_host(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <tag service="Host" name="important">2</tag>
         </host>""")
         self.host.close()
@@ -145,7 +145,7 @@ class ParseHost(unittest.TestCase):
 
     def test_tag_service(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <tag service="UpTime" name="important">2</tag>
         </host>""")
         self.host.close()
@@ -157,7 +157,7 @@ class ParseHost(unittest.TestCase):
 
     def test_tag_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <tag service=" Host " name=" important "> 2 </tag>
         </host>""")
         self.host.close()
@@ -172,7 +172,7 @@ class ParseHost(unittest.TestCase):
 
     def test_trap(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <trap service="test.add_trap" key="test.name">test.label</trap>
         </host>""")
         self.host.close()
@@ -183,7 +183,7 @@ class ParseHost(unittest.TestCase):
 
     def test_trap_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <trap service=" test.add_trap " key=" test.name "> test.label </trap>
         </host>""")
         self.host.close()
@@ -196,7 +196,7 @@ class ParseHost(unittest.TestCase):
 
     def test_group(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <group>Linux servers</group>
         </host>""")
         self.host.close()
@@ -206,7 +206,7 @@ class ParseHost(unittest.TestCase):
 
     def test_group_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <group> Linux servers </group>
         </host>""")
         self.host.close()
@@ -216,7 +216,7 @@ class ParseHost(unittest.TestCase):
 
     def test_test(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <test name="Interface">
             <arg name="label">eth0</arg>
             <arg name="ifname">eth0</arg>
@@ -229,7 +229,7 @@ class ParseHost(unittest.TestCase):
 
     def test_test_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <test name=" Interface ">
             <arg name=" label "> eth0 </arg>
             <arg name=" ifname "> eth0 </arg>
@@ -244,7 +244,7 @@ class ParseHost(unittest.TestCase):
         """Ajout d'un test auquel il manque des arguments sur un hôte."""
         # Le test "TCP" nécessite normalement un argument "port".
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <test name="TCP"/>
         </host>""")
         self.host.close()
@@ -259,7 +259,7 @@ class ParseHost(unittest.TestCase):
         """Ajout d'un test avec trop d'arguments sur un hôte."""
         # Le test "TCP" n'accepte pas d'argument "unknown".
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ip="192.168.1.1" group="Servers">
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <test name="TCP">
             <arg name="port">1234</arg>
             <arg name="unknown_arg"> ... </arg>

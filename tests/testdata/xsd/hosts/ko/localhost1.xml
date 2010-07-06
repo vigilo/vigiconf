@@ -5,7 +5,7 @@
 no hosts container element
 -->
 
-<host name="localhost" ip="127.0.0.1" group="P-F">
+<host name="localhost" address="127.0.0.1" ventilation="P-F">
     <class>linux</class>
     <class>ucd</class>
     <template>linux</template>

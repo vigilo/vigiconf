@@ -119,14 +119,18 @@ hosts element contains one ore more host elements
                     <xs:element name="group" type="xs:string"/>
                 </xs:choice>
 
-                <!-- Nom de l'hôte (FQDN). -->
-                <xs:attribute name="name" type="xs:string" use="required"/>
+                <!--
+                    Libellé de l'hôte.
+                    Si cet attribut est omis, la valeur de l'attribut "address"
+                    est automatiquement utilisée.
+                -->
+                <xs:attribute name="name" type="xs:string" use="optional"/>
 
-                <!-- Adresse IP de l'hôte. -->
-                <xs:attribute name="ip" type="IPType" use="required"/>
+                <!-- Adresse de l'hôte (IP ou FQDN). -->
+                <xs:attribute name="address" type="xs:string" use="required"/>
 
                 <!-- Groupe utilisé pour ventiler l'hôte. -->
-                <xs:attribute name="group" type="xs:string" use="required"/>
+                <xs:attribute name="ventilation" type="xs:string" use="required"/>
 
                 <!-- Poids accordé à l'hôte (entier strictement positif). -->
                 <xs:attribute name="weight" type="xs:positiveInteger"/>

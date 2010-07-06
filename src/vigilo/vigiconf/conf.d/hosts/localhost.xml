@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <hosts>
-<host name="localhost" ip="127.0.0.1" group="Servers">
+<host name="localhost" address="127.0.0.1" ventilation="Servers">
     <class>linux</class>
     <class>ucd</class>
     <template>linux</template>
