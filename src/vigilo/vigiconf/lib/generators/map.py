@@ -77,9 +77,9 @@ class MapGenerator(Generator):
         self.map_defaults = conf.param_maps_auto['AutoMap']['map_defaults']
 
     def get_root_group(self):
-        for group in MapGroup.get_top_groups():
-            if group.name == self.rootgroup_name:
-                return group
+        root = MapGroup.by_parent_and_name(None, unicode(self.rootgroup_name))
+        if root:
+            return root
         raise KeyError("The map group %s has not been added by the install procedure"
                        % self.rootgroup_name)
 

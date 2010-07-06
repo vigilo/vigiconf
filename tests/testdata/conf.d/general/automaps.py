@@ -13,7 +13,7 @@ param_maps_auto = {
            'lls_icon': 'applications-system'
         }
     },
-                   
+
     'BasicAutoMap': {
         'parent_topgroup': "Groupes",
     }
