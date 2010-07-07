@@ -52,3 +52,56 @@ def get_attrib(elem, attr):
             return None
         return attrib
 
+def parse_path(path):
+    """
+    Analyse le contenu d'un chemin d'accès et retourne
+    une liste de ses composantes.
+
+    @param path: Chemin d'accès relatif ou absolu.
+    @type path: C{basestr}
+    @return: Ensemble des composantes du chemin d'accès
+        ou None si L{path} ne représente pas un chemin
+        d'accès valide.
+    @rtype: C{set} ou C{None}
+    """
+    parts = []
+
+    # On refuse les chemins d'accès vides.
+    if not path:
+        return None
+
+    if path[0] == '/':
+        path = path[1:]
+    it = iter(path)
+
+    try:
+        portion = ""
+        while True:
+            ch = it.next()
+            # Il s'agit d'une séquence d'échappement.
+            if ch == '\\':
+                ch = it.next()
+                # Les seules séquences reconnus sont "\\" et "\/"
+                # pour échapper le caractère d'échappement et le
+                # séparateur des composantes du chemin respectivement.
+                if ch == '/' or ch == '\\':
+                    portion += ch
+                else:
+                    return None
+            # Il s'agit d'un séparateur de chemins.
+            elif ch == '/':
+                if not portion:
+                    return None
+                parts.append(portion)
+                portion = ""
+            # Il s'agit d'un autre caractère (quelconque).
+            else:
+                portion += ch
+    except StopIteration:
+        if portion:
+            parts.append(portion)
+        # Cas où le chemin se termine par un "/".
+        else:
+            return None
+    return parts
+
