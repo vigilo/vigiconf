@@ -70,9 +70,12 @@ class HostLoader(DBLoader):
             # groupes
             LOGGER.debug("Loading groups for host %s", hostname)
 
+            # Rempli à mesure que des groupes sont ajoutés (sorte de cache).
+            hostgroups_new = set()
             hostgroups_old = {}
             for g in host.groups:
                 hostgroups_old[g.get_path()] = g
+                hostgroups_new.add(g)
 
             # Suppression des anciens groupes
             # qui ne sont plus associés à l'hôte.
@@ -84,6 +87,20 @@ class HostLoader(DBLoader):
             for path in hostdata['otherGroups']:
                 if path in hostgroups_old:
                     continue
+
+                # Chemin relatif.
+                if path[0] != '/':
+                    hostgroups = DBSession.query(
+                            SupItemGroup
+                        ).filter(SupItemGroup.name == path
+                        ).all()
+                    for hostgroup in hostgroups:
+                        if hostgroup not in hostgroups_new:
+                            host.groups.append(hostgroup)
+                            hostgroups_new.add(hostgroup)
+                    continue
+
+                # Chemin absolu.
                 parent = None
                 for part in parse_path(path):
                     parent = SupItemGroup.by_parent_and_name(parent, part)
@@ -91,9 +108,10 @@ class HostLoader(DBLoader):
                         LOGGER.error("Could not find a group matching "
                                     "this path: %s", path)
                         break
-                if parent:
+                if parent and parent not in hostgroups_new:
                     host.groups.append(parent)
-            
+                    hostgroups_new.add(parent)
+
             # services
             LOGGER.debug("Loading services for host %s", hostname)
             service_loader = ServiceLoader(host)

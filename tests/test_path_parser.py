@@ -7,11 +7,11 @@ class TestPathParser(unittest.TestCase):
     def test_accept_valid_paths(self):
         """L'analyseur doit interpréter correctement les chemins valides."""
         paths = {
-            'A/B/C':        ['A', 'B', 'C'],
+            'A':            ['A'],
             '/A/B/C':       ['A', 'B', 'C'],
-            r'A\\B':        [r'A\B'],
-            r'A\/B':        [r'A/B'],
-            r'A\\\/B/C':    [r'A\/B', 'C'],    
+            r'/A\\B':        [r'A\B'],
+            r'/A\/B':        [r'A/B'],
+            r'/A\\\/B/C':    [r'A\/B', 'C'],    
         }
         for path, parts in paths.iteritems():
             self.assertEqual(parts, parse_path(path))
@@ -19,10 +19,10 @@ class TestPathParser(unittest.TestCase):
     def test_escapes_sequences_handling(self):
         """L'analyseur doit refuser des séquences inconnues."""
         paths = [
-            r'A\AB',
-            r'A\nB',    # On doit ignorer les séquences d'échappement Python.
-            r'A\rB',
-            r'A\tB',
+            r'/A\AB',
+            r'/A\nB',   # On doit ignorer les séquences d'échappement Python.
+            r'/A\rB',
+            r'/A\tB',
         ]
         for path in paths:
             self.assertEqual(None, parse_path(path))
@@ -32,8 +32,9 @@ class TestPathParser(unittest.TestCase):
         paths = [
             '',         # Chemin vide.
             '/',        # Chemin vide.
-            'A//B',     # Composante de chemin vide.
-            'AB/C/',    # Composante de chemin vide (en fin de chemin).
+            'A/B',      # Chemin relatif contenant plusieurs composantes.
+            '/A//B',    # Composante de chemin vide.
+            '/AB/C/',   # Composante de chemin vide (en fin de chemin).
         ]
         for path in paths:
             self.assertEqual(None, parse_path(path))

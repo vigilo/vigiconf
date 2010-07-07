@@ -70,7 +70,8 @@ def parse_path(path):
     if not path:
         return None
 
-    if path[0] == '/':
+    absolute = (path[0] == '/')
+    if absolute:
         path = path[1:]
     it = iter(path)
 
@@ -103,5 +104,11 @@ def parse_path(path):
         # Cas où le chemin se termine par un "/".
         else:
             return None
+
+    # Un chemin relatif ne peut pas
+    # contenir plusieurs composantes.
+    if len(parts) != 1 and (not absolute):
+        return None
+
     return parts
 
