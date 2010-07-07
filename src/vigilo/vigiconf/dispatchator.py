@@ -322,10 +322,10 @@ class Dispatchator(object):
         output = ET.fromstring(_command.getResult())
         status = {"add": [], "remove": []}
         for entry in output.findall(".//entry"):
-            status = entry.find("wc-status").get("item")
-            if status == "unversioned":
+            state = entry.find("wc-status").get("item")
+            if state == "unversioned":
                 status["add"].append(entry.get("path"))
-            elif status == "missing":
+            elif state == "missing":
                 status["remove"].append(entry.get("path"))
         return status
 
