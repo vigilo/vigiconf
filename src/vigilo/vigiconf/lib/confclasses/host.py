@@ -653,15 +653,15 @@ class HostFactory(object):
             if event == "start":
                 if elem.tag == "host":
                     inside_test = False
-                    address = get_attrib(elem, 'address')
+                    name = get_attrib(elem, 'name')
 
                     if deleting_mode:
-                        self.hosts_todelete.append(address)
+                        self.hosts_todelete.append(name)
                         continue
 
-                    name = get_attrib(elem, 'name')
-                    if not name:
-                        name = address
+                    address = get_attrib(elem, 'address')
+                    if not address:
+                        address = name
                     ventilation = get_attrib(elem, 'ventilation')
                     weight = get_attrib(elem, 'weight')
                     if weight is None:
