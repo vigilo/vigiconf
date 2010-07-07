@@ -55,7 +55,6 @@ class GeneratorManager(object):
     def generate(self, h, v):
         """Execute each subclass' generate() method"""
         for entry in working_set.iter_entry_points("vigilo.vigiconf.generators"):
-            # Charge les tables spécifiques
             genclass = entry.load()
             generator = genclass(h, v)
             generator.generate()
