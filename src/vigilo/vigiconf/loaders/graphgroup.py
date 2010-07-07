@@ -51,11 +51,11 @@ class GraphGroupLoader(DBLoader):
         for groupname in groupnames: # déduplication
             self.add({"name": groupname})
 
-#    def update(self, data):
-#        instance = super(GroupLoader, self).update(data)
-#        instance.set_parent(self._current_parent)
-#        DBSession.flush()
-#        return instance
+    def update(self, data):
+        instance = super(GroupLoader, self).update(data)
+        instance.set_parent(self._current_parent)
+        DBSession.flush()
+        return instance
 
     def insert(self, data):
         LOGGER.debug("Inserting: %s" % self.get_key(data))
