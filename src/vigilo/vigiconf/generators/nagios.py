@@ -122,11 +122,11 @@ class NagiosTpl(FileGenerator):
     def __fillgroups(self, hostname, newhash, files):
         """Fill the groups in the configuration file"""
         h = conf.hostsConf[hostname]
-        if h.has_key("otherGroups") and len(h['otherGroups']):
-            newhash['hostGroups'] = "hostgroups %s" \
-                                    % ','.join(h['otherGroups'].keys())
+        if h.get("otherGroups", None):
+            newhash['hostGroups'] = "hostgroups %s" % \
+                ','.join(h['otherGroups'])
             # builds a list of all groups memberships
-            for i in h['otherGroups'].keys():
+            for i in h['otherGroups']:
                 if i not in files[self.fileName]:
                     files[self.fileName][i] = 1
                     self.templateAppend(self.fileName,
@@ -135,13 +135,7 @@ class NagiosTpl(FileGenerator):
                                      "hostgroupAlias": conf.hostsGroups[i]})
         else:
             newhash['hostGroups'] = "# no hostgroups defined"
-        # WARNING: Ugly hack, use a hard-coded membership in an group to
-        # make notifications silent or not !!!
-        # TODO: use tags
-        if "PrepaInstallation" in h['otherGroups']:
-            newhash['quietOrNot'] = "	notifications_enabled   0"
-        else:
-            newhash['quietOrNot'] = ""
+        newhash['quietOrNot'] = ""
 
     def __getdeps(self, hostname, ventilation):
         """Extract the parents list"""

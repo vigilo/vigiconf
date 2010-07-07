@@ -94,7 +94,7 @@ Data Model
         - I{serverGroup}: the main group this host belongs to. The ownership
           will determine the group of supervision servers on which it will be
           supervised
-        - I{otherGroups}: dict {name: 1} of secondary groups the host belongs to
+        - I{otherGroups}: C{set} of secondary groups the host belongs to
         - I{port}: the SNMP port of the host, is applicable
         - I{routeItems}: unused except in non standard cases (see Nagios
           generator)

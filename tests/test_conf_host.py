@@ -69,7 +69,7 @@ class HostMethods(unittest.TestCase):
     def test_add_group(self):
         """Test for the add_group host method"""
         self.host.add_group("Test Group")
-        assert conf.hostsConf["testserver1"]["otherGroups"].has_key("Test Group"), \
+        assert "Test Group" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "add_group does not work"
 
     def test_add_collector_service(self):

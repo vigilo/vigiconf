@@ -34,6 +34,7 @@ from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE, \
                                                   GRAPH_GROUP_TABLE
 
 from vigilo.vigiconf.lib.dbloader import DBLoader
+from vigilo.vigiconf.lib.confclasses import parse_path
 
 from vigilo.vigiconf import conf
 
@@ -68,13 +69,30 @@ class HostLoader(DBLoader):
             
             # groupes
             LOGGER.debug("Loading groups for host %s", hostname)
-            hostgroups_old = set([ g.name for g in host.groups ])
-            hostgroups_new = set(hostdata['otherGroups'])
-            if hostgroups_old != hostgroups_new:
-                hostgroups = []
-                for og in hostdata['otherGroups']:
-                    hostgroups.append(SupItemGroup.by_group_name(unicode(og)))
-                host.groups = hostgroups
+
+            hostgroups_old = {}
+            for g in host.groups:
+                hostgroups_old[g.get_path()] = g
+
+            # Suppression des anciens groupes
+            # qui ne sont plus associés à l'hôte.
+            for path in hostgroups_old:
+                if path not in hostdata['otherGroups']:
+                    host.groups.pop(hostgroups_old[path])
+
+            # Ajout des nouveaux groupes associés à l'hôte.
+            for path in hostdata['otherGroups']:
+                if path in hostgroups_old:
+                    continue
+                parent = None
+                for part in parse_path(path):
+                    parent = SupItemGroup.by_parent_and_name(parent, part)
+                    if not parent:
+                        LOGGER.error("Could not find a group matching "
+                                    "this path: %s", path)
+                        break
+                if parent:
+                    host.groups.append(parent)
             
             # services
             LOGGER.debug("Loading services for host %s", hostname)

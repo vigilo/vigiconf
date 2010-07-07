@@ -33,7 +33,7 @@ from xml.etree import ElementTree as ET # Python 2.5
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
-from . import get_text, get_attrib
+from . import get_text, get_attrib, parse_path
 from .graph import Graph
 from .. import ParsingError
 
@@ -65,7 +65,7 @@ class Host(object):
                 "name": name,
                 "address": address,
                 "serverGroup": servergroup,
-                "otherGroups": { servergroup: 1 },
+                "otherGroups": set(),
                 "services"       : {},
                 "dataSources"    : {},
                 "PDHandlers"     : {},
@@ -160,8 +160,7 @@ class Host(object):
         @param group_name: the group to be added to
         @type  group_name: C{str}
         """
-        # This should really be a set(), but self.add only handles dicts
-        self.add(self.name, "otherGroups", group_name, 1)
+        self.hosts[self.name]['otherGroups'].add(unicode(group_name))
 
     def add_dependency(self, service="Host", deps=None, options=None, cti=1):
         """
@@ -662,20 +661,33 @@ class HostFactory(object):
                     address = get_attrib(elem, 'address')
                     if not address:
                         address = name
+
                     ventilation = get_attrib(elem, 'ventilation')
+
+                    # Si le groupe indiqué est un chemin contenant
+                    # plusieurs composantes, par exemple: "A/B".
+                    # Alors il est invalide ici.
+                    parts = parse_path(ventilation)
+
+                    # NB: parts peut valoir None si le parsing a échoué.
+                    if not parts or len(parts) > 1:
+                        raise ParsingError("Invalid ventilation group: %s" %
+                            ventilation)
+
                     weight = get_attrib(elem, 'weight')
                     if weight is None:
                         weight = 1
                     else:
-                        weight = int(weight)
-                    
+                        try:
+                            weight = int(weight)
+                        except (TypeError, ValueError):
+                            raise ParsingError("Invalid weight: %r" % weight)
+
                     cur_host = Host(self.hosts, name, address, ventilation, weight)
                     # TODO: refactoring
                     #if ventilation not in self.groupsHierarchy:
                     #    self.groupsHierarchy[ventilation] = set()
                     self.hosttemplatefactory.apply(cur_host, "default")
-                    LOGGER.debug("Loaded host %s, address %s, ventilation %s" %
-                        (name, address, ventilation))
                 elif elem.tag == "test":
                     inside_test = True
                     test_name = get_attrib(elem, 'name')
@@ -735,23 +747,31 @@ class HostFactory(object):
                                       get_text(elem))
                 elif elem.tag == "group":
                     group_name = get_text(elem)
-                    if not group_name:
-                        raise ParsingError('Empty group name')
-
+                    if not parse_path(group_name):
+                        raise ParsingError('Invalid group name (%s)' % group_name)
                     cur_host.add_group(group_name)
-                    # If the secondary group did not exist yet in the main
-                    # group hashmap, add it
-                    server_group = cur_host.get("serverGroup")
-                    # TODO: refactoring
-                    #if group_name not in self.groupsHierarchy[server_group]:
-                    #    self.groupsHierarchy[server_group].add(group_name)
                 elif elem.tag == "todelete":
                     deleting_mode = False
                 elif elem.tag == "nagios":
                     process_nagios = False
                 
                 elif elem.tag == "host":
-                    elem.clear()
+                    ventilation = cur_host.get_attribute('serverGroup')
+                    if not ventilation:
+                        groups = set()
+                        for group in cur_host.get_attribute('otherGroups'):
+                            if group[0] == '/':
+                                groups.add(parse_path(group)[0])
+                        if len(groups) != 1:
+                            raise ParsingError('Found multiple candidates for '
+                                'ventilation group (%r), use the ventilation '
+                                'attribute to select one.' %
+                                ', '.join(map(str, groups)))
+                        ventilation = groups.pop()
 
+                    LOGGER.debug("Loaded host %s, address %s, ventilation %s" %
+                        (cur_host.name, cur_host.get_attribute('address'),
+                        ventilation))
+                    elem.clear()
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
