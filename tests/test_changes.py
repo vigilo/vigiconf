@@ -33,7 +33,7 @@ class ChangeManagementTest(unittest.TestCase):
             snmpcommunity=u'public',
             description=u'my localhost',
             hosttpl=u'template',
-            mainip=u'127.0.0.1',
+            address=u'127.0.0.1',
             snmpport=124,
             weight=44,
         )
@@ -62,7 +62,7 @@ class ChangeManagementTest(unittest.TestCase):
             snmpcommunity=u'public',
             description=u'my localhost',
             hosttpl=u'template',
-            mainip=u'127.0.0.1',
+            address=u'127.0.0.1',
             snmpport=42,
             weight=42,
         )
@@ -73,7 +73,7 @@ class ChangeManagementTest(unittest.TestCase):
             snmpcommunity=u'public',
             description=u'my localhost',
             hosttpl=u'template',
-            mainip=u'127.0.0.1',
+            address=u'127.0.0.1',
             snmpport=42,
             weight=42,
         )

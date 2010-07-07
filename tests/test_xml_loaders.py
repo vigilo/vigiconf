@@ -79,7 +79,7 @@ class DepLoaderTest(XMLLoaderTest):
             snmpcommunity=u'public',
             description=u'My Host 1',
             hosttpl=u'template',
-            mainip=u'127.0.0.1',
+            address=u'127.0.0.1',
             snmpport=1234,
             weight=42,
         )
@@ -90,7 +90,7 @@ class DepLoaderTest(XMLLoaderTest):
             snmpcommunity=u'public',
             description=u'My Host 11',
             hosttpl=u'tSemplate',
-            mainip=u'127.0.0.2',
+            address=u'127.0.0.2',
             snmpport=123,
             weight=43,
         )
@@ -101,7 +101,7 @@ class DepLoaderTest(XMLLoaderTest):
             snmpcommunity=u'public',
             description=u'My Host 12',
             hosttpl=u'template',
-            mainip=u'127.0.0.3',
+            address=u'127.0.0.3',
             snmpport=124,
             weight=44,
         )
@@ -187,7 +187,7 @@ class DepLoaderTest(XMLLoaderTest):
             snmpcommunity=u'public',
             description=u'my localhost',
             hosttpl=u'template',
-            mainip=u'127.0.0.1',
+            address=u'127.0.0.1',
             snmpport=124,
             weight=44,
         )
