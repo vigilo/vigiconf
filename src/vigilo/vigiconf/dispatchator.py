@@ -118,7 +118,6 @@ class Dispatchator(object):
             self.simulate = settings["vigiconf"].as_bool("simulate")
         except KeyError:
             self.simulate = False
-        self.svn_cmd = ""
         
         # initialize applications
         self.listApps()
@@ -313,13 +312,13 @@ class Dispatchator(object):
         _cmd.append(settings["vigiconf"].get("confdir"))
         _command = self.createCommand(_cmd)
         try:
-            _command.execute()
+            result = _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
                     _("Can't get the SVN status for the configuration dir: %s")
                       % e.value)
         if not _command.getResult():
-            return
+            return result
         output = ET.fromstring(_command.getResult())
         status = {"add": [], "remove": []}
         for entry in output.findall(".//entry"):
@@ -349,11 +348,12 @@ class Dispatchator(object):
         _cmd.append(path)
         _command = self.createCommand(_cmd)
         try:
-            _command.execute()
+            result = _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
                     _("Can't add %s in SVN: %s")
                       % (path, e.value))
+        return result
     
     def _svn_remove(self, path):
         LOGGER.debug(_("Removing old conf file from SVN: %s"), path)
@@ -361,11 +361,12 @@ class Dispatchator(object):
         _cmd.append(path)
         _command = self.createCommand(_cmd)
         try:
-            _command.execute()
+            result = _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
                     _("Can't remove %s from SVN: %s")
                       % (path, e.value))
+        return result
     
     def _svn_commit(self):
         if not settings["vigiconf"].get("svnrepository", False):
@@ -394,11 +395,12 @@ class Dispatchator(object):
         _cmd.append(settings["vigiconf"].get("confdir"))
         _command = self.createCommand(_cmd)
         try:
-            _command.execute()
+            result = _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError("Can't execute the request to update the "
                                    +"local copy. COMMAND %s FAILED. REASON: %s"
                                    % (" ".join(_cmd), e.value) )
+        return result
 
     
     def _get_auth_svn_cmd_prefix(self, svn_cmd):

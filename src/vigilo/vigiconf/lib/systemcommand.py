@@ -105,6 +105,7 @@ class SystemCommand(object):
                         "command %s failed with code %s and message: %s" 
                         % (self.getCommand(), self.process.returncode,
                            self.getResult()) )
+        return self.mResult
     
     def integerReturnCode(self):
         """
