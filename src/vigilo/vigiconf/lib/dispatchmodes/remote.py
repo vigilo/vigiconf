@@ -124,8 +124,10 @@ class DispatchatorRemote(Dispatchator):
             return
         for servername in servernames:
             if servername not in self.getServersList():
-                message = _("Invalid server name: %s. Available servers: %s"
-                            % (servername, ", ".join(self.getServersList())))
+                message = _("Invalid server name: %(servername)s. "
+                            "Available servers: %(servers)s") \
+                            % {"servername": servername,
+                               "servers": ", ".join(self.getServersList())}
                 raise KeyError(message)
         self.restrictServersList(servernames)
         self.restrictApplicationsListToServers(servernames)

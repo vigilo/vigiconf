@@ -255,8 +255,11 @@ class Application(object):
                 _command.execute()
             except SystemCommandError, e:
                 error = ApplicationError(
-                            _("%s: validation failed for server '%s': %s")
-                            % (self.getName(), iServer.getName(), e))
+                            _("%(appname)s: validation failed for server "
+                              "'%(servername)s': %(reason)s")
+                            % {"appname": self.getName(),
+                               "servername": iServer.getName(),
+                               "reason": e})
                 error.cause = e
                 raise error
         LOGGER.info("%s : Validation successful for server: %s",

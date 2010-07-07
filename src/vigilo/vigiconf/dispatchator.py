@@ -767,12 +767,15 @@ class Dispatchator(object):
                     _deploymentStr = _("(should be deployed)")
                 if _srv.needsRestart():
                     _restartStr = _("(should restart)")
-                print _("Revisions for server %s : %s%s%s") % \
-                        (_srv.getName(), str(_srv.getRevisionManager()),
-                         _deploymentStr, _restartStr)
+                print _("Revisions for server %(server)s : %(rev)s%(dep)s%(restart)s") % \
+                        {"server": _srv.getName(),
+                         "rev": str(_srv.getRevisionManager()),
+                         "dep": _deploymentStr, "restart": _restartStr}
             except Exception, e:
-                LOGGER.warning(_("Cannot get revision for server: %s. "
-                                 "REASON : %s"), _srv.getName(), str(e))
+                LOGGER.warning(_("Cannot get revision for server: %(server)s. "
+                                 "REASON : %(reason)s"),
+                                 {"server": _srv.getName(),
+                                  "reason": str(e)})
 
     def run(self, stop_after=None):
         self.prepare_svn()
