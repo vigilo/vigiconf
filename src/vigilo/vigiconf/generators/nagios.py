@@ -129,10 +129,16 @@ class NagiosTpl(FileGenerator):
             for i in h['otherGroups']:
                 if i not in files[self.fileName]:
                     files[self.fileName][i] = 1
+                    # @TODO: réfléchir à la gestion des groupes Nagios.
+                    # L'ancien code a été conservé ci-dessous.
                     self.templateAppend(self.fileName,
                                     self.templates["hostgroup"],
                                     {"hostgroupName": i,
-                                     "hostgroupAlias": conf.hostsGroups[i]})
+                                     "hostgroupAlias": i})
+#                    self.templateAppend(self.fileName,
+#                                    self.templates["hostgroup"],
+#                                    {"hostgroupName": i,
+#                                     "hostgroupAlias": conf.hostsGroups[i]})
         else:
             newhash['hostGroups'] = "# no hostgroups defined"
         newhash['quietOrNot'] = ""
