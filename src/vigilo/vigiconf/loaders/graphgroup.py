@@ -52,8 +52,7 @@ class GraphGroupLoader(DBLoader):
             self.add({"name": groupname})
 
     def update(self, data):
-        instance = super(GroupLoader, self).update(data)
-        instance.set_parent(self._current_parent)
+        instance = super(GraphGroupLoader, self).update(data)
         DBSession.flush()
         return instance
 
