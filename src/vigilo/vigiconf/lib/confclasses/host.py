@@ -670,7 +670,7 @@ class HostFactory(object):
                     parts = parse_path(ventilation)
 
                     # NB: parts peut valoir None si le parsing a échoué.
-                    if not parts or len(parts) > 1:
+                    if ventilation and (not parts or len(parts) > 1):
                         raise ParsingError("Invalid ventilation group: %s" %
                             ventilation)
 
@@ -768,10 +768,14 @@ class HostFactory(object):
                                 'attribute to select one.' %
                                 ', '.join(map(str, groups)))
                         ventilation = groups.pop()
+                        cur_host.set_attribute('serverGroup', ventilation)
 
-                    LOGGER.debug("Loaded host %s, address %s, ventilation %s" %
-                        (cur_host.name, cur_host.get_attribute('address'),
-                        ventilation))
+                    LOGGER.debug("Loaded host %(host)s, address %(address)s, "
+                                "ventilation %(ventilation)s", {
+                            'host': cur_host.name,
+                            'address': cur_host.get_attribute('address'),
+                            'ventilation': ventilation,
+                        })
                     elem.clear()
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
