@@ -60,10 +60,5 @@ class Dispatchator(unittest.TestCase):
         revs.close()
         self.dispatchator.restart()
 
-    def test_save(self):
-        """Globally test saving"""
-        self.dispatchator.saveToConfig()
-
-
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
