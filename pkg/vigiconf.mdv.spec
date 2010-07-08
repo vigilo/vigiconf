@@ -24,6 +24,22 @@ Requires:   vigilo-models
 Requires:   vigilo-common
 # Pour CorrTrap
 Requires:   sec
+######### Dependance from python dependance tree ########
+Requires:   python-argparse
+Requires:   python-babel
+Requires:   python-configobj
+Requires:   python-paste
+Requires:   python-pastedeploy
+Requires:   python-pastescript
+Requires:   python-psycopg2
+Requires:   python-setuptools
+Requires:   python-sqlalchemy
+Requires:   python-transaction
+Requires:   vigilo-common
+Requires:   vigilo-models
+Requires:   vigilo-vigiconf
+Requires:   python-zope-interface
+Requires:   python-zope.sqlalchemy
 #Buildrequires: graphviz # Documentation generation
 Buildarch:  noarch
 
