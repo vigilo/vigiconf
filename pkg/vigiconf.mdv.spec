@@ -74,20 +74,19 @@ make install \
 
 # Listed explicitely in %%files as %%config:
 grep -v '^%{_sysconfdir}' INSTALLED_FILES \
-	| grep -v '^%{_localstatedir}/lib/vigilo/vigiconf' \
+	| grep -v '^%{_localstatedir}/lib/vigilo/%{module}' \
 	> INSTALLED_FILES.filtered
 mv -f INSTALLED_FILES.filtered INSTALLED_FILES
 
 
 %pre
-groupadd vigiconf >/dev/null 2>&1 || :
-useradd -s /bin/bash -M -d / -g vigiconf -c 'Vigilo VigiConf user' vigiconf >/dev/null 2>&1 || :
+%_pre_useradd %{module} %{_localstatedir}/lib/vigilo/%{module} /bin/bash
 
 %post
-if [ ! -f %{_sysconfdir}/vigilo/vigiconf/ssh/vigiconf.key ]; then
-    ssh-keygen -t rsa -f %{_sysconfdir}/vigilo/vigiconf/ssh/vigiconf.key -N "" > /dev/null 2>&1 || :
+if [ ! -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key ]; then
+    ssh-keygen -t rsa -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key -N "" > /dev/null 2>&1 || :
 fi
-chown vigiconf:vigiconf %{_sysconfdir}/vigilo/vigiconf/ssh/vigiconf.key
+chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
 
 
 %clean
@@ -97,18 +96,18 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc COPYING doc/*
 %dir %{_sysconfdir}/vigilo
-%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/
-%config(noreplace) %attr(640,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/settings.ini
-%config(noreplace) %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/conf.d
-%config(noreplace) %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/ssh
-%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/new
-%dir %attr(-,vigiconf,vigiconf) %{_sysconfdir}/vigilo/vigiconf/prod
-%{_sysconfdir}/vigilo/vigiconf/conf.d.example
-%{_sysconfdir}/vigilo/vigiconf/README.source
+%dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/
+%config(noreplace) %attr(640,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/settings.ini
+%config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/conf.d
+%config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/ssh
+%dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/new
+%dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/prod
+%{_sysconfdir}/vigilo/%{module}/conf.d.example
+%{_sysconfdir}/vigilo/%{module}/README.source
 %config(noreplace) /etc/cron.d/*
 %dir %{_localstatedir}/lib/vigilo
-%attr(-,vigiconf,vigiconf) %{_localstatedir}/lib/vigilo/vigiconf
-%attr(-,vigiconf,vigiconf) %{_localstatedir}/lock/vigilo-vigiconf
+%attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
+%attr(-,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
 
 
 %changelog
