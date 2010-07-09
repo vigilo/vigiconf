@@ -125,17 +125,16 @@ class HostMethods(unittest.TestCase):
                  'vars': ["GET/.1.3.6.1.2.1.1.3.0"], 'reRouteFor': \
                  {'host':"testserver1", "service" : "TestAddCSReRoute"}}, \
                 "add_collector_service ReRouting does not work with the SNMPJobs sub-hashmap"
-    
+
     def test_add_nagios_directive(self):
         """ Test for the add_nagios_directive method
         """
         host = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers", 42)
         host.add_nagios_directive("max_check_attempts", "5")
-        self.assertEquals(conf.hostsConf["testserver2"]["nagiosDirectives"]["max_check_attempts"],
-                          "5")
-                
+        self.assertEquals(
+            conf.hostsConf["testserver2"]["nagiosDirectives"]["max_check_attempts"],
+            "5")
 
-    
     def test_add_nagios_service_directive(self):
         """ Test for the add_nagios_service_directive method
         """

@@ -21,5 +21,4 @@ class HostXSD(XSDTest):
     xml_ko_files = {"tests/testdata/xsd/hosts/ko":[
                                     "localhost1.xml",
                                     "example_nagios_spec2.xml",
-                                    "missing_weight_attribute.xml",
                                     ]}

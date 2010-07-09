@@ -24,19 +24,25 @@ class ValidateXSD(unittest.TestCase):
 
     def test_host(self):
         """Validate the provided hosts against the XSD"""
+        devnull = open("/dev/null", "w")
         hosts = glob.glob(os.path.join(self.hdir, "*.xml"))
         for host in hosts:
             valid = subprocess.call(["xmllint", "--noout", "--schema",
-                                    os.path.join(self.dtddir, "host.xsd"), host])
-            assert valid == 0, "Validation of host \"%s\" failed" % os.path.basename(host)
+                                    os.path.join(self.dtddir, "host.xsd"), host],
+                                    stdout=devnull, stderr=subprocess.STDOUT)
+            self.assertEquals(valid, 0, "Validation of host \"%s\" failed" % os.path.basename(host))
+        devnull.close()
 
     def test_hosttemplate(self):
         """Validate the provided hosttemplatess against the XSD"""
+        devnull = open("/dev/null", "w")
         hts = glob.glob(os.path.join(self.htdir, "*.xml"))
         for ht in hts:
             valid = subprocess.call(["xmllint", "--noout", "--schema",
-                                    os.path.join(self.dtddir, "hosttemplate.xsd"), ht])
-            assert valid == 0, "Validation of hosttemplate \"%s\" failed" % os.path.basename(ht)
+                                    os.path.join(self.dtddir, "hosttemplate.xsd"), ht],
+                                    stdout=devnull, stderr=subprocess.STDOUT)
+            self.assertEquals(valid, 0, "Validation of hosttemplate \"%s\" failed" % os.path.basename(ht))
+        devnull.close()
 
 
 class ParseHost(unittest.TestCase):
@@ -383,6 +389,42 @@ class ParseHost(unittest.TestCase):
             conf.hostfactory._loadhosts,
             os.path.join(self.tmpdir, "hosts", "host.xml")
         )
+
+    def test_host_weight(self):
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" weight="42">
+            <group>/Servers/Linux servers</group>
+        </host>""")
+        self.host.close()
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        self.assert_("weight" in conf.hostsConf["testserver1"],
+                     "L'attribut weight n'est pas chargé")
+        self.assertEquals(conf.hostsConf["testserver1"]["weight"], 42,
+                          "L'attribut weight n'a pas la bonne valeur")
+
+    def test_host_weight_default(self):
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1">
+            <group>/Servers/Linux servers</group>
+        </host>""")
+        self.host.close()
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        self.assert_("weight" in conf.hostsConf["testserver1"],
+                     "L'attribut weight n'est pas réglé par défaut")
+        self.assertEquals(conf.hostsConf["testserver1"]["weight"], 1,
+                          "L'attribut weight n'a pas la bonne valeur par défaut")
+
+    def test_host_weight_default(self):
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" weight="invalid">
+            <group>/Servers/Linux servers</group>
+        </host>""")
+        self.host.close()
+        filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
+        self.assertRaises(ParsingError, conf.hostfactory._loadhosts, filepath)
 
 
 class ParseHostTemplate(unittest.TestCase):
