@@ -71,8 +71,10 @@ class ParseHost(unittest.TestCase):
 
     def test_host(self):
         """Test the parsing of a basic host declaration"""
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <group>/Servers/Linux servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -89,6 +91,7 @@ class ParseHost(unittest.TestCase):
         """Test the handling of whitespaces in a basic host declaration"""
         self.host.write("""<?xml version="1.0"?>
         <host name=" testserver1 " address=" 192.168.1.1 " ventilation=" Servers ">
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -98,7 +101,8 @@ class ParseHost(unittest.TestCase):
     def test_template(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <template>linux</template>
+            <template>linux</template>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -108,7 +112,8 @@ class ParseHost(unittest.TestCase):
     def test_template_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <template> linux </template>
+            <template> linux </template>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         try:
@@ -119,7 +124,8 @@ class ParseHost(unittest.TestCase):
     def test_attribute(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <attribute name="cpulist">2</attribute>
+            <attribute name="cpulist">2</attribute>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -130,7 +136,8 @@ class ParseHost(unittest.TestCase):
     def test_attribute_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <attribute name=" cpulist "> 2 </attribute>
+            <attribute name=" cpulist "> 2 </attribute>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -141,7 +148,8 @@ class ParseHost(unittest.TestCase):
     def test_tag_host(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <tag service="Host" name="important">2</tag>
+            <tag service="Host" name="important">2</tag>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -153,7 +161,8 @@ class ParseHost(unittest.TestCase):
     def test_tag_service(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <tag service="UpTime" name="important">2</tag>
+            <tag service="UpTime" name="important">2</tag>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -165,7 +174,8 @@ class ParseHost(unittest.TestCase):
     def test_tag_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <tag service=" Host " name=" important "> 2 </tag>
+            <tag service=" Host " name=" important "> 2 </tag>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         try:
@@ -180,7 +190,8 @@ class ParseHost(unittest.TestCase):
     def test_trap(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <trap service="test.add_trap" key="test.name">test.label</trap>
+            <trap service="test.add_trap" key="test.name">test.label</trap>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -191,7 +202,8 @@ class ParseHost(unittest.TestCase):
     def test_trap_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <trap service=" test.add_trap " key=" test.name "> test.label </trap>
+            <trap service=" test.add_trap " key=" test.name "> test.label </trap>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -205,11 +217,10 @@ class ParseHost(unittest.TestCase):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <group>Linux servers</group>
+            <group>Linux servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        print conf.hostsConf["testserver1"]["otherGroups"]
         assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "The \"group\" tag is not properly parsed"
 
@@ -217,11 +228,10 @@ class ParseHost(unittest.TestCase):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <group> Linux servers </group>
+            <group> Linux servers </group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        print conf.hostsConf["testserver1"]["otherGroups"]
         assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "The \"group\" tag parsing does not strip whitespaces"
 
@@ -231,6 +241,7 @@ class ParseHost(unittest.TestCase):
         <test name="Interface">
             <arg name="label">eth0</arg>
             <arg name="ifname">eth0</arg>
+            <group>/Servers</group>
         </test>
         </host>""")
         self.host.close()
@@ -244,6 +255,7 @@ class ParseHost(unittest.TestCase):
         <test name=" Interface ">
             <arg name=" label "> eth0 </arg>
             <arg name=" ifname "> eth0 </arg>
+            <group>/Servers</group>
         </test>
         </host>""")
         self.host.close()
@@ -255,15 +267,16 @@ class ParseHost(unittest.TestCase):
         """Ventilation en utilisant un groupe explicitement nommé."""
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
-        <host name="foo" address="127.0.0.1" ventilation="Servers">
+        <host name="foo" address="127.0.0.1" ventilation="P-F">
             <arg name="label">eth0</arg>
             <arg name="ifname">eth0</arg>
+            <group>/Servers/Linux servers</group>
         </host>
         """)
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         # L'attribut ventilation a été donné explicitement.
-        self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'Servers')
+        self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'P-F')
 
     def test_ventilation_server_from_abs_groups(self):
         """Ventilation déterminée depuis des groupes avec chemins absolus."""
@@ -303,16 +316,19 @@ class ParseHost(unittest.TestCase):
         assert ('/Servers/AIX servers' in conf.hostsConf['foo']['otherGroups'])
         self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'Servers')
 
-    def test_ventilation_missing_information(self):
-        """Absence d'informations permettant de déterminer la ventilation."""
+    def test_missing_group_association(self):
+        """Hôte associé à aucun groupe opérationnel."""
         self.host.write("""<?xml version="1.0"?>
-        <host name="foo" address="127.0.0.1">
+        <host name="foo" address="127.0.0.1" ventilation="P-F">
             <arg name="label">eth0</arg>
             <arg name="ifname">eth0</arg>
         </host>
         """)
         self.host.close()
-        # Aucune information ne permet de déterminer la ventilation à appliquer.
+        # Un hôte doit toujours être associé à au moins un <group>.
+        # La vérification ne peut pas être faite au niveau du schéma XSD
+        # car on perdrait alors la possibilité d'utiliser un ordre quelconque
+        # pour les balises de définition d'un hôte.
         self.assertRaises(ParsingError, conf.hostfactory._loadhosts,
             os.path.join(self.tmpdir, "hosts", "host.xml"))
 
@@ -338,7 +354,8 @@ class ParseHost(unittest.TestCase):
         # Le test "TCP" nécessite normalement un argument "port".
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <test name="TCP"/>
+            <test name="TCP"/>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         # Une exception TypeError indiquant qu'il n'y pas assez d'arguments
@@ -353,10 +370,11 @@ class ParseHost(unittest.TestCase):
         # Le test "TCP" n'accepte pas d'argument "unknown".
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <test name="TCP">
-            <arg name="port">1234</arg>
-            <arg name="unknown_arg"> ... </arg>
-        </test>
+            <test name="TCP">
+                <arg name="port">1234</arg>
+                <arg name="unknown_arg"> ... </arg>
+            </test>
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         # Une exception TypeError indiquant qu'un paramètre inconnu

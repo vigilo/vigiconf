@@ -769,15 +769,15 @@ class HostFactory(object):
                     process_nagios = False
                 
                 elif elem.tag == "host":
+                    if not len(cur_host.get_attribute('otherGroups')):
+                        raise ParsingError('You must associate host "%s" with '
+                            'at least one group.' % cur_host.name)
+
                     ventilation = cur_host.get_attribute('serverGroup')
                     if not ventilation:
                         groups = set()
                         for group in cur_host.get_attribute('otherGroups'):
-                            if group[0] == '/':
-                                groups.add(parse_path(group)[0])
-                            else:
-                                raise ParsingError('Invalid path. This should '
-                                    'NEVER happen!')
+                            groups.add(parse_path(group)[0])
 
                         if not groups:
                             raise ParsingError('Could not determine how to '
@@ -792,6 +792,7 @@ class HostFactory(object):
                                 ', '.join(map(str, groups)))
                         ventilation = groups.pop()
                         cur_host.set_attribute('serverGroup', ventilation)
+
 
                     LOGGER.debug("Loaded host %(host)s, address %(address)s, "
                                 "ventilation %(ventilation)s", {
