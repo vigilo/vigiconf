@@ -29,7 +29,7 @@ from xml.etree import ElementTree as ET # Python 2.5
 
 from vigilo.common.conf import settings
 
-from . import get_text, get_attrib
+from . import get_text, get_attrib, parse_path
 from .. import ParsingError
 from ..external import topsort
 
@@ -90,6 +90,8 @@ class HostTemplate(object):
         if not self.data.has_key("groups"):
             self.data["groups"] = []
         for group in args:
+            if not parse_path(group):
+                raise ParsingError('Invalid group name (%s)' % group)
             self.data["groups"].append(group)
 
     def add(self,  prop, key, value):

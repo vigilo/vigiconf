@@ -163,7 +163,18 @@ class Host(object):
         @param group_name: the group to be added to
         @type  group_name: C{str}
         """
-        self.hosts[self.name]['otherGroups'].add(unicode(group_name))
+        group_name = unicode(group_name)
+        # Transformation des chemins relatifs
+        # en chemins absolus.
+        if not group_name.startswith('/'):
+            groups = DBSession.query(
+                    SupItemGroup
+                ).filter(SupItemGroup.name == group_name
+                ).all()
+            for group in groups:
+                self.hosts[self.name]['otherGroups'].add(group.get_path())
+        else:
+            self.hosts[self.name]['otherGroups'].add(group_name)
 
     def add_dependency(self, service="Host", deps=None, options=None, cti=1):
         """
@@ -752,17 +763,7 @@ class HostFactory(object):
                     group_name = get_text(elem)
                     if not parse_path(group_name):
                         raise ParsingError('Invalid group name (%s)' % group_name)
-                    # Transformation des chemins relatifs
-                    # en chemins absolus.
-                    if not group_name.startswith('/'):
-                        groups = DBSession.query(
-                                SupItemGroup
-                            ).filter(SupItemGroup.name == unicode(group_name)
-                            ).all()
-                        for group in groups:
-                            cur_host.add_group(group.get_path())
-                    else:
-                        cur_host.add_group(group_name)
+                    cur_host.add_group(group_name)
                 elif elem.tag == "todelete":
                     deleting_mode = False
                 elif elem.tag == "nagios":
@@ -781,15 +782,17 @@ class HostFactory(object):
 
                         if not groups:
                             raise ParsingError('Could not determine how to '
-                                'ventilate host %s. Affect some groups to this '
-                                'host or use the ventilation attribute.' %
+                                'ventilate host "%s". Affect some groups to '
+                                'this host or use the ventilation attribute.' %
                                 cur_host.name)
                                     
                         if len(groups) != 1:
                             raise ParsingError('Found multiple candidates for '
-                                'ventilation group (%r), use the ventilation '
-                                'attribute to select one.' %
-                                ', '.join(map(str, groups)))
+                                'ventilation (%(candidates)r) on "%(host)s", '
+                                'use the ventilation attribute to select one.' % {
+                                    'candidates': ', '.join(map(str, groups)),
+                                    'host': cur_host.name,
+                                })
                         ventilation = groups.pop()
                         cur_host.set_attribute('serverGroup', ventilation)
 
