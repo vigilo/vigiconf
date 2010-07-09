@@ -30,8 +30,8 @@ class VentilatorTest(unittest.TestCase):
         os.mkdir(os.path.join(self.tmpdir, "db"))
         self.basedir = os.path.join(self.tmpdir, "deploy")
         conf.hosttemplatefactory.load_templates()
-        reload_conf()
         setup_db()
+        reload_conf()
     
     def tearDown(self):
         """Call after every test case."""

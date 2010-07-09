@@ -5,19 +5,19 @@ import unittest
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from confutil import reload_conf
-
+from confutil import reload_conf, setup_db, teardown_db
 
 class TestFactory(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
+        setup_db()
         reload_conf()
         self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers", 42)
 
     def tearDown(self):
         """Call after every test case."""
-        pass
+        teardown_db()
 
 
     def test_get_testnames(self):

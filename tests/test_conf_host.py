@@ -5,19 +5,19 @@ import sys, os, unittest, tempfile, shutil, glob
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from confutil import reload_conf
+from confutil import reload_conf, setup_db, teardown_db
 
 class HostMethods(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
+        setup_db()
         reload_conf()
         self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers", 42)
 
     def tearDown(self):
         """Call after every test case."""
-        pass
-
+        teardown_db()
 
     def test_add_metro_service(self):
         """Test for the add_metro_service host method"""
@@ -153,11 +153,12 @@ class HostFactoryMethods(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
+        setup_db()
         reload_conf()
 
     def tearDown(self):
         """Call after every test case."""
-        pass
+        teardown_db()
     
     def test_load(self):
         """ Test of the loading of the conf test hosts

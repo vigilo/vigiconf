@@ -9,9 +9,10 @@ class TestPathParser(unittest.TestCase):
         paths = {
             'A':            ['A'],
             '/A/B/C':       ['A', 'B', 'C'],
-            r'/A\\B':        [r'A\B'],
-            r'/A\/B':        [r'A/B'],
-            r'/A\\\/B/C':    [r'A\/B', 'C'],    
+            '/A/B/C/':      ['A', 'B', 'C'],    # On ignore le "/" final.
+            r'/A\\B':       [r'A\B'],
+            r'/A\/B':       [r'A/B'],
+            r'/A\\\/B/C':   [r'A\/B', 'C'],
         }
         for path, parts in paths.iteritems():
             self.assertEqual(parts, parse_path(path))
@@ -34,7 +35,6 @@ class TestPathParser(unittest.TestCase):
             '/',        # Chemin vide.
             'A/B',      # Chemin relatif contenant plusieurs composantes.
             '/A//B',    # Composante de chemin vide.
-            '/AB/C/',   # Composante de chemin vide (en fin de chemin).
         ]
         for path in paths:
             self.assertEqual(None, parse_path(path))

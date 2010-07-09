@@ -101,9 +101,11 @@ def parse_path(path):
     except StopIteration:
         if portion:
             parts.append(portion)
-        # Cas où le chemin se termine par un "/".
-        else:
-            return None
+
+    # Permet de traiter correctement
+    # le cas où le chemin est '/'.
+    if not parts:
+        return None
 
     # Un chemin relatif ne peut pas
     # contenir plusieurs composantes.

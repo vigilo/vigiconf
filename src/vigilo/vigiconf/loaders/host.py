@@ -101,34 +101,20 @@ class HostLoader(DBLoader):
 
     def _load_groups(self, host, hostdata):
         # Rempli à mesure que des groupes sont ajoutés (sorte de cache).
-        hostgroups_new = set()
-        hostgroups_old = {}
+        hostgroups_cache = {}
         for g in host.groups:
-            hostgroups_old[g.get_path()] = g
-            hostgroups_new.add(g)
+            hostgroups_cache[g.get_path()] = g
 
         # Suppression des anciens groupes
         # qui ne sont plus associés à l'hôte.
-        for path in hostgroups_old:
+        for path in hostgroups_cache:
             if path not in hostdata['otherGroups']:
-                host.groups.remove(hostgroups_old[path])
-                hostgroups_new.remove(hostgroups_old[path])
+                host.groups.remove(hostgroups_cache[path])
+                del hostgroups_cache[path]
 
         # Ajout des nouveaux groupes associés à l'hôte.
         for path in hostdata['otherGroups']:
-            if path in hostgroups_old:
-                continue
-
-            # Chemin relatif.
-            if path[0] != '/':
-                hostgroups = DBSession.query(
-                        SupItemGroup
-                    ).filter(SupItemGroup.name == path
-                    ).all()
-                for hostgroup in hostgroups:
-                    if hostgroup not in hostgroups_new:
-                        host.groups.append(hostgroup)
-                        hostgroups_new.add(hostgroup)
+            if path in hostgroups_cache:
                 continue
 
             # Chemin absolu.
@@ -141,8 +127,7 @@ class HostLoader(DBLoader):
                     break
             if parent and parent not in hostgroups_new:
                 host.groups.append(parent)
-                hostgroups_new.add(parent)
-
+                hostgroups_cache[path] = parent
 
 class ServiceLoader(DBLoader):
     """

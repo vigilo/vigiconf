@@ -5,12 +5,13 @@ import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from confutil import reload_conf
+from confutil import reload_conf, setup_db, teardown_db
 
 class HostTemplates(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
+        setup_db()
         reload_conf()
         # We need to load the templates manually because we're adding a new
         # HostTemplate by hand. See the first lines of
@@ -22,7 +23,7 @@ class HostTemplates(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
-        pass
+        teardown_db()
 
 
     def test_add_test_simple(self):

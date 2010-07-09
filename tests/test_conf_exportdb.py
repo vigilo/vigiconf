@@ -26,9 +26,8 @@ class ExportDBTest(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
-        reload_conf()
         setup_db()
-        
+        reload_conf()        
     
     def tearDown(self):
         """Call after every test case."""

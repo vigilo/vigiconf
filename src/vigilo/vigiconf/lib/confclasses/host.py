@@ -37,6 +37,9 @@ from . import get_text, get_attrib, parse_path
 from .graph import Graph
 from .. import ParsingError
 
+from vigilo.models.session import DBSession
+from vigilo.models.tables import SupItemGroup
+
 class Host(object):
     """
     The Host configuration class.
@@ -749,7 +752,17 @@ class HostFactory(object):
                     group_name = get_text(elem)
                     if not parse_path(group_name):
                         raise ParsingError('Invalid group name (%s)' % group_name)
-                    cur_host.add_group(group_name)
+                    # Transformation des chemins relatifs
+                    # en chemins absolus.
+                    if not group_name.startswith('/'):
+                        groups = DBSession.query(
+                                SupItemGroup
+                            ).filter(SupItemGroup.name == unicode(group_name)
+                            ).all()
+                        for group in groups:
+                            cur_host.add_group(group.get_path())
+                    else:
+                        cur_host.add_group(group_name)
                 elif elem.tag == "todelete":
                     deleting_mode = False
                 elif elem.tag == "nagios":
@@ -762,6 +775,16 @@ class HostFactory(object):
                         for group in cur_host.get_attribute('otherGroups'):
                             if group[0] == '/':
                                 groups.add(parse_path(group)[0])
+                            else:
+                                raise ParsingError('Invalid path. This should '
+                                    'NEVER happen!')
+
+                        if not groups:
+                            raise ParsingError('Could not determine how to '
+                                'ventilate host %s. Affect some groups to this '
+                                'host or use the ventilation attribute.' %
+                                cur_host.name)
+                                    
                         if len(groups) != 1:
                             raise ParsingError('Found multiple candidates for '
                                 'ventilation group (%r), use the ventilation '

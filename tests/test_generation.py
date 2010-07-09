@@ -105,11 +105,13 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         conf.hosttemplatefactory.load_templates()
         # on charge en conf un host avec directives generiques nagios
+        setup_db()
         reload_conf(hostsdir='tests/testdata/generators/nagios/')
         self.mapping = generator.getventilation()
 
     def tearDown(self):
         """Call after every test case."""
+        teardown_db()
         shutil.rmtree(self.tmpdir)
     
     def test_nagios_generator(self):

@@ -7,8 +7,11 @@ settings.load_module(__name__)
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib import ParsingError
+from vigilo.vigiconf.loaders.group import GroupLoader
 
 from confutil import reload_conf, setup_tmpdir, setup_path
+from confutil import setup_db, teardown_db
 
 class ValidateXSD(unittest.TestCase):
 
@@ -41,6 +44,7 @@ class ParseHost(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         # Prepare temporary directory
+        setup_db()
         self.tmpdir = setup_tmpdir()
         shutil.copytree(os.path.join(
                             settings["vigiconf"].get("confdir"), "general"),
@@ -48,6 +52,9 @@ class ParseHost(unittest.TestCase):
         shutil.copytree(os.path.join(
                         settings["vigiconf"].get("confdir"), "hosttemplates"),
                         os.path.join(self.tmpdir, "hosttemplates"))
+        shutil.copytree(os.path.join(
+                        settings["vigiconf"].get("confdir"), "groups"),
+                        os.path.join(self.tmpdir, "groups"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
         settings["vigiconf"]["confdir"] = self.tmpdir
         # We changed the paths, reload the factories
@@ -60,7 +67,7 @@ class ParseHost(unittest.TestCase):
         setup_path()
         #settings["vigiconf"]["confdir"] = os.path.join(os.path.dirname(__file__), "..", "src", "conf.d")
         shutil.rmtree(self.tmpdir)
-
+        teardown_db()
 
     def test_host(self):
         """Test the parsing of a basic host declaration"""
@@ -195,23 +202,27 @@ class ParseHost(unittest.TestCase):
                "The \"trap\" tag parsing does not strip whitespaces"
 
     def test_group(self):
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <group>Linux servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
+        print conf.hostsConf["testserver1"]["otherGroups"]
+        assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "The \"group\" tag is not properly parsed"
 
     def test_group_whitespace(self):
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
         <group> Linux servers </group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
+        print conf.hostsConf["testserver1"]["otherGroups"]
+        assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "The \"group\" tag parsing does not strip whitespaces"
 
     def test_test(self):
@@ -239,6 +250,88 @@ class ParseHost(unittest.TestCase):
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert ('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"], \
                 "The \"test\" tag parsing does not strip whitespaces"
+
+    def test_ventilation_explicit_server(self):
+        """Ventilation en utilisant un groupe explicitement nommé."""
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="foo" address="127.0.0.1" ventilation="Servers">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+        </host>
+        """)
+        self.host.close()
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        # L'attribut ventilation a été donné explicitement.
+        self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'Servers')
+
+    def test_ventilation_server_from_abs_groups(self):
+        """Ventilation déterminée depuis des groupes avec chemins absolus."""
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="foo" address="127.0.0.1">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+            <group>/Servers/Linux servers</group>
+            <group>/Servers/AIX servers</group>
+        </host>
+        """)
+        self.host.close()
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        # La racine des groupes est commune, donc on peut déterminer
+        # le groupe à utiliser pour la ventilation.
+        self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'Servers')
+
+    def test_ventilation_server_from_rel_groups(self):
+        """Ventilation déterminée depuis des groupes avec chemins relatifs."""
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="foo" address="127.0.0.1">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+            <group>Linux servers</group>
+            <group>AIX servers</group>
+        </host>
+        """)
+        self.host.close()
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+
+        # On vérifie que les chemins relatifs ont bien été transformés
+        # en chemin absolus. Et comme la racine de ces chemins est commune,
+        # le groupe de ventilation doit avoir été calculé correctement.
+        assert ('/Servers/Linux servers' in conf.hostsConf['foo']['otherGroups'])
+        assert ('/Servers/AIX servers' in conf.hostsConf['foo']['otherGroups'])
+        self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'Servers')
+
+    def test_ventilation_missing_information(self):
+        """Absence d'informations permettant de déterminer la ventilation."""
+        self.host.write("""<?xml version="1.0"?>
+        <host name="foo" address="127.0.0.1">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+        </host>
+        """)
+        self.host.close()
+        # Aucune information ne permet de déterminer la ventilation à appliquer.
+        self.assertRaises(ParsingError, conf.hostfactory._loadhosts,
+            os.path.join(self.tmpdir, "hosts", "host.xml"))
+
+    def test_ventilation_conflicting_groups(self):
+        """Conflit sur la ventilation à partir des groupes."""
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="foo" address="127.0.0.1">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+            <group>/Servers/Linux servers</group>
+            <group>/P-F</group>
+        </host>
+        """)
+        self.host.close()
+        # Les groupes donnent 2 candidats pour la ventilation (Servers et P-F).
+        # Le conflit doit lever une erreur d'analyse.
+        self.assertRaises(ParsingError, conf.hostfactory._loadhosts,
+            os.path.join(self.tmpdir, "hosts", "host.xml"))
 
     def test_test_missing_args(self):
         """Ajout d'un test auquel il manque des arguments sur un hôte."""
