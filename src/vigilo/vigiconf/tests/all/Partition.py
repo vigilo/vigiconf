@@ -19,7 +19,8 @@ class Partition(Test):
         host.add_collector_service("Partition %s"%label, "storage",
                     [partname,warn,crit,int(percent)],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.3", "WALK/.1.3.6.1.2.1.25.2.3.1.4", 
-                     "WALK/.1.3.6.1.2.1.25.2.3.1.5", "WALK/.1.3.6.1.2.1.25.2.3.1.6" ])
+                     "WALK/.1.3.6.1.2.1.25.2.3.1.5", "WALK/.1.3.6.1.2.1.25.2.3.1.6" ],
+                    weight=self.weight)
         host.add_collector_metro("%s part"%label, "m_table_mult", [partname],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.3"],'GAUGE', label=label)

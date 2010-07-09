@@ -35,7 +35,7 @@ class HostTemplates(unittest.TestCase):
 
     def test_add_test_args(self):
         """Test for the add_test method, with test arguments"""
-        self.tpl.add_test("Interface", label="Loopback", ifname="lo")
+        self.tpl.add_test("Interface", {"label":"Loopback", "ifname":"lo"})
         conf.hosttemplatefactory.apply(self.host, "testtpl1")
         assert conf.hostsConf["testserver1"]["SNMPJobs"][('Interface Loopback',
                 'service')]["params"] == ["lo", "Loopback", "i"], \
@@ -97,10 +97,10 @@ class HostTemplates(unittest.TestCase):
                 "inheritance does not work with attributes"
 
     def test_inherit_redefine_test(self):
-        self.tpl.add_test("Interface", ifname="eth0", label="Label1")
+        self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label1"})
         tpl2 = HostTemplate("testtpl2")
         tpl2.add_parent("testtpl1")
-        tpl2.add_test("Interface", ifname="eth0", label="Label2")
+        tpl2.add_test("Interface", {"ifname":"eth0", "label":"Label2"})
         conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
@@ -113,9 +113,9 @@ class HostTemplates(unittest.TestCase):
                 "child templates cannot redefine tests from parent templates"
 
     def test_inherit_multiple_test(self):
-        self.tpl.add_test("Interface", ifname="eth0", label="Label0")
+        self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label0"})
         tpl2 = HostTemplate("testtpl2")
-        tpl2.add_test("Interface", ifname="eth1", label="Label1")
+        tpl2.add_test("Interface", {"ifname":"eth1", "label":"Label1"})
         conf.hosttemplatefactory.register(tpl2)
         tpl3 = HostTemplate("testtpl3")
         tpl3.add_parent(["testtpl1", "testtpl2"])

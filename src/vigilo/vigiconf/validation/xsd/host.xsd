@@ -89,6 +89,7 @@ hosts element contains one ore more host elements
                             </xs:choice>
 
                             <xs:attribute name="name" type="xs:string"/>
+                            <xs:attribute name="weight" type="xs:positiveInteger"/>
                         </xs:complexType>
                     </xs:element>
 
@@ -148,4 +149,6 @@ hosts element contains one ore more host elements
 </xs:element>
 
 </xs:schema>
-<!-- vim: ts=4 et -->
+<!--
+vim: ts=4 et
+-->

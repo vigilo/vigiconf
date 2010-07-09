@@ -269,6 +269,50 @@ class ParseHost(unittest.TestCase):
         assert ('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"], \
                 "The \"test\" tag parsing does not strip whitespaces"
 
+    def test_test_weight(self):
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" ventilation="Servers">
+        <test name="Interface" weight="42">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+            <group>/Servers</group>
+        </test>
+        </host>""")
+        self.host.close()
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        #from pprint import pprint; pprint(conf.hostsConf["testserver1"])
+        self.assert_("weight" in conf.hostsConf["testserver1"]["services"]["Interface eth0"],
+                     "L'attribut weight du test n'est pas chargé")
+        self.assertEquals(conf.hostsConf["testserver1"]["services"]["Interface eth0"]["weight"], 42,
+                          "L'attribut weight n'a pas la bonne valeur")
+
+    def test_test_weight_default(self):
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" ventilation="Servers">
+        <test name="Interface">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+            <group>/Servers</group>
+        </test>
+        </host>""")
+        self.host.close()
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        self.assertEquals(conf.hostsConf["testserver1"]["services"]["Interface eth0"]["weight"], 1,
+                          "L'attribut weight n'a pas la bonne valeur par défaut")
+
+    def test_test_weight_invalid(self):
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" ventilation="Servers">
+        <test name="Interface" weight="invalid">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+        </test>
+        </host>""")
+        self.host.close()
+        filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
+        self.assertRaises(ParsingError, conf.hostfactory._loadhosts, filepath)
+
     def test_ventilation_explicit_server(self):
         """Ventilation en utilisant un groupe explicitement nommé."""
         GroupLoader().load()
@@ -416,7 +460,7 @@ class ParseHost(unittest.TestCase):
         self.assertEquals(conf.hostsConf["testserver1"]["weight"], 1,
                           "L'attribut weight n'a pas la bonne valeur par défaut")
 
-    def test_host_weight_default(self):
+    def test_host_weight_invalid(self):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" weight="invalid">
@@ -517,8 +561,9 @@ class ParseHostTemplate(unittest.TestCase):
             conf.hosttemplatefactory.load_templates()
         except KeyError:
             self.fail("The \"test\" tag is not properly parsed")
-        assert {"name": "TestTest"} in conf.hosttemplatefactory.templates["test"]["tests"], \
-               "The \"test\" tag is not properly parsed"
+        self.assertEquals("TestTest",
+               conf.hosttemplatefactory.templates["test"]["tests"][0]["name"],
+               "The \"test\" tag is not properly parsed")
 
     def test_test_args(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -565,6 +610,53 @@ class ParseHostTemplate(unittest.TestCase):
                conf.hosttemplatefactory.templates["test"]["tests"][0]["args"]["TestArg1"] == "TestValue1" and \
                conf.hosttemplatefactory.templates["test"]["tests"][0]["args"]["TestArg2"] == "TestValue2", \
                "The \"test\" tag parsing does not strip whitespaces"
+
+    def test_test_weight(self):
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+        <template name="testtemplate">
+            <test name="TestTest" weight="42">
+                <arg name="TestArg1">TestValue1</arg>
+                <arg name="TestArg2">TestValue2</arg>
+            </test>
+        </template>
+        </templates>""")
+        self.ht.close()
+        conf.hosttemplatefactory.load_templates()
+        self.assert_("weight" in conf.hosttemplatefactory.templates["testtemplate"]["tests"][0],
+                     "L'attribut weight du test n'est pas chargé")
+        self.assertEquals(
+                conf.hosttemplatefactory.templates["testtemplate"]["tests"][0]["weight"],
+                42, "L'attribut weight n'a pas la bonne valeur")
+
+    def test_test_weight_default(self):
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+        <template name="testtemplate">
+            <test name="TestTest">
+                <arg name="TestArg1">TestValue1</arg>
+                <arg name="TestArg2">TestValue2</arg>
+            </test>
+        </template>
+        </templates>""")
+        self.ht.close()
+        conf.hosttemplatefactory.load_templates()
+        self.assertEquals(
+                conf.hosttemplatefactory.templates["testtemplate"]["tests"][0]["weight"],
+                1, "L'attribut weight n'a pas la bonne valeur par défaut")
+
+    def test_test_weight_invalid(self):
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+        <template name="testtemplate">
+            <test name="TestTest" weight="invalid">
+                <arg name="TestArg1">TestValue1</arg>
+                <arg name="TestArg2">TestValue2</arg>
+            </test>
+        </template>
+        </templates>""")
+        self.ht.close()
+        self.assertRaises(ParsingError, conf.hosttemplatefactory.load_templates)
 
     def test_group(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -620,5 +712,43 @@ class ParseHostTemplate(unittest.TestCase):
             self.fail("The \"parent\" tag parsing does not strip whitespaces")
         assert "test1" in conf.hosttemplatefactory.templates["test2"]["parent"], \
                "The \"parent\" tag parsing does not strip whitespaces"
+
+    def test_template_weight(self):
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+            <template name="test">
+                <weight>42</weight>
+            </template>
+        </templates>""")
+        self.ht.close()
+        conf.hosttemplatefactory.load_templates()
+        self.assert_("weight" in conf.hosttemplatefactory.templates["test"],
+                     "L'attribut weight n'est pas chargé")
+        self.assertEquals(conf.hosttemplatefactory.templates["test"]["weight"], 42,
+                          "L'attribut weight n'a pas la bonne valeur")
+
+    def test_template_weight_default(self):
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+            <template name="test">
+            </template>
+        </templates>""")
+        self.ht.close()
+        conf.hosttemplatefactory.load_templates()
+        self.assert_("weight" in conf.hosttemplatefactory.templates["test"],
+                     "L'attribut weight n'est pas réglé par défaut")
+        self.assertEquals(conf.hosttemplatefactory.templates["test"]["weight"], 1,
+                          "L'attribut weight n'a pas la bonne valeur par défaut")
+
+    def test_template_weight_invalid(self):
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+            <template name="test">
+                <weight>invalid</weight>
+            </template>
+        </templates>""")
+        self.ht.close()
+        self.assertRaises(ParsingError, conf.hosttemplatefactory.load_templates)
+
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

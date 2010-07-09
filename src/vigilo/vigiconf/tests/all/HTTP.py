@@ -7,7 +7,7 @@ class HTTP(Test):
         """Arguments:
             host:     the Host object to add the test to
         """
-        host.add_external_sup_service("HTTP", "check_http")
+        host.add_external_sup_service("HTTP", "check_http", weight=self.weight)
         host.add_perfdata_handler("HTTP", 'HTTP-time', 'response time', 'time')
         host.add_graph("HTTP response time", [ 'HTTP-time' ], 'lines', 's')
 

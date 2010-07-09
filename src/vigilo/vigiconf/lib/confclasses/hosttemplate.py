@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (C) 2007-2009 CS-SI
@@ -51,6 +52,7 @@ class HostTemplate(object):
                 "tests": [],
                 "groups": [],
                 "attributes": {},
+                "weight": 1,
             }
         if name != "default":
             self.add_parent("default")
@@ -66,7 +68,7 @@ class HostTemplate(object):
             p = [p,]
         self.data["parent"].extend(p)
 
-    def add_test(self, testname, **args):
+    def add_test(self, testname, args={}, weight=None):
         """
         Add a test to this host template
         @param testname: the test name
@@ -79,6 +81,9 @@ class HostTemplate(object):
         t_dict = {"name": testname}
         if args:
             t_dict["args"] = args
+        if weight is None:
+            weight = 1
+        t_dict["weight"] = weight
         self.data["tests"].append(t_dict)
 
     def add_group(self, *args):
@@ -93,6 +98,9 @@ class HostTemplate(object):
             if not parse_path(group):
                 raise ParsingError('Invalid group name (%s)' % group)
             self.data["groups"].append(group)
+
+    def add_weight(self, weight):
+        self.data["weight"] = weight
 
     def add(self,  prop, key, value):
         """
@@ -289,13 +297,33 @@ class HostTemplateFactory(object):
                 elif elem.tag == "test":
                     inside_test = False
                     test_name = get_attrib(elem, 'name')
+                    test_weight = get_attrib(elem, 'weight')
+                    try:
+                        test_weight = int(test_weight)
+                    except ValueError:
+                        raise ParsingError(
+                                "Invalid weight value for test %s on host %s: %r"
+                                % (test_name, cur_tpl.name, test_weight))
+                    except TypeError:
+                        pass # C'est None, on laisse prendre la valeur par défaut
                     args = {}
                     for arg in elem.getchildren():
                         args[get_attrib(arg, 'name')] = get_text(arg)
-                    cur_tpl.add_test(test_name, **args)
+                    cur_tpl.add_test(test_name, args, test_weight)
                     test_name = None
                 elif elem.tag == "nagios":
                     process_nagios = False
+                elif elem.tag == "weight":
+                    weight = get_text(elem)
+                    try:
+                        weight = int(weight)
+                    except ValueError:
+                        raise ParsingError(
+                                "Invalid weight value for template %s: %r"
+                                % (cur_tpl.name, weight))
+                    except TypeError:
+                        pass # C'est None, on laisse prendre la valeur par défaut
+                    cur_tpl.add_weight(weight)
                     
                 elif elem.tag == "template":
                     self.register(cur_tpl)
@@ -355,6 +383,7 @@ class HostTemplateFactory(object):
                                     self.templates[p]["tests"])
                 self.templates[tplname]["attributes"].update(
                                     self.templates[p]["attributes"])
+                self.templates[tplname]["weight"] = self.templates[p]["weight"]
             # Finally, re-add the template-specific data
             self.templates[tplname]["groups"].extend(
                             templates_save[tplname]["groups"])
@@ -362,6 +391,7 @@ class HostTemplateFactory(object):
                             templates_save[tplname]["tests"])
             self.templates[tplname]["attributes"].update(
                             templates_save[tplname]["attributes"])
+            self.templates[tplname]["weight"] = templates_save[tplname]["weight"]
             # Copy the parent list back too, it's not used except by unit tests
             self.templates[tplname]["parent"].extend(
                             templates_save[tplname]["parent"])
@@ -396,13 +426,20 @@ class HostTemplateFactory(object):
         if tpl.has_key("tests"):
             for testdict in tpl["tests"]:
                 test_list = self.testfactory.get_test(testdict["name"], host.classes)
-                if testdict.has_key("args") and testdict["args"]:
-                    host.add_tests(test_list, **testdict["args"])
-                else:
-                    host.add_tests(test_list)
+                test_args = {}
+                if testdict.has_key("args"):
+                    test_args = testdict["args"]
+                test_weight = None
+                if "weight" in testdict and testdict["weight"] is not None and testdict["weight"] != 1:
+                    test_weight = testdict["weight"]
+                host.add_tests(test_list, args=test_args,
+                               weight=test_weight)
         # attributes
         if tpl.has_key("attributes"):
             host.update_attributes(tpl["attributes"])
+        # weight
+        if "weight" in tpl and tpl["weight"] is not None and tpl["weight"] != 1:
+            host.set_attribute("weight", tpl["weight"])
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

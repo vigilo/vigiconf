@@ -121,19 +121,24 @@ class Host(object):
         """
         self.hosts[self.name].update(attributes)
 
-    def add_tests(self, test_list, **kw):
+    def add_tests(self, test_list, args={}, weight=None):
         """
         Add a list of tests to this host, with the provided arguments
 
         @param test_list: the list of tests
         @type  test_list: C{list} of C{Test<.test.Test>}
-        @param kw: the test arguments
-        @type  kw: C{dict}
+        @param args: the test arguments
+        @type  args: C{dict}
+        @param weight: the test weight
+        @type  weight: C{int}
         """
+        if weight is None:
+            weight = 1
         for test_class in test_list:
             inst = test_class()
             try:
-                inst.add_test(self, **kw)
+                inst.weight = weight
+                inst.add_test(self, **args)
             except TypeError:
                 spec = inspect.getargspec(inst.add_test)
                 # On récupère la liste des arguments obligatoires.
@@ -280,7 +285,7 @@ class Host(object):
 #### Collector-related functions ####
 
     def add_collector_service(self, label, function, params, variables, cti=1,
-                                    reroutefor=None, maxchecks=1):
+                                    reroutefor=None, maxchecks=1, weight=1):
         """
         Add a supervision service to the Collector
         @param label: the service display label
@@ -297,6 +302,8 @@ class Host(object):
         @type  reroutefor: C{dict} with "host" and "service" as keys
         @param maxchecks: the max number of checks before Nagios should
             send a notification
+        @param weight: service weight
+        @type  weight: C{int}
         @type  maxchecks: C{int}
         """
         # Handle rerouting
@@ -310,6 +317,7 @@ class Host(object):
         self.add(target, "services", service, {'type': 'passive', 
                                                'cti': cti, 
                                                'maxchecks': maxchecks,
+                                               "weight": weight,
                                               })
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (label, 'service'),
@@ -360,7 +368,7 @@ class Host(object):
 
     def add_collector_service_and_metro(self, name, label, supfunction,
                     supparams, supvars, metrofunction, metroparams, metrovars,
-                    dstype, cti=1, reroutefor=None, maxchecks=1):
+                    dstype, cti=1, reroutefor=None, maxchecks=1, weight=1):
         """
         Helper function for L{add_collector_service}() and
         L{add_collector_metro}().
@@ -389,16 +397,19 @@ class Host(object):
         @param maxchecks: the max number of checks before Nagios should
             send a notification
         @type  maxchecks: C{int}
+        @param weight: service weight
+        @type  weight: C{int}
         """
         self.add_collector_service(name, supfunction, supparams, supvars,
-                        cti=cti, reroutefor=reroutefor, maxchecks=maxchecks)
+                        cti=cti, reroutefor=reroutefor, maxchecks=maxchecks,
+                        weight=weight)
         self.add_collector_metro(name, metrofunction, metroparams, metrovars, 
                                  dstype, label=label, reroutefor=reroutefor)
 
     def add_collector_service_and_metro_and_graph(self, name, label, oid,
             th1, th2, dstype, template, vlabel, supcaption=None,
             supfunction="thresholds_OID_simple", metrofunction="directValue",
-            group="General", cti=1, reroutefor=None, maxchecks=1):
+            group="General", cti=1, reroutefor=None, maxchecks=1, weight=1):
         """
         Helper function for L{add_collector_service}(),
         L{add_collector_metro}() and L{add_graph}(). See those methods for
@@ -411,7 +422,8 @@ class Host(object):
         self.add_collector_service_and_metro(name, label, supfunction,
                     [th1, th2, supcaption], ["GET/%s"%oid], metrofunction,
                     [], [ "GET/%s"%oid ], dstype, cti=cti,
-                    reroutefor=reroutefor, maxchecks=maxchecks)
+                    reroutefor=reroutefor, maxchecks=maxchecks,
+                    weight=weight)
         if reroutefor != None:
             target = reroutefor['host']
             name = reroutefor['service']
@@ -472,7 +484,7 @@ class Host(object):
             self.add(self.name, "reports", title, {"reportName": reportname, 
                                                    "dateSetting": datesetting})
 
-    def add_external_sup_service(self, name, command, cti=1, maxchecks=1):
+    def add_external_sup_service(self, name, command, cti=1, maxchecks=1, weight=1):
         """
         Add a standard Nagios service
         @param name: the service name
@@ -484,9 +496,12 @@ class Host(object):
         @param maxchecks: the max number of checks before Nagios should
             send a notification
         @type  maxchecks: C{int}
+        @param weight: service weight
+        @type  weight: C{int}
         """
         self.add(self.name, 'services', name, {'type': 'active',
-                'command': command, 'cti': cti, 'maxchecks': maxchecks})
+                'command': command, 'cti': cti, 'maxchecks': maxchecks,
+                'weight': weight})
     
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
                               dstype="GAUGE", reroutefor=None):
@@ -520,7 +535,7 @@ class Host(object):
                 {'name': name, 'perfDataVarName': perfdatavarname,
                  'reRouteFor': reroutefor})
 
-    def add_metro_service(self, servicename, metroname, warn, crit, factor=1):
+    def add_metro_service(self, servicename, metroname, warn, crit, factor=1, weight=1):
         """
         Add a Nagios test on the values stored in a RRD file
         @param servicename: the name of the Nagios service
@@ -536,7 +551,8 @@ class Host(object):
         """
         self.add_external_sup_service(servicename,
             "check_nrpe_rerouted!$METROSERVER$!check_rrd!%s/%s %s %s %s" % \
-            (self.name, urllib.quote(metroname), warn, crit, factor)
+            (self.name, urllib.quote(metroname), warn, crit, factor),
+            weight=weight
         )
 
     def add_tag(self, service, name, value):
@@ -591,7 +607,6 @@ class HostFactory(object):
         self.hosttemplatefactory = hosttemplatefactory
         self.testfactory = testfactory
         self.hostsdir = hostsdir
-        self.hosts_todelete = []
 
 # VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
 #   configurations de la supervision en mode CLI
@@ -623,11 +638,6 @@ class HostFactory(object):
                     dirs.remove(d)
                 if d == "CVS":
                     dirs.remove("CVS")
-        
-        # suppression unitaire hosts
-        for hname in self.hosts_todelete:
-            del self.hosts[hname]
-        
         return self.hosts
 
 
@@ -660,17 +670,12 @@ class HostFactory(object):
         @type  source: C{str} or C{file}
         """
         cur_host = None
-        deleting_mode = False
         
         for event, elem in ET.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "host":
                     inside_test = False
                     name = get_attrib(elem, 'name')
-
-                    if deleting_mode:
-                        self.hosts_todelete.append(name)
-                        continue
 
                     address = get_attrib(elem, 'address')
                     if not address:
@@ -706,6 +711,11 @@ class HostFactory(object):
                     inside_test = True
                     test_name = get_attrib(elem, 'name')
                     
+                    # TODO: c'est quoi ce bordel ? On est en SAX, donc on a pas
+                    # les children à ce moment ! Et c'est quoi ce renommage de
+                    # test_name à l'arrache ? Seul le test sait quel va être le
+                    # nom du service Nagios, c'est là-bas qu'il faut faire la
+                    # gestion des directives Nagios, certainement pas ici.
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
                             tname = get_attrib(arg, 'name')
@@ -713,8 +723,6 @@ class HostFactory(object):
                                 test_name = "%s %s" % (test_name, get_text(arg))
                                 break
                 
-                elif elem.tag == "todelete":
-                    deleting_mode = True
                 elif elem.tag == "nagios":
                     process_nagios = True
                 elif elem.tag == "directive":
@@ -737,12 +745,21 @@ class HostFactory(object):
                 elif elem.tag == "test":
                     inside_test = False
                     test_name = get_attrib(elem, 'name')
+                    test_weight = get_attrib(elem, 'weight')
+                    try:
+                        test_weight = int(test_weight)
+                    except ValueError:
+                        raise ParsingError(
+                                "Invalid weight value for test %s on host %s: %r"
+                                % (test_name, cur_host.name, test_weight))
+                    except TypeError:
+                        pass # C'est None, on laisse prendre la valeur par défaut
                     args = {}
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
                             args[get_attrib(arg, 'name')] = get_text(arg)
                     test_list = self.testfactory.get_test(test_name, cur_host.classes)
-                    cur_host.add_tests(test_list, **args)
+                    cur_host.add_tests(test_list, args=args, weight=test_weight)
                     test_name = None
                 elif elem.tag == "attribute":
                     value = get_text(elem)
@@ -764,8 +781,6 @@ class HostFactory(object):
                     if not parse_path(group_name):
                         raise ParsingError('Invalid group name (%s)' % group_name)
                     cur_host.add_group(group_name)
-                elif elem.tag == "todelete":
-                    deleting_mode = False
                 elif elem.tag == "nagios":
                     process_nagios = False
                 

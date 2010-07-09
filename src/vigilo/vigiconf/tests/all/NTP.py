@@ -7,7 +7,7 @@ class NTP(Test):
         """Arguments:
             host: the Host object to add the test to
         """
-        host.add_external_sup_service("NTP", "check_ntp")
+        host.add_external_sup_service("NTP", "check_ntp", weight=self.weight)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

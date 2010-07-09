@@ -55,6 +55,7 @@
                                 </xs:sequence>
 
                                 <xs:attribute name="name" type="xs:string"/>
+                                <xs:attribute name="weight" type="xs:positiveInteger"/>
                             </xs:complexType>
                         </xs:element>
 
@@ -62,6 +63,8 @@
                         <!-- nagios host specific bloc -->
                         <xs:element ref="nagios"/>
                         <xs:element name="item" type="xs:string"/>
+
+                        <xs:element name="weight" type="xs:positiveInteger"/>
                     </xs:choice>
 
                     <xs:attribute name="name" type="xs:string" use="required"/>
@@ -73,4 +76,6 @@
 
 
 </xs:schema>
-<!-- vim: ts=4 et -->
+<!--
+vim: ts=4 et
+-->

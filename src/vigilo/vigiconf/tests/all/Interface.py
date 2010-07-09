@@ -46,7 +46,8 @@ class Interface(Test):
             host.add_collector_service("Interface %s" % label, "staticIfOperStatus",
                         [ifname, label, "i"], 
                         ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
-                         "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"])
+                         "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
+                        weight=self.weight)
         else:
             for snmpindex, snmpname in snmp_ids.iteritems():
                 host.add_collector_metro("%s%s" % (snmpname, label), 
@@ -56,7 +57,8 @@ class Interface(Test):
             host.add_collector_service("Interface %s" % label, "ifOperStatus",
                         [ifname, label, "i"], 
                         ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
-                         "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"])
+                         "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
+                        weight=self.weight)
 
             host.add_graph("Traffic %s" % label, [ "in%s"%label, "out%s"%label ], "area-line",
                         "b/s", group="Network interfaces", factors={"in%s"%label: 8,
@@ -72,14 +74,20 @@ class Interface(Test):
         if warn and crit:
             warn = warn.replace(" ","").split(",")
             crit = crit.replace(" ","").split(",")
-            host.add_metro_service("Traffic in %s"%label, "in"+label, warn[0], crit[0], 8)
-            host.add_metro_service("Traffic out %s"%label, "out"+label, warn[1], crit[1], 8)
+            host.add_metro_service("Traffic in %s"%label, "in"+label,
+                                   warn[0], crit[0], 8, weight=self.weight)
+            host.add_metro_service("Traffic out %s"%label, "out"+label,
+                                   warn[1], crit[1], 8, weight=self.weight)
             if len(warn) >= 4 and len(crit) >= 4:
-                host.add_metro_service("Discards in %s"%label, "inDisc"+label, warn[2], crit[2], 8)
-                host.add_metro_service("Discards out %s"%label, "outDisc"+label, warn[3], crit[3], 8)
+                host.add_metro_service("Discards in %s"%label, "inDisc"+label,
+                                       warn[2], crit[2], 8, weight=self.weight)
+                host.add_metro_service("Discards out %s"%label, "outDisc"+label,
+                                       warn[3], crit[3], 8, weight=self.weight)
                 if len(warn) == 6 and len(crit) == 6 and errors:
-                    host.add_metro_service("Errors in %s"%label, "inErrs"+label, warn[4], crit[4], 8)
-                    host.add_metro_service("Errors out %s"%label, "outErrs"+label, warn[5], crit[5], 8)
+                    host.add_metro_service("Errors in %s"%label, "inErrs"+label,
+                                           warn[4], crit[4], 8, weight=self.weight)
+                    host.add_metro_service("Errors out %s"%label, "outErrs"+label,
+                                           warn[5], crit[5], 8, weight=self.weight)
 
 
     def detect_snmp(self, oids):

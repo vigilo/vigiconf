@@ -23,9 +23,11 @@ class InterrCS(Test):
         # Services
         if warn is not None and crit is not None:
             if warn[0] is not None and crit[0] is not None:
-                host.add_metro_service("Interrupts", "Interrupts", warn[0], crit[0])
+                host.add_metro_service("Interrupts", "Interrupts", warn[0], crit[0],
+                        weight=self.weight)
             if warn[1] is not None and crit[1] is not None:
-                host.add_metro_service("Context Switches", "Context Switches", warn[1], crit[1])
+                host.add_metro_service("Context Switches", "Context Switches", warn[1], crit[1],
+                        weight=self.weight)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

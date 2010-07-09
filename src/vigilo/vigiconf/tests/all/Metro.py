@@ -17,7 +17,8 @@ class Metro(Test):
         @param factor: the factor to use, if any
         @type  factor: C{int} or C{float}
         """
-        host.add_metro_service(servicename, metroname, warn, crit, factor)
+        host.add_metro_service(servicename, metroname, warn, crit, factor,
+                               weight=self.weight)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -45,7 +45,7 @@ class Generator(unittest.TestCase):
         """Globally test the generation"""
         # Fill with random definitions...
         test_list = conf.testfactory.get_test("Interface", self.host.classes)
-        self.host.add_tests(test_list, label="eth1", ifname="eth1")
+        self.host.add_tests(test_list, {"label":"eth1", "ifname":"eth1"})
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
@@ -60,7 +60,7 @@ class Generator(unittest.TestCase):
     def test_add_metro_service_nagios(self):
         """Test for the add_metro_service method"""
         test_list = conf.testfactory.get_test("Interface", self.host.classes)
-        self.host.add_tests(test_list, label="eth1", ifname="eth1")
+        self.host.add_tests(test_list, {"label":"eth1", "ifname":"eth1"})
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         generator.generate()
         nagiosconf = os.path.join(self.basedir,

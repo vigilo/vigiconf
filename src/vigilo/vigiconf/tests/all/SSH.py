@@ -7,7 +7,7 @@ class SSH(Test):
         """Arguments:
             host: the Host object to add the test to
         """
-        host.add_external_sup_service("SSH", "check_ssh")
+        host.add_external_sup_service("SSH", "check_ssh", weight=self.weight)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
