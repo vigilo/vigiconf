@@ -10,19 +10,22 @@ import os, unittest, shutil
 import vigilo.vigiconf.conf as conf
 
 from confutil import reload_conf, setup_tmpdir
-from confutil import create_vigiloserver, setup_db, teardown_db
+from confutil import setup_db, teardown_db
 
-from vigilo.vigiconf.lib.ventilator import appendHost, getServerToUse, findAServerForEachHost
+from vigilo.vigiconf.lib.ventilator import appendHost, getServerToUse, \
+                    findAServerForEachHost, get_host_ventilation_group
 from vigilo.vigiconf import generator
 from vigilo.vigiconf import dbexportator
+from vigilo.vigiconf.lib import ParsingError
 
 from vigilo.models.session import DBSession
 
-from vigilo.models.tables import Host, Ventilation, Application
+from vigilo.models.tables import Host, Ventilation, Application, SupItemGroup
+from vigilo.models.demo.functions import add_host, add_vigiloserver, add_supitemgroup
 
 class VentilatorTest(unittest.TestCase):
     """Test Ventilator"""
-      
+
     def setUp(self):
         """Call before every test case."""
         # Prepare temporary directory
@@ -32,27 +35,13 @@ class VentilatorTest(unittest.TestCase):
         conf.hosttemplatefactory.load_templates()
         setup_db()
         reload_conf()
-    
+
     def tearDown(self):
         """Call after every test case."""
         teardown_db()
         shutil.rmtree(self.tmpdir)
-        
-    def _create_localhost(self):
-        host = Host(
-            name=u'localhost',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'My Host',
-            hosttpl=u'template',
-            address=u'127.0.0.1',
-            snmpport=u'1234',
-            weight=42,
-        )
-        DBSession.add(host)
-        DBSession.flush()
-        return host
-    
+
+
     def test_export_localventilation_db(self):
         """ test de l'export de la ventilation en mode local.
         
@@ -63,9 +52,9 @@ class VentilatorTest(unittest.TestCase):
         self.assertEquals(len(ventilation['localhost'].keys()), 7, "7 apps (%d)" % len(ventilation['localhost'].keys()))
         
         # need locahost in db
-        host = self._create_localhost()
+        host = add_host("localhost")
         # need localhost as VigiloServer
-        create_vigiloserver(u'localhost')
+        add_vigiloserver(u'localhost')
         
         #need apps in DB
         dbexportator.update_apps_db()
@@ -84,10 +73,10 @@ class VentilatorTest(unittest.TestCase):
         """ Test de la nouvelle persistance db remplaçant la persistance pickle.
         """
         # need locahost in db
-        host = self._create_localhost()
+        host = add_host("localhost")
         
         # need server
-        create_vigiloserver(u'localhost')
+        add_vigiloserver(u'localhost')
         
         # need nagios application
         nagios = Application(name=u'nagios')
@@ -111,10 +100,34 @@ class VentilatorTest(unittest.TestCase):
                 conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
         
         # add the 2 servers in DB
-        create_vigiloserver(u'supserver2.example.com')
-        create_vigiloserver(u'supserver3.example.com')
+        add_vigiloserver(u'supserver2.example.com')
+        add_vigiloserver(u'supserver3.example.com')
         
         self.test_getservertouse(one_server=False)
+
+    def test_host_ventilation_group(self):
+        host = add_host("localhost")
+        group1 = add_supitemgroup("Group1")
+        group2 = add_supitemgroup("Group2", group1)
+        host.groups = [group2,]
+        self.assertEquals(get_host_ventilation_group("localhost", {}), "Group1")
+
+    def test_host_ventilation_group_multiple(self):
+        host = add_host("localhost")
+        group1 = add_supitemgroup("Group1")
+        group2 = add_supitemgroup("Group2", group1)
+        group3 = add_supitemgroup("Group3", group1)
+        host.groups = [group2, group3]
+        self.assertEquals(get_host_ventilation_group("localhost", {}), "Group1")
+
+    def test_host_ventilation_conflicting_groups(self):
+        host = add_host("localhost")
+        group1 = add_supitemgroup("Group1")
+        group2 = add_supitemgroup("Group2", group1)
+        group3 = add_supitemgroup("Group3")
+        group4 = add_supitemgroup("Group4", group3)
+        host.groups = [group2, group4]
+        self.assertRaises(ParsingError, get_host_ventilation_group, "localhost", {})
 
 
 if __name__ == '__main__':

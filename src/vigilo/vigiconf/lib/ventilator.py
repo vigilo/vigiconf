@@ -34,6 +34,8 @@ from vigilo.models.tables import Host, Application, Ventilation, VigiloServer
 
 from vigilo.common.conf import settings
 
+from . import ParsingError
+
 # application used to implement the many2one link "is_supervised for hosts with
 # Ventilation
 APP_VENTILATION = unicode(settings["vigiconf"].get('app_ventilation', 'nagios'))
@@ -127,6 +129,34 @@ def getServerToUse(serverList, host):
     appendHost(s, host)
     return s
 
+def get_host_ventilation_group(hostname, hostdata):
+    if "serverGroup" in hostdata and hostdata["serverGroup"]:
+        return hostdata["serverGroup"]
+    groups = set()
+    host = Host.by_host_name(unicode(hostname))
+    if not host:
+        raise KeyError("Trying to ventilate host %s, but it's not in the "
+                       "database yet" % hostname)
+    for group in host.groups:
+        groups.add(group.get_top_parent().name)
+
+    if not groups:
+        raise ParsingError('Could not determine how to '
+            'ventilate host "%s". Affect some groups to '
+            'this host or use the ventilation attribute.' %
+            hostname)
+                
+    if len(groups) != 1:
+        raise ParsingError('Found multiple candidates for '
+            'ventilation (%(candidates)r) on "%(host)s", '
+            'use the ventilation attribute to select one.' % {
+                'candidates': ', '.join(map(str, groups)),
+                'host': hostname,
+            })
+    ventilation = groups.pop()
+    hostdata['serverGroup'] = ventilation
+    return ventilation
+
 def findAServerForEachHost():
     """
     Try to find the best server where to monitor the hosts contained in the
@@ -166,7 +196,7 @@ def findAServerForEachHost():
     """
     r = {}
     for (host, v) in conf.hostsConf.iteritems():
-        hostGroup = v['serverGroup']
+        hostGroup = get_host_ventilation_group(host, v)
         hm = {}
         for appGroup in conf.appsGroupsByServer:
             l = conf.appsGroupsByServer[appGroup][hostGroup]

@@ -101,8 +101,8 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert conf.hostsConf.has_key("testserver1"), \
-                "host parsing does not handle whitespaces properly"
+        self.assert_(conf.hostsConf.has_key("testserver1"),
+                     "host parsing does not handle whitespaces properly")
 
     def test_template(self):
         self.host.write("""<?xml version="1.0"?>
@@ -111,8 +111,8 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
-                "The \"template\" tag is not properly parsed"
+        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
+                     "The \"template\" tag is not properly parsed")
 
     def test_template_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
@@ -124,8 +124,8 @@ class ParseHost(unittest.TestCase):
             conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         except KeyError:
             self.fail("The \"template\" tag does not strip whitespaces")
-        assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
-                "The \"template\" tag is not properly parsed"
+        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
+                     "The \"template\" tag is not properly parsed")
 
     def test_attribute(self):
         self.host.write("""<?xml version="1.0"?>
@@ -135,9 +135,9 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert conf.hostsConf["testserver1"].has_key("cpulist") and \
-                conf.hostsConf["testserver1"]["cpulist"] == "2", \
-                "The \"attribute\" tag is not properly parsed"
+        self.assert_(conf.hostsConf["testserver1"].has_key("cpulist") and 
+                     conf.hostsConf["testserver1"]["cpulist"] == "2",
+                     "The \"attribute\" tag is not properly parsed")
 
     def test_attribute_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
@@ -227,8 +227,8 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
-                "The \"group\" tag is not properly parsed"
+        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
+                     "The \"group\" tag is not properly parsed")
 
     def test_group_whitespace(self):
         GroupLoader().load()
@@ -238,8 +238,21 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
-                "The \"group\" tag parsing does not strip whitespaces"
+        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
+                     "The \"group\" tag parsing does not strip whitespaces")
+
+    def test_group_multiple(self):
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <group>Linux servers</group>
+            <group>AIX servers</group>
+        </host>""")
+        self.host.close()
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"]
+                 and "AIX servers" in conf.hostsConf["testserver1"]["otherGroups"],
+                 "The \"group\" tag does not handle multiple values")
 
     def test_test(self):
         self.host.write("""<?xml version="1.0"?>
@@ -328,44 +341,6 @@ class ParseHost(unittest.TestCase):
         # L'attribut ventilation a été donné explicitement.
         self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'P-F')
 
-    def test_ventilation_server_from_abs_groups(self):
-        """Ventilation déterminée depuis des groupes avec chemins absolus."""
-        GroupLoader().load()
-        self.host.write("""<?xml version="1.0"?>
-        <host name="foo" address="127.0.0.1">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
-            <group>/Servers/Linux servers</group>
-            <group>/Servers/AIX servers</group>
-        </host>
-        """)
-        self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        # La racine des groupes est commune, donc on peut déterminer
-        # le groupe à utiliser pour la ventilation.
-        self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'Servers')
-
-    def test_ventilation_server_from_rel_groups(self):
-        """Ventilation déterminée depuis des groupes avec chemins relatifs."""
-        GroupLoader().load()
-        self.host.write("""<?xml version="1.0"?>
-        <host name="foo" address="127.0.0.1">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
-            <group>Linux servers</group>
-            <group>AIX servers</group>
-        </host>
-        """)
-        self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-
-        # On vérifie que les chemins relatifs ont bien été transformés
-        # en chemin absolus. Et comme la racine de ces chemins est commune,
-        # le groupe de ventilation doit avoir été calculé correctement.
-        assert ('/Servers/Linux servers' in conf.hostsConf['foo']['otherGroups'])
-        assert ('/Servers/AIX servers' in conf.hostsConf['foo']['otherGroups'])
-        self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'Servers')
-
     def test_missing_group_association(self):
         """Hôte associé à aucun groupe opérationnel."""
         self.host.write("""<?xml version="1.0"?>
@@ -379,23 +354,6 @@ class ParseHost(unittest.TestCase):
         # La vérification ne peut pas être faite au niveau du schéma XSD
         # car on perdrait alors la possibilité d'utiliser un ordre quelconque
         # pour les balises de définition d'un hôte.
-        self.assertRaises(ParsingError, conf.hostfactory._loadhosts,
-            os.path.join(self.tmpdir, "hosts", "host.xml"))
-
-    def test_ventilation_conflicting_groups(self):
-        """Conflit sur la ventilation à partir des groupes."""
-        GroupLoader().load()
-        self.host.write("""<?xml version="1.0"?>
-        <host name="foo" address="127.0.0.1">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
-            <group>/Servers/Linux servers</group>
-            <group>/P-F</group>
-        </host>
-        """)
-        self.host.close()
-        # Les groupes donnent 2 candidats pour la ventilation (Servers et P-F).
-        # Le conflit doit lever une erreur d'analyse.
         self.assertRaises(ParsingError, conf.hostfactory._loadhosts,
             os.path.join(self.tmpdir, "hosts", "host.xml"))
 

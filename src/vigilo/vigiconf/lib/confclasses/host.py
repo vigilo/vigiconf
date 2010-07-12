@@ -779,35 +779,10 @@ class HostFactory(object):
                         raise ParsingError('You must associate host "%s" with '
                             'at least one group.' % cur_host.name)
 
-                    ventilation = cur_host.get_attribute('serverGroup')
-                    if not ventilation:
-                        groups = set()
-                        for group in cur_host.get_attribute('otherGroups'):
-                            groups.add(parse_path(group)[0])
-
-                        if not groups:
-                            raise ParsingError('Could not determine how to '
-                                'ventilate host "%s". Affect some groups to '
-                                'this host or use the ventilation attribute.' %
-                                cur_host.name)
-                                    
-                        if len(groups) != 1:
-                            raise ParsingError('Found multiple candidates for '
-                                'ventilation (%(candidates)r) on "%(host)s", '
-                                'use the ventilation attribute to select one.' % {
-                                    'candidates': ', '.join(map(str, groups)),
-                                    'host': cur_host.name,
-                                })
-                        ventilation = groups.pop()
-                        cur_host.set_attribute('serverGroup', ventilation)
-
-
-                    LOGGER.debug("Loaded host %(host)s, address %(address)s, "
-                                "ventilation %(ventilation)s", {
-                            'host': cur_host.name,
-                            'address': cur_host.get_attribute('address'),
-                            'ventilation': ventilation,
-                        })
+                    LOGGER.debug("Loaded host %(host)s, address %(address)s" %
+                                 {'host': cur_host.name,
+                                  'address': cur_host.get_attribute('address'),
+                                 })
                     elem.clear()
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -101,9 +101,3 @@ def teardown_deploy_dir():
     """
     shutil.rmtree(settings["vigiconf"].get("libdir"))
 
-        
-def create_vigiloserver(name):
-    v = VigiloServer(name=name)
-    DBSession.add(v)
-    DBSession.flush()
-    return v
