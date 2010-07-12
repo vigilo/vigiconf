@@ -24,6 +24,9 @@ from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from vigilo.models.session import DBSession
 
 from vigilo.models.tables import Host, SupItemGroup, LowLevelService
@@ -35,6 +38,7 @@ from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE, \
 
 from vigilo.vigiconf.lib.dbloader import DBLoader
 from vigilo.vigiconf.lib.confclasses import parse_path
+from vigilo.vigiconf.lib import ParsingError
 
 from vigilo.vigiconf import conf
 
@@ -54,7 +58,7 @@ class HostLoader(DBLoader):
     def load_conf(self):
         for hostname in sorted(conf.hostsConf):
             hostdata = conf.hostsConf[hostname]
-            LOGGER.info("Loading host %s", hostname)
+            LOGGER.info(_("Loading host %s"), hostname)
             hostname = unicode(hostname)
             host = dict(name=hostname,
                         checkhostcmd=unicode(hostdata['checkHostCMD']),
@@ -99,7 +103,26 @@ class HostLoader(DBLoader):
 
         DBSession.flush()
 
+    def _absolutize_groups(self, host, hostdata):
+        """Transformation des chemins relatifs en chemins absolus."""
+        old_groups = hostdata['otherGroups'].copy()
+        hostdata["otherGroups"] = set()
+        for old_group in old_groups:
+            if old_group.startswith('/'):
+                hostdata["otherGroups"].add(old_group)
+                continue
+            groups = DBSession.query(
+                            SupItemGroup
+                        ).filter(SupItemGroup.name == old_group
+                        ).all()
+            if not groups:
+                raise ParsingError(_("Unknown group \"%(group)s\" in host \"%(host)s\".")
+                                  % {"group": old_group, "host": host.name})
+            for group in groups:
+                hostdata["otherGroups"].add(group.get_path())
+
     def _load_groups(self, host, hostdata):
+        self._absolutize_groups(host, hostdata)
         # Rempli à mesure que des groupes sont ajoutés (sorte de cache).
         hostgroups_cache = {}
         for g in host.groups:

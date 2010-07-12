@@ -169,17 +169,7 @@ class Host(object):
         @type  group_name: C{str}
         """
         group_name = unicode(group_name)
-        # Transformation des chemins relatifs
-        # en chemins absolus.
-        if not group_name.startswith('/'):
-            groups = DBSession.query(
-                    SupItemGroup
-                ).filter(SupItemGroup.name == group_name
-                ).all()
-            for group in groups:
-                self.hosts[self.name]['otherGroups'].add(group.get_path())
-        else:
-            self.hosts[self.name]['otherGroups'].add(group_name)
+        self.hosts[self.name]['otherGroups'].add(group_name)
 
     def add_dependency(self, service="Host", deps=None, options=None, cti=1):
         """
