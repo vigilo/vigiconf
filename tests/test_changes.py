@@ -99,7 +99,7 @@ class ChangeManagementTest(unittest.TestCase):
         
     def test_change_dependencies_add(self):
         self.dependencyloader.load()
-        DBSession.delete( DBSession.query(Dependency).all()[0] )
+        DBSession.delete(DBSession.query(Dependency).first())
         DBSession.flush()
         depnum_before = DBSession.query(Dependency).count()
         self.dependencyloader.load()

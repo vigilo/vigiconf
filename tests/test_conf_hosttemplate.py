@@ -43,18 +43,18 @@ class HostTemplates(unittest.TestCase):
 
     def test_add_group_simple(self):
         """Test for the add_group method, with one argument only"""
-        self.tpl.add_group("Test Group")
+        self.tpl.add_group("/Test Group")
         conf.hosttemplatefactory.apply(self.host, "testtpl1")
-        assert "Test Group" in conf.hostsConf["testserver1"]["otherGroups"], \
+        assert "/Test Group" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "add_group does not work with one arg"
 
     def test_add_group_multiple(self):
         """Test for the add_group method, with multiple arguments"""
-        self.tpl.add_group("Test Group 1", "Test Group 2")
+        self.tpl.add_group("/Test Group 1", "/Test Group 2")
         conf.hosttemplatefactory.apply(self.host, "testtpl1")
-        assert "Test Group 1" in conf.hostsConf["testserver1"]["otherGroups"], \
+        assert "/Test Group 1" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "add_group does not work with multiple args"
-        assert "Test Group 2" in conf.hostsConf["testserver1"]["otherGroups"], \
+        assert "/Test Group 2" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "add_group does not work with multiple args"
 
     def test_add_attribute(self):

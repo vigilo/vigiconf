@@ -57,6 +57,10 @@ class EnterpriseEdition(unittest.TestCase):
                         "P-F":     [u"sup.example.com"],
                         "Servers": [u"sup.example.com"],
                     },
+                    "correlation": {
+                        "P-F":     [u"sup.example.com"],
+                        "Servers": [u"sup.example.com"],
+                    },
                 }
         self.mapping = generator.getventilation()
 

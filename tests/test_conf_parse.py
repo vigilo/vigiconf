@@ -108,24 +108,24 @@ class ParseHost(unittest.TestCase):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <template>linux</template>
-            <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
+        assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "The \"template\" tag is not properly parsed"
 
     def test_template_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <template> linux </template>
-            <group>/Servers</group>
         </host>""")
         self.host.close()
         try:
             conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         except KeyError:
             self.fail("The \"template\" tag does not strip whitespaces")
+        assert "/Servers/Linux servers" in conf.hostsConf["testserver1"]["otherGroups"], \
+                "The \"template\" tag is not properly parsed"
 
     def test_attribute(self):
         self.host.write("""<?xml version="1.0"?>
@@ -476,6 +476,7 @@ class ParseHostTemplate(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         # Prepare temporary directory
+        setup_db()
         self.tmpdir = setup_tmpdir()
         shutil.copytree(os.path.join(
                             settings["vigiconf"].get("confdir"), "general"),
@@ -499,7 +500,7 @@ class ParseHostTemplate(unittest.TestCase):
         # This has been overwritten in setUp, reset it
         setup_path()
         shutil.rmtree(self.tmpdir)
-
+        teardown_db()
 
     def test_template(self):
         """Test the parsing of a basic template declaration"""
@@ -662,24 +663,24 @@ class ParseHostTemplate(unittest.TestCase):
         self.ht.write("""<?xml version="1.0"?>
                 <templates>
                 <template name="test">
-                    <group>Test group</group>
+                    <group>/Test group</group>
                 </template>
                 </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        assert "Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
+        assert "/Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
                "The \"group\" tag is not properly parsed"
 
     def test_group_whitespace(self):
         self.ht.write("""<?xml version="1.0"?>
                 <templates>
                 <template name="test">
-                    <group> Test group </group>
+                    <group> /Test group </group>
                 </template>
                 </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        assert "Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
+        assert "/Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
                "The \"group\" tag parsing does not strip whitespaces"
 
     def test_parent(self):

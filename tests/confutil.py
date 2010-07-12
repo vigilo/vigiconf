@@ -12,6 +12,7 @@ configure_db(settings['database'], 'sqlalchemy_',
 
 from vigilo.models.session import metadata, DBSession
 from vigilo.models.tables import VigiloServer
+from vigilo.vigiconf.loaders.group import GroupLoader
 
 import vigilo.vigiconf.conf as conf
 
@@ -42,6 +43,7 @@ def reload_conf(hostsdir=None):
             conf.hosttemplatefactory,
             conf.testfactory,
       )
+    GroupLoader().load()
     conf.loadConf()
 
 def setup_tmpdir(dirpath=None):

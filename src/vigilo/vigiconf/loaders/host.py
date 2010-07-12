@@ -125,7 +125,7 @@ class HostLoader(DBLoader):
                     LOGGER.error("Could not find a group matching "
                                 "this path: %s", path)
                     break
-            if parent and parent not in hostgroups_new:
+            if parent and parent not in hostgroups_cache:
                 host.groups.append(parent)
                 hostgroups_cache[path] = parent
 

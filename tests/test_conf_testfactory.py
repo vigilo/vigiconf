@@ -27,7 +27,7 @@ class TestFactory(unittest.TestCase):
                 "get_testnames does not work"
 
     def test_get_hclasses(self):
-        """Test for the get_testname method"""
+        """Test for the get_hclasses method"""
         hclasses = conf.testfactory.get_hclasses()
         assert "all" in hclasses, "get_hclasses does not work"
 
