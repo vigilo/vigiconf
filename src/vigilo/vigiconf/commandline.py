@@ -29,6 +29,7 @@ import fcntl
 import sys
 
 import argparse
+import gettext
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -134,21 +135,49 @@ def discover(args):
 def parse_args():
     """Parses the commandline and starts the requested actions"""    
 
+    # @FIXME: permet de traduire les textes internes à argparse.
+    N_('usage: ')
+    N_('conflicting option string(s): %s')
+    N_('subcommands')
+    N_('unrecognized arguments: %s')
+    N_('expected one argument')
+    N_('expected at most one argument')
+    N_('expected at least one argument')
+    N_('expected %s argument(s)')
+    N_('invalid choice: %r (choose from %s)')
+    N_('positional arguments')
+    N_('optional arguments')
+    N_('too few arguments')
+    N_('argument %s is required')
+    N_('one of the arguments %s is required')
+    N_('%s: error: %s\n')
+    N_('show this help message and exit')
+    N_("show program's version number and exit")
+
+    common_args_parser = argparse.ArgumentParser()
+    common_args_parser.add_argument("--debug", action="store_true",
+        help=N_("Debug mode."))
+
     parser = argparse.ArgumentParser(
-                             description=N_("Vigilo configuration manager"))
-    parser.add_argument("--debug", action="store_true", help=N_("Debug mode."))
+                            add_help=False,
+                            parents=[common_args_parser],
+                            description=N_("Vigilo configuration manager"))
     subparsers = parser.add_subparsers(dest='action', title=N_("Subcommands"))
 
     # INFO
     parser_info = subparsers.add_parser("info", 
-                      help="Prints a summary of the current configuration.")
+                    add_help=False,
+                    parents=[common_args_parser],
+                    help=N_("Prints a summary of the current configuration."))
     parser_info.set_defaults(func=info)
     parser_info.add_argument('server', nargs='*',
-                      help=N_("Servers to query, all of them if not specified."))
+                    help=N_("Servers to query, all of them if not specified."))
 
     # APPS
     parser_apps = subparsers.add_parser("apps",
-                                    help=N_("Application status management."))
+                    add_help=False,
+                    parents=[common_args_parser],
+                    help=N_("Application status management."))
     parser_apps.set_defaults(func=apps)
     group = parser_apps.add_mutually_exclusive_group(required=True)
     group.add_argument("--stop", action="store_true",
@@ -162,7 +191,9 @@ def parse_args():
                                     "if not specified."))
     # UNDO
     parser_undo = subparsers.add_parser("undo", 
-                      help=N_("Deploys the previously installed configuration. "
+                    add_help=False,
+                    parents=[common_args_parser],
+                    help=N_("Deploys the previously installed configuration. "
                              "2 consecutives undo will return to the "
                              "configuration that was installed before the "
                              "first undo (ie. redo)."))
@@ -175,6 +206,8 @@ def parse_args():
 
     # DEPLOY
     parser_deploy = subparsers.add_parser('deploy',
+                        add_help=False,
+                        parents=[common_args_parser],
                         help=N_("Deploys the configuration on each server "
                                "if the configuration has changed."))
     parser_deploy.set_defaults(func=deploy)
@@ -198,8 +231,10 @@ def parse_args():
 
     # DISCOVER
     parser_discover = subparsers.add_parser('discover',
-                          help=N_("Discover the services available on a "
-                                 "remote server"))
+                        add_help=False,
+                        parents=[common_args_parser],
+                        help=N_("Discover the services available on a "
+                                 "remote server."))
     parser_discover.set_defaults(func=discover)
     parser_discover.add_argument("-o", "--output",
                         type=argparse.FileType('w'), default=sys.stdout,
@@ -219,6 +254,10 @@ def parse_args():
 
 
 def main():
+    # @FIXME: argparse utilise le domaine par défaut pour les traductions.
+    # On définit explicitement le domaine par défaut ici. Ceci permet de
+    # définir les traductions pour les textes de argparse dans VigiConf.
+    gettext.textdomain('vigilo-vigiconf')
     args = parse_args()
     LOGGER.debug(_("VigiConf starting..."))
     f = open(settings["vigiconf"].get("lockfile", "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
