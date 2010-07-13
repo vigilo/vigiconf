@@ -34,6 +34,9 @@ from . import get_text, get_attrib, parse_path
 from .. import ParsingError
 from ..external import topsort
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 
 class HostTemplate(object):
     """
@@ -96,7 +99,7 @@ class HostTemplate(object):
             self.data["groups"] = []
         for group in args:
             if not parse_path(group):
-                raise ParsingError('Invalid group name (%s)' % group)
+                raise ParsingError(_('Invalid group name (%s)') % group)
             self.data["groups"].append(group)
 
     def add_weight(self, weight):
@@ -239,7 +242,7 @@ class HostTemplateFactory(object):
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
         if result != 0:
-            raise ParsingError("XML validation failed")
+            raise ParsingError(_("XML validation failed"))
 
     def __load(self, source):
         """
@@ -301,9 +304,12 @@ class HostTemplateFactory(object):
                     try:
                         test_weight = int(test_weight)
                     except ValueError:
-                        raise ParsingError(
-                                "Invalid weight value for test %s on host %s: %r"
-                                % (test_name, cur_tpl.name, test_weight))
+                        raise ParsingError(_("Invalid weight value for test "
+                            "%(test)s in template %(tpl)s: %(weight)r") % {
+                            'test': test_name,
+                            'tpl': cur_tpl.name,
+                            'weight': test_weight,
+                        })
                     except TypeError:
                         pass # C'est None, on laisse prendre la valeur par défaut
                     args = {}
@@ -318,9 +324,11 @@ class HostTemplateFactory(object):
                     try:
                         weight = int(weight)
                     except ValueError:
-                        raise ParsingError(
-                                "Invalid weight value for template %s: %r"
-                                % (cur_tpl.name, weight))
+                        raise ParsingError(_("Invalid weight value for "
+                            "template %(tpl)s: %(weight)r") % {
+                            'tpl': cur_tpl.name,
+                            'weight': weight,
+                        })
                     except TypeError:
                         pass # C'est None, on laisse prendre la valeur par défaut
                     cur_tpl.add_weight(weight)

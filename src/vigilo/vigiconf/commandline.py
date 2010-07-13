@@ -219,13 +219,13 @@ def parse_args():
 
 def main():
     args = parse_args()
-    LOGGER.debug("VigiConf starting...")
+    LOGGER.debug(_("VigiConf starting..."))
     f = open(settings["vigiconf"].get("lockfile", "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
     try:
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception, exp:
-        LOGGER.error("Can't obtain lock on lockfile. Dispatchator already "
-                    +"running ? REASON : %s", exp)
+        LOGGER.error(_("Can't obtain lock on lockfile. Dispatchator already "
+                        "running ? REASON : %s"), exp)
         sys.exit(1)
     try:
         args.func(args)
@@ -238,7 +238,7 @@ def main():
             LOGGER.error(_("VigiConf error: %s"), str(e))
         #for l in traceback.format_exc().split("\n"):
         #    LOGGER.error(l)
-    LOGGER.debug("VigiConf ended.")
+    LOGGER.debug(_("VigiConf ended."))
 
 
 if __name__ == "__main__":

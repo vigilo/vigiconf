@@ -24,6 +24,9 @@ from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from vigilo.models.tables import SupItemGroup
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 
@@ -100,7 +103,7 @@ class GroupLoader(XMLLoader):
         return instance
 
     def insert(self, data):
-        LOGGER.debug("Inserting: %s" % self.get_key(data))
+        LOGGER.debug(_("Inserting: %s"), self.get_key(data))
         instance = self._class.create(data["name"], self._current_parent)
         self._in_conf[self.get_key(data)] = instance
         DBSession.flush()

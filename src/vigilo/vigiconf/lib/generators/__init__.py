@@ -21,8 +21,10 @@
 ################################################################################
 """
 Generators for the Vigilo Config Manager
-
 """
+
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
 class Generator(object):
     """
@@ -47,7 +49,7 @@ class Generator(object):
         The main generation method.
         @note: To be reimplemented by sub-classes
         """
-        raise NotImplementedError("Genrators must define the generate() method")
+        raise NotImplementedError(_("Generators must define the generate() method"))
 
     def addWarning(self, element, msg):
         """

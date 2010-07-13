@@ -32,6 +32,9 @@ from vigilo.models.session import DBSession
 from . import Generator
 from ... import conf
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 class MapGenerator(Generator):
     """ Classe de base pour un générateur de cartes auto.
     
@@ -80,8 +83,8 @@ class MapGenerator(Generator):
         root = MapGroup.by_parent_and_name(None, unicode(self.rootgroup_name))
         if root:
             return root
-        raise KeyError("The map group %s has not been added by the install procedure"
-                       % self.rootgroup_name)
+        raise KeyError(_("The map group %s has not been added "
+                        "by the install procedure") % self.rootgroup_name)
 
     def process_top_group(self, group):
         """ traitement des hostgroups de haut niveau

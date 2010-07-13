@@ -12,6 +12,20 @@ tests_require = [
     'coverage',
 ]
 
+def install_i18n(i18ndir, destdir):
+    data_files = []
+    langs = []
+    for f in os.listdir(i18ndir):
+        if os.path.isdir(os.path.join(i18ndir, f)) and not f.startswith("."):
+            langs.append(f)
+    for lang in langs:
+        for f in os.listdir(os.path.join(i18ndir, lang, "LC_MESSAGES")):
+            if f.endswith(".mo"):
+                data_files.append(
+                        (os.path.join(destdir, lang, "LC_MESSAGES"),
+                         [os.path.join(i18ndir, lang, "LC_MESSAGES", f)])
+                )
+    return data_files
 
 def find_data_files(basedir, srcdir):
     data_files = []
@@ -72,6 +86,11 @@ setup(name='vigilo-vigiconf',
             'vigilo',
         #    'vigilo.common',
             ],
+        message_extractors={
+            'src': [
+                ('**.py', 'python', None),
+            ],
+        },
         packages=find_packages("src"),
         #[
         #    'vigilo',
@@ -100,7 +119,8 @@ setup(name='vigilo-vigiconf',
             "vigilo.vigiconf": ["validation/*.sh", "validation/dtd/*.dtd",
                                 "validation/xsd/*.xsd", "tests/*/*.py"],
             },
-        data_files=get_data_files(),
+        data_files=get_data_files() +
+            install_i18n("i18n", "/usr/share/locale"),
         )
 
 #from pprint import pprint

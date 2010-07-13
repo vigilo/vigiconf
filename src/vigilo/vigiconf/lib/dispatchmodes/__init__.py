@@ -31,6 +31,9 @@ import glob
 from ... import conf
 from .. import EditionError
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 def getinstance():
     """
     Factory for the L{Dispatchator<dispatchator.Dispatchator>} children.
@@ -43,9 +46,9 @@ def getinstance():
         try:
             from .remote import DispatchatorRemote
         except ImportError:
-            message = "You are trying remote deployment on the Community " \
-                     +"edition. This feature is only available in the " \
-                     +"Enterprise edition. Aborting."
+            message = _("You are trying remote deployment on the Community "
+                        "edition. This feature is only available in the "
+                        "Enterprise edition. Aborting.")
             raise EditionError(message)
         _dispatchator = DispatchatorRemote()
     else:

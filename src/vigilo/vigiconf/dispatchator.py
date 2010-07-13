@@ -222,7 +222,7 @@ class Dispatchator(object):
         _applications = []
         for appname in apps:
             if not conf.apps.has_key(appname):
-                raise DispatchatorError("%s unknown" % appname)
+                raise DispatchatorError(_('Unknown application: %s') % appname)
             _AppConfig = conf.apps[appname]
             _App = Application(appname)
             _App.setServers(
@@ -283,16 +283,16 @@ class Dispatchator(object):
         
         result = generator.generate(commit_db=(self.mode_db == 'commit'))
         if not result:
-            raise DispatchatorError("Can't generate configuration")
+            raise DispatchatorError(_("Can't generate configuration"))
 
     def validate_generation(self):
         for _App in self.getApplications():
             _App.validate(os.path.join(settings["vigiconf"].get("libdir"),
                                        "deploy"))
-        LOGGER.info("Validation Successful")
+        LOGGER.info(_("Validation Successful"))
         #Commit Configuration
         self._svn_commit()
-        LOGGER.info("Commit Successful")
+        LOGGER.info(_("Commit Successful"))
 
     def prepare_svn(self):
         """
@@ -333,8 +333,8 @@ class Dispatchator(object):
 
     def _svn_sync(self, status=None):
         if not settings["vigiconf"].get("svnrepository", False):
-            LOGGER.warning("Not updating because the 'svnrepository' "
-                           "configuration parameter is empty")
+            LOGGER.warning(_("Not updating because the 'svnrepository' "
+                               "configuration parameter is empty"))
             return 0
         if status is None:
             status = self._svn_status()
@@ -372,8 +372,8 @@ class Dispatchator(object):
     
     def _svn_commit(self):
         if not settings["vigiconf"].get("svnrepository", False):
-            LOGGER.warning("Not committing because the 'svnrepository' "
-                           "configuration parameter is empty")
+            LOGGER.warning(_("Not committing because the 'svnrepository' "
+                           "configuration parameter is empty"))
             return 0
         confdir = settings["vigiconf"].get("confdir")
         _cmd = self._get_auth_svn_cmd_prefix('ci')
@@ -399,9 +399,12 @@ class Dispatchator(object):
         try:
             result = _command.execute()
         except SystemCommandError, e:
-            raise DispatchatorError("Can't execute the request to update the "
-                                   +"local copy. COMMAND %s FAILED. REASON: %s"
-                                   % (" ".join(_cmd), e.value) )
+            raise DispatchatorError(_("Can't execute the request to update the "
+                                    "local copy. COMMAND %(cmd)s FAILED. "
+                                    "REASON: %(reason)s") % {
+                                        'cmd': " ".join(_cmd),
+                                        'reason': e.value,
+                                   })
         return result
 
     
@@ -510,9 +513,9 @@ class Dispatchator(object):
         self.commandsQueue.join()
         _result = self.manageReturnQueue()
         if not _result:
-            raise DispatchatorError("The configurations files have not been "
-                                   +"transfered on every server. See above "
-                                   +"for more information.")
+            raise DispatchatorError(_("The configurations files have not been "
+                                        "transfered on every server. See above "
+                                        "for more information."))
 
     def serverDeployFiles(self, iRevision):
         """
@@ -668,8 +671,8 @@ class Dispatchator(object):
         self.commandsQueue.join()
         _result = self.manageReturnQueue()
         if not _result:
-            raise DispatchatorError("Switch directories was not successful "
-                                   +"on each server.")
+            raise DispatchatorError(_("Switch directories was not successful "
+                                        "on each server."))
 
     def serverSwitchDirectories(self):
         """
@@ -726,7 +729,7 @@ class Dispatchator(object):
             for _srv in iServers:
                 _servers.append(_srv)
             self.startOrStopApplications(self.stopThread, [_servers],
-                                        "Stop applications failed\n")
+                                        _("Stop applications failed"))
 
     def startApplications(self):
         """Starts all the applications on all the servers"""
@@ -743,7 +746,7 @@ class Dispatchator(object):
             for _srv in iServers:
                 _servers.append(_srv)
             self.startOrStopApplications(self.startThread, [_servers],
-                                        "Start applications failed\n")
+                                        _("Start applications failed"))
 
     # Undo
     def undo(self):

@@ -190,7 +190,7 @@ class Application(object):
                 appgroup = group
                 break
         if appgroup is None:
-            raise ApplicationError("Can't find the appgroup for app %s" \
+            raise ApplicationError(_("Can't find the appgroup for app %s")
                                    % self.getName())
         return appgroup
 
@@ -262,9 +262,10 @@ class Application(object):
                                "reason": e})
                 error.cause = e
                 raise error
-        LOGGER.info("%s : Validation successful for server: %s",
-                    self.getName(), iServer.getName())
-
+        LOGGER.info(_("%(app)s : Validation successful for server: %(server)s"), {
+            'app': self.getName(),
+            'server': iServer.getName(),
+        })
 
 
     def qualify(self):
@@ -309,13 +310,15 @@ class Application(object):
             try:
                 _command.execute()
             except SystemCommandError, e:
-                error = ApplicationError("%s : Qualification failed on : %s - "
+                error = ApplicationError(_("%s : Qualification failed on : %s - ")
                                        % (self.getName(), iServer.getName())
                                       +"REASON : %s" % e.value)
                 error.cause = e
                 raise error
-        LOGGER.info("%s : Qualification successful on server : %s",
-                    self.getName(), iServer.getName())
+        LOGGER.info(_("%(app)s : Qualification successful on server : %(server)s"), {
+            'app': self.getName(),
+            'server': iServer.getName(),
+        })
 
 
     def startThread(self):
@@ -356,7 +359,7 @@ class Application(object):
 
         result = self.manageReturnQueue()
         if result == False:
-            raise ApplicationError("%s : Start process failed." \
+            raise ApplicationError(_("%s : Start process failed.")
                                    % (self.getName()))
 
     def start(self):
@@ -380,7 +383,7 @@ class Application(object):
 
         result = self.manageReturnQueue()
         if result == False:
-            raise ApplicationError("%s : Start process failed." \
+            raise ApplicationError(_("%s : Start process failed.")
                                    % (self.getName()))
 
 
@@ -391,17 +394,26 @@ class Application(object):
         @type  iServer: L{Server<lib.server.Server>}
         """
         if len(self.getStartMethod()) > 0:
-            LOGGER.info("Starting %s on %s ...",
-                        self.getName(), iServer.getName())
+            LOGGER.info(_("Starting %(app)s on %(server)s ..."), {
+                'app': self.getName(),
+                'server': iServer.getName(),
+            })
             _commandStr = "sudo " + self.getStartMethod()
             _command = iServer.createCommand(_commandStr)
             try:
                 _command.execute()
             except SystemCommandError, e:
-                error = ApplicationError("Can't Start %s on %s - REASON %s\n" \
-                               % (self.getName(), iServer.getName(), e.value))
+                error = ApplicationError(_("Can't Start %(app)s on %(server)s "
+                                            "- REASON %(reason)s") % {
+                    'app': self.getName(),
+                    'server': iServer.getName(),
+                    'reason': e.value(),
+                })
                 error.cause = e
-            LOGGER.info("%s started on %s", self.getName(), iServer.getName())
+            LOGGER.info(_("%(app)s started on %(server)s"), {
+                'app': self.getName(),
+                'server': iServer.getName(),
+            })
 
     def stopThread(self):
         """Stops applications on a server taken from the top of the queue"""
@@ -438,7 +450,7 @@ class Application(object):
 
         result = self.manageReturnQueue()
         if result == False:
-            raise ApplicationError("%s : Stop process failed." \
+            raise ApplicationError(_("%s : Stop process failed.")
                                    % (self.getName()))
 
     def stop(self):
@@ -462,7 +474,7 @@ class Application(object):
 
         result = self.manageReturnQueue()
         if result == False :
-            raise ApplicationError("%s : Stop process failed." \
+            raise ApplicationError(_("%s : Stop process failed.")
                                    % (self.getName()))
 
 
@@ -473,17 +485,26 @@ class Application(object):
         @type  iServer: L{Server<lib.server.Server>}
         """
         if (len(self.getStopMethod()) > 0):
-            LOGGER.info("Stopping %s on %s ...",
-                        self.getName(), iServer.getName())
+            LOGGER.info(_("Stopping %(app)s on %(server)s ..."), {
+                'app': self.getName(),
+                'server': iServer.getName(),
+            })
             _commandStr = "sudo " + self.getStopMethod()
             _command = iServer.createCommand(_commandStr)
             try:
                 _command.execute()
             except SystemCommandError, e:
-                error = ApplicationError("Can't Stop %s on %s - REASON %s\n" \
-                               % (self.getName(), iServer.getName(), e.value))
+                error = ApplicationError(_("Can't Stop %(app)s on %(server)s "
+                                            "- REASON %(reason)s") % {
+                    'app': self.getName(),
+                    'server': iServer.getName(),
+                    'reason': e.value,
+                })
                 error.cause = e
-            LOGGER.info("%s stopped on %s", self.getName(), iServer.getName())
+            LOGGER.info(_("%(app)s stopped on %(server)s"), {
+                'app': self.getName(),
+                'server': iServer.getName(),
+            })
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

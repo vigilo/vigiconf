@@ -35,6 +35,8 @@ from xml.etree import ElementTree as ET # Python 2.5
 
 from . import conf
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
 class DiscoveratorError(Exception):
     """Error during the Discoverator process"""
@@ -71,7 +73,7 @@ class Discoverator(object):
         @type  filename: C{str}
         """
         if not os.path.exists(filename):
-            raise DiscoveratorError("%s: No such file" % filename)
+            raise DiscoveratorError(_("%s: No such file") % filename)
         walk = open(filename)
         for line in walk:
             if line.count("=") != 1:
@@ -112,13 +114,15 @@ class Discoverator(object):
                                        env=newenv)
         pout, perr = walkprocess.communicate()
         if walkprocess.returncode == 127:
-            message = "The \"snmpwalk\" command is not installed."
+            message = _('The "snmpwalk" command is not installed.')
             raise DiscoveratorError(message)
         elif walkprocess.returncode != 0:
-            message = "SNMP walk command failed with error status %s " \
-                      % walkprocess.returncode \
-                     +"and message:\n%s\n" % perr \
-                     +"The command was: %s" % snmpcommand
+            message = _("SNMP walk command failed with error status %(status)s "
+                        "and message:\n%(msg)s\nThe command was: %(cmd)s" % {
+                'status': walkprocess.returncode,
+                'msg': perr,
+                'cmd': snmpcommand,
+            })
             raise DiscoveratorError(message)
         for line in pout.split("\n"): # pylint: disable-msg=E1103
             if line.count("=") != 1:
@@ -275,7 +279,6 @@ def indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-
 
 
 if __name__ == "__main__":

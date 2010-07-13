@@ -72,31 +72,31 @@ class HostLoader(DBLoader):
             host = self.add(host)
             
             # groupes
-            LOGGER.debug("Loading groups for host %s", hostname)
+            LOGGER.debug(_("Loading groups for host %s"), hostname)
             self._load_groups(host, hostdata)
 
             # services
-            LOGGER.debug("Loading services for host %s", hostname)
+            LOGGER.debug(_("Loading services for host %s"), hostname)
             service_loader = ServiceLoader(host)
             service_loader.load()
 
             # directives Nagios de l'hôte
-            LOGGER.debug("Loading nagios conf for host %s", hostname)
+            LOGGER.debug(_("Loading nagios conf for host %s"), hostname)
             nagiosconf_loader = NagiosConfLoader(host, hostdata['nagiosDirectives'])
             nagiosconf_loader.load()
 
             # données de performance
-            LOGGER.debug("Loading perfdatasources for host %s", hostname)
+            LOGGER.debug(_("Loading perfdatasources for host %s"), hostname)
             pds_loader = PDSLoader(host)
             pds_loader.load()
 
             # graphes
-            LOGGER.debug("Loading graphs for host %s", hostname)
+            LOGGER.debug(_("Loading graphs for host %s"), hostname)
             graph_loader = GraphLoader(host)
             graph_loader.load()
 
         # Nettoyage des graphes et les groupes de graphes vides
-        LOGGER.debug("Cleaning up old graphs and graphgroups")
+        LOGGER.debug(_("Cleaning up old graphs and graphgroups"))
         for graph in DBSession.query(Graph):
             if not graph.perfdatasources:
                 DBSession.delete(graph)
@@ -116,7 +116,7 @@ class HostLoader(DBLoader):
                         ).filter(SupItemGroup.name == old_group
                         ).all()
             if not groups:
-                raise ParsingError(_("Unknown group \"%(group)s\" in host \"%(host)s\".")
+                raise ParsingError(_('Unknown group "%(group)s" in host "%(host)s".')
                                   % {"group": old_group, "host": host.name})
             for group in groups:
                 hostdata["otherGroups"].add(group.get_path())
@@ -145,8 +145,8 @@ class HostLoader(DBLoader):
             for part in parse_path(path):
                 parent = SupItemGroup.by_parent_and_name(parent, part)
                 if not parent:
-                    LOGGER.error("Could not find a group matching "
-                                "this path: %s", path)
+                    LOGGER.error(_("Could not find a group matching "
+                                    "this path: %s"), path)
                     break
             if parent and parent not in hostgroups_cache:
                 host.groups.append(parent)

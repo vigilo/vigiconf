@@ -28,6 +28,9 @@ import subprocess
 
 from . import VigiConfError
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 
 class SystemCommandError(VigiConfError):
     """Exceptions involving L{SystemCommand} instances"""
@@ -102,9 +105,12 @@ class SystemCommand(object):
         self.mResult = self.process.communicate()
         if self.process.returncode != 0: # command failed
             raise SystemCommandError(self.process.returncode,
-                        "command %s failed with code %s and message: %s" 
-                        % (self.getCommand(), self.process.returncode,
-                           self.getResult()) )
+                        _("Command %(cmd)s failed with code %(code)s "
+                            "and message: %(msg)s") % {
+                            'cmd': self.getCommand(),
+                            'code': self.process.returncode,
+                            'msg': self.getResult(),
+                        })
         return self.mResult
     
     def integerReturnCode(self):

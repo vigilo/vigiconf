@@ -33,6 +33,9 @@ from xml.etree import ElementTree as ET # Python 2.5
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from . import get_text, get_attrib, parse_path
 from .graph import Graph
 from .. import ParsingError
@@ -143,8 +146,8 @@ class Host(object):
                 spec = inspect.getargspec(inst.add_test)
                 # On récupère la liste des arguments obligatoires.
                 args = spec[0][2:-len(spec[3])]
-                LOGGER.error('Test "%(test_name)s" on "%(host)s" needs the '
-                            'following arguments: %(args)s (and only those)', {
+                LOGGER.error(_('Test "%(test_name)s" on "%(host)s" needs the '
+                            'following arguments: %(args)s (and only those)'), {
                                 'test_name': str(test_class.__name__),
                                 'host': self.name,
                                 'args': ', '.join(args),
@@ -622,7 +625,7 @@ class HostFactory(object):
                 if validation:
                     self._validatehost(os.path.join(root, f))
                 self._loadhosts(os.path.join(root, f))
-                LOGGER.debug("Sucessfully parsed %s" % os.path.join(root, f))
+                LOGGER.debug(_("Sucessfully parsed %s"), os.path.join(root, f))
             for d in dirs: # Don't visit subversion/CVS directories
                 if d.startswith("."):
                     dirs.remove(d)
@@ -647,7 +650,7 @@ class HostFactory(object):
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
         if result != 0:
-            raise ParsingError("XML validation failed")
+            raise ParsingError(_("XML validation failed"))
     
     def _loadhosts(self, source):
         """
@@ -680,7 +683,7 @@ class HostFactory(object):
 
                     # NB: parts peut valoir None si le parsing a échoué.
                     if ventilation and (not parts or len(parts) > 1):
-                        raise ParsingError("Invalid ventilation group: %s" %
+                        raise ParsingError(_("Invalid ventilation group: %s") %
                             ventilation)
 
                     weight = get_attrib(elem, 'weight')
@@ -690,7 +693,7 @@ class HostFactory(object):
                         try:
                             weight = int(weight)
                         except (TypeError, ValueError):
-                            raise ParsingError("Invalid weight: %r" % weight)
+                            raise ParsingError(_("Invalid weight: %r") % weight)
 
                     cur_host = Host(self.hosts, name, address, ventilation, weight)
                     # TODO: refactoring
@@ -740,8 +743,12 @@ class HostFactory(object):
                         test_weight = int(test_weight)
                     except ValueError:
                         raise ParsingError(
-                                "Invalid weight value for test %s on host %s: %r"
-                                % (test_name, cur_host.name, test_weight))
+                            _("Invalid weight value for test %(test)s "
+                                "on host %(host)s: %(weight)r") % {
+                                'test': test_name,
+                                'host': cur_host.name,
+                                'weight': test_weight,
+                            })
                     except TypeError:
                         pass # C'est None, on laisse prendre la valeur par défaut
                     args = {}
@@ -769,17 +776,18 @@ class HostFactory(object):
                 elif elem.tag == "group":
                     group_name = get_text(elem)
                     if not parse_path(group_name):
-                        raise ParsingError('Invalid group name (%s)' % group_name)
+                        raise ParsingError(_('Invalid group name (%s)')
+                            % group_name)
                     cur_host.add_group(group_name)
                 elif elem.tag == "nagios":
                     process_nagios = False
                 
                 elif elem.tag == "host":
                     if not len(cur_host.get_attribute('otherGroups')):
-                        raise ParsingError('You must associate host "%s" with '
-                            'at least one group.' % cur_host.name)
+                        raise ParsingError(_('You must associate host "%s" with '
+                            'at least one group.') % cur_host.name)
 
-                    LOGGER.debug("Loaded host %(host)s, address %(address)s" %
+                    LOGGER.debug(_("Loaded host %(host)s, address %(address)s") %
                                  {'host': cur_host.name,
                                   'address': cur_host.get_attribute('address'),
                                  })

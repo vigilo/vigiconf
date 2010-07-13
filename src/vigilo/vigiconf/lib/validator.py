@@ -24,6 +24,9 @@ from __future__ import absolute_import
 
 from .. import conf
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 class Validator(object):
     """
     Used by the generators to validate the configuration.
@@ -107,15 +110,15 @@ class Validator(object):
         returnCode = True
         if len(servers) == 0:
             self.addError("Base Config", "servers",
-                          "No server configuration to be generated")
+                          _("No server configuration to be generated"))
             returnCode = False
         if len(apps) == 0:
             self.addError("Base Config", "apps",
-                          "No application configuration to be generated")
+                          _("No application configuration to be generated"))
             returnCode = False
         if len(conf.hostsConf) == 0:
             self.addError("Base Config", "hosts",
-                          "No host configuration to be generated")
+                          _("No host configuration to be generated"))
             returnCode = False
         return returnCode
 
@@ -138,27 +141,34 @@ class Validator(object):
         """
         if self._stats["nbApps"] != self._stats["nbGenerators"]:
             self.addWarning("Base Config", "generators",
-                            "%d generators exist whereas %d applications "
-                            % (self._stats["nbGenerators"],
-                               self._stats["nbApps"])
-                           +"have been configured")
+                            _("%(nb_gens)d generators exist whereas %(nb_apps)d "
+                                "applications have been configured") % {
+                                'nb_gens': self._stats["nbGenerators"],
+                                'nb_apps': self._stats["nbApps"],
+                            })
         s = []
         if details:
             for i in self._errors:
-                s.append("########> Error in %s (object %s): %s"
-                         % (i["source"], i["object"], i["msg"]))
+                s.append(_("########> Error in %(source)s (object "
+                            "%(object)s): %(error)s") % {
+                    'source': i['source'],
+                    'object': i['object'],
+                    'error': i['msg'],
+                })
             for i in self._warnings:
-                s.append("====> Warning in %s (object %s): %s"
-                         % (i["source"], i["object"], i["msg"]))
-        s.append("%d errors" % len(self._errors))
-        s.append("%d warnings" % len(self._warnings))
+                s.append(_("====> Warning in %(source)s (object %(object)s): "
+                            "%(error)s") % {
+                    'source': i['source'],
+                    'object': i['object'],
+                    'error': i['msg'],
+                })
+        s.append(_("%d errors") % len(self._errors))
+        s.append(_("%d warnings") % len(self._warnings))
         if stats:
-            s.append("%(nbGenerators)d generators have configured %(nbHosts)d "
-                     % self._stats
-                    +"hosts on %(nbServers)d servers." % self._stats)
-            s.append("%(filesWritten)d files have been generated in "
-                     % self._stats
-                    +"%(dirsCreated)d directories." % self._stats)
+            s.append(_("%(nbGenerators)d generators have configured"
+                "%(nbHosts)d hosts on %(nbServers)d servers.") % self._stats)
+            s.append(_("%(filesWritten)d files have been generated in "
+                "%(dirsCreated)d directories") % self._stats)
         return s
 
 

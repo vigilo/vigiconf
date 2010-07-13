@@ -97,8 +97,8 @@ class DispatchatorRemote(Dispatchator):
         appgroup = app.getGroup()
         # If we're not listed in the appsGroupsByServer matrix, bail out
         if not conf.appsGroupsByServer.has_key(appgroup):
-            LOGGER.warning("The %s app group is not listed in "
-                           "appsGroupsByServer", appgroup)
+            LOGGER.warning(_("The %s app group is not listed in "
+                                "appsGroupsByServer"), appgroup)
             return []
         # Then, find all hostgroups
         hostgroups = set()

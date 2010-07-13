@@ -30,6 +30,9 @@ from ..server import Server, ServerError
 from ..systemcommand import SystemCommand
 from ..remotecommand import RemoteCommand, CommandUser
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 class ServerRemote(Server):
     """
     A SSH-accessible server
@@ -44,7 +47,7 @@ class ServerRemote(Server):
         ssh_conf_file = os.path.join(settings["vigiconf"].get("confdir"),
                                      "ssh", "ssh_config")
         if not os.path.exists(ssh_conf_file):
-            raise ServerError("Cannot find SSH config file: %s"
+            raise ServerError(_("Cannot find SSH config file: %s")
                                         % ssh_conf_file)
         self.mCommandUser = CommandUser("vigiconf", ssh_conf_file)
 

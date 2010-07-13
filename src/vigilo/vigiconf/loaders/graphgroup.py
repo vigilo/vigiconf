@@ -24,8 +24,10 @@ from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
-from vigilo.models.session import DBSession
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
+from vigilo.models.session import DBSession
 from vigilo.models.tables import GraphGroup
 
 from vigilo.vigiconf.lib.dbloader import DBLoader
@@ -57,7 +59,7 @@ class GraphGroupLoader(DBLoader):
         return instance
 
     def insert(self, data):
-        LOGGER.debug("Inserting: %s" % self.get_key(data))
+        LOGGER.debug(_("Inserting: %s"), self.get_key(data))
         # Pour les GraphGroup, il faut utiliser la méthode create()
         # pour générer correctement le groupe et sa hiérarchie.
         instance = self._class.create(**data)

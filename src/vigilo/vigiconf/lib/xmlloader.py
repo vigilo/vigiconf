@@ -31,6 +31,9 @@ from xml.etree import ElementTree as ET # Python >= 2.5
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from vigilo.models.session import DBSession
 
 from vigilo.vigiconf.lib.dbloader import DBLoader
@@ -89,9 +92,9 @@ class XMLLoader(DBLoader):
         """
         xsd = self.get_xsd_file()
         if not xsd:
-            raise ValueError("An XSD schema should be provided for validation.")
+            raise ValueError(_("An XSD schema should be provided for validation."))
         if not os.path.exists(xsd):
-            raise OSError("XSD file does not exist: %s" % xsd)
+            raise OSError(_("XSD file does not exist: %s") % xsd)
 
         devnull = open("/dev/null", "w")
         # TODO: validation avec lxml plutôt que xmllint ?
@@ -100,8 +103,10 @@ class XMLLoader(DBLoader):
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
         if result != 0:
-            raise ParsingError("XML validation failed (%s with schema %s)"
-                               % (xmlfile, xsd))
+            raise ParsingError(_("XML validation failed (%(file)s with schema %(schema)s)") % {
+                'file': xmlfile,
+                'schema': xsd,
+            })
     
     def visit_dir(self, dirname):
         """ validate the exploration of a directory.
@@ -160,11 +165,17 @@ class XMLLoader(DBLoader):
                     
                     start_tag = self._bloclist.pop()
                     if start_tag != elem.tag:
-                        raise ParsingError("End tag mismatch error: %s/%s"
-                                        % (start_tag, elem.tag))
+                        raise ParsingError(_("End tag mismatch error: "
+                                            "%(start)s/%(end)s") % {
+                            'start': start_tag,
+                            'end': elem.tag,
+                        })
             DBSession.flush()
         except ParsingError, e:
-            raise ParsingError("Syntax error in \"%s\": %s" % (path, e))
+            raise ParsingError(_('Syntax error in "%(path)s": %(error)s') % {
+                'path': path,
+                'error': e,
+            })
     
     def start_element(self, tag):
         """ should be implemented by the subclass when using load_file method
@@ -305,7 +316,7 @@ class XMLLoader(DBLoader):
                     final = True
                 else:
                     self.load_file(path)
-                    LOGGER.debug("Sucessfully parsed %s" % path)
+                    LOGGER.debug(_("Sucessfully parsed %s") % path)
             
             # parsing du dernier fichier à traiter pour des mises
             # à jour unitaires

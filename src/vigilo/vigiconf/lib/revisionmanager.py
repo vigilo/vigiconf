@@ -33,6 +33,9 @@ from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from .. import conf
 from . import VigiConfError
 
@@ -168,7 +171,7 @@ class RevisionManager(object):
             _file.write("Revision: %d"%(self.getSubversion()))
             _file.close()
         except Exception, e:
-            LOGGER.exception("Cannot write the revision file: %s", e)
+            LOGGER.exception(_("Cannot write the revision file: %s"), e)
     
     def isDeployNeeded(self):
         """

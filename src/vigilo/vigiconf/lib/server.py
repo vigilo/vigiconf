@@ -31,6 +31,9 @@ from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from .. import conf
 from . import VigiConfError, EditionError
 from .systemcommand import SystemCommand, SystemCommandError
@@ -74,8 +77,8 @@ class ServerFactory(object):
             try:
                 from vigilo.vigiconf.lib.servertypes.remote import ServerRemote
             except ImportError:
-                raise EditionError("On the Community Edition, you can only "
-                                  +"use the localhost", name)
+                raise EditionError(_("On the Community Edition, you can only "
+                                        "use localhost"), name)
             return ServerRemote(name)
 
 
@@ -178,9 +181,11 @@ class Server(object):
         try:
             _command.execute()
         except SystemCommandError, e:
-            raise ServerError("Can't refactor server. COMMAND %s FAILED. "
-                              % _CmdLine + "REASON : %s" % e.value,
-                              self.getName())
+            raise ServerError(_("Can't refactor server. COMMAND %(cmd) "
+                "FAILED. REASON: %(reason)s") % {
+                'cmd': _CmdLine,
+                'reason': e.value,
+            }, self.getName())
  
     def _builddepcmd(self):
         """
@@ -200,9 +205,9 @@ class Server(object):
         try:
             _command.execute()
         except SystemCommandError, e:
-            raise ServerError("Can't deploy server. REASON : %s" % (e.value),
+            raise ServerError(_("Can't deploy server. REASON: %s") % (e.value),
                               self.getName())
-        LOGGER.info("%s : deployement successful.", self.getName())
+        LOGGER.info(_("%s : deployement successful."), self.getName())
 
     def copy(self, iDestination, iSource):
         """
@@ -216,8 +221,12 @@ class Server(object):
         try:
             shutil.copyfile(iSource, iDestination)
         except Exception, e:
-            raise ServerError("Can not copy files (%s to %s): %s. "
-                              % (iSource, iDestination, e), self.getName())
+            raise ServerError(_("Cannot copy files (%(from)s to %(to)s): "
+                                "%(error)s.") % {
+                'from': iSource,
+                'to': iDestination,
+                'error': e,
+            }, self.getName())
 
     def insertValidationDir(self):
         """Prepare the directory with the validation scripts"""
@@ -254,11 +263,11 @@ class Server(object):
             _command = self.createCommand(_CmdLine)
             _command.execute()
             if(_command.integerReturnCode() == 1):
-                raise ServerError("UNDO can't be done. Directory 'old' "
-                                 +"does not exist on %s." % self.getName(),
+                raise ServerError(_("UNDO can't be done. Directory 'old' "
+                                    "does not exist on %s.") % self.getName(),
                                   self.getName())
         except SystemCommandError, e:
-            raise ServerError("UNDO can't be done. %s" % (str(e)),
+            raise ServerError(_("UNDO can't be done. %s") % (str(e)),
                               self.getName())
         # undo !
         try:
@@ -273,12 +282,12 @@ class Server(object):
             _command = self.createCommand(_CmdLine)
             _command.execute()
             if(_command.integerReturnCode() == 1):
-                raise ServerError("UNDO failed on %s." \
+                raise ServerError(_("UNDO failed on %s.") \
                                   % (self.getName()), self.getName())
             else:
-                LOGGER.info("UNDO successful on %s.", self.getName())
+                LOGGER.info(_("UNDO successful on %s."), self.getName())
         except SystemCommandError, e:
-            raise ServerError("UNDO can't be done. %s" % (str(e)),
+            raise ServerError(_("UNDO can't be done. %s") % (str(e)),
                               self.getName())
 
     # redirections

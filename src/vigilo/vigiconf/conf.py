@@ -261,6 +261,9 @@ settings.load_module(__name__)
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from .lib import ParsingError
 from .lib.confclasses.host import HostFactory
 from .lib.confclasses.hosttemplate import HostTemplateFactory
@@ -292,10 +295,10 @@ def loadConf():
     try:
         hostfactory.load()
     except ParsingError, e:
-        LOGGER.error("Error loading configuration file %s: %s\n"
-                % (os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
-                   str(e))
-        )
+        LOGGER.error(_("Error loading configuration file %(file)s: %(error)s"), {
+            'file': (os.path.join(settings["vigiconf"].get("confdir"), "hosts")),
+            'error': str(e),
+        })
         raise e
     hostsConf = hostfactory.hosts
     # TODO: refactoring

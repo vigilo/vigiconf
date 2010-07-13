@@ -27,6 +27,9 @@ import doctest
 
 from .systemcommand import SystemCommand, SystemCommandError
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 
 class CommandUser(object):
     """
@@ -109,10 +112,11 @@ class RemoteCommand(SystemCommand):
         @param iServer: the remote server that will execute a command
         @type iServer: C{str}
         """
+        # @TODO: est-ce qu'on a vraiment besoin de distinguer les 2 cas ?
         if iServer is None:
-            raise RemoteCommandError("Server name set to None.")
+            raise RemoteCommandError(_("Server name set to None."))
         if len(iServer) == 0:
-            raise RemoteCommandError("Server name incorrect (length = 0).")
+            raise RemoteCommandError(_("Server name incorrect (length = 0)."))
         self.mServer = iServer # pylint: disable-msg=W0201
             
     def setUser(self, iUser):
@@ -171,7 +175,7 @@ class RemoteCommand(SystemCommand):
                                    self.mSourceStr))
             _cmd.append(self.mDestinationStr)
         else:
-            raise RemoteCommandError('Unknown command type.')
+            raise RemoteCommandError(_('Unknown command type.'))
         if self.shell:
             _cmd = "'%s'" % "' '".join(_cmd)
         return _cmd
@@ -204,10 +208,10 @@ class RemoteCommand(SystemCommand):
             # TODO: utiliser les codes de retour
             if re.search("ssh:.*Name or service not known",
                          sce.value) != None:
-                raise RemoteCommandError('Cannot reach server.')
+                raise RemoteCommandError(_('Cannot reach server.'))
             elif re.search("scp:.*No such file or directory",
                            sce.value) != None:
-                raise RemoteCommandError('Cannot find file.')
+                raise RemoteCommandError(_('Cannot find file.'))
             else:
                 raise sce.value
         
@@ -237,9 +241,9 @@ class RemoteCommand(SystemCommand):
         except SystemCommandError, e:
             # TODO: utiliser les codes de retour
             if re.search("ssh:.*Name or service not known", e.value) != None:
-                raise RemoteCommandError('Cannot reach server.')
+                raise RemoteCommandError(_('Cannot reach server.'))
             elif re.search("scp:.*No such file or directory", e.value) != None:
-                raise RemoteCommandError('Cannot find file.')
+                raise RemoteCommandError(_('Cannot find file.'))
             else:
                 raise e.value
         

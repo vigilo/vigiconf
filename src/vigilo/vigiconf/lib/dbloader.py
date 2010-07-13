@@ -27,6 +27,9 @@ __docformat__ = "epytext"
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from vigilo.models.session import DBSession
 
 
@@ -55,7 +58,7 @@ class DBLoader(object):
         Cette méthode doit être redéfinie dans une classe dérivée.
         Elle fait appel à self.add quand une instance est chargée.
         """        
-        raise NotImplementedError("The 'load' method must be redefined")
+        raise NotImplementedError(_("The 'load' method must be redefined"))
 
     def add(self, data):
         """
@@ -109,8 +112,8 @@ class DBLoader(object):
         @type  data: C{dict}
         """
         if self._key_attr is None:
-            raise NotImplementedError("The key attribute must be defined, "
-                                "or the get_key() method must be redefined")
+            raise NotImplementedError(_("The key attribute must be defined, "
+                                "or the get_key() method must be redefined"))
         if isinstance(data, self._class):
             return getattr(data, self._key_attr)
         else:
@@ -122,7 +125,10 @@ class DBLoader(object):
         @param data: un dictionnaire des données à mettre à jour
         @type  data: C{dict}
         """
-        LOGGER.debug("Updating: %s (%s)" % (self.get_key(data), self._class.__name__))
+        LOGGER.debug(_("Updating: %(key)s (%(class)s)"), {
+            'key': self.get_key(data),
+            'class': self._class.__name__,
+        })
         instance = self._in_db[self.get_key(data)]
         for key, value in data.iteritems():
             if getattr(instance, key) != value:
@@ -131,13 +137,13 @@ class DBLoader(object):
         return instance
 
     def insert(self, data):
-        LOGGER.debug("Inserting: %s" % self.get_key(data))
+        LOGGER.debug(_("Inserting: %s"), self.get_key(data))
         instance = self._class(**data)
         DBSession.add(instance)
         self._in_conf[self.get_key(data)] = instance
         return instance
 
     def delete(self, instance):
-        LOGGER.debug("Deleting: %s" % instance)
+        LOGGER.debug(_("Deleting: %s"), instance)
         DBSession.delete(instance)
 
