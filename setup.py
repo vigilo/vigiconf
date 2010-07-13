@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 sw=4 ts=4 et :
-import os
+import os, sys
 from glob import glob
 from setuptools import setup, find_packages
 
@@ -120,7 +120,7 @@ setup(name='vigilo-vigiconf',
                                 "validation/xsd/*.xsd", "tests/*/*.py"],
             },
         data_files=get_data_files() +
-            install_i18n("i18n", "/usr/share/locale"),
+            install_i18n("i18n", os.path.join(sys.prefix, 'share', 'locale')),
         )
 
 #from pprint import pprint
