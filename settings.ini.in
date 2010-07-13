@@ -64,6 +64,11 @@ formatter=syslogFormatter
 args='/dev/log', 'daemon'
 
 [formatter_consoleFormatter]
+format=%(message)s
+datefmt=
+class=vigilo.common.logging.VigiloFormatter
+
+[formatter_consoleFormatter_verbose]
 format=[%(created)f] %(levelname)s::%(name)s::%(message)s
 datefmt=
 class=vigilo.common.logging.VigiloFormatter
