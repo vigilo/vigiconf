@@ -71,19 +71,14 @@ class DispatchatorRemote(Dispatchator):
     def listServerNames(self):
         """
         Get all server names from configuration
-        @return: the servers names from the configuration. In our case, a list
-            with only the localhost is returned
-        @rtype: C{list} of C{str}
+        @return: the servers names from the configuration.
+        @rtype: C{set} of C{str}
         """
-        _serversList = []
-        for hostdata in conf.hostsConf.values():
-            hostGroup = hostdata['serverGroup']
-            for appGroup in conf.appsGroupsByServer:
-                _Server = conf.appsGroupsByServer[appGroup][hostGroup]
-                # fill the serversList
-                for _srv in _Server:
-                    if not _srv in _serversList:
-                        _serversList.append(_srv)
+        _serversList = set()
+        for appGroup in conf.appsGroupsByServer:
+            for hostGroup in conf.appsGroupsByServer[appGroup]:
+                for server in conf.appsGroupsByServer[appGroup][hostGroup]
+                    _serversList.add(server)
         return _serversList
 
     def getServersForApp(self, app):
