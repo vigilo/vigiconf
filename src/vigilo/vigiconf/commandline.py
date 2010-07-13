@@ -40,9 +40,9 @@ from vigilo.models.configure import configure_db
 configure_db(settings['database'], 'sqlalchemy_',
     settings['database']['db_basename'])
 
-from vigilo.common.gettext import translate, translate_str
+from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
-_s = translate_str(__name__)
+N_ = translate_narrow(__name__)
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.application import ApplicationError
@@ -58,7 +58,7 @@ def get_dispatchator(args):
         conf.loadConf()
     except Exception, e :
         LOGGER.error(_("Cannot load the configuration: %s"), e)
-        sys.exit(1)
+        raise e
     dispatchator = dispatchmodes.getinstance()
     if args.server:
         try:
@@ -135,83 +135,83 @@ def parse_args():
     """Parses the commandline and starts the requested actions"""    
 
     parser = argparse.ArgumentParser(
-                             description=_s("Vigilo configuration manager"))
-    parser.add_argument("--debug", action="store_true", help=_s("Debug mode."))
-    subparsers = parser.add_subparsers(dest='action', title=_s("Subcommands"))
+                             description=N_("Vigilo configuration manager"))
+    parser.add_argument("--debug", action="store_true", help=N_("Debug mode."))
+    subparsers = parser.add_subparsers(dest='action', title=N_("Subcommands"))
 
     # INFO
     parser_info = subparsers.add_parser("info", 
                       help="Prints a summary of the current configuration.")
     parser_info.set_defaults(func=info)
     parser_info.add_argument('server', nargs='*',
-                      help=_s("Servers to query, all of them if not specified."))
+                      help=N_("Servers to query, all of them if not specified."))
 
     # APPS
     parser_apps = subparsers.add_parser("apps",
-                                    help=_s("Application status management."))
+                                    help=N_("Application status management."))
     parser_apps.set_defaults(func=apps)
     group = parser_apps.add_mutually_exclusive_group(required=True)
     group.add_argument("--stop", action="store_true",
-                       help=_s("Stop the applications."))
+                       help=N_("Stop the applications."))
     group.add_argument("--start", action="store_true",
-                       help=_s("Start the applications."))
+                       help=N_("Start the applications."))
     group.add_argument("--restart", action="store_true",
-                       help=_s("Restart the applications."))
+                       help=N_("Restart the applications."))
     parser_apps.add_argument("applications", nargs="*",
-                             help=_s("Applications to manage, all of them "
+                             help=N_("Applications to manage, all of them "
                                     "if not specified."))
     # UNDO
     parser_undo = subparsers.add_parser("undo", 
-                      help=_s("Deploys the previously installed configuration. "
+                      help=N_("Deploys the previously installed configuration. "
                              "2 consecutives undo will return to the "
                              "configuration that was installed before the "
                              "first undo (ie. redo)."))
     parser_undo.set_defaults(func=undo)
     parser_undo.add_argument("--no-restart", action="store_true",
-                      help=_s("Do not restart the applications after "
+                      help=N_("Do not restart the applications after "
                              "switching the configuration."))
     parser_undo.add_argument('server', nargs='*',
-                      help=_s("Servers to undo, all of them if not specified."))
+                      help=N_("Servers to undo, all of them if not specified."))
 
     # DEPLOY
     parser_deploy = subparsers.add_parser('deploy',
-                        help=_s("Deploys the configuration on each server "
+                        help=N_("Deploys the configuration on each server "
                                "if the configuration has changed."))
     parser_deploy.set_defaults(func=deploy)
     parser_deploy.add_argument("--stop-after-generation", action="store_true",
-                        help=_s("Stop the process after the file generation, "
+                        help=N_("Stop the process after the file generation, "
                                "before pushing the files."))
     parser_deploy.add_argument("--stop-after-push", action="store_true",
-                        help=_s("Stop after pushing the files to the remote "
+                        help=N_("Stop after pushing the files to the remote "
                                "servers, and before restarting the services."))
     parser_deploy.add_argument("--revision", type=int,
-                        help=_s("Deploy the given revision"))
+                        help=N_("Deploy the given revision"))
     parser_deploy.add_argument("-f", "--force", action="store_true", dest="force",
-                      help=_s("Force the immediate execution of the command. "
+                      help=N_("Force the immediate execution of the command. "
                             +"Do not wait. Bypass all checks."))
     parser_deploy.add_argument("-n", "--dry-run", action="store_true",
-                      dest="simulate", help=_s("Simulate only, no copy will "
+                      dest="simulate", help=N_("Simulate only, no copy will "
                       "actually be made, no commit in the database."))
     parser_deploy.add_argument('server', nargs='*',
-                      help=_s("Servers to deploy to, all of them if "
+                      help=N_("Servers to deploy to, all of them if "
                              "not specified."))
 
     # DISCOVER
     parser_discover = subparsers.add_parser('discover',
-                          help=_s("Discover the services available on a "
+                          help=N_("Discover the services available on a "
                                  "remote server"))
     parser_discover.set_defaults(func=discover)
     parser_discover.add_argument("-o", "--output",
                         type=argparse.FileType('w'), default=sys.stdout,
-                        help=_s("Output file. Default: standard output."))
+                        help=N_("Output file. Default: standard output."))
     parser_discover.add_argument("-c", "--community", default="public",
-                        help=_s("SNMP community. Default: %(default)s."))
+                        help=N_("SNMP community. Default: %(default)s."))
     parser_discover.add_argument("-v", "--version", default="2c",
-                        help=_s("SNMP version. Default: %(default)s."))
+                        help=N_("SNMP version. Default: %(default)s."))
     parser_discover.add_argument("-g", "--group", default="Servers",
-                        help=_s("Main group. Default: %(default)s."))
+                        help=N_("Main group. Default: %(default)s."))
     parser_discover.add_argument('target', nargs='+', type=list,
-            help=_s("Hosts or files to scan. The files must be the result "
+            help=N_("Hosts or files to scan. The files must be the result "
                    "of an snmpwalk command on the '.1' OID with the "
                    "'-OnQ' options."))
 
