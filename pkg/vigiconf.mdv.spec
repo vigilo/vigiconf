@@ -78,6 +78,7 @@ grep -v '^%{_sysconfdir}' INSTALLED_FILES \
 	> INSTALLED_FILES.filtered
 mv -f INSTALLED_FILES.filtered INSTALLED_FILES
 
+%find_lang %{name}
 
 %pre
 %_pre_useradd %{module} %{_localstatedir}/lib/vigilo/%{module} /bin/bash
@@ -92,7 +93,7 @@ chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root)
 %doc COPYING doc/*
 %dir %{_sysconfdir}/vigilo
