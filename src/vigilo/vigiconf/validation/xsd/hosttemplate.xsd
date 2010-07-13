@@ -2,17 +2,17 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
 <xs:element name="nagios">
-    <xs:complexType>
-        <xs:sequence>
-            <xs:element maxOccurs="3" minOccurs="0" name="directive">
-                <xs:complexType>
-                    <xs:attribute name="max_check_attempts" type="xs:integer"/>
-                    <xs:attribute name="check_interval" type="xs:integer"/>
-                    <xs:attribute name="retry_interval" type="xs:integer"/>
-                </xs:complexType>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element maxOccurs="3" minOccurs="0" name="directive">
+        <xs:complexType>
+          <xs:attribute name="max_check_attempts" type="xs:integer"/>
+          <xs:attribute name="check_interval" type="xs:integer"/>
+          <xs:attribute name="retry_interval" type="xs:integer"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 </xs:element>
 
 <xs:element name="templates">

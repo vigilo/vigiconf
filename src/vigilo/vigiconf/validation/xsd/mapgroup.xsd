@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-
 <xs:element name="mapgroup">
-	<xs:complexType>
-		<xs:sequence>
-			<!-- mapgroup is recursive -->
-			<xs:element maxOccurs="unbounded" minOccurs="0" ref="mapgroup"/>
-		</xs:sequence>
+    <xs:complexType>
+        <xs:sequence>
+            <!-- Sous-groupes (récursifs). -->
+            <xs:element maxOccurs="unbounded" minOccurs="0" ref="mapgroup"/>
+        </xs:sequence>
 
-		<xs:attribute name="name" type="xs:string" use="required"/>
-	</xs:complexType>
-
+        <!-- Nom du groupe. -->
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
 </xs:element> 
 
-
 <xs:element name="mapgroups">
-	<xs:complexType>
-		<xs:sequence>
-			<xs:element maxOccurs="unbounded" minOccurs="0" ref="mapgroup"/>
-		</xs:sequence>
-	</xs:complexType>
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" ref="mapgroup"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:element>
 
 </xs:schema>
+<!--
+vim: ts=4 et
+-->

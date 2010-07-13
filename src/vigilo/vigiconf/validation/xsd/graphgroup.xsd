@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-
 <xs:element name="graphgroup">
-	  <xs:complexType>
-	    <xs:sequence>
-			<!-- graphgroup is recursive -->
-			<xs:element maxOccurs="unbounded" minOccurs="0" ref="graphgroup"/>
-  	    </xs:sequence>
-  	    
-    	<xs:attribute name="name" type="xs:string" use="required"/>
-	  </xs:complexType>
+    <xs:complexType>
+        <xs:sequence>
+            <!-- Sous-groupes (récursifs). -->
+            <xs:element maxOccurs="unbounded" minOccurs="0" ref="graphgroup"/>
+        </xs:sequence>
+
+        <!-- Nom du groupe. -->
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
 </xs:element> 
 
 
 <xs:element name="graphgroups">
-  <xs:complexType>
-	<xs:sequence>
-		<xs:element maxOccurs="unbounded" minOccurs="1" ref="graphgroup"/>
-    </xs:sequence>
-  </xs:complexType>
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="1" ref="graphgroup"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:element>
 
 </xs:schema>
+<!--
+vim: ts=4 et
+-->

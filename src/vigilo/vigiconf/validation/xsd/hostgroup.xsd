@@ -16,23 +16,27 @@
 
 
 <xs:element name="hostgroup">
-	  <xs:complexType>
-	    <xs:sequence>
-			<!-- hostgroup is recursive -->
-			<xs:element maxOccurs="unbounded" minOccurs="0" ref="hostgroup"/>
-  	    </xs:sequence>
-  	    
-    	<xs:attribute name="name" type="xs:string" use="required"/>
-	  </xs:complexType>
+    <xs:complexType>
+        <xs:sequence>
+            <!-- Sous-groupes (récursifs). -->
+            <xs:element maxOccurs="unbounded" minOccurs="0" ref="hostgroup"/>
+        </xs:sequence>
+
+        <!-- Nom du groupe. -->
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
 </xs:element> 
 
 
 <xs:element name="hostgroups">
-  <xs:complexType>
-	<xs:sequence>
-		<xs:element maxOccurs="unbounded" minOccurs="1" ref="hostgroup"/>
-    </xs:sequence>
-  </xs:complexType>
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="1" ref="hostgroup"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:element>
 
 </xs:schema>
+<!--
+vim: ts=4 et
+-->
