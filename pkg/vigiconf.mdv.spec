@@ -92,7 +92,7 @@ chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files -f INSTALLED_FILES
+%files
 %defattr(-,root,root)
 %doc COPYING doc/*
 %dir %{_sysconfdir}/vigilo
@@ -105,6 +105,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/vigilo/%{module}/conf.d.example
 %{_sysconfdir}/vigilo/%{module}/README.source
 %config(noreplace) /etc/cron.d/*
+%{_bindir}/*
+%{python_sitelib}/*
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
 %attr(-,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
