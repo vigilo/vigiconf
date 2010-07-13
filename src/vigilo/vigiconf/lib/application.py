@@ -255,10 +255,10 @@ class Application(object):
                 _command.execute()
             except SystemCommandError, e:
                 error = ApplicationError(
-                            _("%(appname)s: validation failed for server "
-                              "'%(servername)s': %(reason)s")
-                            % {"appname": self.getName(),
-                               "servername": iServer.getName(),
+                            _("%(app)s: validation failed for server "
+                              "'%(server)s': %(reason)s")
+                            % {"app": self.getName(),
+                               "server": iServer.getName(),
                                "reason": e})
                 error.cause = e
                 raise error
@@ -310,9 +310,12 @@ class Application(object):
             try:
                 _command.execute()
             except SystemCommandError, e:
-                error = ApplicationError(_("%s : Qualification failed on : %s - ")
-                                       % (self.getName(), iServer.getName())
-                                      +"REASON : %s" % e.value)
+                error = ApplicationError(_("%(app)s : Qualification failed on "
+                                            "'%(server)s' - REASON: %(reason)s") % {
+                                            'app': self.getName(),
+                                            'server': iServer.getName(),
+                                            'reason': e.value,
+                                        })
                 error.cause = e
                 raise error
         LOGGER.info(_("%(app)s : Qualification successful on server : %(server)s"), {

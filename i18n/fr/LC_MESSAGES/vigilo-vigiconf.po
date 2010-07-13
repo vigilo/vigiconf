@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2010-07-13 09:30+0200\n"
+"PO-Revision-Date: 2010-07-13 11:01+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -74,9 +74,9 @@ msgid ""
 "return to the configuration that was installed before the first undo (ie."
 " redo)."
 msgstr ""
-"Déploie la configuration précédemment installée. 2 annulations consécutives "
-"refont passer dans la configuration qui était en place avant la première "
-"annulation (i.e. : répétition)."
+"Déploie la configuration précédemment installée. 2 annulations "
+"consécutives refont passer dans la configuration qui était en place avant"
+" la première annulation (i.e. : répétition)."
 
 #: src/vigilo/vigiconf/commandline.py:170
 msgid "Do not restart the applications after switching the configuration."
@@ -92,15 +92,17 @@ msgstr "Déploie la configuration sur chaque serveur si la configuration a chang
 
 #: src/vigilo/vigiconf/commandline.py:181
 msgid "Stop the process after the file generation, before pushing the files."
-msgstr "Arrêter le processus après la génération des fichiers et avant l'envoi des fichiers."
+msgstr ""
+"Arrêter le processus après la génération des fichiers et avant l'envoi "
+"des fichiers."
 
 #: src/vigilo/vigiconf/commandline.py:184
 msgid ""
 "Stop after pushing the files to the remote servers, and before restarting"
 " the services."
 msgstr ""
-"Arrêter après l'envoi des fichiers aux serveurs distants et avant le redémarrage"
-" des services."
+"Arrêter après l'envoi des fichiers aux serveurs distants et avant le "
+"redémarrage des services."
 
 #: src/vigilo/vigiconf/commandline.py:187
 msgid "Deploy the given revision"
@@ -111,12 +113,14 @@ msgid ""
 "Force the immediate execution of the command. Do not wait. Bypass all "
 "checks."
 msgstr ""
-"Forcer l'exécution immédiate de la commande. Pas d'attente. "
-"Ne pas effectuer les vérifications."
+"Forcer l'exécution immédiate de la commande. Pas d'attente. Ne pas "
+"effectuer les vérifications."
 
 #: src/vigilo/vigiconf/commandline.py:192
 msgid "Simulate only, no copy will actually be made, no commit in the database."
-msgstr "Simuler uniquement. Aucune copie n'a lieu, la base de données n'est pas modifiée."
+msgstr ""
+"Simuler uniquement. Aucune copie n'a lieu, la base de données n'est pas "
+"modifiée."
 
 #: src/vigilo/vigiconf/commandline.py:195
 msgid "Servers to deploy to, all of them if not specified."
@@ -160,7 +164,9 @@ msgstr "Démarrage de VigiConf..."
 #: src/vigilo/vigiconf/commandline.py:227
 #, python-format
 msgid "Can't obtain lock on lockfile. Dispatchator already running ? REASON : %s"
-msgstr "Impossible d'obtenir un verrou sur le fichier. Le dispatchator est-il déjà lancé ? Raison : %s"
+msgstr ""
+"Impossible d'obtenir un verrou sur le fichier. Le dispatchator est-il "
+"déjà lancé ? Raison : %s"
 
 #: src/vigilo/vigiconf/commandline.py:236
 #: src/vigilo/vigiconf/commandline.py:238
@@ -191,9 +197,9 @@ msgstr "La commande \"snmpwalk\" n'est pas installée."
 msgid ""
 "SNMP walk command failed with error status %(status)s and message:\n"
 "%(msg)s\n"
-"The command was: %(cmd)sstatus"
+"The command was: %(cmd)s"
 msgstr ""
-"La commande SNMP walk a échoué avec le statut %(statut)s et ce message :\n"
+"La commande SNMP walk a échoué avec le statut %(status)s et ce message :\n"
 "%(msg)s\n"
 "La commande était : %(cmd)s"
 
@@ -229,109 +235,114 @@ msgstr "Impossible d'obtenir le statut SVN du dossier de configuration : %s"
 
 #: src/vigilo/vigiconf/dispatchator.py:336
 msgid "Not updating because the 'svnrepository' configuration parameter is empty"
-msgstr "Pas de mise à jour car le paramètre 'svnrepository' de la configuration est vide"
+msgstr ""
+"Pas de mise à jour car le paramètre 'svnrepository' de la configuration "
+"est vide"
 
 #: src/vigilo/vigiconf/dispatchator.py:348
 #, python-format
-msgid "Adding new conf file in SVN: %s"
+msgid "Adding a new configuration file to the repository: %s"
 msgstr "Ajout d'un nouveau fichier de configuration au dépôt : %s"
 
 #: src/vigilo/vigiconf/dispatchator.py:356
 #, python-format
-msgid "Can't add %s in SVN: %s"
-msgstr "Impossible d'ajouter %s au dépôt : %s"
+msgid "Can't add %(path)s in repository: %(error)s"
+msgstr "Impossible d'ajouter %(path)s au dépôt : %(error)s"
 
-#: src/vigilo/vigiconf/dispatchator.py:361
+#: src/vigilo/vigiconf/dispatchator.py:363
 #, python-format
-msgid "Removing old conf file from SVN: %s"
+msgid "Removing an old configuration file from the repository: %s"
 msgstr "Suppression d'un ancien fichier de configuration du dépôt : %s"
 
-#: src/vigilo/vigiconf/dispatchator.py:369
+#: src/vigilo/vigiconf/dispatchator.py:371
 #, python-format
-msgid "Can't remove %s from SVN: %s"
-msgstr "Impossible de supprimer %s du dépôt : %s"
+msgid "Can't remove %(path)s from repository: %(error)s"
+msgstr "Impossible de supprimer %(path)s du dépôt : %(error)s"
 
-#: src/vigilo/vigiconf/dispatchator.py:375
+#: src/vigilo/vigiconf/dispatchator.py:379
 msgid ""
 "Not committing because the 'svnrepository' configuration parameter is "
 "empty"
 msgstr ""
-"Pas d'enregistrement car le paramètre 'svnrepository' de la configuration est vide"
+"Pas d'enregistrement car le paramètre 'svnrepository' de la configuration"
+" est vide"
 
-#: src/vigilo/vigiconf/dispatchator.py:387
+#: src/vigilo/vigiconf/dispatchator.py:391
 #, python-format
 msgid "Can't commit the configuration dir in SVN: %s"
 msgstr "Impossible d'enregistrer le dossier de configuration sur le dépôt : %s"
 
-#: src/vigilo/vigiconf/dispatchator.py:402
+#: src/vigilo/vigiconf/dispatchator.py:406
 #, python-format
 msgid ""
 "Can't execute the request to update the local copy. COMMAND %(cmd)s "
 "FAILED. REASON: %(reason)s"
 msgstr ""
-"Impossible de mettre à jour la copie locale. ÉCHEC DE LA COMMANDE %(cmd)s. "
-"RAISON : %(reason)s"
+"Impossible de mettre à jour la copie locale. ÉCHEC DE LA COMMANDE "
+"%(cmd)s. RAISON : %(reason)s"
 
-#: src/vigilo/vigiconf/dispatchator.py:444
+#: src/vigilo/vigiconf/dispatchator.py:448
 #, python-format
 msgid "Can't execute the request to get the current revision: %s"
 msgstr "Impossible d'obtenir la révision courante : %s"
 
-#: src/vigilo/vigiconf/dispatchator.py:516
+#: src/vigilo/vigiconf/dispatchator.py:520
 msgid ""
 "The configurations files have not been transfered on every server. See "
 "above for more information."
 msgstr ""
-"Les fichiers de configuration n'ont pas pu être transférés à tous les serveurs. "
-"Lisez les messages précédents pour plus d'information."
+"Les fichiers de configuration n'ont pas pu être transférés à tous les "
+"serveurs. Lisez les messages précédents pour plus d'information."
 
-#: src/vigilo/vigiconf/dispatchator.py:558
+#: src/vigilo/vigiconf/dispatchator.py:562
 msgid "All servers are up-to-date. Nothing to do."
 msgstr "Tous les serveurs sont à jour. Il n'y a rien à faire."
 
-#: src/vigilo/vigiconf/dispatchator.py:674
+#: src/vigilo/vigiconf/dispatchator.py:678
 msgid "Switch directories was not successful on each server."
 msgstr "La permutation de dossier a échoué sur certains serveurs."
 
-#: src/vigilo/vigiconf/dispatchator.py:699
+#: src/vigilo/vigiconf/dispatchator.py:703
 #, python-format
 msgid "Server %s should be deployed."
 msgstr "Le serveur %s devrait être déployé."
 
-#: src/vigilo/vigiconf/dispatchator.py:701
+#: src/vigilo/vigiconf/dispatchator.py:705
 msgid "All servers are up-to-date. No restart needed."
 msgstr "Tous les serveurs sont à jour. Un redémarrage n'est pas nécessaire."
 
-#: src/vigilo/vigiconf/dispatchator.py:732
+#: src/vigilo/vigiconf/dispatchator.py:736
 msgid "Stop applications failed"
 msgstr "Échec de l'arrêt des applications"
 
-#: src/vigilo/vigiconf/dispatchator.py:749
+#: src/vigilo/vigiconf/dispatchator.py:753
 msgid "Start applications failed"
 msgstr "Échec du démarrage des applications"
 
-#: src/vigilo/vigiconf/dispatchator.py:764
+#: src/vigilo/vigiconf/dispatchator.py:768
 #, python-format
 msgid "Current revision in the repository : %d"
 msgstr "Révision actuelle dans le dépôt : %d"
 
-#: src/vigilo/vigiconf/dispatchator.py:772
+#: src/vigilo/vigiconf/dispatchator.py:776
 msgid "(should be deployed)"
 msgstr "(devrait être déployé)"
 
-#: src/vigilo/vigiconf/dispatchator.py:774
+#: src/vigilo/vigiconf/dispatchator.py:778
 msgid "(should restart)"
 msgstr "(devrait redémarrer)"
 
-#: src/vigilo/vigiconf/dispatchator.py:775
+#: src/vigilo/vigiconf/dispatchator.py:779
 #, python-format
 msgid "Revisions for server %(server)s : %(rev)s%(dep)s%(restart)s"
 msgstr "Révisions pour le serveur %(server)s : %(rev)s%(dep)s%(restart)s"
 
-#: src/vigilo/vigiconf/dispatchator.py:780
+#: src/vigilo/vigiconf/dispatchator.py:784
 #, python-format
 msgid "Cannot get revision for server: %(server)s. REASON : %(reason)s"
-msgstr "Impossible d'obtenir la révision pour le serveur %(server)s. RAISON : %(reason)s"
+msgstr ""
+"Impossible d'obtenir la révision pour le serveur %(server)s. RAISON : "
+"%(reason)s"
 
 #: src/vigilo/vigiconf/generators/groups_maps.py:209
 #, python-format
@@ -351,7 +362,9 @@ msgstr "Réutilisation de la Map existante pour le groupe %s"
 #: src/vigilo/vigiconf/generators/groups_maps.py:222
 #, python-format
 msgid "Creating Map for SupItemGroup %(group)s in MapGroup %(mapgroup)s"
-msgstr "Création d'une Map pour le SupItemGroup %(group)s dans le MapGroup %(mapgroup)s"
+msgstr ""
+"Création d'une Map pour le SupItemGroup %(group)s dans le MapGroup "
+"%(mapgroup)s"
 
 #: src/vigilo/vigiconf/generators/groups_maps.py:233
 #, python-format
@@ -378,8 +391,8 @@ msgstr "Impossible de trouver l'appgroup pour l'app %s"
 
 #: src/vigilo/vigiconf/lib/application.py:258
 #, python-format
-msgid "%(appname)s: validation failed for server '%(servername)s': %(reason)s"
-msgstr "%(appname)s : échec de la validation pour le serveur '%(servername)s' : %(reason)s"
+msgid "%(app)s: validation failed for server '%(server)s': %(reason)s"
+msgstr "%(app)s : échec de la validation pour le serveur '%(server)s' : %(reason)s"
 
 #: src/vigilo/vigiconf/lib/application.py:265
 #, python-format
@@ -388,52 +401,52 @@ msgstr "%(app)s : validation réussie pour le serveur %(server)s"
 
 #: src/vigilo/vigiconf/lib/application.py:313
 #, python-format
-msgid "%s : Qualification failed on : %s - "
-msgstr "%s : échec de la qualification sur : %s - "
+msgid "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
+msgstr "%(app)s : échec de la qualification sur '%(server)s' - RAISON : %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:318
+#: src/vigilo/vigiconf/lib/application.py:321
 #, python-format
 msgid "%(app)s : Qualification successful on server : %(server)s"
 msgstr "%(app)s : qualification réussie sur le serveur %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:362
-#: src/vigilo/vigiconf/lib/application.py:386
+#: src/vigilo/vigiconf/lib/application.py:365
+#: src/vigilo/vigiconf/lib/application.py:389
 #, python-format
 msgid "%s : Start process failed."
 msgstr "%s : échec du démarrage du processus."
 
-#: src/vigilo/vigiconf/lib/application.py:397
+#: src/vigilo/vigiconf/lib/application.py:400
 #, python-format
 msgid "Starting %(app)s on %(server)s ..."
 msgstr "Démarrage de %(app)s sur le serveur %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:406
+#: src/vigilo/vigiconf/lib/application.py:409
 #, python-format
 msgid "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 msgstr "Impossible de démarrer %(app)s sur %(server)s - RAISON %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:413
+#: src/vigilo/vigiconf/lib/application.py:416
 #, python-format
 msgid "%(app)s started on %(server)s"
 msgstr "%(app)s démarré sur %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:453
-#: src/vigilo/vigiconf/lib/application.py:477
+#: src/vigilo/vigiconf/lib/application.py:456
+#: src/vigilo/vigiconf/lib/application.py:480
 #, python-format
 msgid "%s : Stop process failed."
 msgstr "%s : échec de l'arrêt du processus."
 
-#: src/vigilo/vigiconf/lib/application.py:488
+#: src/vigilo/vigiconf/lib/application.py:491
 #, python-format
 msgid "Stopping %(app)s on %(server)s ..."
 msgstr "Arrêt de %(app)s sur %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:497
+#: src/vigilo/vigiconf/lib/application.py:500
 #, python-format
 msgid "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 msgstr "Impossible d'arrêter %(app)s sur %(server)s  - RAISON %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:504
+#: src/vigilo/vigiconf/lib/application.py:507
 #, python-format
 msgid "%(app)s stopped on %(server)s"
 msgstr "%(app)s arrêté sur %(server)s"
@@ -500,40 +513,44 @@ msgstr "Dans l'Édition Communauté, seul localhost est utilisable"
 
 #: src/vigilo/vigiconf/lib/server.py:184
 #, python-format
-msgid "Can't refactor server. COMMAND %(cmd) FAILED. REASON: %(reason)s"
+msgid ""
+"Can't activate the configuration on %(server)s. COMMAND %(cmd)s FAILED. "
+"REASON: %(reason)s"
 msgstr ""
+"Impossible d'activer la configuration sur %(server)s. ÉCHEC DE LA "
+"COMMANDE %(cmd)s. RAISON : %(reason)s"
 
-#: src/vigilo/vigiconf/lib/server.py:208
+#: src/vigilo/vigiconf/lib/server.py:210
 #, python-format
 msgid "Can't deploy server. REASON: %s"
 msgstr "Impossible de déployer le serveur. RAISON : %s"
 
-#: src/vigilo/vigiconf/lib/server.py:210
+#: src/vigilo/vigiconf/lib/server.py:212
 #, python-format
 msgid "%s : deployement successful."
 msgstr "%s : déploiement réussi."
 
-#: src/vigilo/vigiconf/lib/server.py:224
+#: src/vigilo/vigiconf/lib/server.py:226
 #, python-format
 msgid "Cannot copy files (%(from)s to %(to)s): %(error)s."
 msgstr "Impossible de copier les fichier (de %(from)s vers %(to)s) : %(error)s."
 
-#: src/vigilo/vigiconf/lib/server.py:266
+#: src/vigilo/vigiconf/lib/server.py:268
 #, python-format
 msgid "UNDO can't be done. Directory 'old' does not exist on %s."
 msgstr "Impossible de revenir en arrière. Le dossier 'old' n'existe pas sur %s."
 
-#: src/vigilo/vigiconf/lib/server.py:270 src/vigilo/vigiconf/lib/server.py:290
+#: src/vigilo/vigiconf/lib/server.py:272 src/vigilo/vigiconf/lib/server.py:292
 #, python-format
 msgid "UNDO can't be done. %s"
 msgstr "Impossible de revenir en arrière. %s"
 
-#: src/vigilo/vigiconf/lib/server.py:285
+#: src/vigilo/vigiconf/lib/server.py:287
 #, python-format
 msgid "UNDO failed on %s."
 msgstr "Échec du retour arrière sur %s."
 
-#: src/vigilo/vigiconf/lib/server.py:288
+#: src/vigilo/vigiconf/lib/server.py:290
 #, python-format
 msgid "UNDO successful on %s."
 msgstr "Retour arrière réussi sur %s."
@@ -561,8 +578,8 @@ msgid ""
 "%(nb_gens)d generators exist whereas %(nb_apps)d applications have been "
 "configured"
 msgstr ""
-"%(nb_gens)d générateurs existent tandis que %(nb_apps)d applications ont été "
-"configurées"
+"%(nb_gens)d générateurs existent tandis que %(nb_apps)d applications ont "
+"été configurées"
 
 #: src/vigilo/vigiconf/lib/validator.py:152
 #, python-format
@@ -596,7 +613,7 @@ msgstr ""
 #: src/vigilo/vigiconf/lib/validator.py:170
 #, python-format
 msgid "%(filesWritten)d files have been generated in %(dirsCreated)d directories"
-msgstr ""
+msgstr "%(filesWritten)d fichiers ont été générés dans %(dirsCreated)d dossiers"
 
 #: src/vigilo/vigiconf/lib/xmlloader.py:95
 msgid "An XSD schema should be provided for validation."
@@ -625,8 +642,8 @@ msgstr "Erreur de syntaxe dans \"%(path)s\" : %(error)s"
 #: src/vigilo/vigiconf/lib/xmlloader.py:319
 #: src/vigilo/vigiconf/lib/confclasses/host.py:628
 #, python-format
-msgid "Sucessfully parsed %s"
-msgstr ""
+msgid "Successfully parsed %s"
+msgstr "Analyse de %s réussie"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:149
 #, python-format
@@ -634,6 +651,8 @@ msgid ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
 "%(args)s (and only those)"
 msgstr ""
+"Le test \"%(test_name)s\" sur \"%(host)s\" nécessite les arguments suivants: "
+"%(args)s (et uniquement ceux-là)"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:653
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:245
@@ -653,7 +672,9 @@ msgstr "Poids non valide : %r"
 #: src/vigilo/vigiconf/lib/confclasses/host.py:746
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
-msgstr "Valeur du poids non valide pour le test %(test)s sur l'hôte %(host)s : %(weight)r"
+msgstr ""
+"Valeur du poids non valide pour le test %(test)s sur l'hôte %(host)s : "
+"%(weight)r"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:779
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:102
@@ -674,7 +695,9 @@ msgstr "Chargé : hôte %(host)s, adresse %(address)s"
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:307
 #, python-format
 msgid "Invalid weight value for test %(test)s in template %(tpl)s: %(weight)r"
-msgstr "Valeur du poids non valide pour le test %(test)s dans le patron %(tpl)s : %(weight)r"
+msgstr ""
+"Valeur du poids non valide pour le test %(test)s dans le patron %(tpl)s :"
+" %(weight)r"
 
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:327
 #, python-format
@@ -686,8 +709,9 @@ msgid ""
 "You are trying remote deployment on the Community edition. This feature "
 "is only available in the Enterprise edition. Aborting."
 msgstr ""
-"Vous tentez un déploiement distant dans l'Édition Communauté. Cette fonctionnalité "
-"n'est disponible que dans l'Édition Entreprise. Annulation."
+"Vous tentez un déploiement distant dans l'Édition Communauté. Cette "
+"fonctionnalité n'est disponible que dans l'Édition Entreprise. "
+"Annulation."
 
 #: src/vigilo/vigiconf/lib/dispatchmodes/remote.py:100
 #, python-format
@@ -697,7 +721,9 @@ msgstr "Le groupe d'application %s ne figure pas dans appsGroupsByServer"
 #: src/vigilo/vigiconf/lib/dispatchmodes/remote.py:127
 #, python-format
 msgid "Invalid server name: %(servername)s. Available servers: %(servers)s"
-msgstr "Nom de serveur non valide : %(servername)s. Serveur disponibles : %(servers)s"
+msgstr ""
+"Nom de serveur non valide : %(servername)s. Serveur disponibles : "
+"%(servers)s"
 
 #: src/vigilo/vigiconf/lib/generators/__init__.py:52
 msgid "Generators must define the generate() method"
@@ -719,8 +745,8 @@ msgid "Not a Dependency: %s"
 msgstr "Pas une dépendance : %s"
 
 #: src/vigilo/vigiconf/loaders/dependency.py:106
-msgid "No dependent supitem"
-msgstr "Aucun supitem dépendant"
+msgid "No dependent supervised item"
+msgstr "Aucun élément supervisé dépendant"
 
 #: src/vigilo/vigiconf/loaders/dependency.py:108
 #, python-format

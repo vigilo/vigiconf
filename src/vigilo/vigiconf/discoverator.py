@@ -118,11 +118,11 @@ class Discoverator(object):
             raise DiscoveratorError(message)
         elif walkprocess.returncode != 0:
             message = _("SNMP walk command failed with error status %(status)s "
-                        "and message:\n%(msg)s\nThe command was: %(cmd)s" % {
+                        "and message:\n%(msg)s\nThe command was: %(cmd)s") % {
                 'status': walkprocess.returncode,
                 'msg': perr,
                 'cmd': snmpcommand,
-            })
+            }
             raise DiscoveratorError(message)
         for line in pout.split("\n"): # pylint: disable-msg=E1103
             if line.count("=") != 1:

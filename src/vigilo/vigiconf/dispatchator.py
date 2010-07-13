@@ -345,7 +345,7 @@ class Dispatchator(object):
         self._svn_update()
 
     def _svn_add(self, path):
-        LOGGER.debug(_("Adding new conf file in SVN: %s"), path)
+        LOGGER.debug(_("Adding a new configuration file to the repository: %s"), path)
         _cmd = self._get_auth_svn_cmd_prefix('add')
         _cmd.append(path)
         _command = self.createCommand(_cmd)
@@ -353,12 +353,14 @@ class Dispatchator(object):
             result = _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
-                    _("Can't add %s in SVN: %s")
-                      % (path, e.value))
+                    _("Can't add %(path)s in repository: %(error)s") % {
+                        'path': path,
+                        'error': e.value,
+                    })
         return result
     
     def _svn_remove(self, path):
-        LOGGER.debug(_("Removing old conf file from SVN: %s"), path)
+        LOGGER.debug(_("Removing an old configuration file from the repository: %s"), path)
         _cmd = self._get_auth_svn_cmd_prefix('remove')
         _cmd.append(path)
         _command = self.createCommand(_cmd)
@@ -366,8 +368,10 @@ class Dispatchator(object):
             result = _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
-                    _("Can't remove %s from SVN: %s")
-                      % (path, e.value))
+                    _("Can't remove %(path)s from repository: %(error)s") % {
+                        'path': path,
+                        'error': e.value,
+                    })
         return result
     
     def _svn_commit(self):

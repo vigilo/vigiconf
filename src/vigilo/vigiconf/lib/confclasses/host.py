@@ -625,7 +625,7 @@ class HostFactory(object):
                 if validation:
                     self._validatehost(os.path.join(root, f))
                 self._loadhosts(os.path.join(root, f))
-                LOGGER.debug(_("Sucessfully parsed %s"), os.path.join(root, f))
+                LOGGER.debug(_("Successfully parsed %s"), os.path.join(root, f))
             for d in dirs: # Don't visit subversion/CVS directories
                 if d.startswith("."):
                     dirs.remove(d)

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2010-07-13 09:30+0200\n"
+"POT-Creation-Date: 2010-07-13 11:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -179,7 +179,7 @@ msgstr ""
 msgid ""
 "SNMP walk command failed with error status %(status)s and message:\n"
 "%(msg)s\n"
-"The command was: %(cmd)sstatus"
+"The command was: %(cmd)s"
 msgstr ""
 
 #: src/vigilo/vigiconf/dispatchator.py:225
@@ -216,95 +216,95 @@ msgstr ""
 
 #: src/vigilo/vigiconf/dispatchator.py:348
 #, python-format
-msgid "Adding new conf file in SVN: %s"
+msgid "Adding a new configuration file to the repository: %s"
 msgstr ""
 
 #: src/vigilo/vigiconf/dispatchator.py:356
 #, python-format
-msgid "Can't add %s in SVN: %s"
+msgid "Can't add %(path)s in repository: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:361
+#: src/vigilo/vigiconf/dispatchator.py:363
 #, python-format
-msgid "Removing old conf file from SVN: %s"
+msgid "Removing an old configuration file from the repository: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:369
+#: src/vigilo/vigiconf/dispatchator.py:371
 #, python-format
-msgid "Can't remove %s from SVN: %s"
+msgid "Can't remove %(path)s from repository: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:375
+#: src/vigilo/vigiconf/dispatchator.py:379
 msgid "Not committing because the 'svnrepository' configuration parameter is empty"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:387
+#: src/vigilo/vigiconf/dispatchator.py:391
 #, python-format
 msgid "Can't commit the configuration dir in SVN: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:402
+#: src/vigilo/vigiconf/dispatchator.py:406
 #, python-format
 msgid ""
 "Can't execute the request to update the local copy. COMMAND %(cmd)s FAILED. "
 "REASON: %(reason)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:444
+#: src/vigilo/vigiconf/dispatchator.py:448
 #, python-format
 msgid "Can't execute the request to get the current revision: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:516
+#: src/vigilo/vigiconf/dispatchator.py:520
 msgid ""
 "The configurations files have not been transfered on every server. See above "
 "for more information."
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:558
+#: src/vigilo/vigiconf/dispatchator.py:562
 msgid "All servers are up-to-date. Nothing to do."
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:674
+#: src/vigilo/vigiconf/dispatchator.py:678
 msgid "Switch directories was not successful on each server."
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:699
+#: src/vigilo/vigiconf/dispatchator.py:703
 #, python-format
 msgid "Server %s should be deployed."
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:701
+#: src/vigilo/vigiconf/dispatchator.py:705
 msgid "All servers are up-to-date. No restart needed."
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:732
+#: src/vigilo/vigiconf/dispatchator.py:736
 msgid "Stop applications failed"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:749
+#: src/vigilo/vigiconf/dispatchator.py:753
 msgid "Start applications failed"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:764
+#: src/vigilo/vigiconf/dispatchator.py:768
 #, python-format
 msgid "Current revision in the repository : %d"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:772
+#: src/vigilo/vigiconf/dispatchator.py:776
 msgid "(should be deployed)"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:774
+#: src/vigilo/vigiconf/dispatchator.py:778
 msgid "(should restart)"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:775
+#: src/vigilo/vigiconf/dispatchator.py:779
 #, python-format
 msgid "Revisions for server %(server)s : %(rev)s%(dep)s%(restart)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/dispatchator.py:780
+#: src/vigilo/vigiconf/dispatchator.py:784
 #, python-format
 msgid "Cannot get revision for server: %(server)s. REASON : %(reason)s"
 msgstr ""
@@ -354,7 +354,7 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/application.py:258
 #, python-format
-msgid "%(appname)s: validation failed for server '%(servername)s': %(reason)s"
+msgid "%(app)s: validation failed for server '%(server)s': %(reason)s"
 msgstr ""
 
 #: src/vigilo/vigiconf/lib/application.py:265
@@ -364,52 +364,52 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/application.py:313
 #, python-format
-msgid "%s : Qualification failed on : %s - "
+msgid "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:318
+#: src/vigilo/vigiconf/lib/application.py:321
 #, python-format
 msgid "%(app)s : Qualification successful on server : %(server)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:362
-#: src/vigilo/vigiconf/lib/application.py:386
+#: src/vigilo/vigiconf/lib/application.py:365
+#: src/vigilo/vigiconf/lib/application.py:389
 #, python-format
 msgid "%s : Start process failed."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:397
+#: src/vigilo/vigiconf/lib/application.py:400
 #, python-format
 msgid "Starting %(app)s on %(server)s ..."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:406
+#: src/vigilo/vigiconf/lib/application.py:409
 #, python-format
 msgid "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:413
+#: src/vigilo/vigiconf/lib/application.py:416
 #, python-format
 msgid "%(app)s started on %(server)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:453
-#: src/vigilo/vigiconf/lib/application.py:477
+#: src/vigilo/vigiconf/lib/application.py:456
+#: src/vigilo/vigiconf/lib/application.py:480
 #, python-format
 msgid "%s : Stop process failed."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:488
+#: src/vigilo/vigiconf/lib/application.py:491
 #, python-format
 msgid "Stopping %(app)s on %(server)s ..."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:497
+#: src/vigilo/vigiconf/lib/application.py:500
 #, python-format
 msgid "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:504
+#: src/vigilo/vigiconf/lib/application.py:507
 #, python-format
 msgid "%(app)s stopped on %(server)s"
 msgstr ""
@@ -472,40 +472,42 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/server.py:184
 #, python-format
-msgid "Can't refactor server. COMMAND %(cmd) FAILED. REASON: %(reason)s"
-msgstr ""
-
-#: src/vigilo/vigiconf/lib/server.py:208
-#, python-format
-msgid "Can't deploy server. REASON: %s"
+msgid ""
+"Can't activate the configuration on %(server)s. COMMAND %(cmd)s FAILED. "
+"REASON: %(reason)s"
 msgstr ""
 
 #: src/vigilo/vigiconf/lib/server.py:210
 #, python-format
+msgid "Can't deploy server. REASON: %s"
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/server.py:212
+#, python-format
 msgid "%s : deployement successful."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/server.py:224
+#: src/vigilo/vigiconf/lib/server.py:226
 #, python-format
 msgid "Cannot copy files (%(from)s to %(to)s): %(error)s."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/server.py:266
+#: src/vigilo/vigiconf/lib/server.py:268
 #, python-format
 msgid "UNDO can't be done. Directory 'old' does not exist on %s."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/server.py:270 src/vigilo/vigiconf/lib/server.py:290
+#: src/vigilo/vigiconf/lib/server.py:272 src/vigilo/vigiconf/lib/server.py:292
 #, python-format
 msgid "UNDO can't be done. %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/server.py:285
+#: src/vigilo/vigiconf/lib/server.py:287
 #, python-format
 msgid "UNDO failed on %s."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/server.py:288
+#: src/vigilo/vigiconf/lib/server.py:290
 #, python-format
 msgid "UNDO successful on %s."
 msgstr ""
@@ -593,7 +595,7 @@ msgstr ""
 #: src/vigilo/vigiconf/lib/xmlloader.py:319
 #: src/vigilo/vigiconf/lib/confclasses/host.py:628
 #, python-format
-msgid "Sucessfully parsed %s"
+msgid "Successfully parsed %s"
 msgstr ""
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:149
@@ -685,7 +687,7 @@ msgid "Not a Dependency: %s"
 msgstr ""
 
 #: src/vigilo/vigiconf/loaders/dependency.py:106
-msgid "No dependent supitem"
+msgid "No dependent supervised item"
 msgstr ""
 
 #: src/vigilo/vigiconf/loaders/dependency.py:108

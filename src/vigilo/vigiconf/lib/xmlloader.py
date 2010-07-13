@@ -316,7 +316,7 @@ class XMLLoader(DBLoader):
                     final = True
                 else:
                     self.load_file(path)
-                    LOGGER.debug(_("Sucessfully parsed %s") % path)
+                    LOGGER.debug(_("Successfully parsed %s") % path)
             
             # parsing du dernier fichier à traiter pour des mises
             # à jour unitaires

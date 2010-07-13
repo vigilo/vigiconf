@@ -181,8 +181,10 @@ class Server(object):
         try:
             _command.execute()
         except SystemCommandError, e:
-            raise ServerError(_("Can't refactor server. COMMAND %(cmd) "
-                "FAILED. REASON: %(reason)s") % {
+            raise ServerError(_("Can't activate the configuration on "
+                                "%(server)s. COMMAND %(cmd)s FAILED. "
+                                "REASON: %(reason)s") % {
+                'server': self.getName(),
                 'cmd': _CmdLine,
                 'reason': e.value,
             }, self.getName())
