@@ -410,7 +410,7 @@ class Application(object):
                                             "- REASON %(reason)s") % {
                     'app': self.getName(),
                     'server': iServer.getName(),
-                    'reason': e.value(),
+                    'reason': e.value,
                 })
                 error.cause = e
             LOGGER.info(_("%(app)s started on %(server)s"), {

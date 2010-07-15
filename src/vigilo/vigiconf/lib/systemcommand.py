@@ -109,8 +109,9 @@ class SystemCommand(object):
                             "and message: %(msg)s") % {
                             'cmd': self.getCommand(),
                             'code': self.process.returncode,
-                            'msg': self.getResult(),
+                            'msg': self.getResult().decode("utf8", "replace"),
                         })
+        #TODO: L'encodage UTF-8 est hardcodé ci-dessus, détecter celui du système
         return self.mResult
     
     def integerReturnCode(self):

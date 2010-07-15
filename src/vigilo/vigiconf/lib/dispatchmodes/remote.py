@@ -77,7 +77,7 @@ class DispatchatorRemote(Dispatchator):
         _serversList = set()
         for appGroup in conf.appsGroupsByServer:
             for hostGroup in conf.appsGroupsByServer[appGroup]:
-                for server in conf.appsGroupsByServer[appGroup][hostGroup]
+                for server in conf.appsGroupsByServer[appGroup][hostGroup]:
                     _serversList.add(server)
         return _serversList
 
@@ -95,18 +95,11 @@ class DispatchatorRemote(Dispatchator):
             LOGGER.warning(_("The %s app group is not listed in "
                                 "appsGroupsByServer"), appgroup)
             return []
-        # Then, find all hostgroups
-        hostgroups = set()
-        for hostdata in conf.hostsConf.values():
-            hostgroups.add(hostdata['serverGroup'])
-        servers = list()
-        # Now, use the appgroup to hostgroup to server mapping
-        for hostgroup in hostgroups:
-            if not conf.appsGroupsByServer[appgroup].has_key(hostgroup):
-                continue
-            servers.extend(conf.appsGroupsByServer[appgroup][hostgroup])
-        # uniquify
-        servers = list(set(servers))
+        # Use the appgroup to hostgroup to server mapping
+        servers = set()
+        for hostgroup in conf.appsGroupsByServer[appgroup]:
+            for server in conf.appsGroupsByServer[appgroup][hostgroup]:
+                servers.add(server)
         return servers
 
     def restrict(self, servernames):
