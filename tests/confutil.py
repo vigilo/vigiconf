@@ -11,7 +11,7 @@ configure_db(settings['database'], 'sqlalchemy_',
     settings['database']['db_basename'])
 
 from vigilo.models.session import metadata, DBSession
-from vigilo.models.tables import VigiloServer
+from vigilo.models.tables import VigiloServer, StateName
 from vigilo.vigiconf.loaders.group import GroupLoader
 
 import vigilo.vigiconf.conf as conf
@@ -61,7 +61,15 @@ def setup_tmpdir(dirpath=None):
 def setup_db():
     """Crée toutes les tables du modèle dans la BDD."""
     metadata.create_all()
-    
+    DBSession.add(StateName(statename=u'OK', order=1))
+    DBSession.add(StateName(statename=u'UNKNOWN', order=2))
+    DBSession.add(StateName(statename=u'WARNING', order=3))
+    DBSession.add(StateName(statename=u'CRITICAL', order=4))
+    DBSession.add(StateName(statename=u'UP', order=1))
+    DBSession.add(StateName(statename=u'UNREACHABLE', order=2))
+    DBSession.add(StateName(statename=u'DOWN', order=4))
+    DBSession.flush()
+
 #Teardown that database 
 def teardown_db():
     """Supprime toutes les tables du modèle de la BDD."""
