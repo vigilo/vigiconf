@@ -130,7 +130,7 @@ class HostLoader(DBLoader):
 
         # Suppression des anciens groupes
         # qui ne sont plus associés à l'hôte.
-        for path in hostgroups_cache:
+        for path in hostgroups_cache.copy():
             if path not in hostdata['otherGroups']:
                 host.groups.remove(hostgroups_cache[path])
                 del hostgroups_cache[path]
