@@ -39,6 +39,9 @@ settings.load_module(__name__)
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from . import conf
 from .lib.validator import Validator
 from . import generators
