@@ -36,6 +36,9 @@ import sys
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+
 from . import conf
 from .lib.validator import Validator
 from . import generators
@@ -96,42 +99,37 @@ def generate(commit_db=False):
 
     v = Validator(h)
     if not v.preValidate():
-        sys.stderr.write("\n".join(v.getSummary(details=True, stats=True)))
-        sys.stderr.write("Generation Failed!!\n")
+        for errmsg in v.getSummary(details=True, stats=True):
+            LOGGER.error(errmsg)
+        LOGGER.error(_("Generation failed!"))
         return False
     genmanager = generators.GeneratorManager()
     genmanager.generate(h, v)
             
     if v.hasErrors():
-        sys.stderr.write("\n".join(v.getSummary(details=True, stats=True)+['']))
-        sys.stderr.write("Generation Failed!!\n")
+        for errmsg in v.getSummary(details=True, stats=True):
+            LOGGER.error(errmsg)
+        LOGGER.error(_("Generation failed!"))
         if commit_db:
             transaction.abort()
-            sys.stdout.write("transaction rollbacked\n")
+            LOGGER.debug(_("Transaction rollbacked"))
         return False
     else:
         try:
             if commit_db:
                 transaction.commit()
-                sys.stdout.write("transaction commited\n")
+                LOGGER.debug(_("Transaction commited"))
             else:
                 transaction.abort()
-                sys.stdout.write("transaction rollbacked\n")
-                
+                LOGGER.debug(_("Transaction rollbacked"))
         except Exception, v:
             transaction.abort()
-            sys.stdout.write("transaction rollbacked\n")
+            LOGGER.debug(_("Transaction rollbacked"))
             return False
 
-        try:
-            silent = settings['vigiconf'].as_bool('silent')
-        except KeyError:
-            silent = False
-
-        if not silent:
-            sys.stdout.write("\n".join(v.getSummary(details=True, stats=True)
-                                      +['']))
-            sys.stdout.write("Generation Successful\n")
+        for msg in v.getSummary(details=True, stats=True):
+            LOGGER.info(msg)
+        LOGGER.info(_("Generation cuccessful"))
         return True
 
 if __name__ == "__main__":
