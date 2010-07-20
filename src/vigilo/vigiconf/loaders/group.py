@@ -42,7 +42,7 @@ class GroupLoader(XMLLoader):
     pour les groupes d'hosts ou de services, être utilisée comme
     classe de base.
         
-    @ivar _tag_group: balise xml "hostgroup" or "servicegroup"
+    @ivar _tag_group: balise xml qui permet de définir les groupes ("group")
     @type _tag_group: C{str}
     @ivar _xsd_filename: fichier schema xsd pour validation
     @type _xsd_filename: C{str}
@@ -89,22 +89,22 @@ class GroupLoader(XMLLoader):
         @param group: an XML file
         @type  group: C{Group}
         """
-        if not group.has_children():
-            return 1
         hchildren = {}
         for g in group.children:
             hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
+        if not hchildren:
+            return 1
         return hchildren
 
     def update(self, data):
         instance = super(GroupLoader, self).update(data)
-        instance.set_parent(self._current_parent)
+        instance.parent = self._current_parent
         DBSession.flush()
         return instance
 
     def insert(self, data):
         LOGGER.debug(_("Inserting: %s"), self.get_key(data))
-        instance = self._class.create(data["name"], self._current_parent)
+        instance = self._class(name=data["name"], parent=self._current_parent)
         self._in_conf[self.get_key(data)] = instance
         DBSession.flush()
         return instance

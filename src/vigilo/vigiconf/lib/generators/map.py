@@ -141,10 +141,10 @@ class MapGenerator(Generator):
         """
         gmap = MapGroup.by_group_name(group.name)
         if not gmap:
-            gmap = MapGroup.create(name=group.name)
+            gmap = MapGroup(name=group.name)
             if group.has_parent():
-                pgmap = self.build_mapgroup_hierarchy(group.get_parent())
-                gmap.set_parent(pgmap)
+                pgmap = self.build_mapgroup_hierarchy(group.parent)
+                gmap.parent = pgmap
             DBSession.add(gmap)
         return gmap
         
@@ -166,7 +166,7 @@ class MapGenerator(Generator):
             parent = self.get_root_group()
         gmap = MapGroup.by_parent_and_name(parent, name)
         if not gmap:
-            gmap = MapGroup.create(name, parent)
+            gmap = MapGroup(name=name, parent=parent)
             DBSession.add(gmap)
         return gmap
     

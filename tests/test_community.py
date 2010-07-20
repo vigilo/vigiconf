@@ -35,7 +35,7 @@ class EnterpriseEdition(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        MapGroup.create(u'Root')
+        MapGroup(name=u'Root')
 
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
@@ -119,7 +119,7 @@ class CommunityEdition(unittest.TestCase):
         """Call before every test case."""
         # Prepare temporary directory
         setup_db()
-        MapGroup.create(u'Root')
+        MapGroup(name=u'Root')
         
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")

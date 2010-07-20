@@ -703,7 +703,7 @@ class HostFactory(object):
                 elif elem.tag == "test":
                     inside_test = True
                     test_name = get_attrib(elem, 'name')
-                    
+
                     # TODO: c'est quoi ce bordel ? On est en SAX, donc on a pas
                     # les children à ce moment ! Et c'est quoi ce renommage de
                     # test_name à l'arrache ? Seul le test sait quel va être le
@@ -715,7 +715,7 @@ class HostFactory(object):
                             if tname == "label":
                                 test_name = "%s %s" % (test_name, get_text(arg))
                                 break
-                
+
                 elif elem.tag == "nagios":
                     process_nagios = True
                 elif elem.tag == "directive":

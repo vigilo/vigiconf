@@ -58,12 +58,3 @@ class GraphGroupLoader(DBLoader):
         DBSession.flush()
         return instance
 
-    def insert(self, data):
-        LOGGER.debug(_("Inserting: %s"), self.get_key(data))
-        # Pour les GraphGroup, il faut utiliser la méthode create()
-        # pour générer correctement le groupe et sa hiérarchie.
-        instance = self._class.create(**data)
-        DBSession.add(instance)
-        self._in_conf[self.get_key(data)] = instance
-        return instance
-

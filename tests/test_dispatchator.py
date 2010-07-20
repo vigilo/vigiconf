@@ -23,13 +23,13 @@ class Dispatchator(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        MapGroup.create(u'Root')
-        
+        MapGroup(name=u'Root')
+
         # Prepare necessary directories
         # TODO: commenter les divers repertoires
         setup_deploy_dir()
         # Deploy on the localhost only -> switch to Community Edition
-        
+
         delattr(conf, "appsGroupsByServer")
         self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers", 42)
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
