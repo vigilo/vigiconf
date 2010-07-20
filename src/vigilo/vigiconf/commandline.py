@@ -277,8 +277,8 @@ def main():
 
         # On remplace les UID/GID réels et effectifs
         # par ceux de l'utilisateur 'vigiconf'.
-        os.setreuid(entry.pw_uid, entry.pw_uid)
         os.setregid(entry.pw_gid, entry.pw_gid)
+        os.setreuid(entry.pw_uid, entry.pw_uid)
 
     if pwd.getpwuid(os.getuid()).pw_name != 'vigiconf':
         LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. Aborting."))
