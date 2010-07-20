@@ -165,7 +165,7 @@ class Validator(object):
         s.append(_("%d errors") % len(self._errors))
         s.append(_("%d warnings") % len(self._warnings))
         if stats:
-            s.append(_("%(nbGenerators)d generators have configured"
+            s.append(_("%(nbGenerators)d generators have configured "
                 "%(nbHosts)d hosts on %(nbServers)d servers.") % self._stats)
             s.append(_("%(filesWritten)d files have been generated in "
                 "%(dirsCreated)d directories") % self._stats)

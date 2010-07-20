@@ -132,7 +132,7 @@ def generate(commit_db=False):
 
         for msg in v.getSummary(details=True, stats=True):
             LOGGER.info(msg)
-        LOGGER.info(_("Generation cuccessful"))
+        LOGGER.info(_("Generation successful"))
         return True
 
 if __name__ == "__main__":
