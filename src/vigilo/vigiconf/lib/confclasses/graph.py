@@ -34,7 +34,7 @@ class Graph(object):
     """
 
     def __init__(self, hosts, title, dslist, template, vlabel,
-                    group="General", factors=None):
+                    group="General", factors=None, max_values=None):
         """
         @param hosts: the main hosts configuration dictionary
         @type  hosts: C{dict}
@@ -50,6 +50,8 @@ class Graph(object):
         @type  group: C{str}
         @param factors: the factors to use, if any
         @type  factors: C{dict}
+        @param max_values: the maximum values for each datasource, if any
+        @type  max_values: C{dict}
         """
         self.hosts = hosts
         self.title = title
@@ -57,10 +59,16 @@ class Graph(object):
         self.template = template
         self.vlabel = vlabel
         self.group = group
+        
         if factors is None:
             self.factors = {}
         else:
             self.factors = factors
+
+        if max_values is None:
+            self.max_values = {}
+        else:
+            self.max_values = max_values
 
     def add_to_host(self, hostname):
         """
@@ -75,6 +83,7 @@ class Graph(object):
                                      'vlabel': self.vlabel,
                                      'ds': self.dslist,
                                      'factors': self.factors,
+                                     'max_values': self.max_values,
                                      }
                         })
         if not self.hosts[hostname].has_key("graphGroups"):

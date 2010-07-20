@@ -5,12 +5,13 @@ class Partition(Test):
 
     oids = [".1.3.6.1.2.1.25.2.3.1.3"]
 
-    def add_test(self, host, label, partname, warn=80, crit=95, percent=True):
+    def add_test(self, host, label, partname, max=None, warn=80, crit=95, percent=True):
         """
         Arguments:
             host:     the Host object to add the test to
             label:    the displayed name for the partition (ex: Data)
             partname: the SNMP name of the partition (ex: /var)
+            max:      total size of the partition
             warn:     WARNING threshold
             crit:     CRITICAL threshold
             percent:  if True, the thresholds apply to the percent. If False,
@@ -24,7 +25,8 @@ class Partition(Test):
         host.add_collector_metro("%s part"%label, "m_table_mult", [partname],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.3"],'GAUGE', label=label)
-        host.add_graph("%s partition usage"%label, [ "%s part"%label ], "lines", "bytes", "Storage")
+        host.add_graph("%s partition usage"%label, [ "%s part"%label ],
+            "lines", "bytes", "Storage", max_values={"%s part" % label: max})
 
 
 

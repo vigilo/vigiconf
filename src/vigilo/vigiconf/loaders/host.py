@@ -230,8 +230,10 @@ class PDSLoader(DBLoader):
                        type=unicode(dsdata["dsType"]),
                        label=unicode(dsdata['label']))
             for graphname, graphdata in conf.hostsConf[self.host.name]['graphItems'].iteritems():
-                if graphdata['factors'].has_key(dsname):
+                if graphdata['factors'].get(dsname, None) is not None:
                     pds["factor"] = float(graphdata['factors'][dsname])
+                if graphdata['max_values'].get(dsname, None) is not None:
+                    pds["max"] = float(graphdata['max_values'][dsname])
             self.add(pds)
 
 

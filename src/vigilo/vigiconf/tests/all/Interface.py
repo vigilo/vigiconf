@@ -7,17 +7,18 @@ class Interface(Test):
 
     oids = [".1.3.6.1.2.1.25.1.6.0"]
 
-    def add_test(self, host, label, ifname, errors=True, staticindex=False,
-                 warn=None, crit=None):
+    def add_test(self, host, label, ifname, max=None,
+                errors=True, staticindex=False, warn=None, crit=None):
         """Arguments:
             host: the Host object to add the test to
             label: Label to display
             ifname: SNMP name for the interface
+            max: the maximum bandwidth available through this interface.
             errors: create a graph for interface errors
             staticindex: consider the ifname as the static SNMP index instead
-                         of the interface name. It's not recommanded to use,
-                         but it can be necessary: some OS (Windows among
-                         others) assign the same name to different interfaces.
+                         of the interface name. It's not recommanded, but it
+                         can be necessary as some OS (Windows among others)
+                         assign the same name to different interfaces.
             warn: WARNING threshold. See below for the format
             crit: CRITICAL threshold. See below for the format
 
@@ -60,9 +61,17 @@ class Interface(Test):
                          "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
                         weight=self.weight)
 
-            host.add_graph("Traffic %s" % label, [ "in%s"%label, "out%s"%label ], "area-line",
-                        "b/s", group="Network interfaces", factors={"in%s"%label: 8,
-                                                                             "out%s"%label: 8} )
+            host.add_graph("Traffic %s" % label, ["in%s" % label, "out%s" % label],
+                        "area-line", "b/s", group="Network interfaces",
+                        factors={
+                            "in%s" % label: 8,
+                            "out%s" % label: 8,
+                        },
+                        max_values={
+                            "in%s" % label: max,
+                            "out%s" % label: max,
+                        },
+            )
         if errors:
             host.add_graph("Errors %s" % label, [ "inErrs%s"%label, "outErrs%s"%label,
                                         "inDisc%s"%label, "outDisc%s"%label ], "lines",

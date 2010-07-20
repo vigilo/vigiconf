@@ -427,7 +427,8 @@ class Host(object):
         graph.add_to_host(target)
 
     def add_graph(self, title, dslist, template, vlabel,
-                        group="General", factors=None):
+                        group="General", factors=None,
+                        max_values=None):
         """
         Add a graph to the host
         @param title: The graph title
@@ -442,26 +443,14 @@ class Host(object):
         @type  group: C{str}
         @param factors: the factors to use, if any
         @type  factors: C{dict}
+        @param max_values: the maximum values for each datasource, if any
+        @type  max_values: C{dict}
         """
         graph = Graph(self.hosts, unicode(title), map(unicode, dslist),
                       unicode(template), unicode(vlabel),
-                      group=unicode(group), factors=factors)
+                      group=unicode(group), factors=factors,
+                      max_values=max_values)
         graph.add_to_host(self.name)
-
-    def add_to_graph(self, title, ds, factor=None):
-        """
-        Add the DS to an existing graph
-        @param title: The graph title to add to
-        @type  title: C{str}
-        @param ds: The datasources to add
-        @type  ds: C{str}
-        @param factor: the factor to use, if any
-        @type  factor: C{int} or C{float}
-        """
-        self.hosts[self.name]["graphItems"][title]["ds"].append(ds)
-        if factor is not None:
-            self.hosts[self.name]["graphItems"][title]["factors"]\
-                                                                 [ds] = factor
 
     def add_report(self, title, reportname, datesetting=0):
         """
