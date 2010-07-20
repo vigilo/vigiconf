@@ -46,6 +46,17 @@ class GroupLoader(XMLLoader):
     @type _tag_group: C{str}
     @ivar _xsd_filename: fichier schema xsd pour validation
     @type _xsd_filename: C{str}
+
+    VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
+    configurations de la supervision en mode CLI :
+        - configuration d'un group d'hôtes : ajout/modification/suppression
+            d'un hôte
+        - configuration d'un groupe de services : ajout/modification/
+            suppression d'un service
+        - configuration des services de haut niveau : ajout/modification/
+            suppression d'un service
+        - configuration des règles de corrélations associé à un service de haut
+            niveau : ajout/modification/suppression d'une règle de corrélation
     """
     
     _tag_group = "group"
@@ -144,40 +155,4 @@ class GroupLoader(XMLLoader):
         self._parent_stack = []
         self._current_parent = None
         return super(GroupLoader, self).load_file(path)
-
-
-## VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
-##   configurations de la supervision en mode CLI
-##
-##   configuration des groupes d'hôtes : ajout/modification/suppression d'un
-##   groupe d'hôte
-#class HostGroupLoader(GroupLoader):
-#    
-#    _tag_group = "hostgroup"
-#    _xsd_filename = "hostgroup.xsd"
-#
-#    def get_hosts_conf(self):
-#        """ reconstruit le dico hostsGroup v1
-#        
-#        TODO: refactoring
-#        """
-#        hostsgroups = {}
-#        for g in DBSession.query(SupItemGroup).all():
-#            hostsgroups[g.name] = g.name
-#        return hostsgroups
-#
-#
-## VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
-##   configurations de la supervision en mode CLI
-##
-##   configuration d'un groupe de service : ajout/modification/suppression d'un
-##     groupe de service
-##   configuration des services de haut niveau : ajout/modification/suppression
-##     d'un service
-##   configuration des règles de corrélations associé à un service de haut
-##     niveau : ajout/modification/suppression d'une règle de corrélation
-#class ServiceGroupLoader(GroupLoader):
-#
-#    _tag_group = "servicegroup"
-#    _xsd_filename = "servicegroup.xsd"
 
