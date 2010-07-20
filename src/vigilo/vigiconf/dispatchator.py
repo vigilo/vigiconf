@@ -274,16 +274,17 @@ class Dispatchator(object):
         Après génération, la configuration est validée, et en cas de succès les
         fichiers de configuration de VigiConf sont comittés en SVN
         """
-        self.run_generator()
+        if not self.run_generator():
+            return False
         self.validate_generation()
+        return True
 
     def run_generator(self):
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir, ignore_errors=True)
         
         result = generator.generate(commit_db=(self.mode_db == 'commit'))
-        if not result:
-            raise DispatchatorError(_("Can't generate configuration"))
+        return result
 
     def validate_generation(self):
         for _App in self.getApplications():
@@ -788,7 +789,8 @@ class Dispatchator(object):
 
     def run(self, stop_after=None):
         self.prepare_svn()
-        self.generate()
+        if not self.generate():
+            return
         if stop_after == "generation":
             return
         self.deploy()
