@@ -79,15 +79,16 @@ class SystemCommand(object):
         """@return: L{mCommand}"""
         return self.mCommand
 
-    def getResult(self):
+    def getResult(self, stdout=True, stderr=True):
         """
         @return: the concatenation of stdout and stderr from L{mResult}.
         @rtype: C{str}
         """
         message = ""
-        for out in self.mResult:
-            if out is not None:
-                message += out
+        if stdout:
+            message = self.mResult[0]
+        if stderr:
+            messate += self.mResult[1]
         return message
         
     def execute(self):

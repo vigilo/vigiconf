@@ -322,7 +322,7 @@ class Dispatchator(object):
                       % e.value)
         if not _command.getResult():
             return result
-        output = ET.fromstring(_command.getResult())
+        output = ET.fromstring(_command.getResult(stderr=False))
         status = {"add": [], "remove": []}
         for entry in output.findall(".//entry"):
             state = entry.find("wc-status").get("item")
@@ -451,7 +451,7 @@ class Dispatchator(object):
 
         if not _command.getResult():
             return res
-        output = ET.fromstring(_command.getResult())
+        output = ET.fromstring(_command.getResult(stderr=False))
         entry = output.find("entry")
         if entry is not None:
             res = entry.get("revision", res)
