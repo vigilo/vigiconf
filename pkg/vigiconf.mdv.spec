@@ -22,8 +22,6 @@ Requires:   libxml2-utils
 Requires:   python-argparse
 Requires:   vigilo-models
 Requires:   vigilo-common
-# Pour CorrTrap
-Requires:   sec
 ######### Dependance from python dependance tree ########
 Requires:   python-argparse
 Requires:   python-babel
