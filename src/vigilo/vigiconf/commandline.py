@@ -27,6 +27,8 @@ from __future__ import absolute_import
 
 import fcntl
 import sys
+import os
+import pwd
 
 import argparse
 import gettext
@@ -259,8 +261,32 @@ def main():
     # définir les traductions pour les textes de argparse dans VigiConf.
     gettext.textdomain('vigilo-vigiconf')
     args = parse_args()
+
+    uid = os.getuid()
+    # Vigiconf est lancé en tant que "root",
+    # on bascule sur un compte utilisateur
+    # plus approprié (vigiconf).
+    if not uid:
+        LOGGER.warning(_("VigiConf was launched as user 'root'. "
+                        "Switching to user 'vigiconf' instead."))
+        try:
+            entry = pwd.getpwnam("vigiconf")
+        except KeyError:
+            LOGGER.error(_("Unable to switch to user 'vigiconf'. Aborting."))
+            sys.exit(2)
+
+        # On remplace les UID/GID réels et effectifs
+        # par ceux de l'utilisateur 'vigiconf'.
+        os.setreuid(entry.pw_uid, entry.pw_uid)
+        os.setregid(entry.pw_gid, entry.pw_gid)
+
+    if pwd.getpwuid(os.getuid()).pw_name != 'vigiconf':
+        LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. Aborting."))
+        sys.exit(2)
+
     LOGGER.debug(_("VigiConf starting..."))
-    f = open(settings["vigiconf"].get("lockfile", "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
+    f = open(settings["vigiconf"].get("lockfile",
+        "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
     try:
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception, exp:
