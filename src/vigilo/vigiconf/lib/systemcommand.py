@@ -88,7 +88,7 @@ class SystemCommand(object):
         if stdout:
             message = self.mResult[0]
         if stderr:
-            messate += self.mResult[1]
+            message += self.mResult[1]
         return message
         
     def execute(self):
