@@ -32,7 +32,7 @@ class VigiConfError(Exception):
         return repr(self.value)
 
     def __str__(self):
-        return str(self.value)
+        return self.value
 
 
 class EditionError(VigiConfError):

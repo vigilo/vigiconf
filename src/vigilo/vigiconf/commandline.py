@@ -48,20 +48,20 @@ _ = translate(__name__)
 N_ = translate_narrow(__name__)
 
 from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib import VigiConfError
 from vigilo.vigiconf.lib.application import ApplicationError
 from vigilo.vigiconf.dispatchator import DispatchatorError
 from vigilo.vigiconf.lib import dispatchmodes
+
+from xml.etree import ElementTree as ET # Python 2.5
+
 
 
 def get_dispatchator(args):
     from vigilo.models.session import metadata
     metadata.create_all()
 
-    try:
-        conf.loadConf()
-    except Exception, e :
-        LOGGER.error(_("Cannot load the configuration: %s"), e)
-        raise e
+    conf.loadConf()
     dispatchator = dispatchmodes.getinstance()
     if args.server:
         try:
@@ -115,24 +115,19 @@ def info(args):
 
 def discover(args):
     from .discoverator import Discoverator, DiscoveratorError, indent
-    conf.loadConf()
-    try:
-        discoverator = Discoverator(options.group)
-        for target in args.target:
-            if os.path.exists(target):
-                discoverator.scanfile(target)
-            else:
-                discoverator.scanhost(target,
-                                      args.community,
-                                      args.version)
-        discoverator.detect()
-        elements = discoverator.declaration()
-        indent(elements)
-        print """<?xml version="1.0"?>"""
-        print(ET.tostring(elements))
-    except DiscoveratorError, e:
-        sys.stderr.write(str(e)+"\n")
-        sys.exit(1)
+    discoverator = Discoverator(args.group)
+    for target in args.target:
+        if os.path.exists(target):
+            discoverator.scanfile(target)
+        else:
+            discoverator.scanhost(target,
+                                  args.community,
+                                  args.version)
+    discoverator.detect()
+    elements = discoverator.declaration()
+    indent(elements)
+    print """<?xml version="1.0"?>"""
+    print(ET.tostring(elements))
 
 def parse_args():
     """Parses the commandline and starts the requested actions"""    
@@ -247,7 +242,7 @@ def parse_args():
                         help=N_("SNMP version. Default: %(default)s."))
     parser_discover.add_argument("-g", "--group", default="Servers",
                         help=N_("Main group. Default: %(default)s."))
-    parser_discover.add_argument('target', nargs='+', type=list,
+    parser_discover.add_argument('target', nargs='+',
             help=N_("Hosts or files to scan. The files must be the result "
                    "of an snmpwalk command on the '.1' OID with the "
                    "'-OnQ' options."))
@@ -295,13 +290,11 @@ def main():
         sys.exit(1)
     try:
         args.func(args)
-    except (DispatchatorError, ApplicationError), e:
-        LOGGER.exception(e)
-    except Exception, e:
+    except VigiConfError, e:
         if args.debug:
-            LOGGER.exception(_("VigiConf error: %s"), str(e))
+            LOGGER.exception(_("VigiConf error: %s"), e.value)
         else:
-            LOGGER.error(_("VigiConf error: %s"), str(e))
+            LOGGER.error(_("VigiConf error: %s"), e.value)
         #for l in traceback.format_exc().split("\n"):
         #    LOGGER.error(l)
     LOGGER.debug(_("VigiConf ended."))

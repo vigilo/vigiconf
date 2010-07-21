@@ -67,20 +67,7 @@ from .lib import dispatchmodes
 class DispatchatorError(VigiConfError):
     """The exception type raised by instances of Dispatchator"""
 
-    def __init__(self, value):
-        """
-        @param value: A message explaining this exception.
-        @type  value: C{str}
-        """
-        super(DispatchatorError, self).__init__(value)
-        self.value = value
-
-    def __str__(self):
-        """
-        String representation of an instance of this exception.
-        @rtype: C{str}.
-        """
-        return repr("DispatchatorError : "+self.value)
+    pass
 
 class Dispatchator(object):
     """

@@ -295,10 +295,7 @@ def loadConf():
     try:
         hostfactory.load()
     except ParsingError, e:
-        LOGGER.error(_("Error loading configuration file %(file)s: %(error)s"), {
-            'file': (os.path.join(settings["vigiconf"].get("confdir"), "hosts")),
-            'error': str(e),
-        })
+        LOGGER.error(_("Error loading configuration"))
         raise e
     hostsConf = hostfactory.hosts
     # TODO: refactoring

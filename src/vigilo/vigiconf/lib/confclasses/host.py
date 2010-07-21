@@ -639,7 +639,7 @@ class HostFactory(object):
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
         if result != 0:
-            raise ParsingError(_("XML validation failed"))
+            raise ParsingError(_("XML validation failed for file %s") % source)
     
     def _loadhosts(self, source):
         """

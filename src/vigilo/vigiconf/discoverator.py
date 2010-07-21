@@ -224,15 +224,20 @@ class Discoverator(object):
         if self.hostname.count(".") == 0:
             self.hostname = socket.getfqdn(self.hostname)
         if self.ipaddr is None:
-            self.ipaddr = socket.gethostbyname(self.hostname)
+            try:
+                self.ipaddr = socket.gethostbyname(self.hostname)
+            except socket.gaierror:
+                pass
 
     def declaration(self):
-        """Generate the textual declaration for the ConfMgr"""
+        """Generate the textual declaration for Vigiconf"""
         self.hclasses.remove("all")
         decl = ET.Element("host")
         decl.set("name", self.hostname)
-        decl.set("ip", self.ipaddr)
-        decl.set("group", self.group)
+        if self.ipaddr is not None:
+            decl.set("address", self.ipaddr)
+        group = ET.SubElement(decl, "group")
+        group.text = self.group
         for hclass in self.hclasses:
             _class = ET.SubElement(decl, "class")
             _class.text = hclass

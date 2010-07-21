@@ -50,100 +50,100 @@
 hosts element contains one ore more host elements
 =================================================
 -->
+<xs:element name="host">
+    <xs:complexType>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="template" type="xs:string"/>
+        <!-- nagios host specific bloc -->
+        <xs:element ref="nagios"/>
+        <xs:element name="class" type="xs:string"/>
+        <xs:element name="attribute">
+            <xs:complexType>
+                <xs:simpleContent>
+                    <xs:extension base="xs:integer">
+                        <xs:attribute name="name" type="xs:string"/>
+                    </xs:extension>
+                </xs:simpleContent>
+            </xs:complexType>
+        </xs:element>
+
+        <xs:element name="test">
+            <xs:complexType>
+                <xs:choice maxOccurs="unbounded" minOccurs="0">
+                    <xs:element name="arg">
+                        <xs:complexType>
+                            <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                    <xs:attribute name="name" type="xs:string"/>
+                                </xs:extension>
+                            </xs:simpleContent>
+                        </xs:complexType>
+                    </xs:element>
+
+                    <!-- nagios service specific bloc -->
+                    <xs:element ref="nagios"/>
+                </xs:choice>
+
+                <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="weight" type="xs:positiveInteger"/>
+            </xs:complexType>
+        </xs:element>
+
+        <xs:element name="item" type="xs:string"/>
+
+        <xs:element name="tag">
+            <xs:complexType>
+                <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                        <xs:attribute name="service" type="xs:string"/>
+                        <xs:attribute name="name" type="xs:string"/>
+                    </xs:extension>
+                </xs:simpleContent>
+            </xs:complexType>
+        </xs:element>
+
+        <xs:element name="trap">
+            <xs:complexType>
+                <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                        <xs:attribute name="service" type="xs:string"/>
+                        <xs:attribute name="key" type="xs:string"/>
+                    </xs:extension>
+                </xs:simpleContent>
+            </xs:complexType>
+        </xs:element>
+
+        <xs:element name="group" type="xs:string"/>
+    </xs:choice>
+
+    <!--
+        Libellé de l'hôte.
+        Si cet attribut est omis, la valeur de l'attribut "address"
+        est automatiquement utilisée.
+    -->
+    <xs:attribute name="name" type="xs:string" use="required"/>
+
+    <!-- Adresse de l'hôte (IP ou FQDN). -->
+    <xs:attribute name="address" type="xs:string" use="optional"/>
+
+    <!--
+        Groupe utilisé pour ventiler l'hôte.
+        Si cet attribut est omis, on tente de déterminer le groupe
+        qui va servir à la ventilation à partir des groupes rattachés
+        à l'hôte, à condition que les groupes ne se contredisent pas.
+    -->
+    <xs:attribute name="ventilation" type="xs:string" use="optional"/>
+
+    <!-- Poids accordé à l'hôte (entier strictement positif). -->
+    <xs:attribute name="weight" type="xs:positiveInteger"/>
+
+    </xs:complexType>
+</xs:element>
+
 <xs:element name="hosts">
     <xs:complexType>
         <xs:sequence>
-            <!-- Element host -->    
-            <xs:element maxOccurs="unbounded" minOccurs="1" name="host">
-                <xs:complexType>
-                <xs:choice minOccurs="0" maxOccurs="unbounded">
-                    <xs:element name="template" type="xs:string"/>
-                    <!-- nagios host specific bloc -->
-                    <xs:element ref="nagios"/>
-                    <xs:element name="class" type="xs:string"/>
-                    <xs:element name="attribute">
-                        <xs:complexType>
-                            <xs:simpleContent>
-                                <xs:extension base="xs:integer">
-                                    <xs:attribute name="name" type="xs:string"/>
-                                </xs:extension>
-                            </xs:simpleContent>
-                        </xs:complexType>
-                    </xs:element>
-
-                    <xs:element name="test">
-                        <xs:complexType>
-                            <xs:choice maxOccurs="unbounded" minOccurs="0">
-                                <xs:element name="arg">
-                                    <xs:complexType>
-                                        <xs:simpleContent>
-                                            <xs:extension base="xs:string">
-                                                <xs:attribute name="name" type="xs:string"/>
-                                            </xs:extension>
-                                        </xs:simpleContent>
-                                    </xs:complexType>
-                                </xs:element>
-
-                                <!-- nagios service specific bloc -->
-                                <xs:element ref="nagios"/>
-                            </xs:choice>
-
-                            <xs:attribute name="name" type="xs:string"/>
-                            <xs:attribute name="weight" type="xs:positiveInteger"/>
-                        </xs:complexType>
-                    </xs:element>
-
-                    <xs:element name="item" type="xs:string"/>
-        
-                    <xs:element name="tag">
-                        <xs:complexType>
-                            <xs:simpleContent>
-                                <xs:extension base="xs:string">
-                                    <xs:attribute name="service" type="xs:string"/>
-                                    <xs:attribute name="name" type="xs:string"/>
-                                </xs:extension>
-                            </xs:simpleContent>
-                        </xs:complexType>
-                    </xs:element>
-        
-                    <xs:element name="trap">
-                        <xs:complexType>
-                            <xs:simpleContent>
-                                <xs:extension base="xs:string">
-                                    <xs:attribute name="service" type="xs:string"/>
-                                    <xs:attribute name="key" type="xs:string"/>
-                                </xs:extension>
-                            </xs:simpleContent>
-                        </xs:complexType>
-                    </xs:element>
-        
-                    <xs:element name="group" type="xs:string"/>
-                </xs:choice>
-
-                <!--
-                    Libellé de l'hôte.
-                    Si cet attribut est omis, la valeur de l'attribut "address"
-                    est automatiquement utilisée.
-                -->
-                <xs:attribute name="name" type="xs:string" use="optional"/>
-
-                <!-- Adresse de l'hôte (IP ou FQDN). -->
-                <xs:attribute name="address" type="xs:string" use="required"/>
-
-                <!--
-                    Groupe utilisé pour ventiler l'hôte.
-                    Si cet attribut est omis, on tente de déterminer le groupe
-                    qui va servir à la ventilation à partir des groupes rattachés
-                    à l'hôte, à condition que les groupes ne se contredisent pas.
-                -->
-                <xs:attribute name="ventilation" type="xs:string" use="optional"/>
-
-                <!-- Poids accordé à l'hôte (entier strictement positif). -->
-                <xs:attribute name="weight" type="xs:positiveInteger"/>
-
-                </xs:complexType>
-            </xs:element>
-            <!-- End Element host -->
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="host"/>
         </xs:sequence>
     </xs:complexType>
 </xs:element>

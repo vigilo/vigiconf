@@ -85,9 +85,9 @@ class SystemCommand(object):
         @rtype: C{str}
         """
         message = ""
-        if stdout and self.mResult[0]:
+        if stdout:
             message = self.mResult[0]
-        if stderr and self.mResult[1]:
+        if stderr:
             message += self.mResult[1]
         return message
         
