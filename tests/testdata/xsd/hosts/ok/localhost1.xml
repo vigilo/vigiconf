@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 
-<!-- invalid file for xsd testing
-
-no hosts container element
+<!--
+    La balise "hosts" englobante est optionnelle,
+    ce qui permet de définir directement 1 hôte
+    par fichier XML.
 -->
 
 <host name="localhost" address="127.0.0.1" ventilation="P-F">

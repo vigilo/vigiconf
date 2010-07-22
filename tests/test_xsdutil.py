@@ -12,7 +12,6 @@ class XSDTest(unittest.TestCase):
       * xsd_file
       * xml_ok_files
       * xml_ko_files
-    TODO: move to common module, use lxml ?
     """
     _cmd_verb = "xmllint --noout --schema %s %s"
     _cmd_silent = "xmllint --noout --schema %s %s 2>/dev/null"
