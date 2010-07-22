@@ -69,7 +69,10 @@ class Discoverator(object):
         """
         Use the stored SNMP walk.
         It should be the result of the following command::
-            snmpwalk -OnQ -c <community> -v <version> <hostname> .1
+            SNMPCONFPATH=/dev/null snmpwalk -OnQe -c <community> -v <version> <hostname> .1
+        SNMPCONFPATH=/dev/null permit to avoid unwanted setup from
+            - /etc/snmp/snmp.local.conf
+            - /etc/snmp/snmp.conf  
         @param filename: the path to the file containing the SNMP walk
         @type  filename: C{str}
         """
@@ -108,6 +111,10 @@ class Discoverator(object):
         newenv = os.environ.copy()
         newenv["LANG"] = "C"
         newenv["LC_ALL"] = "C"
+        #SNMPCONFPATH=/dev/null permit to avoid unwanted setup from 
+        #    - /etc/snmp/snmp.local.conf
+        #    - /etc/snmp/snmp.conf
+        newenv["SNMPCONFPATH"] = "/dev/null"
         walkprocess = subprocess.Popen(snmpcommand,
                                        shell=True,
                                        stdout=subprocess.PIPE,
