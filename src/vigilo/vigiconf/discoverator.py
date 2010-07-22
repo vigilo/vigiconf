@@ -34,11 +34,12 @@ from xml.etree import ElementTree as ET # Python 2.5
 #from pprint import pprint
 
 from . import conf
+from .lib import VigiConfError
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-class DiscoveratorError(Exception):
+class DiscoveratorError(VigiConfError):
     """Error during the Discoverator process"""
     pass
 
