@@ -254,8 +254,9 @@ class Discoverator(object):
             _attr.set("name", attr)
             if isinstance(val, list):
                 for item in val:
-                    _attr_item = ET.SubElement(_attr, "item")
-                    _attr_item.text = item
+                    if item:
+                        _attr_item = ET.SubElement(_attr, "item")
+                        _attr_item.text = item
             else:
                 _attr.text = val
         for testdict in self.tests:
