@@ -57,16 +57,16 @@ hosts element contains one ore more host elements
         <!-- nagios host specific bloc -->
         <xs:element ref="nagios"/>
         <xs:element name="class" type="xs:string"/>
+
         <xs:element name="attribute">
-            <xs:complexType>
-                <xs:simpleContent>
-                    <xs:extension base="xs:integer">
-                        <xs:attribute name="name" type="xs:string"/>
-                    </xs:extension>
-                </xs:simpleContent>
+            <xs:complexType mixed="true">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="xs:string"/>
+                </xs:sequence>
+                <xs:attribute name="name" use="required"/>
             </xs:complexType>
         </xs:element>
-
+  
         <xs:element name="test">
             <xs:complexType>
                 <xs:choice maxOccurs="unbounded" minOccurs="0">
