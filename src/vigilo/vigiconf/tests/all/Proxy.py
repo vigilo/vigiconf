@@ -22,7 +22,8 @@ class Proxy(Test):
             else:
                 checkname = "check_proxy_ssl"
         host.add_external_sup_service( "Proxy %s"%url,
-                    "%s!%s!%s" % (checkname,port,url), weight=self.weight)
+                    "%s!%s!%s" % (checkname,port,url), weight=self.weight,
+                    directives=self.directives)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

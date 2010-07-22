@@ -13,7 +13,8 @@ class TCPConn(Test):
         """
         host.add_collector_service("TCP connections", "thresholds_OID_simple",
                     [warn, crit, "%d established TCP connections"], 
-                    ["GET/.1.3.6.1.2.1.6.9.0"], weight=self.weight)
+                    ["GET/.1.3.6.1.2.1.6.9.0"], weight=self.weight,
+                    directives=self.directives)
         host.add_collector_metro("TCP connections", "directValue", [], 
                     ["GET/.1.3.6.1.2.1.6.9.0"], "GAUGE")
         host.add_graph("TCP connections", [ "TCP connections" ], "lines",

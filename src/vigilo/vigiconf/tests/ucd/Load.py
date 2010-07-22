@@ -19,21 +19,21 @@ class Load(Test):
         host.add_collector_service("Load 01", "simple_factor",
                     [warn, crit, 1.0/100, "Load: %2.2f"], 
                     [ "GET/.1.3.6.1.4.1.2021.10.1.5.1" ],
-                    weight=self.weight)
+                    weight=self.weight, directives=self.directives)
         host.add_collector_metro("Load 01", "directValue", [], 
                     [ "GET/.1.3.6.1.4.1.2021.10.1.5.1" ], "GAUGE")
         # Load 05
         host.add_collector_service("Load 05", "simple_factor",
                     [warn-1, crit-1, 1.0/100, "Load: %2.2f"], 
                     [ "GET/.1.3.6.1.4.1.2021.10.1.5.2" ],
-                    weight=self.weight)
+                    weight=self.weight, directives=self.directives)
         host.add_collector_metro("Load 05", "directValue", [], 
                     [ "GET/.1.3.6.1.4.1.2021.10.1.5.2" ], "GAUGE")
         # Load 01
         host.add_collector_service("Load 15", "simple_factor",
                     [warn-2, crit-2, 1.0/100, "Load: %2.2f"], 
                     [ "GET/.1.3.6.1.4.1.2021.10.1.5.3" ],
-                    weight=self.weight)
+                    weight=self.weight, directives=self.directives)
         host.add_collector_metro("Load 15", "directValue", [], 
                     [ "GET/.1.3.6.1.4.1.2021.10.1.5.3" ], "GAUGE")
 

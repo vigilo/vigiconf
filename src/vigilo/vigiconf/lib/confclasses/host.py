@@ -124,7 +124,7 @@ class Host(object):
         """
         self.hosts[self.name].update(attributes)
 
-    def add_tests(self, test_list, args={}, weight=None):
+    def add_tests(self, test_list, args={}, weight=None, directives=None):
         """
         Add a list of tests to this host, with the provided arguments
 
@@ -137,9 +137,12 @@ class Host(object):
         """
         if weight is None:
             weight = 1
+        if directives is None:
+            directives = {}
         for test_class in test_list:
             inst = test_class()
             try:
+                inst.directives = directives
                 inst.weight = weight
                 inst.add_test(self, **args)
             except TypeError:
@@ -278,7 +281,8 @@ class Host(object):
 #### Collector-related functions ####
 
     def add_collector_service(self, label, function, params, variables, cti=1,
-                                    reroutefor=None, maxchecks=1, weight=1):
+                                    reroutefor=None, maxchecks=1, weight=1,
+                                    directives=None):
         """
         Add a supervision service to the Collector
         @param label: the service display label
@@ -306,11 +310,19 @@ class Host(object):
         else:
             target = reroutefor["host"]
             service = reroutefor['service']
+
+        if directives is None:
+            directives = {}
+        for (dname, value) in directives.iteritems():
+            # @TODO: est-ce qu'on doit utiliser "reroutefor" ici ?
+            self.add_nagios_service_directive(label, dname, value)
+
         # Add the Nagios service (rerouting-dependant)
         self.add(target, "services", service, {'type': 'passive', 
                                                'cti': cti, 
                                                'maxchecks': maxchecks,
                                                "weight": weight,
+                                               "directives": directives,
                                               })
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (label, 'service'),
@@ -361,7 +373,8 @@ class Host(object):
 
     def add_collector_service_and_metro(self, name, label, supfunction,
                     supparams, supvars, metrofunction, metroparams, metrovars,
-                    dstype, cti=1, reroutefor=None, maxchecks=1, weight=1):
+                    dstype, cti=1, reroutefor=None, maxchecks=1, weight=1,
+                    directives=None):
         """
         Helper function for L{add_collector_service}() and
         L{add_collector_metro}().
@@ -395,14 +408,15 @@ class Host(object):
         """
         self.add_collector_service(name, supfunction, supparams, supvars,
                         cti=cti, reroutefor=reroutefor, maxchecks=maxchecks,
-                        weight=weight)
+                        weight=weight, directives=directives)
         self.add_collector_metro(name, metrofunction, metroparams, metrovars, 
                                  dstype, label=label, reroutefor=reroutefor)
 
     def add_collector_service_and_metro_and_graph(self, name, label, oid,
             th1, th2, dstype, template, vlabel, supcaption=None,
             supfunction="thresholds_OID_simple", metrofunction="directValue",
-            group="General", cti=1, reroutefor=None, maxchecks=1, weight=1):
+            group="General", cti=1, reroutefor=None, maxchecks=1, weight=1,
+            directives=None):
         """
         Helper function for L{add_collector_service}(),
         L{add_collector_metro}() and L{add_graph}(). See those methods for
@@ -416,7 +430,7 @@ class Host(object):
                     [th1, th2, supcaption], ["GET/%s"%oid], metrofunction,
                     [], [ "GET/%s"%oid ], dstype, cti=cti,
                     reroutefor=reroutefor, maxchecks=maxchecks,
-                    weight=weight)
+                    weight=weight, directives=directives)
         if reroutefor != None:
             target = reroutefor['host']
             name = reroutefor['service']
@@ -466,7 +480,8 @@ class Host(object):
             self.add(self.name, "reports", title, {"reportName": reportname, 
                                                    "dateSetting": datesetting})
 
-    def add_external_sup_service(self, name, command, cti=1, maxchecks=1, weight=1):
+    def add_external_sup_service(self, name, command, cti=1, maxchecks=1,
+                                weight=1, directives=None):
         """
         Add a standard Nagios service
         @param name: the service name
@@ -481,10 +496,15 @@ class Host(object):
         @param weight: service weight
         @type  weight: C{int}
         """
+        if directives is None:
+            directives = {}
+        for (dname, value) in directives.iteritems():
+            self.add_nagios_service_directive(name, dname, value)
+
         self.add(self.name, 'services', name, {'type': 'active',
                 'command': command, 'cti': cti, 'maxchecks': maxchecks,
-                'weight': weight})
-    
+                'weight': weight, 'directives': directives})
+
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
                               dstype="GAUGE", reroutefor=None):
         """
@@ -651,12 +671,16 @@ class HostFactory(object):
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}
         """
+        test_name = None
         cur_host = None
-        
+        process_nagios = False
+        directives = {}
+
         for event, elem in ET.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "host":
-                    inside_test = False
+                    test_name = None
+
                     name = get_attrib(elem, 'name')
 
                     address = get_attrib(elem, 'address')
@@ -689,44 +713,29 @@ class HostFactory(object):
                     #if ventilation not in self.groupsHierarchy:
                     #    self.groupsHierarchy[ventilation] = set()
                     self.hosttemplatefactory.apply(cur_host, "default")
-                elif elem.tag == "test":
-                    inside_test = True
-                    test_name = get_attrib(elem, 'name')
-
-                    # TODO: c'est quoi ce bordel ? On est en SAX, donc on a pas
-                    # les children à ce moment ! Et c'est quoi ce renommage de
-                    # test_name à l'arrache ? Seul le test sait quel va être le
-                    # nom du service Nagios, c'est là-bas qu'il faut faire la
-                    # gestion des directives Nagios, certainement pas ici.
-                    for arg in elem.getchildren():
-                        if arg.tag == 'arg':
-                            tname = get_attrib(arg, 'name')
-                            if tname == "label":
-                                test_name = "%s %s" % (test_name, get_text(arg))
-                                break
 
                 elif elem.tag == "nagios":
+                    directives = {}
                     process_nagios = True
+
+                elif elem.tag == "test":
+                    test_name = get_attrib(elem, "name")
+
                 elif elem.tag == "directive":
                     if not process_nagios: continue
                     # directive nagios
-                    directives = {}
                     for dname, value in elem.attrib.iteritems():
                         dname, value = dname.strip(), value.strip()
-                        if inside_test:
-                            # directive de service nagios
-                            cur_host.add_nagios_service_directive(test_name, dname, value)
-                        else:
-                            # directive host nagios
-                            cur_host.add_nagios_directive(dname, value)
-            else:
+                        directives[dname] = value
+
+            else: # Événement de type "end"
                 if elem.tag == "template":
                     self.hosttemplatefactory.apply(cur_host, get_text(elem))
+
                 elif elem.tag == "class":
                     cur_host.classes.append(get_text(elem))
+
                 elif elem.tag == "test":
-                    inside_test = False
-                    test_name = get_attrib(elem, 'name')
                     test_weight = get_attrib(elem, 'weight')
                     try:
                         test_weight = int(test_weight)
@@ -745,8 +754,10 @@ class HostFactory(object):
                         if arg.tag == 'arg':
                             args[get_attrib(arg, 'name')] = get_text(arg)
                     test_list = self.testfactory.get_test(test_name, cur_host.classes)
-                    cur_host.add_tests(test_list, args=args, weight=test_weight)
+                    print test_list
+                    cur_host.add_tests(test_list, args=args, weight=test_weight, directives=directives)
                     test_name = None
+
                 elif elem.tag == "attribute":
                     value = get_text(elem)
                     items = [get_text(i) for i in elem.getchildren()
@@ -754,23 +765,30 @@ class HostFactory(object):
                     if items:
                         value = items
                     cur_host.set_attribute(get_attrib(elem, 'name'), value)
+
                 elif elem.tag == "tag":
                     cur_host.add_tag(get_attrib(elem, 'service'),
                                      get_attrib(elem, 'name'),
                                      get_text(elem))
+
                 elif elem.tag == "trap":
                     cur_host.add_trap(get_attrib(elem, 'service'),
                                       get_attrib(elem, 'key'),
                                       get_text(elem))
+
                 elif elem.tag == "group":
                     group_name = get_text(elem)
                     if not parse_path(group_name):
                         raise ParsingError(_('Invalid group name (%s)')
                             % group_name)
                     cur_host.add_group(group_name)
+
                 elif elem.tag == "nagios":
+                    if test_name is None:
+                        for (dname, value) in directives.iteritems():
+                            cur_host.add_nagios_directive(dname, value)
                     process_nagios = False
-                
+
                 elif elem.tag == "host":
                     if not len(cur_host.get_attribute('otherGroups')):
                         raise ParsingError(_('You must associate host "%s" with '
@@ -781,5 +799,6 @@ class HostFactory(object):
                                   'address': cur_host.get_attribute('address'),
                                  })
                     elem.clear()
+                    cur_host = None
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

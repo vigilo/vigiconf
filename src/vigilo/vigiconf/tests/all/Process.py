@@ -23,7 +23,8 @@ class Process(Test):
                 }
         host.add_collector_service("Process %s"%label, "walk_grep_count",
                 [processname, warn, crit, "%%d instances of %s found" % label], 
-                [ "WALK/%s" % oids[section] ], weight=self.weight)
+                [ "WALK/%s" % oids[section] ], weight=self.weight,
+                directives=self.directives)
         host.add_collector_metro(label, "m_walk_grep_count", [processname], 
                 [ "WALK/%s" % oids[section] ], "GAUGE")
         host.add_graph("%s process(es)" % label, [ "label" ], "lines",

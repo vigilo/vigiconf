@@ -43,6 +43,7 @@ class Test(object):
 
     def __init__(self):
         self.weight = 1
+        self.directives = {}
 
     def add_test(self, host):
         """

@@ -13,7 +13,8 @@ class TotalProcesses(Test):
         """
         host.add_collector_service("Processes", "thresholds_OID_simple",
                     [warn, crit, "%d process(es) running"], 
-                    ["GET/.1.3.6.1.2.1.25.1.6.0"], weight=self.weight)
+                    ["GET/.1.3.6.1.2.1.25.1.6.0"], weight=self.weight,
+                    directives=self.directives)
         host.add_collector_metro("Processes", "directValue", [], 
                     ["GET/.1.3.6.1.2.1.25.1.6.0"], "GAUGE")
         host.add_graph("Total processes", [ "Processes" ], "lines",

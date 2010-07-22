@@ -7,7 +7,8 @@ class HTTPS(Test):
         """Arguments:
             host: the Host object to add the test to
         """
-        host.add_external_sup_service("HTTPS", "check_https", weight=self.weight)
+        host.add_external_sup_service("HTTPS", "check_https",
+                weight=self.weight, directives=self.directives)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

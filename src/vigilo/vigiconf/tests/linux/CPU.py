@@ -11,7 +11,7 @@ class CPU(Test):
         """
         host.add_external_sup_service( "Sys CPU",
                     "check_nrpe!check_cpu_args!%s %s" % (warn, crit),
-                    weight=self.weight)
+                    weight=self.weight, directives=self.directives)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -48,7 +48,7 @@ class Interface(Test):
                         [ifname, label, "i"], 
                         ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
                          "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
-                        weight=self.weight)
+                        weight=self.weight, directives=self.directives)
         else:
             for snmpindex, snmpname in snmp_ids.iteritems():
                 host.add_collector_metro("%s%s" % (snmpname, label), 
@@ -59,7 +59,7 @@ class Interface(Test):
                         [ifname, label, "i"], 
                         ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
                          "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
-                        weight=self.weight)
+                        weight=self.weight, directives=self.directives)
 
             host.add_graph("Traffic %s" % label, ["in%s" % label, "out%s" % label],
                         "area-line", "b/s", group="Network interfaces",

@@ -13,7 +13,8 @@ class Users(Test):
         """
         host.add_collector_service("Users", "thresholds_OID_simple",
                     [warn, crit, "%d users connected"], 
-                    ["GET/.1.3.6.1.2.1.25.1.5.0"], weight=self.weight)
+                    ["GET/.1.3.6.1.2.1.25.1.5.0"], weight=self.weight,
+                    directives=self.directives)
         host.add_collector_metro("Users", "directValue", [], 
                     ["GET/.1.3.6.1.2.1.25.1.5.0"], "GAUGE")
         host.add_graph("Users", [ "Users" ], "lines", "users")

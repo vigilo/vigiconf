@@ -179,6 +179,7 @@ class HostFactoryMethods(unittest.TestCase):
                 conf.hosttemplatefactory,
                 conf.testfactory,
             )
+
         # validation par XSD
         hosts = f.load(validation=True)
         testserver1 = hosts['testserver1']
@@ -189,8 +190,9 @@ class HostFactoryMethods(unittest.TestCase):
                           "check_interval=10")
         self.assertEquals(nagiosdirs['retry_interval'], "1",
                           "retry_interval=1")
-        
+
         nagios_sdirs = testserver1.get('nagiosSrvDirs')
+        print nagios_sdirs
         self.assertEquals(nagios_sdirs['Interface eth0']['max_check_attempts'], "5",
                           "max_check_attempts=5")
         self.assertEquals(nagios_sdirs['Interface eth0']['check_interval'], "10",
