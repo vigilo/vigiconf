@@ -51,7 +51,7 @@ class Discoverator(object):
     @type snmpcommand: C{str}
     """
 
-    snmpcommand = "snmpwalk -OnQ -c %(community)s -v %(version)s" \
+    snmpcommand = "snmpwalk -OnQe -c %(community)s -v %(version)s" \
                  +" \"%(host)s\" .1"
 
     def __init__(self, group=None):
