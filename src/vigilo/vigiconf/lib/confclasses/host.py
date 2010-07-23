@@ -281,7 +281,7 @@ class Host(object):
 #### Collector-related functions ####
 
     def add_collector_service(self, label, function, params, variables, cti=1,
-                                    reroutefor=None, maxchecks=1, weight=1,
+                                    reroutefor=None, weight=1,
                                     directives=None):
         """
         Add a supervision service to the Collector
@@ -297,11 +297,8 @@ class Host(object):
         @type  cti: C{int}
         @param reroutefor: service routing information
         @type  reroutefor: C{dict} with "host" and "service" as keys
-        @param maxchecks: the max number of checks before Nagios should
-            send a notification
         @param weight: service weight
         @type  weight: C{int}
-        @type  maxchecks: C{int}
         """
         # Handle rerouting
         if reroutefor == None:
@@ -320,7 +317,6 @@ class Host(object):
         # Add the Nagios service (rerouting-dependant)
         self.add(target, "services", service, {'type': 'passive', 
                                                'cti': cti, 
-                                               'maxchecks': maxchecks,
                                                "weight": weight,
                                                "directives": directives,
                                               })
@@ -373,7 +369,7 @@ class Host(object):
 
     def add_collector_service_and_metro(self, name, label, supfunction,
                     supparams, supvars, metrofunction, metroparams, metrovars,
-                    dstype, cti=1, reroutefor=None, maxchecks=1, weight=1,
+                    dstype, cti=1, reroutefor=None, weight=1,
                     directives=None):
         """
         Helper function for L{add_collector_service}() and
@@ -400,23 +396,19 @@ class Host(object):
         @type  cti: C{int}
         @param reroutefor: service routing information
         @type  reroutefor: C{dict} with "host" and "service" as keys
-        @param maxchecks: the max number of checks before Nagios should
-            send a notification
-        @type  maxchecks: C{int}
         @param weight: service weight
         @type  weight: C{int}
         """
         self.add_collector_service(name, supfunction, supparams, supvars,
-                        cti=cti, reroutefor=reroutefor, maxchecks=maxchecks,
-                        weight=weight, directives=directives)
+                        cti=cti, reroutefor=reroutefor, weight=weight,
+                        directives=directives)
         self.add_collector_metro(name, metrofunction, metroparams, metrovars, 
                                  dstype, label=label, reroutefor=reroutefor)
 
     def add_collector_service_and_metro_and_graph(self, name, label, oid,
             th1, th2, dstype, template, vlabel, supcaption=None,
             supfunction="thresholds_OID_simple", metrofunction="directValue",
-            group="General", cti=1, reroutefor=None, maxchecks=1, weight=1,
-            directives=None):
+            group="General", cti=1, reroutefor=None, weight=1, directives=None):
         """
         Helper function for L{add_collector_service}(),
         L{add_collector_metro}() and L{add_graph}(). See those methods for
@@ -429,8 +421,7 @@ class Host(object):
         self.add_collector_service_and_metro(name, label, supfunction,
                     [th1, th2, supcaption], ["GET/%s"%oid], metrofunction,
                     [], [ "GET/%s"%oid ], dstype, cti=cti,
-                    reroutefor=reroutefor, maxchecks=maxchecks,
-                    weight=weight, directives=directives)
+                    reroutefor=reroutefor, weight=weight, directives=directives)
         if reroutefor != None:
             target = reroutefor['host']
             name = reroutefor['service']
@@ -480,7 +471,7 @@ class Host(object):
             self.add(self.name, "reports", title, {"reportName": reportname, 
                                                    "dateSetting": datesetting})
 
-    def add_external_sup_service(self, name, command, cti=1, maxchecks=1,
+    def add_external_sup_service(self, name, command, cti=1,
                                 weight=1, directives=None):
         """
         Add a standard Nagios service
@@ -490,9 +481,6 @@ class Host(object):
         @type  command: C{str}
         @param cti: alert reference (Category - Type - Item)
         @type  cti: C{int}
-        @param maxchecks: the max number of checks before Nagios should
-            send a notification
-        @type  maxchecks: C{int}
         @param weight: service weight
         @type  weight: C{int}
         """
@@ -502,8 +490,8 @@ class Host(object):
             self.add_nagios_service_directive(name, dname, value)
 
         self.add(self.name, 'services', name, {'type': 'active',
-                'command': command, 'cti': cti, 'maxchecks': maxchecks,
-                'weight': weight, 'directives': directives})
+                'command': command, 'cti': cti, 'weight': weight,
+                'directives': directives})
 
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
                               dstype="GAUGE", reroutefor=None):
@@ -568,14 +556,14 @@ class Host(object):
         @param value: the tag value
         @type  value: C{int}
         """
-        if service == "Host" or service is None:
+        if service is None or service.lower() == "host":
             target = self.hosts[self.name]
         else:
             target = self.hosts[self.name]["services"][service]
         if not target.has_key("tags"):
             target["tags"] = {}
         target["tags"][name] = value
-    
+
     def add_nagios_directive(self, name, value):
         """ Add a generic nagios directive
         
@@ -715,16 +703,6 @@ class HostFactory(object):
                     test_name = get_attrib(elem, "name")
                     test_directives = {}
 
-                elif elem.tag == "directive":
-                    if not process_nagios: continue
-                    # directive nagios
-                    for dname, value in elem.attrib.iteritems():
-                        dname, value = dname.strip(), value.strip()
-                        if test_name is None:
-                            directives[dname] = value
-                        else:
-                            test_directives[dname] = value
-
             else: # Événement de type "end"
                 if elem.tag == "template":
                     self.hosttemplatefactory.apply(cur_host, get_text(elem))
@@ -770,6 +748,20 @@ class HostFactory(object):
                     cur_host.add_trap(get_attrib(elem, 'service'),
                                       get_attrib(elem, 'key'),
                                       get_text(elem))
+
+                elif elem.tag == "directive":
+                    if not process_nagios: continue
+
+                    dvalue = get_text(elem).strip()
+                    dname = get_attrib(elem, 'name').strip()
+                    if not dname:
+                        continue
+
+                    # directive nagios
+                    if test_name is None:
+                        directives[dname] = dvalue
+                    else:
+                        test_directives[dname] = dvalue
 
                 elif elem.tag == "group":
                     group_name = get_text(elem)

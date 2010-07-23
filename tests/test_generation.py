@@ -113,38 +113,39 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         """Call after every test case."""
         teardown_db()
         shutil.rmtree(self.tmpdir)
-    
+
     def test_nagios_generator(self):
         h = generator.getventilation()
         v = generator.Validator(h)
-        
+  
         tpl = NagiosGeneratorForTest(h, v)
         tpl.generate()
         # recuperation de la generation pour host
         nagdirs = tpl.test_host_data['generic_directives']
-        
+        print nagdirs
+
         self.assertTrue(nagdirs.find("max_check_attempts    5") >= 0,
-                                     "nagios generator generates max_check_attempts=5")
-        
+            "nagios generator generates max_check_attempts=5")
+
         self.assertTrue(nagdirs.find("check_interval    10") >= 0,
-                                     "nagios generator generates check_interval=10")
-        
+            "nagios generator generates check_interval=10")
+
         self.assertTrue(nagdirs.find("retry_interval    1") >= 0,
-                                     "nagios generator generates retry_interval=1")
-        
+            "nagios generator generates retry_interval=1")
+
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(tpl.test_host_data)
         # recuperation de la generation pour services
         nagdirs = tpl.test_srv_data['generic_sdirectives']
-        
-        self.assertTrue(nagdirs.find("max_check_attempts    5") >= 0,
-                                     "nagios generator generates max_check_attempts=5")
-        
-        self.assertTrue(nagdirs.find("check_interval    10") >= 0,
-                                     "nagios generator generates check_interval=10")
-        
-        self.assertTrue(nagdirs.find("retry_interval    1") >= 0,
-                                     "nagios generator generates retry_interval=1")
+
+        self.assertTrue(nagdirs.find("max_check_attempts    6") >= 0,
+            "nagios generator generates max_check_attempts=6")
+
+        self.assertTrue(nagdirs.find("check_interval    11") >= 0,
+            "nagios generator generates check_interval=11")
+
+        self.assertTrue(nagdirs.find("retry_interval    2") >= 0,
+            "nagios generator generates retry_interval=2")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

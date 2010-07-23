@@ -277,19 +277,6 @@ class HostTemplateFactory(object):
                 elif elem.tag == "nagios":
                     process_nagios = True
 
-                elif elem.tag == "directive":
-                    if not process_nagios: continue
-                    # directive nagios
-                    directives = {}
-                    for dname, value in elem.attrib.iteritems():
-                        dname, value = dname.strip(), value.strip()
-                        if test_name is None:
-                            # directive host nagios
-                            cur_tpl.add_nagios_directive(dname, value)
-                        else:
-                            # directive de service nagios
-                            cur_tpl.add_nagios_service_directive(test_name, dname, value)
-
 
             else: # Évenement de type "end"
                 if elem.tag == "parent":
@@ -297,6 +284,21 @@ class HostTemplateFactory(object):
 
                 elif elem.tag == "class":
                     cur_tpl.classes.append(get_text(elem))
+
+                elif elem.tag == "directive":
+                    if not process_nagios: continue
+
+                    dvalue = get_text(elem).strip()
+                    dname = get_attrib(elem, 'name').strip()
+                    if not dname:
+                        continue
+
+                    if test_name is None:
+                        # directive host nagios
+                        cur_tpl.add_nagios_directive(dname, dvalue)
+                    else:
+                        # directive de service nagios
+                        cur_tpl.add_nagios_service_directive(test_name, dname, dvalue)
 
                 elif elem.tag == "attribute":
                     value = get_text(elem)

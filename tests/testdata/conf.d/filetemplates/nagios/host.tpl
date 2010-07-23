@@ -1,9 +1,9 @@
 define host{
-	use                     %(hostTPL)s
-	host_name               %(name)s
-	alias                   %(name)s
-	address                 %(address)s
-	check_command           %(checkHostCMD)s
+    use                     %(hostTPL)s
+    host_name               %(name)s
+    alias                   %(name)s
+    address                 %(address)s
+    check_command           %(checkHostCMD)s
     %(hostGroups)s
     %(quietOrNot)s
     %(parents)s

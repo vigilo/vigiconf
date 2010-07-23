@@ -53,23 +53,20 @@ class HostMethods(unittest.TestCase):
     def test_add_tag_hosts(self):
         """Test for the add_tag host method"""
         self.host.add_tag("Host", "important", 2)
-        assert conf.hostsConf["testserver1"]["tags"] == {"important": 2}, \
-                "add_tag does not work on hosts"
+        self.assertEqual(conf.hostsConf["testserver1"]["tags"], {"important": 2})
 
     def test_add_tag_services(self):
         """Test for the add_tag host method"""
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
         self.host.add_tag("UpTime", "security", 1)
-        assert conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"] == {"security": 1}, \
-                "add_tag does not work on services"
+        self.assertEqual(conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"], {"security": 1})
 
     def test_add_trap(self):
         """Test for the add_trap host method"""
         self.host.add_trap("test.add_trap", "test.name", "test.label.wrong")
         self.host.add_trap("test.add_trap", "test.name", "test.label")
-        assert conf.hostsConf["testserver1"]["trapItems"]["test.add_trap"]["test.name"] == "test.label", \
-                "add_trap does not work"
+        self.assertEqual(conf.hostsConf["testserver1"]["trapItems"]["test.add_trap"]["test.name"], "test.label")
 
     def test_add_group(self):
         """Test for the add_group host method"""
@@ -163,7 +160,8 @@ class HostFactoryMethods(unittest.TestCase):
     def tearDown(self):
         """Call after every test case."""
         teardown_db()
-    
+
+
     def test_load(self):
         """ Test of the loading of the conf test hosts
         """
@@ -174,11 +172,9 @@ class HostFactoryMethods(unittest.TestCase):
             )
         hosts = f.load()
         self.assertTrue(hosts.has_key('localhost'), "localhost defined in conf")
-        
-    
+
     def test_load_with_nagios_directives(self):
-        """ Test of the loading of host with nagios directives
-        """
+        """Loading some host with nagios directives."""
         f = HostFactory(
                 "tests/testdata/xsd/hosts/ok",
                 conf.hosttemplatefactory,
@@ -187,23 +183,18 @@ class HostFactoryMethods(unittest.TestCase):
 
         # validation par XSD
         hosts = f.load(validation=True)
-        testserver1 = hosts['testserver1']
-        nagiosdirs = testserver1.get('nagiosDirectives')
-        self.assertEquals(nagiosdirs['max_check_attempts'], "5",
-                          "max_check_attempts=5")
-        self.assertEquals(nagiosdirs['check_interval'], "10",
-                          "check_interval=10")
-        self.assertEquals(nagiosdirs['retry_interval'], "1",
-                          "retry_interval=1")
+        testserver = hosts['example-nagios-spec.xml']
+        nagiosdirs = testserver.get('nagiosDirectives')
+        print nagiosdirs
+        self.assertEquals(nagiosdirs['max_check_attempts'], "5")
+        self.assertEquals(nagiosdirs['check_interval'], "10")
+        self.assertEquals(nagiosdirs['retry_interval'], "1")
 
-        nagios_sdirs = testserver1.get('nagiosSrvDirs')
+        nagios_sdirs = testserver.get('nagiosSrvDirs')
         print nagios_sdirs
-        self.assertEquals(nagios_sdirs['Interface eth0']['max_check_attempts'], "5",
-                          "max_check_attempts=5")
-        self.assertEquals(nagios_sdirs['Interface eth0']['check_interval'], "10",
-                          "check_interval=10")
-        self.assertEquals(nagios_sdirs['Interface eth0']['retry_interval'], "1",
-                          "retry_interval=1")
+        self.assertEquals(nagios_sdirs['Interface eth0']['max_check_attempts'], "5")
+        self.assertEquals(nagios_sdirs['Interface eth0']['check_interval'], "10")
+        self.assertEquals(nagios_sdirs['Interface eth0']['retry_interval'], "1")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

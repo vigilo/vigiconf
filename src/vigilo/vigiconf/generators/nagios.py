@@ -91,8 +91,9 @@ class NagiosTpl(FileGenerator):
             
             #   directives generiques
             newhash['generic_directives'] = ""
-            for dir, value in newhash['nagiosDirectives'].iteritems():
-                newhash['generic_directives'] += "%s    %s\n    " % (dir, value)
+            for directive, value in newhash['nagiosDirectives'].iteritems():
+                newhash['generic_directives'] += "%s    %s\n    " % \
+                    (directive, value)
                 
             # Add the host definition
             self.templateAppend(self.fileName, self.templates["host"], newhash)
@@ -175,8 +176,8 @@ class NagiosTpl(FileGenerator):
             #   directives generiques
             generic_directives = ""
             if newhash['nagiosSrvDirs'].has_key(srvname):
-                for dir, value in newhash['nagiosSrvDirs'][srvname].iteritems():
-                    generic_directives += "%s    %s\n    " % (dir, value)
+                for directive, value in newhash['nagiosSrvDirs'][srvname].iteritems():
+                    generic_directives += "%s    %s\n    " % (directive, value)
             
             if srvname  in h['PDHandlers']:
                 # there is a perfdata handler to set as we asked to
@@ -198,9 +199,8 @@ class NagiosTpl(FileGenerator):
                          'serviceName': srvname,
                          'quietOrNot': newhash['quietOrNot'],
                          'perfDataOrNot': perfdata,
-                         'maxchecks': scopy.get('maxchecks', 1),
                          "notification_period": scopy["notification_period"],
-                         "generic_sdirectives":generic_directives})
+                         "generic_sdirectives": generic_directives})
             else:
                 if scopy['command'].count("$METROSERVER$") > 0:
                     # Replace the keyword
@@ -221,9 +221,8 @@ class NagiosTpl(FileGenerator):
                          'command': scopy['command'],
                          'quietOrNot': newhash['quietOrNot'],
                          'perfDataOrNot': perfdata,
-                         'maxchecks': scopy.get('maxchecks', 1),
                          "notification_period": scopy["notification_period"],
-                         "generic_sdirectives":generic_directives})
+                         "generic_sdirectives": generic_directives})
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

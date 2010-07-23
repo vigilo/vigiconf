@@ -13,12 +13,14 @@ class HostXSD(XSDTest):
         ],
         "tests/testdata/xsd/hosts/ok": [
             "example_nagios_spec.xml",
+            "example_nagios_spec2.xml",
             "no_secondary_groups.xml",
             "interleaved_tags.xml",
             "localhost1.xml",
         ],
     }
     
-    xml_ko_files = {"tests/testdata/xsd/hosts/ko":[
-                                    "example_nagios_spec2.xml",
-                                    ]}
+    xml_ko_files = {
+        "tests/testdata/xsd/hosts/ko": [
+        ],
+    }

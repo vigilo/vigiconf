@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <hosts>
-<host name="testserver1" address="192.168.1.1" ventilation="Servers">
+<host name="example-nagios-spec2.xml" address="192.168.1.1" ventilation="Servers">
     <class>linux</class>
     <class>ucd</class>
     <template>linux</template>
@@ -22,13 +22,13 @@
         <arg name="crit">20</arg>
     </test>
     <test name="UpTime"/>
-    
+
     <nagios>
-    	<directive max_check_attempts="5" />
-    	<directive check_interval="10" />
-    	<directive initial_state="d" />
+        <directive name="max_check_attempts">5</directive>
+        <directive name="check_interval">10</directive>
+        <directive name="initial_state">d</directive>
     </nagios>
-    
+
     <tag service="UpTime" name="security">1</tag>
     <tag service="Host" name="important">2</tag>
     <trap service="test.add_trap" key="test.name">test.label</trap>

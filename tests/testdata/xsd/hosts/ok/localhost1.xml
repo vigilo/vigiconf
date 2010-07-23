@@ -6,7 +6,7 @@
     par fichier XML.
 -->
 
-<host name="localhost" address="127.0.0.1" ventilation="P-F">
+<host name="localhost1.xml" address="127.0.0.1" ventilation="P-F">
     <class>linux</class>
     <class>ucd</class>
     <template>linux</template>

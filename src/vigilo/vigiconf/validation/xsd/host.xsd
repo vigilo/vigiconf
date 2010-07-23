@@ -32,15 +32,17 @@
 
 <xs:element name="nagios">
     <xs:complexType>
-        <xs:sequence>
-            <xs:element maxOccurs="3" minOccurs="0" name="directive">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="directive">
                 <xs:complexType>
-                    <xs:attribute name="max_check_attempts" type="xs:integer"/>
-                    <xs:attribute name="check_interval" type="xs:integer"/>
-                    <xs:attribute name="retry_interval" type="xs:integer"/>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name" type="xs:string" use="required"/>
+                        </xs:extension>
+                    </xs:simpleContent>
                 </xs:complexType>
             </xs:element>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
 </xs:element>
 
