@@ -104,16 +104,16 @@ class ExportDBTest(unittest.TestCase):
         
         Un rollback est effectué juste après le commit.
         """
-        
+
         export_conf_db()
-        
+
         # check if localhost exists in db
         h = Host.by_host_name(u'localhost')
         self.assertEquals(h.name, u'localhost')
         self.assertEquals(h.weight, 42)
-        
+
         transaction.commit()
-        
+
         transaction.begin()
         h = Host.by_host_name(u'localhost')
         self.assertEquals(h.name, u'localhost')

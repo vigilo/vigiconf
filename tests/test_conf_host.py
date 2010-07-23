@@ -13,7 +13,7 @@ class HostMethods(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
-        self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers", 42)
+        self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers")
 
     def tearDown(self):
         """Call after every test case."""
@@ -24,26 +24,31 @@ class HostMethods(unittest.TestCase):
         test_list = conf.testfactory.get_test("Interface", self.host.classes)
         self.host.add_tests(test_list, {"label":"eth1", "ifname":"eth1"})
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
-        assert conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]["command"] == \
-                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/ineth1 10 20 1", \
-                "add_metro_service does not work"
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]["command"],
+            "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/ineth1 10 20 1"
+        )
 
     def test_priority_host_hosttemplate(self):
-        """Test priorite du parametrage des host sur les hosttemplates"""
-        assert conf.hostsConf["localhost"]["services"]["Traffic in eth0"]["command"] == \
-                "check_nrpe_rerouted!$METROSERVER$!check_rrd!localhost/ineth0 15 35 8"
+        """Test priorite du parametrage des hosts sur les hosttemplates"""
+        self.assertEqual(
+            conf.hostsConf["localhost"]["services"]["Traffic in eth0"]["command"],
+            "check_nrpe_rerouted!$METROSERVER$!check_rrd!localhost/ineth0 15 35 8"
+        )
 
     def test_add_metro_service_INTF(self):
         """Test for the add_metro_service function in the Interface test"""
         test_list = conf.testfactory.get_test("Interface", self.host.classes)
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0", "warn":"10,20", "crit":"30,40"})
-        assert conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]["command"] == \
-                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/ineth0 10 30 8", \
-                "add_metro_service does not work in Interface (in) test"
-        
-        assert conf.hostsConf["testserver1"]["services"]["Traffic out eth0"]["command"] == \
-                "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/outeth0 20 40 8", \
-                "add_metro_service does not work in Interface (out) test"
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]["command"],
+            "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/ineth0 10 30 8"
+        )
+
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["services"]["Traffic out eth0"]["command"],
+            "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/outeth0 20 40 8"
+        )
 
     def test_add_tag_hosts(self):
         """Test for the add_tag host method"""
@@ -85,7 +90,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_collector_service_reroute(self):
         """Test for the add_collector_service host method with rerouting"""
-        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers", 42)
+        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
         host2.add_collector_service( "TestAddCSReRoute", "TestAddCSReRouteFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )
@@ -112,7 +117,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_collector_metro_reroute(self):
         """Test for the add_collector_metro host method with rerouting"""
-        host2 = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers", 42)
+        host2 = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers")
         host2.add_collector_metro( "TestAddCSReRoute", "TestAddCSRRMFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 "GAUGE", label="TestAddCSReRouteLabel",
@@ -129,7 +134,7 @@ class HostMethods(unittest.TestCase):
     def test_add_nagios_directive(self):
         """ Test for the add_nagios_directive method
         """
-        host = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers", 42)
+        host = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers")
         host.add_nagios_directive("max_check_attempts", "5")
         self.assertEquals(
             conf.hostsConf["testserver2"]["nagiosDirectives"]["max_check_attempts"],
@@ -138,7 +143,7 @@ class HostMethods(unittest.TestCase):
     def test_add_nagios_service_directive(self):
         """ Test for the add_nagios_service_directive method
         """
-        host = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers", 42)
+        host = Host(conf.hostsConf, u"testserver2", u"192.168.1.2", "Servers")
         host.add_nagios_service_directive("Interface", "retry_interval", "10")
         self.assertEquals(
             conf.hostsConf["testserver2"]["nagiosSrvDirs"]["Interface"]["retry_interval"],

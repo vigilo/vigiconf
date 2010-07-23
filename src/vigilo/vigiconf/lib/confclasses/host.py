@@ -63,7 +63,7 @@ class Host(object):
     @type classes: C{list} of C{str}
     """
 
-    def __init__(self, hosts, name, address, servergroup, weight):
+    def __init__(self, hosts, name, address, servergroup):
         self.hosts = hosts
         self.name = name
         self.classes = [ "all" ]
@@ -90,7 +90,7 @@ class Host(object):
                 "snmpOIDsPerPDU" : 10,
                 "nagiosDirectives": {},
                 "nagiosSrvDirs"  : {},
-                "weight"         : weight,
+                "weight"         : 1,
             }
 
     def get_attribute(self, attribute, default=False):
@@ -674,12 +674,18 @@ class HostFactory(object):
         test_name = None
         cur_host = None
         process_nagios = False
+        test_directives = {}
         directives = {}
+        tests = []
+        weight = None
 
         for event, elem in ET.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "host":
                     test_name = None
+                    directives = {}
+                    tests = []
+                    weight = None
 
                     name = get_attrib(elem, 'name')
 
@@ -699,34 +705,25 @@ class HostFactory(object):
                         raise ParsingError(_("Invalid ventilation group: %s") %
                             ventilation)
 
-                    weight = get_attrib(elem, 'weight')
-                    if weight is None:
-                        weight = 1
-                    else:
-                        try:
-                            weight = int(weight)
-                        except (TypeError, ValueError):
-                            raise ParsingError(_("Invalid weight: %r") % weight)
-
-                    cur_host = Host(self.hosts, name, address, ventilation, weight)
-                    # TODO: refactoring
-                    #if ventilation not in self.groupsHierarchy:
-                    #    self.groupsHierarchy[ventilation] = set()
+                    cur_host = Host(self.hosts, name, address, ventilation)
                     self.hosttemplatefactory.apply(cur_host, "default")
 
                 elif elem.tag == "nagios":
-                    directives = {}
                     process_nagios = True
 
                 elif elem.tag == "test":
                     test_name = get_attrib(elem, "name")
+                    test_directives = {}
 
                 elif elem.tag == "directive":
                     if not process_nagios: continue
                     # directive nagios
                     for dname, value in elem.attrib.iteritems():
                         dname, value = dname.strip(), value.strip()
-                        directives[dname] = value
+                        if test_name is None:
+                            directives[dname] = value
+                        else:
+                            test_directives[dname] = value
 
             else: # Événement de type "end"
                 if elem.tag == "template":
@@ -753,9 +750,7 @@ class HostFactory(object):
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
                             args[get_attrib(arg, 'name')] = get_text(arg)
-                    test_list = self.testfactory.get_test(test_name, cur_host.classes)
-                    print test_list
-                    cur_host.add_tests(test_list, args=args, weight=test_weight, directives=directives)
+                    tests.append((test_name, args, test_weight, test_directives))
                     test_name = None
 
                 elif elem.tag == "attribute":
@@ -783,16 +778,36 @@ class HostFactory(object):
                             % group_name)
                     cur_host.add_group(group_name)
 
+                elif elem.tag == "weight":
+                    host_weight = get_text(elem)
+                    try:
+                        weight = int(host_weight)
+                    except ValueError:
+                        raise ParsingError(_("Invalid weight value for "
+                            "host %(host)s: %(weight)r") % {
+                            'host': cur_host.name,
+                            'weight': host_weight,
+                        })
+                    except TypeError:
+                        pass # C'est None, on laisse prendre la valeur par défaut
+
                 elif elem.tag == "nagios":
-                    if test_name is None:
-                        for (dname, value) in directives.iteritems():
-                            cur_host.add_nagios_directive(dname, value)
                     process_nagios = False
 
                 elif elem.tag == "host":
                     if not len(cur_host.get_attribute('otherGroups')):
                         raise ParsingError(_('You must associate host "%s" with '
                             'at least one group.') % cur_host.name)
+
+                    if weight is not None:
+                        cur_host.set_attribute("weight", weight)
+
+                    for test_params in tests:
+                        test_list = self.testfactory.get_test(test_params[0], cur_host.classes)
+                        cur_host.add_tests(test_list, *test_params[1:])
+
+                    for (dname, value) in directives.iteritems():
+                        cur_host.add_nagios_directive(dname, value)
 
                     LOGGER.debug(_("Loaded host %(host)s, address %(address)s") %
                                  {'host': cur_host.name,

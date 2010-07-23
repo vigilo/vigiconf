@@ -13,7 +13,7 @@ class TestFactory(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers", 42)
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
 
     def tearDown(self):
         """Call after every test case."""

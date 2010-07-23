@@ -114,6 +114,9 @@ hosts element contains one ore more host elements
         </xs:element>
 
         <xs:element name="group" type="xs:string"/>
+
+        <!-- Poids accordé à l'hôte (entier strictement positif). -->
+        <xs:element name="weight" type="xs:positiveInteger"/>
     </xs:choice>
 
     <!--
@@ -133,9 +136,6 @@ hosts element contains one ore more host elements
         à l'hôte, à condition que les groupes ne se contredisent pas.
     -->
     <xs:attribute name="ventilation" type="xs:string" use="optional"/>
-
-    <!-- Poids accordé à l'hôte (entier strictement positif). -->
-    <xs:attribute name="weight" type="xs:positiveInteger"/>
 
     </xs:complexType>
 </xs:element>

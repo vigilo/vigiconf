@@ -31,7 +31,7 @@ class Dispatchator(unittest.TestCase):
         # Deploy on the localhost only -> switch to Community Edition
 
         delattr(conf, "appsGroupsByServer")
-        self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers", 42)
+        self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers")
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
         self.dispatchator = dispatchmodes.getinstance()

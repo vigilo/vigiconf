@@ -42,7 +42,7 @@ class EnterpriseEdition(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         # Load the configuration
         reload_conf()
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers", 42)
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
         # Create appsGroupsByServer mapping (Enterprise Edition)
         conf.appsGroupsByServer = {
                     "collect": {
@@ -126,7 +126,7 @@ class CommunityEdition(unittest.TestCase):
         # Load the configuration
         reload_conf()
         delattr(conf, "appsGroupsByServer") # Become the Community(tm) :)
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers", 42)
+        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
         self.mapping = generator.getventilation()
 
     def tearDown(self):

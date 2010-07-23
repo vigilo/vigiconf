@@ -395,7 +395,8 @@ class ParseHost(unittest.TestCase):
     def test_host_weight(self):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" weight="42">
+        <host name="testserver1">
+            <weight>42</weight>
             <group>/Servers/Linux servers</group>
         </host>""")
         self.host.close()
@@ -421,7 +422,8 @@ class ParseHost(unittest.TestCase):
     def test_host_weight_invalid(self):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" weight="invalid">
+        <host name="testserver1">
+            <weight>invalid</weight>
             <group>/Servers/Linux servers</group>
         </host>""")
         self.host.close()

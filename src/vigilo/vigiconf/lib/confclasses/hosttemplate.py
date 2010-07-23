@@ -56,6 +56,8 @@ class HostTemplate(object):
                 "groups": [],
                 "attributes": {},
                 "weight": 1,
+                "nagiosDirectives": {},
+                "nagiosSrvDirs": {},
             }
         if name != "default":
             self.add_parent("default")
@@ -105,7 +107,7 @@ class HostTemplate(object):
     def add_weight(self, weight):
         self.data["weight"] = weight
 
-    def add(self,  prop, key, value):
+    def add(self, prop, key, value):
         """
         A generic function to add a key/value to a property
         @param prop: the property to add to
@@ -158,7 +160,7 @@ class HostTemplate(object):
             @type  value: C{str}
         """
         self.add("nagiosDirectives", name, value)
-    
+
     def add_nagios_service_directive(self, service, name, value):
         """ Add a generic nagios directive for a service
         
@@ -250,15 +252,19 @@ class HostTemplateFactory(object):
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}
         """
+        test_name = None
         cur_tpl = None
+        process_nagios = False
+
         for event, elem in ET.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "template":
+                    test_name = None
+
                     name = get_attrib(elem, 'name')
                     cur_tpl = HostTemplate(name)
-                
+
                 elif elem.tag == "test":
-                    inside_test = True
                     test_name = get_attrib(elem, 'name')
                     
                     for arg in elem.getchildren():
@@ -267,27 +273,31 @@ class HostTemplateFactory(object):
                             if tname == "label":
                                 test_name = "%s %s" % (test_name, get_text(arg))
                                 break
-                
+
                 elif elem.tag == "nagios":
                     process_nagios = True
+
                 elif elem.tag == "directive":
                     if not process_nagios: continue
                     # directive nagios
                     directives = {}
                     for dname, value in elem.attrib.iteritems():
                         dname, value = dname.strip(), value.strip()
-                        if inside_test:
-                            # directive de service nagios
-                            cur_tpl.add_nagios_service_directive(test_name, dname, value)
-                        else:
+                        if test_name is None:
                             # directive host nagios
                             cur_tpl.add_nagios_directive(dname, value)
-                
-            else:
+                        else:
+                            # directive de service nagios
+                            cur_tpl.add_nagios_service_directive(test_name, dname, value)
+
+
+            else: # Évenement de type "end"
                 if elem.tag == "parent":
                     cur_tpl.add_parent(get_text(elem))
+
                 elif elem.tag == "class":
                     cur_tpl.classes.append(get_text(elem))
+
                 elif elem.tag == "attribute":
                     value = get_text(elem)
                     items = [get_text(i) for i in elem.getchildren()
@@ -295,10 +305,11 @@ class HostTemplateFactory(object):
                     if items:
                         value = items
                     cur_tpl.add_attribute(get_attrib(elem, 'name'), value)
+
                 elif elem.tag == "group":
                     cur_tpl.add_group(get_text(elem))
+
                 elif elem.tag == "test":
-                    inside_test = False
                     test_name = get_attrib(elem, 'name')
                     test_weight = get_attrib(elem, 'weight')
                     try:
@@ -317,8 +328,10 @@ class HostTemplateFactory(object):
                         args[get_attrib(arg, 'name')] = get_text(arg)
                     cur_tpl.add_test(test_name, args, test_weight)
                     test_name = None
+
                 elif elem.tag == "nagios":
                     process_nagios = False
+
                 elif elem.tag == "weight":
                     weight = get_text(elem)
                     try:
@@ -332,7 +345,7 @@ class HostTemplateFactory(object):
                     except TypeError:
                         pass # C'est None, on laisse prendre la valeur par défaut
                     cur_tpl.add_weight(weight)
-                    
+
                 elif elem.tag == "template":
                     self.register(cur_tpl)
                     cur_tpl = None
@@ -392,6 +405,10 @@ class HostTemplateFactory(object):
                 self.templates[tplname]["attributes"].update(
                                     self.templates[p]["attributes"])
                 self.templates[tplname]["weight"] = self.templates[p]["weight"]
+                self.templates[tplname]["nagiosDirectives"].update(
+                                    self.templates[p]["nagiosDirectives"])
+                self.templates[tplname]["nagiosSrvDirs"].update(
+                                    self.templates[p]["nagiosSrvDirs"])
             # Finally, re-add the template-specific data
             self.templates[tplname]["groups"].extend(
                             templates_save[tplname]["groups"])
@@ -400,6 +417,10 @@ class HostTemplateFactory(object):
             self.templates[tplname]["attributes"].update(
                             templates_save[tplname]["attributes"])
             self.templates[tplname]["weight"] = templates_save[tplname]["weight"]
+            self.templates[tplname]["nagiosDirectives"].update(
+                            templates_save[tplname]["nagiosDirectives"])
+            self.templates[tplname]["nagiosSrvDirs"].update(
+                            templates_save[tplname]["nagiosSrvDirs"])
             # Copy the parent list back too, it's not used except by unit tests
             self.templates[tplname]["parent"].extend(
                             templates_save[tplname]["parent"])
