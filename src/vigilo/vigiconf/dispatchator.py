@@ -287,13 +287,11 @@ class Dispatchator(object):
         Prepare the configuration dir (it's an SVN working directory)
         """
         status = self._svn_status()
-        if self.deploy_revision == "HEAD":
-            self.deploy_revision = self.getLastRevision()
-        else:
-            if status["add"] or status["remove"]:
-                raise DispatchatorError(_("You can't go back to a former "
-                    "revision if you have modified your configuration. "
-                    "Use 'svn revert' to cancel your modifications"))
+        if self.deploy_revision != "HEAD"
+                and (status["add"] or status["remove"]):
+            raise DispatchatorError(_("You can't go back to a former "
+                "revision if you have modified your configuration. "
+                "Use 'svn revert' to cancel your modifications"))
         self._svn_sync(status)
 
     def _svn_status(self):
@@ -378,7 +376,10 @@ class Dispatchator(object):
             raise DispatchatorError(
                     _("Can't commit the configuration dir in SVN: %s")
                       % e.value)
-        return self.getLastRevision()
+        last_rev = self.getLastRevision()
+        if self.deploy_revision == "HEAD":
+            self.deploy_revision = last_rev
+        return last_rev
     
     def _svn_update(self):
         """
