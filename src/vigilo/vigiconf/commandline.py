@@ -271,9 +271,15 @@ def main():
             sys.exit(2)
 
         # On remplace les UID/GID réels et effectifs
-        # par ceux de l'utilisateur 'vigiconf'.
+        # par ceux de l'utilisateur 'vigiconf', ainsi que les variables
+        # d'environnements nécessaires.
         os.setregid(entry.pw_gid, entry.pw_gid)
         os.setreuid(entry.pw_uid, entry.pw_uid)
+        os.environ["LOGNAME"] = entry.pw_name
+        os.environ["USER"] = entry.pw_name
+        os.environ["USERNAME"] = entry.pw_name
+        os.environ["HOME"] = entry.pw_dir
+        os.environ["SHELL"] = entry.pw_shell
 
     if pwd.getpwuid(os.getuid()).pw_name != 'vigiconf':
         LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. Aborting."))
