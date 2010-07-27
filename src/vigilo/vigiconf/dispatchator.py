@@ -287,8 +287,8 @@ class Dispatchator(object):
         Prepare the configuration dir (it's an SVN working directory)
         """
         status = self._svn_status()
-        if self.deploy_revision != "HEAD"
-                and (status["add"] or status["remove"]):
+        if self.deploy_revision != "HEAD" and \
+                (status["add"] or status["remove"]):
             raise DispatchatorError(_("You can't go back to a former "
                 "revision if you have modified your configuration. "
                 "Use 'svn revert' to cancel your modifications"))
