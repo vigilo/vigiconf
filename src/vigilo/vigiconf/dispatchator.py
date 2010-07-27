@@ -279,7 +279,9 @@ class Dispatchator(object):
                                        "deploy"))
         LOGGER.info(_("Validation Successful"))
         #Commit Configuration
-        self._svn_commit()
+        last_rev = self._svn_commit()
+        if self.deploy_revision == "HEAD":
+            self.deploy_revision = last_rev
         LOGGER.info(_("Commit Successful"))
 
     def prepare_svn(self):
@@ -376,10 +378,7 @@ class Dispatchator(object):
             raise DispatchatorError(
                     _("Can't commit the configuration dir in SVN: %s")
                       % e.value)
-        last_rev = self.getLastRevision()
-        if self.deploy_revision == "HEAD":
-            self.deploy_revision = last_rev
-        return last_rev
+        return self.getLastRevision()
     
     def _svn_update(self):
         """
