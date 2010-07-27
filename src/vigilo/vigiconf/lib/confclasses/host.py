@@ -295,8 +295,11 @@ class Host(object):
         @type  variables: C{list}
         @param cti: alert reference (Category - Type - Item)
         @type  cti: C{int}
-        @param reroutefor: service routing information
-        @type  reroutefor: C{dict} with "host" and "service" as keys
+        @param reroutefor: Service routing information.
+            This parameter indicates that the given service receives
+            information for another service, whose host and label are
+            given by the "host" and "service" key of this dict.
+        @type  reroutefor: C{dict}
         @param weight: service weight
         @type  weight: C{int}
         """
@@ -310,9 +313,8 @@ class Host(object):
 
         if directives is None:
             directives = {}
-        for (dname, value) in directives.iteritems():
-            # @TODO: est-ce qu'on doit utiliser "reroutefor" ici ?
-            self.add_nagios_service_directive(label, dname, value)
+        for (dname, dvalue) in directives.iteritems():
+            self.add_sub(target, "nagiosSrvDirs", service, dname, str(dvalue))
 
         # Add the Nagios service (rerouting-dependant)
         self.add(target, "services", service, {'type': 'passive', 
@@ -486,8 +488,8 @@ class Host(object):
         """
         if directives is None:
             directives = {}
-        for (dname, value) in directives.iteritems():
-            self.add_nagios_service_directive(name, dname, value)
+        for (dname, dvalue) in directives.iteritems():
+            self.add_nagios_service_directive(name, dname, dvalue)
 
         self.add(self.name, 'services', name, {'type': 'active',
                 'command': command, 'cti': cti, 'weight': weight,
@@ -798,8 +800,8 @@ class HostFactory(object):
                         test_list = self.testfactory.get_test(test_params[0], cur_host.classes)
                         cur_host.add_tests(test_list, *test_params[1:])
 
-                    for (dname, value) in directives.iteritems():
-                        cur_host.add_nagios_directive(dname, value)
+                    for (dname, dvalue) in directives.iteritems():
+                        cur_host.add_nagios_directive(dname, dvalue)
 
                     LOGGER.debug(_("Loaded host %(host)s, address %(address)s") %
                                  {'host': cur_host.name,
