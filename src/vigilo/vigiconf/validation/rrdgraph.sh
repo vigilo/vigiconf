@@ -1,7 +1,7 @@
 #!/bin/sh
 ################################################################################
 # $Id$
-# collector.sh
+# rrdgraph.sh
 # Copyright (C) 2007-2008 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
