@@ -85,7 +85,7 @@ def deploy(args):
 
     if (args.force):
         dispatchator.setModeForce(True)
-    
+
     if (args.revision):
         dispatchator.deploy_revision = args.revision
 
@@ -130,7 +130,7 @@ def discover(args):
     print(ET.tostring(elements))
 
 def parse_args():
-    """Parses the commandline and starts the requested actions"""    
+    """Parses the commandline and starts the requested actions"""
 
     # @FIXME: permet de traduire les textes internes à argparse.
     N_('usage: ')
@@ -154,6 +154,8 @@ def parse_args():
     common_args_parser = argparse.ArgumentParser()
     common_args_parser.add_argument("--debug", action="store_true",
         help=N_("Debug mode."))
+    common_args_parser.add_argument("--no-change-user", action="store_true",
+        dest="nochuid", help=N_("Don't try to switch to the correct user."))
 
     parser = argparse.ArgumentParser(
                             add_help=False,
@@ -162,7 +164,7 @@ def parse_args():
     subparsers = parser.add_subparsers(dest='action', title=N_("Subcommands"))
 
     # INFO
-    parser_info = subparsers.add_parser("info", 
+    parser_info = subparsers.add_parser("info",
                     add_help=False,
                     parents=[common_args_parser],
                     help=N_("Prints a summary of the current configuration."))
@@ -187,7 +189,7 @@ def parse_args():
                              help=N_("Applications to manage, all of them "
                                     "if not specified."))
     # UNDO
-    parser_undo = subparsers.add_parser("undo", 
+    parser_undo = subparsers.add_parser("undo",
                     add_help=False,
                     parents=[common_args_parser],
                     help=N_("Deploys the previously installed configuration. "
@@ -249,14 +251,7 @@ def parse_args():
 
     return parser.parse_args()
 
-
-def main():
-    # @FIXME: argparse utilise le domaine par défaut pour les traductions.
-    # On définit explicitement le domaine par défaut ici. Ceci permet de
-    # définir les traductions pour les textes de argparse dans VigiConf.
-    gettext.textdomain('vigilo-vigiconf')
-    args = parse_args()
-
+def change_user():
     uid = os.getuid()
     # Vigiconf est lancé en tant que "root",
     # on bascule sur un compte utilisateur
@@ -284,6 +279,16 @@ def main():
     if pwd.getpwuid(os.getuid()).pw_name != 'vigiconf':
         LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. Aborting."))
         sys.exit(2)
+
+def main():
+    # @FIXME: argparse utilise le domaine par défaut pour les traductions.
+    # On définit explicitement le domaine par défaut ici. Ceci permet de
+    # définir les traductions pour les textes de argparse dans VigiConf.
+    gettext.textdomain('vigilo-vigiconf')
+    args = parse_args()
+
+    if not args.nochuid:
+        change_user()
 
     LOGGER.debug(_("VigiConf starting..."))
     f = open(settings["vigiconf"].get("lockfile",
