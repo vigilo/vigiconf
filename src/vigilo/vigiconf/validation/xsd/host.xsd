@@ -68,7 +68,7 @@ hosts element contains one ore more host elements
                 <xs:attribute name="name" use="required"/>
             </xs:complexType>
         </xs:element>
-  
+
         <xs:element name="test">
             <xs:complexType>
                 <xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -121,14 +121,13 @@ hosts element contains one ore more host elements
         <xs:element name="weight" type="xs:positiveInteger"/>
     </xs:choice>
 
-    <!--
-        Libellé de l'hôte.
-        Si cet attribut est omis, la valeur de l'attribut "address"
-        est automatiquement utilisée.
-    -->
+    <!-- Libellé de l'hôte. -->
     <xs:attribute name="name" type="xs:string" use="required"/>
 
-    <!-- Adresse de l'hôte (IP ou FQDN). -->
+    <!--
+        Adresse de l'hôte (IP ou FQDN).
+        Si cet attribut est omis, la valeur de l'attribut "name" est utilisée.
+    -->
     <xs:attribute name="address" type="xs:string" use="optional"/>
 
     <!--
