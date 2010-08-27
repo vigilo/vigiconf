@@ -109,7 +109,10 @@ class Interface(Test):
             if not oid.startswith(".1.3.6.1.2.1.2.2.1.3."):
                 continue
             # Select the types
-            allowed_types = [ "ethernetCsmacd", "propVirtual", "l3ipvlan" ]
+            # 6   => ethernetCsmacd
+            # 53  => propVirtual
+            # 136 => l3ipvlan
+            allowed_types = [ "6", "53", "136" ]
             if oids[oid] not in allowed_types:
                 continue
             # Extract the SNMP id
