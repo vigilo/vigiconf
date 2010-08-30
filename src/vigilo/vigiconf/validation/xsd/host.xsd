@@ -65,7 +65,7 @@ hosts element contains one ore more host elements
                 <xs:sequence>
                     <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="xs:string"/>
                 </xs:sequence>
-                <xs:attribute name="name" use="required"/>
+                <xs:attribute name="name" use="required" type="xs:string"/>
             </xs:complexType>
         </xs:element>
 
