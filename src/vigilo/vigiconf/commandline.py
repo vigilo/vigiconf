@@ -58,9 +58,6 @@ from xml.etree import ElementTree as ET # Python 2.5
 
 
 def get_dispatchator(args):
-    from vigilo.models.session import metadata
-    metadata.create_all()
-
     conf.loadConf()
     dispatchator = dispatchmodes.getinstance()
     if args.server:
@@ -170,7 +167,8 @@ def parse_args():
                     help=N_("Prints a summary of the current configuration."))
     parser_info.set_defaults(func=info)
     parser_info.add_argument('server', nargs='*',
-                    help=N_("Servers to query, all of them if not specified."))
+                    help=N_("Supervision servers to query, all of them if "
+                            "not specified."))
 
     # APPS
     parser_apps = subparsers.add_parser("apps",
@@ -201,7 +199,8 @@ def parse_args():
                       help=N_("Do not restart the applications after "
                              "switching the configuration."))
     parser_undo.add_argument('server', nargs='*',
-                      help=N_("Servers to undo, all of them if not specified."))
+                      help=N_("Supervision servers to undo, all of them if "
+                            "not specified."))
 
     # DEPLOY
     parser_deploy = subparsers.add_parser('deploy',
@@ -225,8 +224,8 @@ def parse_args():
                       dest="simulate", help=N_("Simulate only, no copy will "
                       "actually be made, no commit in the database."))
     parser_deploy.add_argument('server', nargs='*',
-                      help=N_("Servers to deploy to, all of them if "
-                             "not specified."))
+                      help=N_("Supervision servers to deploy to, all of them "
+                             "if not specified."))
 
     # DISCOVER
     parser_discover = subparsers.add_parser('discover',
