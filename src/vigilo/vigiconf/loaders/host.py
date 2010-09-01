@@ -51,7 +51,7 @@ class HostLoader(DBLoader):
 
     Dépend de GroupLoader
     """
-    
+
     def __init__(self):
         super(HostLoader, self).__init__(Host, "name")
 
@@ -70,7 +70,7 @@ class HostLoader(DBLoader):
                         weight=hostdata['weight'],
                         snmpversion=unicode(hostdata['snmpVersion']))
             host = self.add(host)
-            
+
             # groupes
             LOGGER.debug(_("Loading groups for host %s"), hostname)
             self._load_groups(host, hostdata)
@@ -158,7 +158,7 @@ class ServiceLoader(DBLoader):
 
     Appelé par le HostLoader
     """
-    
+
     def __init__(self, host):
         super(ServiceLoader, self).__init__(LowLevelService, "servicename")
         self.host = host
@@ -187,7 +187,7 @@ class NagiosConfLoader(DBLoader):
     Appelé par le HostLoader. Peut fonctionner pour des hôtes ou des services,
     et dépend du loader correspondant.
     """
-    
+
     def __init__(self, supitem, directives):
         # On ne travaille que sur les directives d'un seul supitem à la fois,
         # la clé "name" est donc unique
@@ -213,7 +213,7 @@ class PDSLoader(DBLoader):
 
     Appelé par le HostLoader
     """
-    
+
     def __init__(self, host):
         # On ne travaille que sur les directives d'un seul host à la fois,
         # la clé "name" est donc unique
@@ -226,7 +226,7 @@ class PDSLoader(DBLoader):
     def load_conf(self):
         datasources = conf.hostsConf[self.host.name]['dataSources']
         for dsname, dsdata in datasources.iteritems():
-            pds = dict(host=self.host, name=unicode(dsname),
+            pds = dict(idhost=self.host.idhost, name=unicode(dsname),
                        type=unicode(dsdata["dsType"]),
                        label=unicode(dsdata['label']))
             for graphname, graphdata in conf.hostsConf[self.host.name]['graphItems'].iteritems():
@@ -243,7 +243,7 @@ class GraphLoader(DBLoader):
 
     Appelé par le HostLoader, dépend de PDSLoader et de GraphGroupLoader
     """
-    
+
     def __init__(self, host):
         super(GraphLoader, self).__init__(Graph, "name")
         self.host = host
@@ -287,5 +287,3 @@ class GraphLoader(DBLoader):
                     group = GraphGroup.by_group_name(groupname)
                     graph_groups.append(group)
                 graph.groups = graph_groups
-
-
