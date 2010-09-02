@@ -27,9 +27,9 @@ db_basename = vigilo_
 external_auth=False
 
 
-;
-; LOGGING
-;
+#
+# LOGGING
+#
 [loggers]
 keys=root
 
@@ -53,14 +53,14 @@ args=(sys.stdout, )
 class=handlers.SysLogHandler
 level=DEBUG
 formatter=syslogFormatter
-; Le premier argument correspond à l'emplacement du syslog.
-; Il peut s'agir d'un fichier (ex : socket Unix, '/dev/log')
-; ou d'une adresse IP avec un port, auquel cas il faut saisir
-; le tout sous forme de tuple (args=('127.0.0.1', 514), 'daemon').
-;
-; Le 2ème argument correspond à la facility à utiliser lors
-; de l'envoi à syslog (voir logger(1) pour la liste des noms
-; des facilities).
+# Le premier argument correspond à l'emplacement du syslog.
+# Il peut s'agir d'un fichier (ex : socket Unix, '/dev/log')
+# ou d'une adresse IP avec un port, auquel cas il faut saisir
+# le tout sous forme de tuple (args=('127.0.0.1', 514), 'daemon').
+#
+# Le 2ème argument correspond à la facility à utiliser lors
+# de l'envoi à syslog (voir logger(1) pour la liste des noms
+# des facilities).
 args='/dev/log', 'daemon'
 
 [formatter_consoleFormatter]
