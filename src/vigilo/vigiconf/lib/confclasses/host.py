@@ -92,6 +92,10 @@ class Host(object):
                 "nagiosSrvDirs"  : {},
                 "weight"         : 1,
             }
+        self.attr_types = {"port": int,
+                           "snmpOIDsPerPDU": int,
+                           "weight": int,
+                          }
 
     def get_attribute(self, attribute, default=False):
         """
@@ -112,6 +116,9 @@ class Host(object):
         @param attribute: the attribute to set
         @param value: the value to set the attribute to
         """
+        if attribute in self.attr_types \
+                and not isinstance(value, self.attr_types[attribute]):
+            value = self.attr_types[attribute](value)
         self.hosts[self.name][attribute] = value
 
     def update_attributes(self, attributes):

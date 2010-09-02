@@ -37,7 +37,7 @@ class DBLoader(object):
     """
     Classe abstraite de chargement des données de la configuration, avec
     gestion de la synchronisation avec la base de données.
-    
+
     La méthode load doit être redéfinie obligatoirement.
     """
 
@@ -57,7 +57,7 @@ class DBLoader(object):
         Charge les données depuis la configuration.
         Cette méthode doit être redéfinie dans une classe dérivée.
         Elle fait appel à self.add quand une instance est chargée.
-        """        
+        """
         raise NotImplementedError(_("The 'load' method must be redefined"))
 
     def add(self, data):
@@ -69,7 +69,7 @@ class DBLoader(object):
             instance = self.update(data)
         else:
             instance = self.insert(data)
-        DBSession.flush()
+        #DBSession.flush()
         return instance
 
     def cleanup(self):
@@ -131,7 +131,14 @@ class DBLoader(object):
         })
         instance = self._in_db[self.get_key(data)]
         for key, value in data.iteritems():
-            if getattr(instance, key) != value:
+            old_value = getattr(instance, key)
+            if type(old_value) != type(value):
+                LOGGER.debug("WARNING: different types between old an new, "
+                             "comparasion will always fail. "
+                             "Old is %s (%s), new is %s (%s).",
+                             old_value, type(old_value), value, type(value))
+            if old_value != value:
+                LOGGER.debug("Updating property %s from %s (%s) to %s (%s)", key, old_value, type(old_value), value, type(value))
                 setattr(instance, key, value)
         self._in_conf[self.get_key(data)] = instance
         return instance
@@ -144,6 +151,6 @@ class DBLoader(object):
         return instance
 
     def delete(self, instance):
-        LOGGER.debug(_("Deleting: %s"), instance)
+        LOGGER.info(_("Deleting: %s"), instance)
         DBSession.delete(instance)
 

@@ -59,6 +59,10 @@ class HostTemplate(object):
                 "nagiosDirectives": {},
                 "nagiosSrvDirs": {},
             }
+        self.attr_types = {"port": int,
+                           "snmpOIDsPerPDU": int,
+                           "weight": int,
+                          }
         if name != "default":
             self.add_parent("default")
 
@@ -131,6 +135,9 @@ class HostTemplate(object):
         """
         if not self.data.has_key("attributes"):
             self.data["attributes"] = {}
+        if attrname in self.attr_types \
+                and not isinstance(value, self.attr_types[attrname]):
+            value = self.attr_types[attrname](value)
         self.data["attributes"][attrname] = value
 
     def add_sub(self, prop, subprop, key, value):
@@ -150,10 +157,10 @@ class HostTemplate(object):
         if not self.data[prop].has_key(subprop):
             self.data[prop][subprop] = {}
         self.data[prop][subprop].update({key: value})
-    
+
     def add_nagios_directive(self, name, value):
         """ Add a generic nagios directive
-        
+
             @param name: the directive name
             @type  name: C{str}
             @param value: the directive value
@@ -163,7 +170,7 @@ class HostTemplate(object):
 
     def add_nagios_service_directive(self, service, name, value):
         """ Add a generic nagios directive for a service
-        
+
             @param service: the service, ie 'Interface eth0'
             @type  service: C{str}
             @param name: the directive name
@@ -266,7 +273,7 @@ class HostTemplateFactory(object):
 
                 elif elem.tag == "test":
                     test_name = get_attrib(elem, 'name')
-                    
+
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
                             tname = get_attrib(arg, 'name')

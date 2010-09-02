@@ -75,6 +75,7 @@ class HostLoader(DBLoader):
             LOGGER.debug(_("Loading groups for host %s"), hostname)
             self._load_groups(host, hostdata)
 
+
             # services
             LOGGER.debug(_("Loading services for host %s"), hostname)
             service_loader = ServiceLoader(host)
@@ -97,9 +98,11 @@ class HostLoader(DBLoader):
 
         # Nettoyage des graphes et les groupes de graphes vides
         LOGGER.debug(_("Cleaning up old graphs and graphgroups"))
-        for graph in DBSession.query(Graph):
-            if not graph.perfdatasources:
-                DBSession.delete(graph)
+        empty_graphs = DBSession.query(Graph).distinct().filter(
+                            ~Graph.perfdatasources.any()).all()
+        for graph in empty_graphs:
+            DBSession.delete(graph)
+        #        DBSession.delete(graph)
 
         DBSession.flush()
 
@@ -119,14 +122,14 @@ class HostLoader(DBLoader):
                 raise ParsingError(_('Unknown group "%(group)s" in host "%(host)s".')
                                   % {"group": old_group, "host": host.name})
             for group in groups:
-                hostdata["otherGroups"].add(group.get_path())
+                hostdata["otherGroups"].add(group.path)
 
     def _load_groups(self, host, hostdata):
         self._absolutize_groups(host, hostdata)
         # Rempli à mesure que des groupes sont ajoutés (sorte de cache).
         hostgroups_cache = {}
         for g in host.groups:
-            hostgroups_cache[g.get_path()] = g
+            hostgroups_cache[g.path] = g
 
         # Suppression des anciens groupes
         # qui ne sont plus associés à l'hôte.
@@ -258,6 +261,7 @@ class GraphLoader(DBLoader):
                     ).filter(PerfDataSource.host == self.host).all()
 
     def load_conf(self):
+        # lecture du modèle mémoire
         for graphname, graphdata in conf.hostsConf[self.host.name]['graphItems'].iteritems():
             graphname = unicode(graphname)
             graph = dict(name=graphname,
@@ -265,25 +269,22 @@ class GraphLoader(DBLoader):
                          vlabel=unicode(graphdata["vlabel"]),
                         )
             graph = self.add(graph)
-            # lien avec les PerfDataSources
-            graph_pds_old = set([ pds.name for pds in graph.perfdatasources ])
-            graph_pds_new = set(graphdata['ds'])
-            if graph_pds_old != graph_pds_new:
-                graph_pds = []
-                for dsname in graphdata['ds']:
-                    pds = PerfDataSource.by_host_and_source_name(self.host, unicode(dsname))
-                    graph_pds.append(pds)
-                graph.perfdatasources = graph_pds
-            # lien avec les GraphGroups
-            graph_groups_old = set([ g.name for g in graph.groups ])
-            graph_groups_new = set([ groupname for groupname, graphnames
-                                     in conf.hostsConf[self.host.name]['graphGroups'].iteritems()
-                                     if graphname in graphnames ])
-            if graph_groups_old != graph_groups_new:
-                graph_groups = []
-                for groupname, graphnames in conf.hostsConf[self.host.name]['graphGroups'].iteritems():
-                    if graphname not in graphnames:
-                        continue
-                    group = GraphGroup.by_group_name(groupname)
-                    graph_groups.append(group)
-                graph.groups = graph_groups
+
+    def insert(self, data):
+        """
+        En plus de l'ajout classique, on règle les PerfDataSources et les
+        GraphGroups
+        """
+        graph = super(GraphLoader, self).insert(data)
+        graphname = data["name"]
+        graphdata = conf.hostsConf[self.host.name]['graphItems'][graphname]
+        # lien avec les PerfDataSources
+        for dsname in graphdata['ds']:
+            pds = PerfDataSource.by_host_and_source_name(self.host, unicode(dsname))
+            graph.perfdatasources.append(pds)
+        # lien avec les GraphGroups
+        for groupname, graphnames in conf.hostsConf[self.host.name]['graphGroups'].iteritems():
+            if graphname not in graphnames:
+                continue
+            group = GraphGroup.by_group_name(groupname)
+            graph.groups.append(group)
