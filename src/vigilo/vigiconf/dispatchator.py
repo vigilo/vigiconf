@@ -48,12 +48,6 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-#from vigilo.models.configure import configure_db
-#configure_db(settings['database'], 'sqlalchemy_',
-#    settings['database']['db_basename'])
-#
-#from vigilo.models.session import metadata
-#metadata.create_all()
 
 from . import conf
 from . import generator
@@ -97,7 +91,7 @@ class Dispatchator(object):
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
         self.deploy_revision = "HEAD"
-        
+
         self.mode_db = 'commit'
         # mode simulation: on recopie simplement la commande svn pour
         # verification
@@ -105,7 +99,7 @@ class Dispatchator(object):
             self.simulate = settings["vigiconf"].as_bool("simulate")
         except KeyError:
             self.simulate = False
-        
+
         # initialize applications
         self.listApps()
         self.sortApplication()
@@ -136,7 +130,7 @@ class Dispatchator(object):
         """
         return self.mApplications
 
-    def getModeForce(self): 
+    def getModeForce(self):
         """
         @returns: L{mModeForce}
         """
@@ -169,7 +163,7 @@ class Dispatchator(object):
         Mutator on L{mModeForce}
         @type iBool: C{boolean}
         """
-        self.mModeForce = iBool    
+        self.mModeForce = iBool
 
     # methods
     def restrict(self, servers):
@@ -249,7 +243,7 @@ class Dispatchator(object):
         """
         Sorts our applications by priority. The sorting is done in-place in the
         L{mAppsList} variable.
-        """       
+        """
         self.getAppsList().sort(reverse=True,
                     cmp=lambda x,y: cmp(x.getPriority(), y.getPriority()))
 
@@ -269,7 +263,7 @@ class Dispatchator(object):
     def run_generator(self):
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir, ignore_errors=True)
-        
+
         result = generator.generate(commit_db=(self.mode_db == 'commit'))
         return result
 
@@ -346,7 +340,7 @@ class Dispatchator(object):
                         'error': e.value,
                     })
         return result
-    
+
     def _svn_remove(self, path):
         LOGGER.debug(_("Removing an old configuration file from the repository: %s"), path)
         _cmd = self._get_auth_svn_cmd_prefix('remove')
@@ -361,7 +355,7 @@ class Dispatchator(object):
                         'error': e.value,
                     })
         return result
-    
+
     def _svn_commit(self):
         if not settings["vigiconf"].get("svnrepository", False):
             LOGGER.warning(_("Not committing because the 'svnrepository' "
@@ -379,7 +373,7 @@ class Dispatchator(object):
                     _("Can't commit the configuration dir in SVN: %s")
                       % e.value)
         return self.getLastRevision()
-    
+
     def _svn_update(self):
         """
         Updates the local copy of the repository
@@ -399,12 +393,12 @@ class Dispatchator(object):
                                    })
         return result
 
-    
+
     def _get_auth_svn_cmd_prefix(self, svn_cmd):
         """
         Get an authentified svn command prefix like
           "svn <svn_cmd> --username user --password password "
-        
+
         @return: the svn command prefix
         @rtype: C{list}
         """
@@ -415,7 +409,7 @@ class Dispatchator(object):
             _cmd.extend(["--username", svnusername])
             _cmd.extend(["--password", svnpassword])
         return _cmd
-        
+
 
     def getLastRevision(self):
         """
@@ -458,7 +452,7 @@ class Dispatchator(object):
 
     def actionThread(self, iAction, iServers):
         """
-        Implementation of a thread 
+        Implementation of a thread
         @param iAction: Function to execute in the thread
         @type  iAction: callable
         @param iServers: List of servers, will be passed to the iAction
@@ -473,8 +467,8 @@ class Dispatchator(object):
         except VigiConfError, e: # if it fails
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
-        
-    
+
+
     def deploysOnServers(self, iServers, iRevision):
         """
         Deploys the config files to the servers belonging to iServers
@@ -523,7 +517,7 @@ class Dispatchator(object):
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
 
-    #  configuration qualification    
+    #  configuration qualification
     def qualifyOnServers(self, iServers):
         """
         Qualify applications on the specified servers list
@@ -540,7 +534,7 @@ class Dispatchator(object):
         """
         _servers = []
         # 1 - build a list of servers that requires deployment
-        if self.getModeForce() == False: 
+        if self.getModeForce() == False:
             for _srv in self.getServers():
                 _srv.updateRevisionManager()
                 _srv.getRevisionManager().setSubversion(self.deploy_revision)
@@ -548,7 +542,7 @@ class Dispatchator(object):
                     _servers.append(_srv)
             if len(_servers) <= 0:
                 LOGGER.info(_("All servers are up-to-date. Nothing to do."))
-        else: # by default, takes all the servers  
+        else: # by default, takes all the servers
             _servers = self.getServers()
         # 2 - deploy on those servers
         self.deploysOnServers(_servers, self.deploy_revision)
@@ -627,14 +621,14 @@ class Dispatchator(object):
         @param iServers: List of servers
         @type  iServers: C{list} of L{Server<lib.server.Server>}
         """
-        iApplication.startOn(iServers) 
+        iApplication.startOn(iServers)
 
     def startThread(self, iServers):
         """
         Starts the next application on each server in iServers
         @param iServers: List of servers
         @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """ 
+        """
         self.actionThread(self.applicationStart, iServers)
 
     def switchDirectoriesOn(self, iServers):
@@ -681,7 +675,7 @@ class Dispatchator(object):
         """Does a full restart on all the servers"""
         _servers = []
         # 1 - build a list of servers that requires restart
-        if self.getModeForce() == False: 
+        if self.getModeForce() == False:
             for _srv in self.getServers():
                 _srv.updateRevisionManager()
                 _srv.getRevisionManager().setSubversion(self.deploy_revision)
@@ -691,7 +685,7 @@ class Dispatchator(object):
                     LOGGER.info(_("Server %s should be deployed."), _srv.getName())
             if len(_servers) <= 0:
                 LOGGER.info(_("All servers are up-to-date. No restart needed."))
-        else: # by default, takes all the servers  
+        else: # by default, takes all the servers
             _servers = self.getServers()
         # do the operations
         self.restartServers(_servers)
