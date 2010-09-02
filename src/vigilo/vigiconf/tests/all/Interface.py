@@ -40,23 +40,23 @@ class Interface(Test):
 
         if staticindex:
             for snmpindex, snmpname in snmp_ids.iteritems():
-                host.add_collector_metro("%s%s" % (snmpname, label), 
-                                         "directValue", [], 
+                host.add_collector_metro("%s%s" % (snmpname, label),
+                                         "directValue", [],
                                          [ "GET/.1.3.6.1.2.1.2.2.1.%s.%s" % (snmpindex, ifname) ],
                                          "COUNTER")
             host.add_collector_service("Interface %s" % label, "staticIfOperStatus",
-                        [ifname, label, "i"], 
+                        [ifname, label, "i"],
                         ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
                          "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
                         weight=self.weight, directives=self.directives)
         else:
             for snmpindex, snmpname in snmp_ids.iteritems():
-                host.add_collector_metro("%s%s" % (snmpname, label), 
-                                         "m_table", [ifname], 
+                host.add_collector_metro("%s%s" % (snmpname, label),
+                                         "m_table", [ifname],
                                          [ "WALK/.1.3.6.1.2.1.2.2.1.%s" % snmpindex,
                                            "WALK/.1.3.6.1.2.1.2.2.1.2"], "COUNTER")
             host.add_collector_service("Interface %s" % label, "ifOperStatus",
-                        [ifname, label, "i"], 
+                        [ifname, label, "i"],
                         ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
                          "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
                         weight=self.weight, directives=self.directives)
@@ -112,7 +112,11 @@ class Interface(Test):
             # 6   => ethernetCsmacd
             # 53  => propVirtual
             # 136 => l3ipvlan
-            allowed_types = [ "6", "53", "136" ]
+            allowed_types = [
+                "6", "ethernetCsmacd",
+                "53", "propVirtual",
+                "136", "l3ipvlan",
+            ]
             if oids[oid] not in allowed_types:
                 continue
             # Extract the SNMP id
