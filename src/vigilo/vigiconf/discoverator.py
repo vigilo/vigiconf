@@ -295,5 +295,3 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-if __name__ == "__main__":
-    main()

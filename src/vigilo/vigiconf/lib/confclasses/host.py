@@ -213,6 +213,7 @@ class Host(object):
         if isinstance(deps, str) and deps != "":
             # target argument given as string
             deps = { "and": [(deps, "Host")] }
+        import vigilo.vigiconf.conf as conf
         conf.dependencies[(self.name, service)] = {"deps": {"and": [],
                                                             "or": []}, 
                                                    "options": options,
