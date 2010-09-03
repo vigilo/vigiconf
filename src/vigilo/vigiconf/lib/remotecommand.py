@@ -43,21 +43,21 @@ class CommandUser(object):
     def __init__(self, iUserName='', iConfigPath=''):
         self.mName = iUserName
         self.mConfigurationPath = iConfigPath
-    
+
     def getName(self):
         """
         @return: L{mName}
         @rtype: C{str}
         """
         return self.mName
-    
+
     def getConfigurationPath(self):
         """
         @return: L{mConfigurationPath}
         @rtype: C{str}
         """
         return self.mConfigurationPath
-    
+
     def __str__(self):
         """
         @return: string representation of this instance.
@@ -105,7 +105,7 @@ class RemoteCommand(SystemCommand):
         # public
         self.setUser(iUser)
         self.setServer(iServer) # mandatory
-        
+
     def setServer(self, iServer):
         """
         Sets the L{iServer} instance variable
@@ -118,7 +118,7 @@ class RemoteCommand(SystemCommand):
         if len(iServer) == 0:
             raise RemoteCommandError(_("Server name incorrect (length = 0)."))
         self.mServer = iServer # pylint: disable-msg=W0201
-            
+
     def setUser(self, iUser):
         """
         Sets the L{iUser} instance variable
@@ -128,21 +128,21 @@ class RemoteCommand(SystemCommand):
         if(iUser == None):
             iUser = CommandUser()
         self.mUser = iUser # pylint: disable-msg=W0201
-    
+
     def getServer(self):
         """
         @return: L{iServer}
         @rtype: C{str}
         """
         return self.mServer # pylint: disable-msg=W0201
-        
+
     def getUser(self):
         """
         @return: L{iUser}
         @rtype: L{CommandUser<lib.remotecommand.CommandUser>}
         """
         return self.mUser # pylint: disable-msg=W0201
-    
+
     def setCommand(self, iCommand):
         """
         Builds the ssh command from the iCommand provided
@@ -151,7 +151,7 @@ class RemoteCommand(SystemCommand):
         """
         self.mCommand = iCommand
         self.mCommandType = 'shell'
-        
+
     def getCommand(self):
         """
         @return: Full SSH/SCP wrapped command
@@ -159,8 +159,7 @@ class RemoteCommand(SystemCommand):
         """
         if self.mCommandType == 'shell':
             _cmd = ["ssh"] + self.getConfigurationOpts() \
-                           + [self.getServerString()] \
-                           + self.mCommand
+                           + [self.getServerString(), self.mCommand]
         elif self.mCommandType == 'copyTo':
             _cmd = ["scp"]
             _cmd.extend(self.getConfigurationOpts())
@@ -179,7 +178,7 @@ class RemoteCommand(SystemCommand):
         if self.shell:
             _cmd = "'%s'" % "' '".join(_cmd)
         return _cmd
-        
+
 
     def asCopyTo(self, iDestinationPath, iSourcePath):
         """
@@ -192,7 +191,7 @@ class RemoteCommand(SystemCommand):
         self.mDestinationStr = iDestinationPath
         self.mSourceStr = iSourcePath
         self.mCommandType = 'copyTo'
-        
+
     def copyTo(self, iDestinationPath, iSourcePath):
         """
         Executes a "scp" command to copy a local file to a remote server
@@ -214,7 +213,7 @@ class RemoteCommand(SystemCommand):
                 raise RemoteCommandError(_('Cannot find file.'))
             else:
                 raise sce.value
-        
+
     def asCopyFrom(self, iDestinationPath, iSourcePath):
         """
         Builds a "scp" command to copy a remote file to the local machine
@@ -226,7 +225,7 @@ class RemoteCommand(SystemCommand):
         self.mDestinationStr = iDestinationPath
         self.mSourceStr = iSourcePath
         self.mCommandType = 'copyFrom'
-    
+
     def copyFrom(self, iDestinationPath, iSourcePath):
         """
         Executes a "scp" command to copy a remote file to the local machine
@@ -246,7 +245,7 @@ class RemoteCommand(SystemCommand):
                 raise RemoteCommandError(_('Cannot find file.'))
             else:
                 raise e.value
-        
+
     def getConfigurationOpts(self):
         """
         @returns: The SSH option to set the path to the SSH config file
@@ -257,7 +256,7 @@ class RemoteCommand(SystemCommand):
         if _confpath:
             opts.extend(["-F", _confpath])
         return opts
-    
+
     def getServerString(self):
         """
         @returns: The complete user@server string (if any)
