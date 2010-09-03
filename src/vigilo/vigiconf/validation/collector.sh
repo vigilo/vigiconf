@@ -21,10 +21,15 @@
 
 export BASE=$1
 
-for file in $BASE/collector/* 
+if [ ! -d $BASE/collector/ ]
+then
+	exit 0;
+fi
+
+for file in $BASE/collector/*
 	do perl -e "require '$file'"
 
 	if test $? != 0
-		then exit -1	
+		then exit -1
 	fi
 done

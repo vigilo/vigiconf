@@ -21,7 +21,12 @@
 
 export BASE=$1
 
-for file in $BASE/corrtrap/*.pm 
+if [ ! -d $BASE/corrtrap/ ]
+then
+	exit 0;
+fi
+
+for file in $BASE/corrtrap/*.pm
 	do perl -e "require '$file'"
 
 	if test $? != 0
@@ -29,11 +34,10 @@ for file in $BASE/corrtrap/*.pm
 	fi
 done
 
-for file in $BASE/corrtrap/*.sec 
+for file in $BASE/corrtrap/*.sec
 	do sec -conf=$file -testonly
 
 	if test $? != 0
 		then exit -1
 	fi
 done
-

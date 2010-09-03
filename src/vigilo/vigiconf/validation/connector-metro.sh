@@ -21,5 +21,10 @@
 
 export BASE=$1
 
+if [ ! -r $BASE/connector-metro.conf.py ]
+then
+    exit 0
+fi
+
 python -c "execfile('$BASE/connector-metro.conf.py')"
 exit $?
