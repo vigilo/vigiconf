@@ -47,7 +47,11 @@ from .lib.validator import Validator
 from . import generators
 
 # module d'export base de données
-from .dbexportator import update_apps_db, export_conf_db, export_ventilation_DB
+from .dbexportator import update_apps_db, export_conf_db, \
+                            export_vigilo_servers_DB, \
+                            export_ventilation_DB
+from vigilo.vigiconf.loaders.vigiloserver import VigiloServerLoader
+from vigilo.vigiconf.loaders.ventilation import VentilationLoader
 
 import transaction
 
@@ -77,9 +81,7 @@ def get_local_ventilation():
 
 def generate(commit_db=False):
     """ Main routine of this module, produces the configuration files.
-    
-    TODO: implementer l'option commit db.
-    
+
     @param gendir generation directory
     @type gendir C{str}
     @param commit_db True means that data is commited in the database
@@ -88,16 +90,18 @@ def generate(commit_db=False):
     @return: True if sucessful, False otherwise
     @rtype: C{boolean}
     """
-    
+
     # mise à jour de la liste des application en base
     update_apps_db()
 
     # mise à jour de la base de données
     export_conf_db()
 
-    h = getventilation()
+    # export des serveurs de supervision en base de données.
+    export_vigilo_servers_DB()
 
     # export de la ventilation en base de données
+    h = getventilation()
     export_ventilation_DB(h)
 
     v = Validator(h)
@@ -108,7 +112,7 @@ def generate(commit_db=False):
         return False
     genmanager = generators.GeneratorManager()
     genmanager.generate(h, v)
-            
+
     if v.hasErrors():
         for errmsg in v.getSummary(details=True, stats=True):
             LOGGER.error(errmsg)

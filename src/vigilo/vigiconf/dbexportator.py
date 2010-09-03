@@ -30,6 +30,9 @@ de données vigilo certaines données de configuration.
    niveaux, les groupes de graphes, les services de haut niveau, les
    dépendances.
 
+ * export_vigilo_servers_DB
+   exporte en base les données la liste des serveurs de supervision.
+
  * export_ventilation_DB
    exporte en base les données la ventilation des hôtes par application
    sur les serveurs de supervision.
@@ -113,13 +116,16 @@ def export_conf_db():
             loader_instance.load()
             DBSession.flush()
 
-def export_ventilation_DB(ventilation):
-    """Export de la ventilation en base"""
+def export_vigilo_servers_DB():
+    """Export des serveurs de la supervision en base"""
     # serveurs Vigilo
     vserver_loader = VigiloServerLoader()
     vserver_loader.load()
+    DBSession.flush()
 
+def export_ventilation_DB(ventilation):
+    """Export de la ventilation en base"""
     # ventilation
     ventilationloader = VentilationLoader(ventilation)
     ventilationloader.load()
-
+    DBSession.flush()

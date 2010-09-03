@@ -9,27 +9,33 @@ import vigilo.vigiconf.conf as conf
 import vigilo.vigiconf.generator as generator
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.models.tables import MapGroup
+from vigilo.models.demo.functions import add_host
 
 from confutil import reload_conf, setup_tmpdir
 from confutil import setup_db, teardown_db
 
 from vigilo.vigiconf.generators.nagios import NagiosTpl
+from vigilo.vigiconf import dbexportator
 
 import pprint
 
 class Generator(unittest.TestCase):
-
     def setUp(self):
         """Call before every test case."""
         setup_db()
         MapGroup(name=u'Root')
-        
+
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
         conf.hosttemplatefactory.load_templates()
         reload_conf()
         self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
+        add_host("testserver1")
+        add_host("localhost")
+        add_host("localhost2")
+        dbexportator.update_apps_db()
+        dbexportator.export_vigilo_servers_DB()
         self.mapping = generator.getventilation()
 
     def tearDown(self):
@@ -69,13 +75,13 @@ class Generator(unittest.TestCase):
         assert os.path.exists(nagiosconf), \
             "Nagios conf file was not generated"
         nagios = open(nagiosconf).read()
-        
+
         regexp = re.compile(r"""
             define\s+service\s*\{       # Inside an service definition
                 [^\}]+                  # Any previous declaration
                 host_name\s+testserver1 # Working on the testserver1 host
                 [^\}]+                  # Any following declaration
-                check_command\s+check_nrpe_rerouted!localhost!check_rrd!testserver1/ineth1\s10\s20\s1
+                check_command\s+check_nrpe_rerouted!localhost2?!check_rrd!testserver1/ineth1\s10\s20\s1
                 [^\}]+                  # Any following declaration
                 \}                      # End of the host definition
             """,
@@ -94,7 +100,7 @@ class NagiosGeneratorForTest(NagiosTpl):
             if args['generic_sdirectives'] != "":
                 self.test_srv_data = args
         super(NagiosGeneratorForTest, self).templateAppend(filename, template, args)
-        
+
 
 class TestGenericDirNagiosGeneration(unittest.TestCase):
 
@@ -107,6 +113,9 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         # on charge en conf un host avec directives generiques nagios
         setup_db()
         reload_conf(hostsdir='tests/testdata/generators/nagios/')
+        add_host("example-nagios-spec.xml")
+        dbexportator.update_apps_db()
+        dbexportator.export_vigilo_servers_DB()
         self.mapping = generator.getventilation()
 
     def tearDown(self):
@@ -117,7 +126,7 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
     def test_nagios_generator(self):
         h = generator.getventilation()
         v = generator.Validator(h)
-  
+
         tpl = NagiosGeneratorForTest(h, v)
         tpl.generate()
         # recuperation de la generation pour host

@@ -51,31 +51,31 @@ class HostMethods(unittest.TestCase):
         )
 
     def test_add_tag_hosts(self):
-        """Test for the add_tag host method"""
+        """Test for the add_tag method on hosts"""
         self.host.add_tag("Host", "important", 2)
         self.assertEqual(conf.hostsConf["testserver1"]["tags"], {"important": 2})
 
     def test_add_tag_services(self):
-        """Test for the add_tag host method"""
+        """Test for the add_tag method on services"""
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
         self.host.add_tag("UpTime", "security", 1)
         self.assertEqual(conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"], {"security": 1})
 
     def test_add_trap(self):
-        """Test for the add_trap host method"""
+        """Test for the add_trap method on hosts"""
         self.host.add_trap("test.add_trap", "test.name", "test.label.wrong")
         self.host.add_trap("test.add_trap", "test.name", "test.label")
         self.assertEqual(conf.hostsConf["testserver1"]["trapItems"]["test.add_trap"]["test.name"], "test.label")
 
     def test_add_group(self):
-        """Test for the add_group host method"""
+        """Test for the add_group method on hosts"""
         self.host.add_group("/Test Group")
         assert "/Test Group" in conf.hostsConf["testserver1"]["otherGroups"], \
                 "add_group does not work"
 
     def test_add_collector_service(self):
-        """Test for the add_collector_service host method"""
+        """Test for the add_collector_service method on hosts"""
         self.host.add_collector_service( "TestAddCS", "TestAddCSFunction",
                                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"] )
         assert conf.hostsConf["testserver1"]["services"]["TestAddCS"]["type"] == "passive", \
@@ -145,7 +145,7 @@ class HostMethods(unittest.TestCase):
         self.assertEquals(
             conf.hostsConf["testserver2"]["nagiosSrvDirs"]["Interface"]["retry_interval"],
             "10")
- 
+
 
 from vigilo.vigiconf.lib.confclasses.host import HostFactory
 from vigilo.common.conf import settings

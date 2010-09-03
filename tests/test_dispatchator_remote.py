@@ -23,11 +23,11 @@ class DispatchatorRemote(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        
+
         # Prepare necessary directories
         # TODO: commenter les divers repertoires
         setup_deploy_dir()
-        
+
         self.host = Host(conf.hostsConf, u"testserver1", u"192.168.1.1", u"Servers")
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
@@ -48,11 +48,11 @@ class DispatchatorRemote(unittest.TestCase):
 
     def test_list_servers(self):
         servers = self.dispatchator.listServerNames()
-        self.assertEquals(["localhost"], list(servers))
+        self.assertEquals([u"localhost", u"localhost2"], sorted(list(servers)))
 
     def test_app_servers(self):
         for app in self.dispatchator.getApplications():
             servers = self.dispatchator.getServersForApp(app)
-            self.assertEquals(["localhost"], list(servers))
+            self.assertEquals([u"localhost", u"localhost2"], sorted(list(servers)))
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

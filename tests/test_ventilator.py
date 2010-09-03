@@ -44,40 +44,45 @@ class VentilatorTest(unittest.TestCase):
 
     def test_export_localventilation_db(self):
         """ test de l'export de la ventilation en mode local.
-        
+
         le remplacement de la persistance pickle par db n'est pas testée
         ici.
         """
         ventilation = generator.get_local_ventilation()
         self.assertEquals(len(ventilation['localhost'].keys()), 7, "7 apps (%d)" % len(ventilation['localhost'].keys()))
-        
+
         # need locahost in db
         host = add_host("localhost")
         # need localhost as VigiloServer
         add_vigiloserver(u'localhost')
-        
+
         #need apps in DB
         dbexportator.update_apps_db()
         DBSession.flush()
         self.assertEquals(DBSession.query(Application).count(), 7, "7 apps in DB")
-        
+
+        dbexportator.export_vigilo_servers_DB()
         dbexportator.export_ventilation_DB(ventilation)
-        
+
         # check that for each app, localhost is supervised by itself
         for app in conf.apps.keys():
             links = DBSession.query(Ventilation).filter(Ventilation.application.has(Application.name==app)).filter(Ventilation.host==host)
             self.assertEquals(links.count(), 1, "One supervision link (%d)" % links.count())
             self.assertEquals(links.first().vigiloserver.name, u'localhost', "superviser server is localhost")
-        
+
     def test_getservertouse(self, one_server=True):
         """ Test de la nouvelle persistance db remplaçant la persistance pickle.
         """
+        for appGroup in conf.appsGroupsByServer:
+            for hostGroup in conf.appsGroupsByServer[appGroup]:
+                conf.appsGroupsByServer[appGroup][hostGroup].remove(u'localhost2')
+
         # need locahost in db
         host = add_host("localhost")
-        
+
         # need server
         add_vigiloserver(u'localhost')
-        
+
         # need nagios application
         nagios = Application(name=u'nagios')
         DBSession.add(nagios)
@@ -89,7 +94,7 @@ class VentilatorTest(unittest.TestCase):
                 server = getServerToUse(l, host.name)
                 if one_server:
                     self.assertEquals(server, u'localhost')
-        
+
     def test_getservertouse_multi(self):
         """ Test de la ventilation sur plusieurs serveurs vigilo.
         """
@@ -98,11 +103,11 @@ class VentilatorTest(unittest.TestCase):
             for hostGroup in conf.appsGroupsByServer[appGroup]:
                 conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver2.example.com')
                 conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
-        
+
         # add the 2 servers in DB
         add_vigiloserver(u'supserver2.example.com')
         add_vigiloserver(u'supserver3.example.com')
-        
+
         self.test_getservertouse(one_server=False)
 
     def test_host_ventilation_group(self):
