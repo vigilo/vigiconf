@@ -246,7 +246,7 @@ def parse_args():
     parser_discover.add_argument('target', nargs='+',
             help=N_("Hosts or files to scan. The files must be the result "
                    "of an snmpwalk command on the '.1' OID with the "
-                   "'-OnQ' options."))
+                   "'-OnQe' options."))
 
     return parser.parse_args()
 

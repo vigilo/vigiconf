@@ -230,10 +230,10 @@ msgstr "Groupe principal. Par défaut : %(default)s."
 #: src/vigilo/vigiconf/commandline.py:248
 msgid ""
 "Hosts or files to scan. The files must be the result of an snmpwalk "
-"command on the '.1' OID with the '-OnQ' options."
+"command on the '.1' OID with the '-OnQe' options."
 msgstr ""
 "Hôtes ou fichiers à scanner. Les fichiers doivent être le résultat d'une "
-"commande snmpwalk sur l'OID '.1' avec les options '-OnQ'."
+"commande snmpwalk sur l'OID '.1' avec les options '-OnQe'."
 
 #: src/vigilo/vigiconf/commandline.py:260
 msgid ""

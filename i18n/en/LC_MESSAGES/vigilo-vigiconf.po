@@ -226,10 +226,10 @@ msgstr "Main group. Default: %(default)s."
 #: src/vigilo/vigiconf/commandline.py:248
 msgid ""
 "Hosts or files to scan. The files must be the result of an snmpwalk "
-"command on the '.1' OID with the '-OnQ' options."
+"command on the '.1' OID with the '-OnQe' options."
 msgstr ""
 "Hosts or files to scan. The files must be the result of an snmpwalk "
-"command on the '.1' OID with the '-OnQ' options."
+"command on the '.1' OID with the '-OnQe' options."
 
 #: src/vigilo/vigiconf/commandline.py:260
 msgid ""
