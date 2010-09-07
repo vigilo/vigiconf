@@ -28,7 +28,7 @@ from __future__ import absolute_import
 import fcntl
 import sys
 import os
-import pwd
+import pwd, grp
 
 import argparse
 import gettext
@@ -264,10 +264,17 @@ def change_user():
             LOGGER.error(_("Unable to switch to user 'vigiconf'. Aborting."))
             sys.exit(2)
 
+        groups = grp.getgrall()
+        suppl_groups = []
+        for grp_name, grp_pwd, grp_gid, grp_suppl in groups:
+            if 'vigiconf' in grp_suppl or grp_name == 'vigiconf':
+                suppl_groups.append(grp_gid)
+
         # On remplace les UID/GID réels et effectifs
         # par ceux de l'utilisateur 'vigiconf', ainsi que les variables
         # d'environnements nécessaires.
         os.setregid(entry.pw_gid, entry.pw_gid)
+        os.setgroups(suppl_groups)
         os.setreuid(entry.pw_uid, entry.pw_uid)
         os.environ["LOGNAME"] = entry.pw_name
         os.environ["USER"] = entry.pw_name
@@ -279,7 +286,7 @@ def change_user():
         LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. Aborting."))
         sys.exit(2)
 
-def main():
+def main(*args):
     # @FIXME: argparse utilise le domaine par défaut pour les traductions.
     # On définit explicitement le domaine par défaut ici. Ceci permet de
     # définir les traductions pour les textes de argparse dans VigiConf.
