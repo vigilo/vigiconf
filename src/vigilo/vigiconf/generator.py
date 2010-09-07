@@ -80,13 +80,12 @@ def get_local_ventilation():
     return mapping
 
 def generate(commit_db=False):
-    """ Main routine of this module, produces the configuration files.
+    """
+    Main routine of this module, produces the configuration files.
 
-    @param gendir generation directory
-    @type gendir C{str}
-    @param commit_db True means that data is commited in the database
+    @param commit_db: True means that data is commited in the database
            after generation; if False, a rollback is done.
-    @type commit_db C{boolean}
+    @type commit_db: C{boolean}
     @return: True if sucessful, False otherwise
     @rtype: C{boolean}
     """

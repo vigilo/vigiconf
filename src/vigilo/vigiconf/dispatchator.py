@@ -397,7 +397,7 @@ class Dispatchator(object):
     def _get_auth_svn_cmd_prefix(self, svn_cmd):
         """
         Get an authentified svn command prefix like
-          "svn <svn_cmd> --username user --password password "
+        "svn <svn_cmd> --username user --password password "
 
         @return: the svn command prefix
         @rtype: C{list}

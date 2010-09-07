@@ -194,7 +194,7 @@ class Host(object):
         @param deps: the target dependencies. If deps is a C{str}, then it is
             considered as a hostname. If deps is a C{dict}, then it may be of the
             following form::
-                { 
+                {
                     "and": [(host1, "Host"), (host2, "Service1")]
                     "or": [(host3, "Host")]
                 }
@@ -215,7 +215,7 @@ class Host(object):
             deps = { "and": [(deps, "Host")] }
         import vigilo.vigiconf.conf as conf
         conf.dependencies[(self.name, service)] = {"deps": {"and": [],
-                                                            "or": []}, 
+                                                            "or": []},
                                                    "options": options,
                                                    'cti': cti}
         for dep_type, dep_list in deps.iteritems():
@@ -325,16 +325,16 @@ class Host(object):
             self.add_sub(target, "nagiosSrvDirs", service, dname, str(dvalue))
 
         # Add the Nagios service (rerouting-dependant)
-        self.add(target, "services", service, {'type': 'passive', 
-                                               'cti': cti, 
+        self.add(target, "services", service, {'type': 'passive',
+                                               'cti': cti,
                                                "weight": weight,
                                                "directives": directives,
                                               })
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (label, 'service'),
-                                        {'function': function, 
-                                         'params': params, 
-                                         'vars': variables, 
+                                        {'function': function,
+                                         'params': params,
+                                         'vars': variables,
                                          'reRouteFor': reroutefor,
                                          } )
 
@@ -412,7 +412,7 @@ class Host(object):
         self.add_collector_service(name, supfunction, supparams, supvars,
                         cti=cti, reroutefor=reroutefor, weight=weight,
                         directives=directives)
-        self.add_collector_metro(name, metrofunction, metroparams, metrovars, 
+        self.add_collector_metro(name, metrofunction, metroparams, metrovars,
                                  dstype, label=label, reroutefor=reroutefor)
 
     def add_collector_service_and_metro_and_graph(self, name, label, oid,
@@ -469,7 +469,7 @@ class Host(object):
 
     def add_report(self, title, reportname, datesetting=0):
         """
-        Add a Report to an host 
+        Add a Report to an host
         @param title: Specify a title into SupNavigator
         @type  title: C{str}
         @param reportname: The name of the report with extension
@@ -478,7 +478,7 @@ class Host(object):
         @type  datesetting: C{str}
         """
         if title is not None and title not in self.get("reports"):
-            self.add(self.name, "reports", title, {"reportName": reportname, 
+            self.add(self.name, "reports", title, {"reportName": reportname,
                                                    "dateSetting": datesetting})
 
     def add_external_sup_service(self, name, command, cti=1,
@@ -576,17 +576,17 @@ class Host(object):
 
     def add_nagios_directive(self, name, value):
         """ Add a generic nagios directive
-        
+
             @param name: the directive name
             @type  name: C{str}
             @param value: the directive value
             @type  value: C{str}
         """
         self.add(self.name, "nagiosDirectives", name, str(value))
-    
+
     def add_nagios_service_directive(self, service, name, value):
         """ Add a generic nagios directive for a service
-        
+
             @param service: the service, ie 'Interface eth0'
             @type  service: C{str}
             @param name: the directive name
@@ -658,13 +658,13 @@ class HostFactory(object):
         devnull.close()
         if result != 0:
             raise ParsingError(_("XML validation failed for file %s") % source)
-    
+
     def _loadhosts(self, source):
         """
         Load a Host from an XML file
-        
+
         TODO: refactoring: implémenter un loader XML pour les hosts, comme pour
-              les autres entités.
+        les autres entités.
 
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}

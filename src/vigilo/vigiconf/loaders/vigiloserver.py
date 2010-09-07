@@ -40,20 +40,20 @@ class VigiloServerLoader(DBLoader):
     Charge les applications en base depuis le modèle mémoire.
 
     Exemple:
-        appsGroupsByServer = {
-            'collect' : {
-                'P-F'             : ['srv1.vigilo'],
-                'Servers'         : ['srv2.vigilo'],
-                'Telecom'         : ['srv3.vigilo', 'srv4.vigilo'],
-            },
-            'metrology' : {
-                'P-F'             : ['srv1.vigilo'],
-                'Servers'         : ['srv2.vigilo'],
-                'Telecom'         : ['srv5.vigilo'],
-            },
-        }
+    >>> appsGroupsByServer = {
+    ...     'collect' : {
+    ...         'P-F'             : ['srv1.vigilo'],
+    ...         'Servers'         : ['srv2.vigilo'],
+    ...         'Telecom'         : ['srv3.vigilo', 'srv4.vigilo'],
+    ...     },
+    ...     'metrology' : {
+    ...         'P-F'             : ['srv1.vigilo'],
+    ...         'Servers'         : ['srv2.vigilo'],
+    ...         'Telecom'         : ['srv5.vigilo'],
+    ...     },
+    ... }
     """
-    
+
     def __init__(self):
         super(VigiloServerLoader, self).__init__(VigiloServer, "name")
 
@@ -69,5 +69,3 @@ class VigiloServerLoader(DBLoader):
                     servers.add(vserver)
         for servername in servers:
             self.add({"name": unicode(servername)})
-
-
