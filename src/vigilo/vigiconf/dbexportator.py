@@ -22,20 +22,20 @@
 Ce module contient des fonctions permettant d'exporter dans la base
 de données vigilo certaines données de configuration.
 
- * update_apps_db
-   exporte en base les noms des applications
+* update_apps_db
+exporte en base les noms des applications
 
- * export_conf_db
-   exporte en base les données groupes, les hôtes et les services de bas
-   niveaux, les groupes de graphes, les services de haut niveau, les
-   dépendances.
+* export_conf_db
+exporte en base les données groupes, les hôtes et les services de bas
+niveaux, les groupes de graphes, les services de haut niveau, les
+dépendances.
 
- * export_vigilo_servers_DB
-   exporte en base les données la liste des serveurs de supervision.
+* export_vigilo_servers_DB
+exporte en base les données la liste des serveurs de supervision.
 
- * export_ventilation_DB
-   exporte en base les données la ventilation des hôtes par application
-   sur les serveurs de supervision.
+* export_ventilation_DB
+exporte en base les données la ventilation des hôtes par application
+sur les serveurs de supervision.
 """
 
 from __future__ import absolute_import

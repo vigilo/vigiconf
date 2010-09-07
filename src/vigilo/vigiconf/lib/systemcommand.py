@@ -56,6 +56,7 @@ class SystemCommand(object):
     @ivar simulate: simulation mode (actually execute or not)
     @type simulate: C{boolean}
     """
+    shell = False
 
     def __init__(self, iBaseCommand=[], shell=False, simulate=False):
         self.mCommand = iBaseCommand
@@ -63,10 +64,10 @@ class SystemCommand(object):
         self.shell = shell
         self.simulate = simulate
         self.process = None
-        
+
     def __str__(self):
         return "<SystemCommand: %s>" % " ".join(self.mCommand)
-    
+
     def setCommand(self, iCommand):
         """
         Sets L{mCommand}.
@@ -74,7 +75,7 @@ class SystemCommand(object):
         @type  iCommand: C{str}
         """
         self.mCommand = iCommand
-                
+
     def getCommand(self):
         """@return: L{mCommand}"""
         return self.mCommand
@@ -90,7 +91,7 @@ class SystemCommand(object):
         if stderr and self.mResult[1]:
             message += self.mResult[1]
         return message
-        
+
     def execute(self):
         """Executes the command"""
         if self.simulate:
@@ -115,14 +116,14 @@ class SystemCommand(object):
                         })
         #TODO: L'encodage UTF-8 est hardcodé ci-dessus, détecter celui du système
         return self.mResult
-    
+
     def integerReturnCode(self):
         """
         @return: the execution return code.
         @rtype: C{int}
         """
         return self.process.returncode
-     
-     
+
+
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

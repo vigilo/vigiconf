@@ -72,7 +72,7 @@ class Discoverator(object):
             SNMPCONFPATH=/dev/null snmpwalk -OnQe -c <community> -v <version> <hostname> .1
         SNMPCONFPATH=/dev/null permit to avoid unwanted setup from
             - /etc/snmp/snmp.local.conf
-            - /etc/snmp/snmp.conf  
+            - /etc/snmp/snmp.conf
         @param filename: the path to the file containing the SNMP walk
         @type  filename: C{str}
         """
@@ -111,7 +111,7 @@ class Discoverator(object):
         newenv = os.environ.copy()
         newenv["LANG"] = "C"
         newenv["LC_ALL"] = "C"
-        #SNMPCONFPATH=/dev/null permit to avoid unwanted setup from 
+        #SNMPCONFPATH=/dev/null permit to avoid unwanted setup from
         #    - /etc/snmp/snmp.local.conf
         #    - /etc/snmp/snmp.conf
         newenv["SNMPCONFPATH"] = "/dev/null"
@@ -273,9 +273,9 @@ class Discoverator(object):
 
 def indent(elem, level=0):
     """ indentation function.
-    
+
     @param elem: element
-    @type  elem: L{Element}
+    @type  elem: L{ET}
     @param level: indentation level
     @type  level: C{int}
     """
@@ -293,5 +293,3 @@ def indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-
-

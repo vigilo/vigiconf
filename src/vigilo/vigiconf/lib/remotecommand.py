@@ -82,6 +82,7 @@ class RemoteCommand(SystemCommand):
     @ivar iUser: The user that will execute the command (optional)
     @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
     """
+    shell = False
 
     def __init__(self, iServer, iBaseCommand='', iUser=None,
                  shell=False, simulate=False):
@@ -90,11 +91,13 @@ class RemoteCommand(SystemCommand):
         @param iServer: the remote server that will execute a command
         @type iServer: C{str}
         @param iBaseCommand: the command to be executed (optional)
-        @type iBaseCommand: C{list} or C{str} if L{self.shell} is True
+        @type iBaseCommand: C{list} or C{str} if L{shell} is True
         @param iUser: the user that will execute the command (optional)
         @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
+        @param shell: Run the command from a shell (True) or directly (False).
+        @type shell: C{bool}
         @param simulate: if True, do not actually execute the command
-        @type  simulate: boolean
+        @type  simulate: C{bool}
         """
         # private attributes
         self.mCommandType = 'shell'
