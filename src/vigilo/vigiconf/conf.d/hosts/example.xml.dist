@@ -27,4 +27,32 @@
     <trap service="test.add_trap" key="test.name">test.label</trap>
     <group>Linux servers</group>
 </host>
+<host name="switchalcatel0S6400" address="192.168.1.2" ventilation="Telecom">
+    <class>alcatel</class>
+    <template>alcatel</template>>
+    <test name="Interface">
+        <arg name="ifname">Alcatel-Lucent 2/11 6.4.2.807.R01</arg>
+        <arg name="label">2/11</arg>
+    </test>
+</host>
+<host name="sondeexpand" address="192.168.1.3" ventilation="Telecom">
+    <attribute name="cpulist">
+        <item>1</item>
+    </attribute>
+    <class>accelerator</class>
+    <class>ucd</class>
+    <template>accelerator3930</template>
+    <test name="Interface">
+        <arg name="ifname">eth3</arg>
+        <arg name="label">eth3</arg>
+    </test>
+</host>
+<host address="routeurcisco2921" name="192.168.1.4" ventilation="Telecom">
+    <class>cisco</class>
+    <template>cisco</template>
+    <test name="Interface">
+        <arg name="label">GE0/0</arg>
+        <arg name="ifname">GigabitEthernet0/0</arg>
+    </test>
+</host>
 </hosts>

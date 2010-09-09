@@ -13,7 +13,7 @@ class RAM(Test):
             **kw: unused (compatibility layer for other RAM tests)
         """
         # These classes have better RAM tests :
-        skipclasses = [ "cisco", "windows2000", "rapidcity", "xmperf", "netware" ]
+        skipclasses = [ "cisco", "windows2000", "rapidcity", "xmperf", "netware", "alcatel" ]
         for skipclass in skipclasses:
             if skipclass in host.classes:
                 return # don't use this tests, use the class' test
