@@ -286,7 +286,7 @@ def change_user():
         LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. Aborting."))
         sys.exit(2)
 
-def main(*args):
+def main():
     # @FIXME: argparse utilise le domaine par défaut pour les traductions.
     # On définit explicitement le domaine par défaut ici. Ceci permet de
     # définir les traductions pour les textes de argparse dans VigiConf.
