@@ -12,7 +12,7 @@ class UpTime(Test):
         host.add_collector_metro("sysUpTime", "m_sysUpTime", [],
                             ["GET/.1.3.6.1.2.1.1.3.0"], 'GAUGE', label="UpTime")
         host.add_graph("UpTime", [ "sysUpTime" ], "lines", "jours", 
-                            factors={"sysUpTime": float(1)/86400})
+                            factors={"sysUpTime": round(1.0/86400, 10)})
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
