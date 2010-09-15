@@ -63,7 +63,6 @@
 
                         <!-- nagios host specific bloc -->
                         <xs:element ref="nagios"/>
-                        <xs:element name="item" type="xs:string"/>
                         <xs:element name="weight" type="xs:positiveInteger"/>
                     </xs:choice>
 

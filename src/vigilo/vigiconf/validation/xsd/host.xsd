@@ -22,14 +22,6 @@
 #     pour l'ensemble des configurations
 -->
 
-<!-- IP type (TODO: support IPv6, improve regexp) -->
-
-<xs:simpleType name="IPType">
-    <xs:restriction base="xs:string">
-    <xs:pattern value="[0-9\.]+"/>
-    </xs:restriction>
-</xs:simpleType>
-
 <xs:element name="nagios">
     <xs:complexType>
         <xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -90,8 +82,6 @@ hosts element contains one ore more host elements
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
             </xs:complexType>
         </xs:element>
-
-        <xs:element name="item" type="xs:string"/>
 
         <xs:element name="tag">
             <xs:complexType>
