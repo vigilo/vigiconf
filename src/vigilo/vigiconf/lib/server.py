@@ -178,7 +178,8 @@ class Server(object):
         ## execution
         #_command = self.createCommand( _CmdLine %
         #                {"base": settings["vigiconf"].get("targetconfdir")} )
-        _command = self.createCommand("vigiconf-local activate-conf")
+        cmd = "vigiconf-local activate-conf"
+        _command = self.createCommand(cmd)
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -186,7 +187,7 @@ class Server(object):
                                 "%(server)s. COMMAND %(cmd)s FAILED. "
                                 "REASON: %(reason)s") % {
                 'server': self.getName(),
-                'cmd': _CmdLine,
+                'cmd': cmd,
                 'reason': e.value,
             }, self.getName())
 
