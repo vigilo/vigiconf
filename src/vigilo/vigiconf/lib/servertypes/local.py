@@ -20,9 +20,15 @@ The local host Server instance
 
 from __future__ import absolute_import
 
+import os
+
 from vigilo.common.conf import settings
 
-from ..server import Server
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
+from ..server import Server, ServerError
+from ..systemcommand import SystemCommandError
 
 class ServerLocal(Server):
     """The local host"""
@@ -31,16 +37,14 @@ class ServerLocal(Server):
         # Superclass constructor
         Server.__init__(self, iName)
 
-    def _builddepcmd(self):
-        """
-        Build the deployment command line
-        """
-        targetdir = settings["vigiconf"].get("targetconfdir")
-        _commandline = "rm -rf %s/new && " % targetdir \
-                      +"cp -pr %s/%s %s/new && " \
-                        % (self.getBaseDir(), self.getName(), targetdir) \
-                      +"chmod -R o-w %s/new" % targetdir
-        return _commandline
+    def deployTar(self):
+        tar = os.path.join(self.getBaseDir(), "%s.tar" % self.getName())
+        cmd = self.createCommand(["vigiconf-local", "receive-conf", tar])
+        try:
+            cmd.execute()
+        except SystemCommandError, e:
+            raise ServerError(_("Can't deploy the tar archive for server "
+                                "%s: %s") % (self.getName(), e.value))
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

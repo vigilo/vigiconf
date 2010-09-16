@@ -27,7 +27,7 @@ import os
 from vigilo.common.conf import settings
 
 from ..server import Server, ServerError
-from ..systemcommand import SystemCommand
+from ..systemcommand import SystemCommand, SystemCommandError
 from ..remotecommand import RemoteCommand, CommandUser
 
 from vigilo.common.gettext import translate
@@ -76,27 +76,32 @@ class ServerRemote(Server):
         c.simulate = self.is_simulation()
         return c
 
-    def _builddepcmd(self):
-        """
-        Build the deployment command line
-        """
-        # Archive the directory containing the config files.
-        # The output is the standard output
-        _localCommandStr = "tar -C %s/%s -cf - . " % \
-                           (self.getBaseDir(), self.getName())
-        _remoteCommandStr = "cd %s && " % \
-                                settings["vigiconf"].get("targetconfdir") \
-                           +"rm -rf new && " \
-                           +"mkdir new && cd new && " \
-                           +"tar xf - && " \
-                           +"chmod -R o-w *"
+    def deployTar(self):
+        self.remoteCopyTar()
+        self.remoteDeployTar()
 
-        _localCommand = SystemCommand(_localCommandStr, shell=True)
+    def remoteCopyTar(self):
+        cmd = RemoteCommand(self.getName())
+        tar_src = os.path.join(self.getBaseDir(), "%s.tar" % self.getName())
+        tar_dest = os.path.join(settings["vigiconf"].get("targetconfdir"),
+                                "tmp", "vigiconf.tar")
+        try:
+            cmd.copyTo(tar_dest, tar_src)
+        except SystemCommandError, e:
+            raise ServerError(_("Can't copy the config. archive to %s: %s")
+                                % (self.getName(), e.value))
+        finally:
+            os.remove(tar_src)
 
-        _remoteCommand = self.createCommand(_remoteCommandStr, shell=True)
-        _commandline = _localCommand.getCommand() + " | " \
-                      +_remoteCommand.getCommand()
-        return _commandline
+    def remoteDeployTar(self):
+        tar_dest = os.path.join(settings["vigiconf"].get("targetconfdir"),
+                                "tmp", "vigiconf.tar")
+        cmd = self.createCommand(["vigiconf-local", "receive-conf", tar_dest])
+        try:
+            cmd.execute()
+        except SystemCommandError, e:
+            raise ServerError(_("Can't deploy the config. for server %s: %s")
+                               % (self.getName(), e.value))
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

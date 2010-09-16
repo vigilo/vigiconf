@@ -168,16 +168,6 @@ class Server(object):
          3. if the DIRECTORY prod exists, rename it to old
          4. rename new to prod
         """
-        #_CmdLine = "[ -d %(base)s/new ] && " \
-        #         +"( [ -d %(base)s/prod ] || mkdir %(base)s/prod ) && " \
-        #         +"rm -rf %(base)s/old && mv %(base)s/prod %(base)s/old && " \
-        #         +"mv %(base)s/new %(base)s/prod && mkdir %(base)s/new && " \
-        #         +"cp -f %(base)s/prod/revisions.txt %(base)s/new/revisions.txt"
-        ## Wrap in sudo, and quote it
-        #_CmdLine = "sudo sh -c '"+_CmdLine+"'"
-        ## execution
-        #_command = self.createCommand( _CmdLine %
-        #                {"base": settings["vigiconf"].get("targetconfdir")} )
         cmd = "vigiconf-local activate-conf"
         _command = self.createCommand(cmd)
         try:
@@ -198,19 +188,32 @@ class Server(object):
         """
         return ""
 
+    def tarConf(self):
+        """
+        Tar the configuration files, before deployment
+        """
+        cmd = ["tar", "-C",
+               os.path.join(self.getBaseDir(), self.getName()), "-cf",
+               os.path.join(self.getBaseDir(), "%s.tar" % self.getName()), "."]
+        cmd = SystemCommand(cmd)
+        try:
+            cmd.execute()
+        except SystemCommandError, e:
+            raise ServerError(_("Can't tar config for server %s: %s")
+                               % (self.getName(), e.value))
+
+    def deployTar(self):
+        """
+        Template function for configuration deployment from the tar archive. Must be implemented by a subclass, see L{vigilo.vigiconf.lib.servertypes}.
+        """
+        raise NotImplementedError
+
     def deployFiles(self):
         """
         Copy all the configuration files
         """
-        _commandline = self._builddepcmd()
-        _command = SystemCommand(_commandline, shell=True)
-        # Simulation mode ?
-        _command.simulate = settings["vigiconf"].as_bool("simulate")
-        try:
-            _command.execute()
-        except SystemCommandError, e:
-            raise ServerError(_("Can't deploy server. REASON: %s") % (e.value),
-                              self.getName())
+        self.tarConf()
+        self.deployTar()
         LOGGER.info(_("%s : deployement successful."), self.getName())
 
     def copy(self, iDestination, iSource):
