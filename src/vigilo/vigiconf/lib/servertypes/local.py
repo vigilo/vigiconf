@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (C) 2007-2009 CS-SI
+# Copyright (C) 2007-2011 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 #
@@ -30,16 +30,16 @@ class ServerLocal(Server):
     def __init__(self, iName):
         # Superclass constructor
         Server.__init__(self, iName)
-    
+
     def _builddepcmd(self):
         """
         Build the deployment command line
         """
         targetdir = settings["vigiconf"].get("targetconfdir")
-        _commandline = "sudo rm -rf %s/new && " % targetdir \
-                      +"sudo cp -pr %s/%s %s/new && " \
+        _commandline = "rm -rf %s/new && " % targetdir \
+                      +"cp -pr %s/%s %s/new && " \
                         % (self.getBaseDir(), self.getName(), targetdir) \
-                      +"sudo chmod -R o-w %s/new" % targetdir
+                      +"chmod -R o-w %s/new" % targetdir
         return _commandline
 
 

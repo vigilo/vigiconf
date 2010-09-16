@@ -105,25 +105,25 @@ class Server(object):
     def getName(self):
         """@return: L{mName}"""
         return self.mName
-    
+
     def getRevisionManager(self):
         """@return: L{mRevisionManager}"""
         return self.mRevisionManager
-    
+
     def needsDeployment(self):
         """
         Tests wheather the server needs deployment
         @rtype: C{boolean}
         """
         return self.getRevisionManager().isDeployNeeded()
-    
+
     def needsRestart(self):
         """
         Tests wheather the server needs restarting
         @rtype: C{boolean}
         """
         return self.getRevisionManager().isRestartNeeded()
-    
+
     # external references
     def getBaseDir(self):
         """
@@ -131,7 +131,7 @@ class Server(object):
         @rtype: C{str}
         """
         return os.path.join(settings["vigiconf"].get("libdir"), "deploy")
-    
+
     def createCommand(self, iCommand):
         """
         @note: To be implemented by subclasses
@@ -143,10 +143,10 @@ class Server(object):
         c = SystemCommand(iCommand, shell=True)
         c.simulate = self.is_simulation()
         return c
-    
+
     def is_simulation(self):
         """ get simulation mode.
-        
+
         @return: simulation or not
         @rtype: C{boolean}
         """
@@ -161,23 +161,24 @@ class Server(object):
     def switchDirectories(self):
         """
         Archive the directory containing the config files
-    
+
         All the following commands must success or the whole command fails:
          1. test if the DIRECTORY "/tmp/testMV/new" exists
          2. cd into /tmp/testMV
          3. if the DIRECTORY prod exists, rename it to old
          4. rename new to prod
         """
-        _CmdLine = "[ -d %(base)s/new ] && " \
-                 +"( [ -d %(base)s/prod ] || mkdir %(base)s/prod ) && " \
-                 +"rm -rf %(base)s/old && mv %(base)s/prod %(base)s/old && " \
-                 +"mv %(base)s/new %(base)s/prod && mkdir %(base)s/new && " \
-                 +"cp -f %(base)s/prod/revisions.txt %(base)s/new/revisions.txt"
-        # Wrap in sudo, and quote it
-        _CmdLine = "sudo sh -c '"+_CmdLine+"'"
-        # execution
-        _command = self.createCommand( _CmdLine %
-                        {"base": settings["vigiconf"].get("targetconfdir")} )
+        #_CmdLine = "[ -d %(base)s/new ] && " \
+        #         +"( [ -d %(base)s/prod ] || mkdir %(base)s/prod ) && " \
+        #         +"rm -rf %(base)s/old && mv %(base)s/prod %(base)s/old && " \
+        #         +"mv %(base)s/new %(base)s/prod && mkdir %(base)s/new && " \
+        #         +"cp -f %(base)s/prod/revisions.txt %(base)s/new/revisions.txt"
+        ## Wrap in sudo, and quote it
+        #_CmdLine = "sudo sh -c '"+_CmdLine+"'"
+        ## execution
+        #_command = self.createCommand( _CmdLine %
+        #                {"base": settings["vigiconf"].get("targetconfdir")} )
+        _command = self.createCommand("vigiconf-local activate-conf")
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -188,7 +189,7 @@ class Server(object):
                 'cmd': _CmdLine,
                 'reason': e.value,
             }, self.getName())
- 
+
     def _builddepcmd(self):
         """
         Build the deployment command line
@@ -239,7 +240,7 @@ class Server(object):
         validation_scripts = os.path.join(conf.CODEDIR, "validation", "*.sh")
         for validation_script in glob.glob(validation_scripts):
             shutil.copy(validation_script, validation_dir)
-        
+
     def deploy(self, iRevision):
         """Do the deployment"""
         # update local revision files
@@ -253,44 +254,45 @@ class Server(object):
         self.insertValidationDir()
         # now, the deployment directory is complete.
         self.deployFiles()
- 
-    def undo(self):
-        """Undo a deployment"""
-        targetdir = settings["vigiconf"].get("targetconfdir")
-        # check if the directory exists
-        try:
-            _CmdLine = "sh -c '[ -d %s/old ] && [ -d %s/new ]'" \
-                       % (targetdir, targetdir)
-             # execution
-            _command = self.createCommand(_CmdLine)
-            _command.execute()
-            if(_command.integerReturnCode() == 1):
-                raise ServerError(_("UNDO can't be done. Directory 'old' "
-                                    "does not exist on %s.") % self.getName(),
-                                  self.getName())
-        except SystemCommandError, e:
-            raise ServerError(_("UNDO can't be done. %s") % (str(e)),
-                              self.getName())
-        # undo !
-        try:
-            
-            _newundoStr = "mv %s/new %s/undo" % (targetdir, targetdir)
-            _oldnew = "mv %s/old %s/new" % (targetdir, targetdir)
-            _undoold = "mv %s/undo %s/old" % (targetdir, targetdir)
-            
-            _CmdLine = "sudo sh -c ' %s && %s && %s '" \
-                       % (_newundoStr, _oldnew, _undoold)
-             # execution
-            _command = self.createCommand(_CmdLine)
-            _command.execute()
-            if(_command.integerReturnCode() == 1):
-                raise ServerError(_("UNDO failed on %s.") \
-                                  % (self.getName()), self.getName())
-            else:
-                LOGGER.info(_("UNDO successful on %s."), self.getName())
-        except SystemCommandError, e:
-            raise ServerError(_("UNDO can't be done. %s") % (str(e)),
-                              self.getName())
+
+#    def undo(self):
+#        """Undo a deployment"""
+#        targetdir = settings["vigiconf"].get("targetconfdir")
+#        ## check if the directory exists
+#        #try:
+#        #    _CmdLine = "sh -c '[ -d %s/old ] && [ -d %s/new ]'" \
+#        #               % (targetdir, targetdir)
+#        #     # execution
+#        #    _command = self.createCommand(_CmdLine)
+#        #    _command.execute()
+#        #    if(_command.integerReturnCode() == 1):
+#        #        raise ServerError(_("UNDO can't be done. Directory 'old' "
+#        #                            "does not exist on %s.") % self.getName(),
+#        #                          self.getName())
+#        #except SystemCommandError, e:
+#        #    raise ServerError(_("UNDO can't be done. %s") % (str(e)),
+#        #                      self.getName())
+#        ## undo !
+#        try:
+#
+#            #_newundoStr = "mv %s/new %s/undo" % (targetdir, targetdir)
+#            #_oldnew = "mv %s/old %s/new" % (targetdir, targetdir)
+#            #_undoold = "mv %s/undo %s/old" % (targetdir, targetdir)
+#
+#            #_CmdLine = "sudo sh -c ' %s && %s && %s '" \
+#            #           % (_newundoStr, _oldnew, _undoold)
+#            # execution
+#            #_command = self.createCommand(_CmdLine)
+#            _command = self.createCommand("vigiconf-local revert-conf")
+#            _command.execute()
+#            if(_command.integerReturnCode() == 1):
+#                raise ServerError(_("UNDO failed on %s.") \
+#                                  % (self.getName()), self.getName())
+#            else:
+#                LOGGER.info(_("UNDO successful on %s."), self.getName())
+#        except SystemCommandError, e:
+#            raise ServerError(_("UNDO can't be done. %s") % (str(e)),
+#                              self.getName())
 
     # redirections
     def getDeployed(self):
@@ -313,13 +315,13 @@ class Server(object):
             L{RevisionManager<lib.revisionmanager.RevisionManager>}
         """
         return self.getRevisionManager().getPrevious()
-    
+
     def updateRevisionManager(self):
         """
         Update the SVN revisions in the
         L{RevisionManager<lib.revisionmanager.RevisionManager>}
         """
-        self.getRevisionManager().update(self)    
+        self.getRevisionManager().update(self)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

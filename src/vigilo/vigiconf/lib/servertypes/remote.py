@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (C) 2007-2009 CS-SI
+# Copyright (C) 2007-2010 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 #
@@ -51,19 +51,19 @@ class ServerRemote(Server):
                                         % ssh_conf_file)
         self.mCommandUser = CommandUser("vigiconf", ssh_conf_file)
 
-        
+
     def setCommandUser(self, iUser):
         """
         Sets L{mCommandUser}
         @param iUser: the user instance
         @type  iUser: L{CommandUser<lib.remotecommand.CommandUser>}
         """
-        self.mCommandUser = iUser    
-        
+        self.mCommandUser = iUser
+
     def getCommandUser(self):
         """@return: L{mCommandUser}"""
         return self.mCommandUser
-    
+
     def createCommand(self, iCommand, shell=False):
         """
         @param iCommand: command to execute
@@ -86,17 +86,17 @@ class ServerRemote(Server):
                            (self.getBaseDir(), self.getName())
         _remoteCommandStr = "cd %s && " % \
                                 settings["vigiconf"].get("targetconfdir") \
-                           +"sudo rm -rf new && " \
-                           +"sudo mkdir new && cd new && " \
-                           +"sudo tar xf - && " \
-                           +"sudo chmod -R o-w *"
-        
+                           +"rm -rf new && " \
+                           +"mkdir new && cd new && " \
+                           +"tar xf - && " \
+                           +"chmod -R o-w *"
+
         _localCommand = SystemCommand(_localCommandStr, shell=True)
-        
+
         _remoteCommand = self.createCommand(_remoteCommandStr, shell=True)
         _commandline = _localCommand.getCommand() + " | " \
                       +_remoteCommand.getCommand()
         return _commandline
-        
+
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

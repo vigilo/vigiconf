@@ -102,9 +102,11 @@ def apps(args):
     elif args.restart:
         dispatchator.restart()
 
-def undo(args):
-    dispatchator = get_dispatchator(args)
-    dispatchator.undo()
+#def undo(args):
+#    args.revision = "PREV"
+#    return deploy(args)
+#    #dispatchator = get_dispatchator(args)
+#    #dispatchator.undo()
 
 def info(args):
     dispatchator = get_dispatchator(args)
@@ -186,21 +188,21 @@ def parse_args():
     parser_apps.add_argument("applications", nargs="*",
                              help=N_("Applications to manage, all of them "
                                     "if not specified."))
-    # UNDO
-    parser_undo = subparsers.add_parser("undo",
-                    add_help=False,
-                    parents=[common_args_parser],
-                    help=N_("Deploys the previously installed configuration. "
-                             "2 consecutives undo will return to the "
-                             "configuration that was installed before the "
-                             "first undo (ie. redo)."))
-    parser_undo.set_defaults(func=undo)
-    parser_undo.add_argument("--no-restart", action="store_true",
-                      help=N_("Do not restart the applications after "
-                             "switching the configuration."))
-    parser_undo.add_argument('server', nargs='*',
-                      help=N_("Supervision servers to undo, all of them if "
-                            "not specified."))
+    ## UNDO
+    #parser_undo = subparsers.add_parser("undo",
+    #                add_help=False,
+    #                parents=[common_args_parser],
+    #                help=N_("Deploys the previously installed configuration. "
+    #                         "2 consecutives undo will return to the "
+    #                         "configuration that was installed before the "
+    #                         "first undo (ie. redo)."))
+    #parser_undo.set_defaults(func=undo)
+    #parser_undo.add_argument("--no-restart", action="store_true",
+    #                  help=N_("Do not restart the applications after "
+    #                         "switching the configuration."))
+    #parser_undo.add_argument('server', nargs='*',
+    #                  help=N_("Supervision servers to undo, all of them if "
+    #                        "not specified."))
 
     # DEPLOY
     parser_deploy = subparsers.add_parser('deploy',

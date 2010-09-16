@@ -225,7 +225,7 @@ class Application(object):
         Validates all the configuration files (starts the validation command)
         @param iBaseDir: The directory where the validation scripts are
         @type  iBaseDir: C{str}
-        """ 
+        """
         # iterate through the servers
         for server in self.getServers():
             try:
@@ -299,25 +299,26 @@ class Application(object):
         @param iServer: The server to qualify on
         @type  iServer: L{Server<lib.server.Server>}
         """
-        # iterate through the servers
         qualificationCommand = self.getQualificationMethod()
-        if len(qualificationCommand) > 0:
-            _commandStr = "cd %s/new/ && sudo %s %s/new" \
-                          % (settings["vigiconf"].get("targetconfdir"),
-                             self.getQualificationMethod(), 
-                             settings["vigiconf"].get("targetconfdir"))
-            _command = iServer.createCommand(_commandStr)
-            try:
-                _command.execute()
-            except SystemCommandError, e:
-                error = ApplicationError(_("%(app)s : Qualification failed on "
-                                            "'%(server)s' - REASON: %(reason)s") % {
-                                            'app': self.getName(),
-                                            'server': iServer.getName(),
-                                            'reason': e.value,
-                                        })
-                error.cause = e
-                raise error
+        if not qualificationCommand:
+            return
+        #_commandStr = "cd %s/new/ && sudo %s %s/new" \
+        #              % (settings["vigiconf"].get("targetconfdir"),
+        #                 self.getQualificationMethod(),
+        #                 settings["vigiconf"].get("targetconfdir"))
+        _commandStr = "vigiconf-local validate-app %s" % self.getName()
+        _command = iServer.createCommand(_commandStr)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            error = ApplicationError(_("%(app)s : Qualification failed on "
+                                        "'%(server)s' - REASON: %(reason)s") % {
+                                        'app': self.getName(),
+                                        'server': iServer.getName(),
+                                        'reason': e.value,
+                                    })
+            error.cause = e
+            raise error
         LOGGER.info(_("%(app)s : Qualification successful on server : %(server)s"), {
             'app': self.getName(),
             'server': iServer.getName(),
@@ -325,14 +326,14 @@ class Application(object):
 
 
     def startThread(self):
-        """Starts applications on a server taken from the top of the queue""" 
+        """Starts applications on a server taken from the top of the queue"""
         _server = self.serversQueue.get()
         try:
             self.startServer(_server)
         except ApplicationError, e:
             self.returnsQueue.put(e.value)
 
-        self.serversQueue.task_done()   
+        self.serversQueue.task_done()
 
     def startOn(self, iServers):
         """
@@ -396,27 +397,29 @@ class Application(object):
         @param iServer: The server to start the application on
         @type  iServer: L{Server<lib.server.Server>}
         """
-        if len(self.getStartMethod()) > 0:
-            LOGGER.info(_("Starting %(app)s on %(server)s ..."), {
+        if not self.getStartMethod():
+            return
+        LOGGER.info(_("Starting %(app)s on %(server)s ..."), {
+            'app': self.getName(),
+            'server': iServer.getName(),
+        })
+        #_commandStr = "sudo " + self.getStartMethod()
+        _commandStr = "vigiconf-local start-app %s" % self.getName()
+        _command = iServer.createCommand(_commandStr)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            error = ApplicationError(_("Can't Start %(app)s on %(server)s "
+                                        "- REASON %(reason)s") % {
                 'app': self.getName(),
                 'server': iServer.getName(),
+                'reason': e.value,
             })
-            _commandStr = "sudo " + self.getStartMethod()
-            _command = iServer.createCommand(_commandStr)
-            try:
-                _command.execute()
-            except SystemCommandError, e:
-                error = ApplicationError(_("Can't Start %(app)s on %(server)s "
-                                            "- REASON %(reason)s") % {
-                    'app': self.getName(),
-                    'server': iServer.getName(),
-                    'reason': e.value,
-                })
-                error.cause = e
-            LOGGER.info(_("%(app)s started on %(server)s"), {
-                'app': self.getName(),
-                'server': iServer.getName(),
-            })
+            error.cause = e
+        LOGGER.info(_("%(app)s started on %(server)s"), {
+            'app': self.getName(),
+            'server': iServer.getName(),
+        })
 
     def stopThread(self):
         """Stops applications on a server taken from the top of the queue"""
@@ -425,7 +428,7 @@ class Application(object):
             self.stopServer(_server)
         except ApplicationError, e:
             self.returnsQueue.put(e.value)
-        self.serversQueue.task_done()   
+        self.serversQueue.task_done()
 
     def stopOn(self, iServers):
         """
@@ -487,27 +490,29 @@ class Application(object):
         @param iServer: The server to stop the application on
         @type  iServer: L{Server<lib.server.Server>}
         """
-        if (len(self.getStopMethod()) > 0):
-            LOGGER.info(_("Stopping %(app)s on %(server)s ..."), {
+        if not self.getStopMethod():
+            return
+        LOGGER.info(_("Stopping %(app)s on %(server)s ..."), {
+            'app': self.getName(),
+            'server': iServer.getName(),
+        })
+        #_commandStr = "sudo " + self.getStopMethod()
+        _commandStr = "vigiconf-local stop-app %s" % self.getName()
+        _command = iServer.createCommand(_commandStr)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            error = ApplicationError(_("Can't Stop %(app)s on %(server)s "
+                                        "- REASON %(reason)s") % {
                 'app': self.getName(),
                 'server': iServer.getName(),
+                'reason': e.value,
             })
-            _commandStr = "sudo " + self.getStopMethod()
-            _command = iServer.createCommand(_commandStr)
-            try:
-                _command.execute()
-            except SystemCommandError, e:
-                error = ApplicationError(_("Can't Stop %(app)s on %(server)s "
-                                            "- REASON %(reason)s") % {
-                    'app': self.getName(),
-                    'server': iServer.getName(),
-                    'reason': e.value,
-                })
-                error.cause = e
-            LOGGER.info(_("%(app)s stopped on %(server)s"), {
-                'app': self.getName(),
-                'server': iServer.getName(),
-            })
+            error.cause = e
+        LOGGER.info(_("%(app)s stopped on %(server)s"), {
+            'app': self.getName(),
+            'server': iServer.getName(),
+        })
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
