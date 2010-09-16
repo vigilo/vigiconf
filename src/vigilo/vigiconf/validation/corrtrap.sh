@@ -2,7 +2,7 @@
 ################################################################################
 # $Id$
 # corrtrap.sh
-# Copyright (C) 2007-2008 CS-SI
+# Copyright (C) 2007-2011 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@ if [ ! -d $BASE/corrtrap/ ]
 then
 	exit 0;
 fi
+
+which sec >/dev/null 2>&1 || exit 0
 
 for file in $BASE/corrtrap/*.pm
 	do perl -e "require '$file'"
