@@ -551,7 +551,7 @@ class Host(object):
         """
         self.add_external_sup_service(servicename,
             "check_nrpe_rerouted!$METROSERVER$!check_rrd!%s/%s %s %s %s" % \
-            (self.name, urllib.quote(metroname), warn, crit, factor),
+            (self.name, urllib.quote_plus(metroname), warn, crit, factor),
             weight=weight
         )
 

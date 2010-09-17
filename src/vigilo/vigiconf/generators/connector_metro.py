@@ -30,7 +30,7 @@ import os.path
 import urllib
 
 from .. import conf
-from . import FileGenerator 
+from . import FileGenerator
 
 # générateur désactivé
 class ConnectorMetroTpl(FileGenerator):
@@ -64,7 +64,7 @@ class ConnectorMetroTpl(FileGenerator):
                     'dsName': k2,
                     'label': v2["label"],
                 }
-                rrdname = urllib.quote(k2).strip()
+                rrdname = urllib.quote_plus(k2).strip()
                 tplvars["host"] = hostname
                 tplvars["dsName"] = rrdname
                 self.templateAppend(fileName, templates["ds"], tplvars)

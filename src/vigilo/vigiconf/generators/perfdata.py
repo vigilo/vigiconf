@@ -25,7 +25,7 @@ from __future__ import absolute_import
 import urllib
 
 from .. import conf
-from . import FileGenerator 
+from . import FileGenerator
 
 class PerfDataTpl(FileGenerator):
     """Generator for PerfData handler"""
@@ -52,7 +52,7 @@ class PerfDataTpl(FileGenerator):
                     else:
                         forHost = hostname
                         reRouteFor = "undef"
-                    rrdname = urllib.quote(perfitem["name"].strip())
+                    rrdname = urllib.quote_plus(perfitem["name"].strip())
                     tplvars = {'service':servicename,
                                'host': forHost, 
                                'ds': rrdname,

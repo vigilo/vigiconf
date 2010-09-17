@@ -25,7 +25,7 @@ from __future__ import absolute_import
 import urllib
 
 from .. import conf
-from . import FileGenerator 
+from . import FileGenerator
 
 class CollectorTpl(FileGenerator):
     """Generator for the Collector"""
@@ -90,7 +90,7 @@ class CollectorTpl(FileGenerator):
             else:
                 forHost = hostname
                 service = jobname
-            tplvars["encodedname"] = urllib.quote(service).strip()
+            tplvars["encodedname"] = urllib.quote_plus(service).strip()
             if jobtype == 'perfData':
                 self.templateAppend(fileName, templates["metro"], tplvars)
             else:
