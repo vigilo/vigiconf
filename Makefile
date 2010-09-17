@@ -21,7 +21,7 @@ settings.ini: settings.ini.in
 install_users:
 	@echo "Creating the $(NAME) user..."
 	-groupadd $(NAME)
-	-useradd -s /bin/bash -M -d / -g $(NAME) -c 'Vigilo VigiConf user' $(NAME)
+	-useradd -s /bin/bash -M -d $(VARDIR) -g $(NAME) -c 'Vigilo VigiConf user' $(NAME)
 	if [ ! -f $(CONFDIR)/ssh/vigiconf.key ]; then \
 	    ssh-keygen -t rsa -f $(CONFDIR)/ssh/vigiconf.key -N "" ;\
 	fi

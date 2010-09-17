@@ -48,8 +48,7 @@ def get_data_files():
     # filter those out
     files = [f for f in files if f[0] != "/etc/vigilo/vigiconf/conf.d.example/"]
     # others
-    for d in ["conf.d", "new", "prod"]:
-        files.append( (os.path.join(sysconfdir, "vigilo/vigiconf", d), []) )
+    files.append( (os.path.join(sysconfdir, "vigilo/vigiconf/conf.d"), []) )
     files.append( (os.path.join(sysconfdir, "vigilo/vigiconf"),
                 ["settings.ini", "src/vigilo/vigiconf/conf.d/README.source"]) )
     files.append((os.path.join(sysconfdir, "vigilo/vigiconf/ssh"), ["pkg/ssh_config"]))

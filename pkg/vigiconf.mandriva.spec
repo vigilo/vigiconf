@@ -12,6 +12,9 @@ URL:        http://www.projet-vigilo.org
 Group:      System/Servers
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
 License:    GPLv2
+
+Requires(pre): rpm-helper
+
 Requires:   python >= 2.5
 Requires:   python-setuptools
 Requires:   perl
