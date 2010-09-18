@@ -102,8 +102,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(640,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/settings.ini
 %config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/conf.d
 %config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/ssh
-%dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/new
-%dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/prod
 %{_sysconfdir}/vigilo/%{module}/conf.d.example
 %{_sysconfdir}/vigilo/%{module}/README.source
 %config(noreplace) /etc/cron.d/*
