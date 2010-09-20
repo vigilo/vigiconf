@@ -150,7 +150,7 @@ class RemoteCommand(SystemCommand):
         """
         Builds the ssh command from the iCommand provided
         @param iCommand: Command to execute remotely
-        @type  iCommand: C{str} or C{str} if L{self.shell} is True
+        @type  iCommand: C{list} or C{str} if L{self.shell} is True
         """
         self.mCommand = iCommand
         self.mCommandType = 'shell'
