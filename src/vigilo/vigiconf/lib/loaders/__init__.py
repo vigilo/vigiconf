@@ -1,8 +1,8 @@
-#!/bin/sh
+# -*- coding: utf-8 -*-
 ################################################################################
-# $Id$
-# corrsup.sh
-# Copyright (C) 2007-2008 CS-SI
+#
+# VigiConf
+# Copyright (C) 2007-2011 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,22 +18,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
+"""
+Generators for the Vigilo Config Manager
+"""
 
-export BASE=$1
+from __future__ import absolute_import
 
-for file in $BASE/corrsup/*.pm 
-	do perl -e "require '$file'"
-
-	if test $? != 0
-		then exit -1
-	fi
-done
-
-for file in $BASE/corrsup/*.sec 
-	do sec -conf=$file -testonly
-
-	if test $? != 0
-		then exit -1
-	fi
-done
+from .dbloader import DBLoader
+from .xmlloader import XMLLoader
+from .manager import LoaderManager
 

@@ -47,7 +47,7 @@ class Test(object):
 
     def add_test(self, host):
         """
-        Add the test to the host provided as 1st argument. 
+        Add the test to the host provided as 1st argument.
         @note: This method must be implemented by subclasses.
         @type  host: L{Host<lib.confclasses.host.Host>}
         @param host: The host to add the test to
@@ -132,9 +132,10 @@ class TestFactory(object):
     hclasschecks = {}
 
     def __init__(self):
-        self.path = [ 
+        self.path = [
                   os.path.join(
                       os.path.dirname(__file__), "..", "..", "tests"),
+                      #TODO: utiliser resource_filename
                   os.path.join(
                       settings["vigiconf"].get("confdir"),
                       "tests"),
@@ -148,7 +149,7 @@ class TestFactory(object):
 
         It sets the self.tests class attributes as a dict reflecting the path
         to get a test. Example::
-         
+
             { "Test1": { "hclass1": <class Test1 from hclass1/Test1.py>,
                          "hclass2": <class Test1 from hclass2/Test1.py>,
                          "hclass3": <class Test1 from hclass3/Test1.py>,

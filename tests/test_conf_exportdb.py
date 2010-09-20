@@ -11,10 +11,7 @@ import vigilo.vigiconf.conf as conf
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
-from vigilo.vigiconf.dbexportator import export_conf_db, \
-                                        export_ventilation_DB, \
-                                        update_apps_db, \
-                                        export_vigilo_servers_DB
+from vigilo.vigiconf.lib.loaders import LoaderManager
 
 from confutil import setup_db, teardown_db, reload_conf
 
@@ -31,6 +28,7 @@ class ExportDBTest(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
+        self.loader = LoaderManager()
 
     def tearDown(self):
         """Call after every test case."""
@@ -39,8 +37,7 @@ class ExportDBTest(unittest.TestCase):
     def test_export_hosts_db(self):
         self.assertEquals(len(conf.hostsConf.items()), 1,
                           "one host in conf (%d)"%len(conf.hostsConf.items()))
-
-        export_conf_db()
+        self.loader.load_conf_db()
         # check host groups
         nb = len(conf.hostsGroups.keys())
 
@@ -57,7 +54,7 @@ class ExportDBTest(unittest.TestCase):
         host['nagiosDirectives'] = {u"max_check_attempts":u"8",
                                     u"check_interval":u"2"}
 
-        export_conf_db()
+        self.loader.load_conf_db()
 
         ci = ConfItem.by_host_confitem_name(u'localhost', u"max_check_attempts")
         self.assertTrue(ci, "confitem max_check_attempts exists")
@@ -72,7 +69,7 @@ class ExportDBTest(unittest.TestCase):
         host['nagiosSrvDirs'][u'Interface eth0'] = {u"max_check_attempts":u"7",
                                     u"retry_interval":u"3"}
 
-        export_conf_db()
+        self.loader.load_conf_db()
 
         ci = ConfItem.by_host_service_confitem_name(
                             u'localhost', u'Interface eth0', u"max_check_attempts")
@@ -88,7 +85,7 @@ class ExportDBTest(unittest.TestCase):
         """ Test du rollback sur la base après export en base de la conf
         """
 
-        export_conf_db()
+        self.loader.load_conf_db()
 
         # check if localhost exists in db
         h = Host.by_host_name(u'localhost')
@@ -108,7 +105,7 @@ class ExportDBTest(unittest.TestCase):
         Un rollback est effectué juste après le commit.
         """
 
-        export_conf_db()
+        self.loader.load_conf_db()
 
         # check if localhost exists in db
         h = Host.by_host_name(u'localhost')
@@ -123,10 +120,13 @@ class ExportDBTest(unittest.TestCase):
         self.assertEquals(h.weight, 42)
 
     def test_export_ventilation_db(self):
-        from vigilo.vigiconf.generator import getventilation
-        update_apps_db()
-        export_conf_db()
-        export_vigilo_servers_DB()
+        from vigilo.vigiconf.lib import dispatchmodes
+        from vigilo.vigiconf.lib.generators import GeneratorManager
+        dispatchator = dispatchmodes.getinstance()
+        genmgr = GeneratorManager(dispatchator.applications)
+        self.loader.load_apps_db(genmgr.apps)
+        self.loader.load_conf_db()
+        self.loader.load_vigilo_servers_db()
 
         # On doit avoir 2 serveurs de supervision : localhost & localhost2.
         # car la collecte dépend de ces deux serveurs
@@ -134,17 +134,17 @@ class ExportDBTest(unittest.TestCase):
         nb_vigiloservers = DBSession.query(VigiloServer).count()
         self.assertEquals(nb_vigiloservers, 2)
 
-        export_ventilation_DB(getventilation())
+        self.loader.load_ventilation_db(genmgr.get_ventilation())
         print DBSession.query(Ventilation).all()
         #
         del conf.appsGroupsByServer["trap"]
 
-        export_vigilo_servers_DB()
+        self.loader.load_vigilo_servers_db()
         # Le nombre de serveurs de supervision ne doit pas bouger.
         nb_vigiloservers = DBSession.query(VigiloServer).count()
         self.assertEquals(nb_vigiloservers, 2)
 
-        export_ventilation_DB(getventilation())
+        self.loader.load_ventilation_db(genmgr.get_ventilation())
         print DBSession.query(Ventilation).all()
         trap_app = DBSession.query(Application).filter_by(name=u"corrtrap").first()
         trap_ventil = DBSession.query(Ventilation).filter_by(application=trap_app).count()

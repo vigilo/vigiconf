@@ -1,7 +1,7 @@
 #!/bin/sh
 ################################################################################
 # $Id$
-# nagios.sh
+# rrdgraph.sh
 # Copyright (C) 2007-2008 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,17 +19,12 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-if [ -e /usr/sbin/nagios2 ]; then
-    nver=2
-elif [ -e /usr/sbin/nagios3 ]; then
-    nver=3
-elif [ -e /usr/sbin/nagios ]; then
-    nver=""
-else
-    echo "Can't find the nagios version"
-    exit 1
+export BASE=$1
+
+if [ ! -r $BASE/vigirrd.conf.py ]
+then
+    exit 0
 fi
-# Utilisation de sudo pour pouvoir ecrire dans les repertoires specifiques de
-# Nagios (/var/spool/nagios/)
-sudo -u nagios /usr/sbin/nagios${nver} -v /etc/nagios${nver}/nagios-test.cfg
+
+python -c "execfile('$BASE/vigirrd.conf.py')"
 exit $?

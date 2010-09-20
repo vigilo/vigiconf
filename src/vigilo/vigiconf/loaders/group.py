@@ -33,7 +33,7 @@ from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib.xmlloader import XMLLoader
+from vigilo.vigiconf.lib.loaders import XMLLoader
 
 class GroupLoader(XMLLoader):
     """ Classe de base pour charger des fichiers XML groupes .

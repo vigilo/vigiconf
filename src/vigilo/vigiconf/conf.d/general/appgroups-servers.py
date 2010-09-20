@@ -1,4 +1,9 @@
 appsGroupsByServer = {
+    'interface' : {
+        'P-F'             : ['localhost'],
+        'Servers'         : ['localhost'],
+        'Telecom'         : ['localhost'],
+    },
     'collect' : {
         'P-F'             : ['localhost'],
         'Servers'         : ['localhost'],

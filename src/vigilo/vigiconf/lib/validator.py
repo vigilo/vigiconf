@@ -31,8 +31,8 @@ class Validator(object):
     """
     Used by the generators to validate the configuration.
     @ivar _mapping: the ventilation mapping
-    @type _mapping: C{dict}, see the L{lib.ventilator.findAServerForEachHost}()
-        method
+    @type _mapping: C{dict}, see the
+        L{vigilo.vigiconf.lib.ventilator.Ventilator.ventilate}() method
     @ivar _warnings: the list of warnings
     @type _warnings: C{list}
     @ivar _errors: the list of errors
@@ -46,7 +46,7 @@ class Validator(object):
         """
         @param mapping: the ventilation mapping
         @type  mapping: C{dict}, see the
-            L{lib.ventilator.findAServerForEachHost}() method
+            L{vigilo.vigiconf.lib.ventilator.Ventilator.ventilate}() method
         """
         self._mapping = mapping
         self._warnings = []

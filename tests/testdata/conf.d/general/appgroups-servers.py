@@ -1,23 +1,28 @@
 appsGroupsByServer = {
-    u'collect' : {
-        u'P-F'             : [u'localhost', u'localhost2'],
-        u'Servers'         : [u'localhost', u'localhost2'],
-        u'Telecom'         : [u'localhost', u'localhost2'],
+    'interface' : {
+        'P-F'             : ['localhost', 'localhost2'],
+        'Servers'         : ['localhost', 'localhost2'],
+        'Telecom'         : ['localhost', 'localhost2'],
     },
-    u'metrology' : {
-        u'P-F'             : [u'localhost', u'localhost2'],
-        u'Servers'         : [u'localhost', u'localhost2'],
-        u'Telecom'         : [u'localhost', u'localhost2'],
+    'collect' : {
+        'P-F'             : ['localhost', 'localhost2'],
+        'Servers'         : ['localhost', 'localhost2'],
+        'Telecom'         : ['localhost', 'localhost2'],
     },
-    u'trap' : {
-        u'P-F'             : [u'localhost', u'localhost2'],
-        u'Servers'         : [u'localhost', u'localhost2'],
-        u'Telecom'         : [u'localhost', u'localhost2'],
+    'metrology' : {
+        'P-F'             : ['localhost', 'localhost2'],
+        'Servers'         : ['localhost', 'localhost2'],
+        'Telecom'         : ['localhost', 'localhost2'],
     },
-    u'correlation' : {
-        u'P-F'             : [u'localhost', u'localhost2'],
-        u'Servers'         : [u'localhost', u'localhost2'],
-        u'Telecom'         : [u'localhost', u'localhost2'],
+    'trap' : {
+        'P-F'             : ['localhost', 'localhost2'],
+        'Servers'         : ['localhost', 'localhost2'],
+        'Telecom'         : ['localhost', 'localhost2'],
+    },
+    'correlation' : {
+        'P-F'             : ['localhost', 'localhost2'],
+        'Servers'         : ['localhost', 'localhost2'],
+        'Telecom'         : ['localhost', 'localhost2'],
     },
 }
 

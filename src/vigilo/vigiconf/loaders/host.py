@@ -36,7 +36,7 @@ from vigilo.models.tables import ConfItem
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE, \
                                                   GRAPH_GROUP_TABLE
 
-from vigilo.vigiconf.lib.dbloader import DBLoader
+from vigilo.vigiconf.lib.loaders import DBLoader
 from vigilo.vigiconf.lib.confclasses import parse_path
 from vigilo.vigiconf.lib import ParsingError
 

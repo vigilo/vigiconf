@@ -30,7 +30,7 @@ _ = translate(__name__)
 from vigilo.models.session import DBSession
 from vigilo.models.tables import GraphGroup
 
-from vigilo.vigiconf.lib.dbloader import DBLoader
+from vigilo.vigiconf.lib.loaders import DBLoader
 
 from vigilo.vigiconf import conf
 

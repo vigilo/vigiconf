@@ -1,7 +1,7 @@
 ################################################################################
 #
-# ConfigMgr Nagios Collector plugin configuration file generator
-# Copyright (C) 2007 CS-SI
+# VigiConf
+# Copyright (C) 2007-2011 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,19 +20,17 @@
 
 """Generator for the Collector"""
 
-from __future__ import absolute_import
-
 import urllib
 
-from .. import conf
-from . import FileGenerator
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib.generators import FileGenerator
 
-class CollectorTpl(FileGenerator):
+
+class CollectorGen(FileGenerator):
     """Generator for the Collector"""
 
     def generate(self):
         """Generate files"""
-        templates = self.loadTemplates("collector")
         for hostname, ventilation in self.mapping.iteritems():
             if 'collector' not in ventilation:
                 continue
@@ -53,14 +51,14 @@ class CollectorTpl(FileGenerator):
                                       +"'authpass' => '%(authpass)s'" \
                                       % newhash
             newhash['confid'] = conf.confid
-            self.templateCreate(fileName, templates["header"], newhash)
+            self.templateCreate(fileName, self.templates["header"], newhash)
             if len(h['SNMPJobs']):
-                self.__fillsnmpjobs(hostname, fileName, templates)
+                self.__fillsnmpjobs(hostname, fileName)
             self.templateAppend(fileName, self.COMMON_PERL_LIB_FOOTER, {})
             self.templateClose(fileName)
 
 
-    def __fillsnmpjobs(self, hostname, fileName, templates):
+    def __fillsnmpjobs(self, hostname, fileName):
         """Fill the contents of the SNMP jobs file"""
         h = conf.hostsConf[hostname]
         keys = h['SNMPJobs'].keys()
@@ -92,9 +90,9 @@ class CollectorTpl(FileGenerator):
                 service = jobname
             tplvars["encodedname"] = urllib.quote_plus(service).strip()
             if jobtype == 'perfData':
-                self.templateAppend(fileName, templates["metro"], tplvars)
+                self.templateAppend(fileName, self.templates["metro"], tplvars)
             else:
-                self.templateAppend(fileName, templates["service"], tplvars)
+                self.templateAppend(fileName, self.templates["service"], tplvars)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

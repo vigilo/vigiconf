@@ -24,31 +24,30 @@ from __future__ import absolute_import
 
 import os.path
 
-from .. import conf
-from . import FileGenerator 
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib.generators import FileGenerator
 
-class RRDgraphTpl(FileGenerator):
+class VigiRRDGen(FileGenerator):
     """Generator for RRD graph generator"""
 
     def generate(self):
         """Generate files"""
-        templates = self.loadTemplates("rrdgraph")
         all_ds_graph = set()
         all_ds_metro = set()
         for host, ventilation in self.mapping.iteritems():
-            if not 'rrdgraph' in ventilation.keys():
+            if not 'vigirrd' in ventilation.keys():
                 continue
             h = conf.hostsConf[host]
             if len(h['graphItems']) == 0:
                 continue
-            fileName = "%s/%s/rrdgraph.conf.py" \
-                       % (self.baseDir, ventilation['rrdgraph'])
+            fileName = "%s/%s/vigirrd.conf.py" \
+                       % (self.baseDir, ventilation['vigirrd'])
             # fill the template
             if not os.path.exists(fileName):
-                self.templateCreate(fileName, templates["header_host"],
+                self.templateCreate(fileName, self.templates["header_host"],
                                     {"confid": conf.confid})
-                self.templateAppend(fileName, templates["header_label"], {})
-            self.templateAppend(fileName, templates["host"],
+                self.templateAppend(fileName, self.templates["header_label"], {})
+            self.templateAppend(fileName, self.templates["host"],
                                 {'host': host, 'graphes': h["graphItems"]})
             # list all ds for validation
             for graphvalues in h["graphItems"].values():
@@ -56,7 +55,7 @@ class RRDgraphTpl(FileGenerator):
             if conf.mode != "onedir":
                 # add human-readable labels
                 for dsid in h["dataSources"]:
-                    self.templateAppend(fileName, templates["label"],
+                    self.templateAppend(fileName, self.templates["label"],
                                     {'label': dsid,
                                      'value': h["dataSources"][dsid]["label"]})
                     all_ds_metro.add(dsid)

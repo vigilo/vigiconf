@@ -1,6 +1,6 @@
 ################################################################################
 #
-# ConfigMgr Data Consistancy dispatchator
+# VigiConf
 # Copyright (C) 2007-2009 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,33 +28,36 @@ import os
 import sys
 import glob
 
-from ... import conf
-from .. import EditionError
+from pkg_resources import working_set
+
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib import EditionError
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 def getinstance():
     """
-    Factory for the L{Dispatchator<dispatchator.Dispatchator>} children.
+    Factory for the L{Dispatchator<vigilo.vigiconf.lib.dispatchator.Dispatchator>}
+    children.
 
-    @returns: L{local<lib.dispatchmodes.local.DispatchatorLocal>} or
-        L{remote<lib.dispatchmodes.remote.DispatchatorRemote>} instance of the
-        Dispatchator, depending on the Community or Enterprise Edition
+    @returns: L{local<vigilo.vigiconf.lib.dispatchmodes.local.DispatchatorLocal>}
+        or L{remote<vigilo.vigiconf.lib.dispatchmodes.remote.DispatchatorRemote>}
+        instance of the Dispatchator, depending on the Community or Enterprise
+        Edition
     """
     if hasattr(conf, "appsGroupsByServer"):
-        try:
-            from .remote import DispatchatorRemote
-        except ImportError:
-            message = _("You are trying remote deployment on the Community "
-                        "edition. This feature is only available in the "
-                        "Enterprise edition. Aborting.")
-            raise EditionError(message)
-        _dispatchator = DispatchatorRemote()
+        for entry in working_set.iter_entry_points(
+                        "vigilo.vigiconf.extensions", "dispatchator_remote"):
+            dr_class = entry.load()
+            return dr_class()
+        message = _("You are trying remote deployment on the Community "
+                    "edition. This feature is only available in the "
+                    "Enterprise edition. Aborting.")
+        raise EditionError(message)
     else:
         from .local import DispatchatorLocal
-        _dispatchator = DispatchatorLocal()
-    return _dispatchator
+        return DispatchatorLocal()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

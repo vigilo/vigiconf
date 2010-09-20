@@ -9,7 +9,6 @@ from vigilo.common.conf import settings
 from vigilo.models.tables import MapGroup
 
 import vigilo.vigiconf.conf as conf
-import vigilo.vigiconf.dispatchator as dispatchator
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import dispatchmodes
 
@@ -36,11 +35,10 @@ class Dispatchator(unittest.TestCase):
         self.host.add_tests(test_list)
         self.dispatchator = dispatchmodes.getinstance()
         # Disable qualification, validation, stop and start scripts
-        for app in self.dispatchator.getApplications():
-            app.setQualificationMethod("")
-            app.setValidationMethod("")
-            app.setStopMethod("")
-            app.setStartMethod("")
+        for app in self.dispatchator.applications:
+            app.validation = None
+            app.start_command = None
+            app.stop_command = None
         # Don't check the installed revisions
         self.dispatchator.setModeForce(True)
 

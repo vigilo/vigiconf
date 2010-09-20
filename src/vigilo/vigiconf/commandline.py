@@ -50,7 +50,7 @@ N_ = translate_narrow(__name__)
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib import VigiConfError
 from vigilo.vigiconf.lib.application import ApplicationError
-from vigilo.vigiconf.dispatchator import DispatchatorError
+from vigilo.vigiconf.lib.dispatchator import DispatchatorError
 from vigilo.vigiconf.lib import dispatchmodes
 
 from xml.etree import ElementTree as ET # Python 2.5

@@ -24,9 +24,14 @@ File format: XML
 Notice: some other models like Host have their own loader (confclasses)
 TODO: confclasses refactoring needed ?
 """
+
+from __future__ import absolute_import
+
 import os
 import subprocess
 from xml.etree import ElementTree as ET # Python >= 2.5
+
+from pkg_resources import resource_filename
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -36,7 +41,7 @@ _ = translate(__name__)
 
 from vigilo.models.session import DBSession
 
-from vigilo.vigiconf.lib.dbloader import DBLoader
+from .dbloader import DBLoader
 from vigilo.vigiconf.lib import ParsingError
 
 __docformat__ = "epytext"
@@ -76,10 +81,8 @@ class XMLLoader(DBLoader):
     def get_xsd_file(self):
         if not self._xsd_filename:
             return None
-        # TODO: utiliser pkg_resources pour pouvoir fonctionner en mode egg
-        xsd_dir = os.path.join(os.path.dirname(__file__),
-                               '..', "validation", "xsd")
-        return os.path.join(xsd_dir, self._xsd_filename)
+        return resource_filename("vigilo.vigiconf",
+                    "validation/xsd/%s" % self._xsd_filename)
 
     def validate(self, xmlfile):
         """

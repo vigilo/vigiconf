@@ -31,17 +31,30 @@ import os
 import os.path
 import shutil
 
+from pkg_resources import resource_listdir, resource_string, \
+        resource_stream, resource_exists
+
 from vigilo.common.conf import settings
 
-from . import Generator
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
+from .base import Generator
+
+
+__all__ = ("FileGenerator",)
+
 
 class FileGenerator(Generator):
     """
     La classe de base pour les générateurs qui produisent des fichiers
-    
+
     TODO: refactoring: utiliser le template engine Genshi ou Mako ?
     voir http://genshi.edgewall.org/wiki/GenshiPerformance
-    
+
     @ivar baseDir: répertoire de generation
     @type baseDir: C{str}
     @ivar openFiles: cache of the open template files
@@ -50,23 +63,41 @@ class FileGenerator(Generator):
 
     COMMON_PERL_LIB_FOOTER = "1;\n"
 
-    def __init__(self, mapping, validator):
-        super(FileGenerator, self).__init__(mapping, validator)
-        self.baseDir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
+    def __init__(self, application, mapping, validator):
+        super(FileGenerator, self).__init__(application, mapping, validator)
+        self.override_path = os.path.join(
+                                settings["vigiconf"].get("confdir"),
+                                "filetemplates", self.application.name)
         self.openFiles = {}
+        self.templates = self.loadTemplates()
 
-    def copyFile(self, src, dst):
+    def copy(self, tplsrc, dst):
         """
         Simply copy a file to a destination, creating directories if necessary.
-        @param src: origin
-        @type  src: C{str}
+        @param tplsrc: origin, in the templates folder
+        @type  tplsrc: C{str}
         @param dst: destination
         @type  dst: C{str}
         """
         dstdir = os.path.dirname(dst)
         if not os.path.exists(dstdir):
             os.makedirs(dstdir)
-        shutil.copyfile(src, dst)
+        if os.path.exists(os.path.join(self.override_path, tplsrc)):
+            LOGGER.debug("Using overridden template from %s"
+                         % os.path.join(self.override_path, tplsrc))
+            shutil.copyfile(os.path.join(self.override_path, tplsrc), dst)
+            return
+        if not resource_exists(self.application.__module__,
+                    "templates/%s" % tplsrc):
+            self.validator.addError(self.application.name,
+                                    _("No such template: %s") % tplsrc)
+            return
+        src = resource_stream(self.application.__module__,
+                    "templates/%s" % tplsrc)
+        dst_file = open(dst, "w")
+        dst_file.write(src.read())
+        dst_file.close()
+        src.close()
 
     def createDirIfMissing(self, filename):
         """
@@ -115,20 +146,27 @@ class FileGenerator(Generator):
         self.openFiles[filename] = open(filename,"w")
         self.templateAppend(filename, template, args)
 
-    def loadTemplates(self, subdir):
+    def loadTemplates(self):
         """
-        Load the templates available in the configuration for the subdir item.
-        @param subdir: the subdir to look into. Usually, it's the generator's
-            name.
-        @type  subdir: C{str}
+        Load the templates available in the configuration for the application.
         """
+        if not resource_exists(self.application.__module__, "templates"):
+            return {}
         templates = {}
-        templates_path = os.path.join(settings["vigiconf"].get("confdir"),
-                                      "filetemplates", subdir)
-        for tpl in glob.glob("%s/*.tpl" % templates_path):
-            name = os.path.basename(tpl)[:-4]
-            f = open(tpl, "r")
-            templates[name] = f.read()
-            f.close()
+        for filename in resource_listdir(self.application.__module__,
+                                         "templates"):
+            if not filename.endswith(".tpl"):
+                continue
+            tplname = filename[:-4]
+            if os.path.exists(os.path.join(self.override_path, filename)):
+                LOGGER.debug("Using overridden template from %s"
+                             % os.path.join(self.override_path, filename))
+                t = open(os.path.join(self.override_path, filename))
+                tpl = t.read()
+                t.close()
+            else:
+                tpl = resource_string(self.application.__module__,
+                            "templates/%s" % filename)
+            templates[tplname] = tpl
         return templates
 

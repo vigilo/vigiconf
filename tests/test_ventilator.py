@@ -12,10 +12,10 @@ import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_tmpdir
 from confutil import setup_db, teardown_db
 
-from vigilo.vigiconf.lib.ventilator import appendHost, getServerToUse, \
-                    findAServerForEachHost, get_host_ventilation_group
-from vigilo.vigiconf import generator
-from vigilo.vigiconf import dbexportator
+from vigilo.vigiconf.lib import dispatchmodes
+from vigilo.vigiconf.lib.ventilator import Ventilator
+from vigilo.vigiconf.lib.generators import GeneratorManager
+from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib import ParsingError
 
 from vigilo.models.session import DBSession
@@ -35,6 +35,9 @@ class VentilatorTest(unittest.TestCase):
         conf.hosttemplatefactory.load_templates()
         setup_db()
         reload_conf()
+        dispatchator = dispatchmodes.getinstance()
+        self.generator = GeneratorManager(dispatchator.applications)
+        self.ventilator = Ventilator(dispatchator.applications)
 
     def tearDown(self):
         """Call after every test case."""
@@ -48,8 +51,8 @@ class VentilatorTest(unittest.TestCase):
         le remplacement de la persistance pickle par db n'est pas testée
         ici.
         """
-        ventilation = generator.get_local_ventilation()
-        self.assertEquals(len(ventilation['localhost'].keys()), 7, "7 apps (%d)" % len(ventilation['localhost'].keys()))
+        ventilation = self.generator._get_local_ventilation()
+        num_apps = len(ventilation['localhost'])
 
         # need locahost in db
         host = add_host("localhost")
@@ -57,16 +60,18 @@ class VentilatorTest(unittest.TestCase):
         add_vigiloserver(u'localhost')
 
         #need apps in DB
-        dbexportator.update_apps_db()
+        loader = LoaderManager()
+        loader.load_apps_db(self.generator.apps)
         DBSession.flush()
-        self.assertEquals(DBSession.query(Application).count(), 7, "7 apps in DB")
+        self.assertEquals(DBSession.query(Application).count(), num_apps,
+                "There should be %d apps in DB" % num_apps)
 
-        dbexportator.export_vigilo_servers_DB()
-        dbexportator.export_ventilation_DB(ventilation)
+        loader.load_vigilo_servers_db()
+        loader.load_ventilation_db(ventilation)
 
         # check that for each app, localhost is supervised by itself
-        for app in conf.apps.keys():
-            links = DBSession.query(Ventilation).filter(Ventilation.application.has(Application.name==app)).filter(Ventilation.host==host)
+        for app in conf.apps:
+            links = DBSession.query(Ventilation).filter(Ventilation.application.has(Application.name==unicode(app))).filter(Ventilation.host==host)
             self.assertEquals(links.count(), 1, "One supervision link (%d)" % links.count())
             self.assertEquals(links.first().vigiloserver.name, u'localhost', "superviser server is localhost")
 
@@ -83,17 +88,17 @@ class VentilatorTest(unittest.TestCase):
         # need server
         add_vigiloserver(u'localhost')
 
-        # need nagios application
-        nagios = Application(name=u'nagios')
-        DBSession.add(nagios)
+        # need applications from the collect group
+        appGroup = "collect"
+        for app in ["nagios", "perfdata", "collector"]:
+            DBSession.add(Application(name=unicode(app)))
         DBSession.flush()
 
-        for appGroup in conf.appsGroupsByServer:
-            for hostGroup in conf.appsGroupsByServer[appGroup]:
-                l = conf.appsGroupsByServer[appGroup][hostGroup]
-                server = getServerToUse(l, host.name)
-                if one_server:
-                    self.assertEquals(server, u'localhost')
+        for hostGroup in conf.appsGroupsByServer[appGroup]:
+            l = conf.appsGroupsByServer[appGroup][hostGroup]
+            server = self.ventilator.getServerToUse(l, host.name, appGroup)
+            if one_server:
+                self.assertEquals(server, u'localhost')
 
     def test_getservertouse_multi(self):
         """ Test de la ventilation sur plusieurs serveurs vigilo.
@@ -115,7 +120,7 @@ class VentilatorTest(unittest.TestCase):
         group1 = add_supitemgroup("Group1")
         group2 = add_supitemgroup("Group2", group1)
         host.groups = [group2,]
-        self.assertEquals(get_host_ventilation_group("localhost", {}), "Group1")
+        self.assertEquals(self.ventilator.get_host_ventilation_group("localhost", {}), "Group1")
 
     def test_host_ventilation_group_multiple(self):
         host = add_host("localhost")
@@ -123,7 +128,7 @@ class VentilatorTest(unittest.TestCase):
         group2 = add_supitemgroup("Group2", group1)
         group3 = add_supitemgroup("Group3", group1)
         host.groups = [group2, group3]
-        self.assertEquals(get_host_ventilation_group("localhost", {}), "Group1")
+        self.assertEquals(self.ventilator.get_host_ventilation_group("localhost", {}), "Group1")
 
     def test_host_ventilation_conflicting_groups(self):
         host = add_host("localhost")
@@ -132,7 +137,7 @@ class VentilatorTest(unittest.TestCase):
         group3 = add_supitemgroup("Group3")
         group4 = add_supitemgroup("Group4", group3)
         host.groups = [group2, group4]
-        self.assertRaises(ParsingError, get_host_ventilation_group, "localhost", {})
+        self.assertRaises(ParsingError, self.ventilator.get_host_ventilation_group, "localhost", {})
 
 
 if __name__ == '__main__':

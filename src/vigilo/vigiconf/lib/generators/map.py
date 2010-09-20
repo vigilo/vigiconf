@@ -29,11 +29,15 @@ from vigilo.models.tables import SupItemGroup, MapGroup, Map
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
 
-from . import Generator
-from ... import conf
+from .base import Generator
+from vigilo.vigiconf import conf
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
+
+
+__all__ = ("MapGenerator",)
+
 
 class MapGenerator(Generator):
     """ Classe de base pour un générateur de cartes auto.
@@ -75,8 +79,8 @@ class MapGenerator(Generator):
     # Hardcodé pour l'instant
     rootgroup_name = "Root"
 
-    def __init__(self, mapping, validator):
-        super(MapGenerator, self).__init__(mapping, validator)
+    def __init__(self, application, mapping, validator):
+        super(MapGenerator, self).__init__(application, mapping, validator)
         self.map_defaults = conf.param_maps_auto['AutoMap']['map_defaults']
 
     def get_root_group(self):

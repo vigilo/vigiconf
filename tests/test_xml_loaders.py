@@ -32,12 +32,12 @@ class XMLLoaderTest(unittest.TestCase):
         DBSession.query(SupItemGroup).delete()
         DBSession.query(GroupHierarchy).delete()
         DBSession.flush()
-        
+
     def tearDown(self):
         """Call after every test case."""
         teardown_db()
 
-        
+
 class GroupLoaderTest(XMLLoaderTest):
 
     def setUp(self):
@@ -46,19 +46,19 @@ class GroupLoaderTest(XMLLoaderTest):
 
     def test_load_hostgroups(self):
         self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
-        
+
         g = SupItemGroup.by_group_name(u'root_group')
         self.assertTrue(g, "root_group created.")
         n = len(g.get_children())
         c = SupItemGroup.by_group_name(u'hgroup1')
         print g.get_children()
         self.assertEquals(n, 3, "rootgroup has 3 children (%d)" % n)
-        
+
         g = SupItemGroup.by_group_name(u'root_group3')
         self.assertTrue(g, "root_group3 created.")
         n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup3 has 3 children (%d)" % n)
-        
+
         g = SupItemGroup.by_group_name(u'root_group2')
         self.assertTrue(g, "root_group2 created.")
         n = len(g.get_children())
@@ -138,33 +138,33 @@ class DepLoaderTest(XMLLoaderTest):
 
     def test_load_dependencies(self):
         # let's create hosts and services
-        
-        
+
+
         print DBSession.query(Dependency).count()
         self.dependencyloader.load_dir('tests/testdata/xsd/dependencies/ok/loader')
-        
+
         """ The dependency links are as following:
         <dependency>
             <host name="host1" />
             <!-- always high level services here -->
             <service name="hlservice1" />
-            
+
             <subitems>
                 <host name="host11" />
                 <host name="host12" />
-                
+
                 <!-- low level services supported by each host above -->
                 <!-- or high level services if no host in the subitems section -->
                 <service name="service11" />
                 <service name="service12" />
             </subitems>
-            
+
         </dependency>
         """
         # 4 dependencies
         self.assertEquals(4, DBSession.query(Dependency).count(), "4 dependencies")
         # host11/service11 is a dependence of host1
-        
+
         si_host1 = SupItem.get_supitem(hostname=u"host1", servicename=None)
         si_host11 = SupItem.get_supitem(hostname=u"host11", servicename=u"service11")
         self.assertTrue(si_host1, "si_host1 not null")
@@ -174,7 +174,7 @@ class DepLoaderTest(XMLLoaderTest):
                                      .filter(Dependency.idsupitem2==si_host11)\
                                      .count(),
           "One dependency: host11/service11 is a dependence of host1")
-        
+
         # host11/service11 is a dependence of hlservice1
         si_hls1 = SupItem.get_supitem(hostname=None, servicename=u"hlservice1")
         self.assertEquals(1,
@@ -182,7 +182,7 @@ class DepLoaderTest(XMLLoaderTest):
                                      .filter(Dependency.idsupitem2==si_host11)\
                                      .count(),
           "One dependency: host11/service11 is a dependence of hlservice1")
-    
+
     def test_load_conf_dependencies(self):
         """ Test de chargement des dépendances de la conf.
         """
@@ -197,7 +197,7 @@ class DepLoaderTest(XMLLoaderTest):
             weight=44,
         )
         DBSession.add(localhost)
-        
+
         interface = LowLevelService(
             servicename=u'Interface eth0',
             op_dep=u'+',
@@ -206,20 +206,20 @@ class DepLoaderTest(XMLLoaderTest):
         )
         DBSession.add(interface)
         DBSession.flush()
-        
+
         self.dependencyloader.load_dir('tests/testdata/conf.d/dependencies')
-    
+
     def test_load_dependencies_ko(self):
         """ Test de fichiers xml valides selon XSD mais invalides pour le loader.
-        
+
         """
         basedir = 'tests/testdata/xsd/dependencies/ok/loader_ko'
-        
+
         self.assertRaises(ParsingError, self.dependencyloader.load_dir, basedir)
-        
+
     def test_hostgroups_hierarchy(self):
         """ Test de grouploader.get_groups_hierarchy().
-        
+
         réimplémentation avec db du dico python conf.groupsHierarchy
         """
         self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')

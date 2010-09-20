@@ -21,7 +21,7 @@
 Description
 ===========
 
-Configuration loader based on an execfile of a subdirectory 
+Configuration loader based on an execfile of a subdirectory
 containing .py files
 
 This is the module that produces the whole data model of ConfMgr
@@ -39,7 +39,7 @@ Data Model
 
       - B{Key}: Keys are reprensented by a tuple (Host, service)
       - B{Value}: Value are a dictionnary with the following items:
-          
+
         - I{cti}: the optional numbered cti classification of the event
         - I{options}: the options that apply to this dependency node:
           - I{virtual},
@@ -78,7 +78,7 @@ Data Model
 
   hostsConf
   ---------
-    This dictionnary contains all the host dependent 
+    This dictionnary contains all the host dependent
     supvervision configuration:
       - B{Key}: The host name,
       - B{Value}: the host configuration (dict):
@@ -121,7 +121,7 @@ Data Model
              - I{template}: the name (string) of the RRDGraph representaiton
                template to use for this graph (I{lines}, I{stacks})
              - I{vlabel}: the vertical caption (string) to put on the y scale
-             - B{example}: 
+             - B{example}:
 
                >>> hostsConf['my_host']['graphItems']['Host Load']
                {
@@ -307,8 +307,7 @@ def loadConf():
 CODEDIR = os.path.dirname(__file__)
 
 # Initialize global conf variables
-apps = {}
-appsByAppGroups = {}
+apps = []
 
 param_maps_auto = {}
 

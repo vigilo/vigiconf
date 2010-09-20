@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
-# ConfigMgr Data Consistancy dispatchator
+# VigiConf
 # Copyright (C) 2007-2009 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
@@ -33,15 +34,13 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-from ... import conf
-from ...dispatchator import Dispatchator
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib.dispatchator import Dispatchator
 
 
 class DispatchatorRemote(Dispatchator):
     """
     Dispatch the configurations files for all the applications.
-    @ivar mAppsList: list of all the applications contained in the configuration
-    @type mAppsList: list of strings
     @ivar mServers: servers that will be used for operations
     @type mServers: list of L{Server<lib.server.Server>} objects
     @ivar mApplications: application deployed on mServers
@@ -66,7 +65,7 @@ class DispatchatorRemote(Dispatchator):
         Mutator on mUser
         @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
         """
-        self.mUser = iUser    
+        self.mUser = iUser
 
     def listServerNames(self):
         """
@@ -88,17 +87,18 @@ class DispatchatorRemote(Dispatchator):
         @type  app: L{lib.application.Application}
         @rtype: C{list} of C{str}
         """
-        # First, get the app group
-        appgroup = app.getGroup()
+        if not app.group:
+            # pas de groupe, probablement juste de la génération
+            return []
         # If we're not listed in the appsGroupsByServer matrix, bail out
-        if not conf.appsGroupsByServer.has_key(appgroup):
+        if not conf.appsGroupsByServer.has_key(app.group):
             LOGGER.warning(_("The %s app group is not listed in "
-                                "appsGroupsByServer"), appgroup)
+                                "appsGroupsByServer"), app.group)
             return []
         # Use the appgroup to hostgroup to server mapping
         servers = set()
-        for hostgroup in conf.appsGroupsByServer[appgroup]:
-            for server in conf.appsGroupsByServer[appgroup][hostgroup]:
+        for hostgroup in conf.appsGroupsByServer[app.group]:
+            for server in conf.appsGroupsByServer[app.group][hostgroup]:
                 servers.add(server)
         return servers
 
@@ -142,15 +142,15 @@ class DispatchatorRemote(Dispatchator):
         @type  servernames: C{list} of C{str}
         """
         newapplications = []
-        for _app in self.getAppsList():
+        for _app in self.applications:
             serversforapp = []
-            for _srv in _app.getServers():
+            for _srv in _app.servers:
                 if _srv.getName() in servernames: # keep it
                     serversforapp.append(_srv)
             if serversforapp: # if there a no server left, just drop the app
-                _app.setServers(serversforapp)
+                _app.servers = serversforapp
                 newapplications.append(_app)
-        self.setApplications(newapplications)
+        self.applications = newapplications
 
 
 

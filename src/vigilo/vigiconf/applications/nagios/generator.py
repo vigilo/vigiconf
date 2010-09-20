@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ################################################################################
 #
-# ConfigMgr Nagios configuration file generator
-# Copyright (C) 2007 CS-SI
+# VigiConf
+# Copyright (C) 2007-2011 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,16 +21,15 @@
 
 """Generator for Nagios"""
 
-from __future__ import absolute_import
-
 from vigilo.common.conf import settings
 
 import os.path
 
-from .. import conf
-from . import FileGenerator 
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib.generators import FileGenerator
 
-class NagiosTpl(FileGenerator):
+
+class NagiosGen(FileGenerator):
     """
     This class is in charge of generating a nagios compliant configuration
     file given the internal data model of ConfMgr (see conf.py)
@@ -45,9 +44,6 @@ class NagiosTpl(FileGenerator):
 
     def generate(self):
         """Generate files"""
-        # pre-parse all the nagios-related templates
-        # usually in /etc/vigilo/vigiconf/templates/nagios/*.tpl
-        self.templates = self.loadTemplates("nagios")
         files = {}
         for (hostname, ventilation) in self.mapping.iteritems():
             # grab a tuple containing the name of an host to monitor and an
@@ -62,7 +58,7 @@ class NagiosTpl(FileGenerator):
                             % (self.baseDir, ventilation['nagios'])
             if self.fileName not in files:
                 files[self.fileName] = {}
-            # loads the configuration for host 
+            # loads the configuration for host
             h = conf.hostsConf[hostname]
             if not os.path.exists(self.fileName):
                 # One Nagios server routes all its events to a single CorrSup
@@ -88,13 +84,13 @@ class NagiosTpl(FileGenerator):
                 newhash['parents'] = "	parents    "+",".join(parents)
             else:
                 newhash['parents'] = ""
-            
+
             #   directives generiques
             newhash['generic_directives'] = ""
             for directive, value in newhash['nagiosDirectives'].iteritems():
                 newhash['generic_directives'] += "%s    %s\n    " % \
                     (directive, value)
-                
+
             # Add the host definition
             self.templateAppend(self.fileName, self.templates["host"], newhash)
             # Add the service item into the Nagios configuration file
@@ -178,7 +174,7 @@ class NagiosTpl(FileGenerator):
             if newhash['nagiosSrvDirs'].has_key(srvname):
                 for directive, value in newhash['nagiosSrvDirs'][srvname].iteritems():
                     generic_directives += "%s    %s\n    " % (directive, value)
-            
+
             if srvname  in h['PDHandlers']:
                 # there is a perfdata handler to set as we asked to
                 # route a perfdata (or more) to a RRD

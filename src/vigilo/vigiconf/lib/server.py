@@ -26,6 +26,8 @@ import shutil, os
 import socket
 import glob
 
+from pkg_resources import working_set
+
 from vigilo.common.conf import settings
 
 from vigilo.common.logging import get_logger
@@ -34,7 +36,7 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-from .. import conf
+from vigilo.vigiconf import conf
 from . import VigiConfError, EditionError
 from .systemcommand import SystemCommand, SystemCommandError
 from .revisionmanager import RevisionManager
@@ -74,26 +76,26 @@ class ServerFactory(object):
             from vigilo.vigiconf.lib.servertypes.local import ServerLocal
             return ServerLocal(name)
         else:
-            try:
-                from vigilo.vigiconf.lib.servertypes.remote import ServerRemote
-            except ImportError:
-                raise EditionError(_("On the Community Edition, you can only "
-                                        "use localhost"), name)
-            return ServerRemote(name)
+            for entry in working_set.iter_entry_points(
+                            "vigilo.vigiconf.extensions", "server_remote"):
+                sr_class = entry.load()
+                return sr_class(name)
+            raise EditionError(_("On the Community Edition, you can only "
+                                    "use localhost"), name)
 
 
 class Server(object):
     """
     A generic Server class
-    @ivar mName: the hostname
-    @type mName: C{str}
+    @ivar name: the hostname
+    @type name: C{str}
     @ivar mRevisionManager: the revision manager
     @type mRevisionManager: L{RevisionManager
         <lib.revisionmanager.RevisionManager>}
     """
 
     def __init__(self, iName):
-        self.mName = iName
+        self.name = iName
         # mRevisionManager
         self.mRevisionManager = RevisionManager()
         self.mRevisionManager.setRepository(
@@ -103,8 +105,8 @@ class Server(object):
                 "revisions" , iName + ".revisions"))
 
     def getName(self):
-        """@return: L{mName}"""
-        return self.mName
+        """@return: L{name}"""
+        return self.name
 
     def getRevisionManager(self):
         """@return: L{mRevisionManager}"""
@@ -235,10 +237,12 @@ class Server(object):
                 'error': e,
             }, self.getName())
 
+    def getValidationDir(self):
+        return os.path.join(self.getBaseDir(), self.getName(), "validation")
+
     def insertValidationDir(self):
         """Prepare the directory with the validation scripts"""
-        validation_dir = os.path.join(self.getBaseDir(), self.getName(),
-                                      "validation")
+        validation_dir = self.getValidationDir()
         if not os.path.exists(validation_dir):
             os.makedirs(validation_dir)
         validation_scripts = os.path.join(conf.CODEDIR, "validation", "*.sh")

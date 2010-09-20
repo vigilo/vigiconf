@@ -1,9 +1,8 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ################################################################################
 #
-# ConfigMgr Data Consistancy dispatchator
-# Copyright (C) 2007-2009 CS-SI
+# VigiConf
+# Copyright (C) 2007-2011 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -39,6 +38,8 @@ from threading import Thread
 import shutil
 from xml.etree import ElementTree as ET
 
+from pkg_resources import working_set
+
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
@@ -49,13 +50,13 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 
-from . import conf
-from . import generator
-from .lib.application import Application, ApplicationError
-from .lib.systemcommand import SystemCommand, SystemCommandError
-from .lib import VigiConfError
-from .lib.server import ServerFactory, ServerError
-from .lib import dispatchmodes
+from vigilo.vigiconf import conf
+from .generators import GeneratorManager
+from .application import Application, ApplicationError
+from .systemcommand import SystemCommand, SystemCommandError
+from . import VigiConfError
+from .server import ServerFactory, ServerError
+from . import dispatchmodes
 
 
 class DispatchatorError(VigiConfError):
@@ -69,25 +70,22 @@ class Dispatchator(object):
 
     @ivar mServers: servers that will be used for operations
     @type mServers: C{list} of L{Server<lib.server.Server>}
-    @ivar mApplications: applications deployed on L{mServers}
-    @type mApplications: C{list} of L{Application<lib.application.Application>}
+    @ivar applications: applications deployed on L{mServers}
+    @type applications: C{list} of L{Application<lib.application.Application>}
     @ivar mModeForce: defines if the --force option is set
     @type mModeForce: C{boolean}
-    @ivar mAppsList: list of all the applications contained in the configuration.
-    @type mAppsList: C{list} of C{str}
     @ivar commandsQueue: commands queue
     @type commandsQueue: L{Queue}
     @ivar returnsQueue: commands queue
     @type returnsQueue: L{Queue}
-    @ivar deploy_revision:
-    @type deploy_revision:
+    @ivar deploy_revision: the SVN revision to deploy
+    @type deploy_revision: C{str}
     """
 
     def __init__(self):
         self.mServers = []
-        self.mApplications = []
+        self.applications = []
         self.mModeForce = False
-        self.mAppsList = []
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
         self.deploy_revision = "HEAD"
@@ -102,14 +100,8 @@ class Dispatchator(object):
 
         # initialize applications
         self.listApps()
-        self.sortApplication()
+        self.applications.sort(reverse=True, key=lambda a: a.priority)
 
-
-    def getAppsList(self):
-        """
-        @returns: L{mAppsList}
-        """
-        return self.mAppsList
 
     def getServersList(self):
         """
@@ -124,24 +116,11 @@ class Dispatchator(object):
         """
         return self.mServers
 
-    def getApplications(self):
-        """
-        @returns: L{mApplications}
-        """
-        return self.mApplications
-
     def getModeForce(self):
         """
         @returns: L{mModeForce}
         """
         return self.mModeForce
-
-    def setAppsList(self, iAppsList):
-        """
-        Mutator on L{mAppsList}
-        @type iAppsList: C{list} of C{str}
-        """
-        self.mAppsList = iAppsList
 
     def setServers(self, iServers):
         """
@@ -149,14 +128,6 @@ class Dispatchator(object):
         @type iServers: C{list} of L{Server<lib.server.Server>}
         """
         self.mServers = iServers
-
-    def setApplications(self, iApplications):
-        """
-        Mutator on L{mApplications}
-        @type iApplications: C{list} of L{Application
-            <lib.application.Application>}
-        """
-        self.mApplications = iApplications
 
     def setModeForce(self, iBool):
         """
@@ -175,13 +146,6 @@ class Dispatchator(object):
         """
         pass
 
-    def addApplication(self, iApp):
-        """
-        Appends an Application to the list of Applications.
-        @type iApp: L{Application<lib.application.Application>}
-        """
-        self.mAppsList.append(iApp)
-
     def createCommand(self, iCommandStr):
         """
         Create a new system command
@@ -193,26 +157,36 @@ class Dispatchator(object):
 
     def listApps(self):
         """
-        Get all applications from configuration, and fill the L{mApplications}
+        Get all applications from configuration, and fill the L{applications}
         variable.
         """
-        apps = set()
-        for appnames in conf.appsByAppGroups.values():
-            for appname in appnames:
-                apps.add(appname)
-        _applications = []
-        for appname in apps:
-            if not conf.apps.has_key(appname):
-                raise DispatchatorError(_('Unknown application: %s') % appname)
-            _AppConfig = conf.apps[appname]
-            _App = Application(appname)
-            _App.setServers(
-                self.buildServersFrom(
-                    self.getServersForApp(_App)
-                    )
-                )
-            _applications.append(_App)
-        self.setApplications(_applications)
+        for entry in working_set.iter_entry_points(
+                        "vigilo.vigiconf.applications"):
+            appclass = entry.load()
+            app = appclass()
+            if app.name != entry.name:
+                msg = _("Incoherent configuration: application %(app)s has an "
+                        "entry point named %(epname)s in package %(eppkg)s")
+                LOGGER.warning(msg % {"app": app.name, "epname": entry.name,
+                                      "eppkg": entry.dist})
+            if app.name not in conf.apps:
+                LOGGER.info(_("Application %s is installed but disabled "
+                              "(see conf.d/general/apps.py)") % app.name)
+                continue
+            if app.name in [ a.name for a in self.applications ]:
+                msg = _("Application %s is not unique.") % app.name
+                msg += _(" Providing modules: %s") \
+                        % ", ".join(list(working_set.iter_entry_points(
+                                "vigilo.vigiconf.applications", entry.name)))
+                raise DispatchatorError(msg)
+            app.servers = self.buildServersFrom(self.getServersForApp(app))
+            self.applications.append(app)
+        # Vérification : a-t-on déclaré une application non installée ?
+        for listed_app in conf.apps:
+            if listed_app not in [a.name for a in self.applications]:
+                LOGGER.warning(_("Application %s has been added to "
+                            "conf.d/general/apps.py, but is not installed")
+                            % listed_app)
 
     def getServersForApp(self, app):
         """
@@ -239,18 +213,10 @@ class Dispatchator(object):
             _servers.append(_srvobj)
         return _servers
 
-    def sortApplication(self):
-        """
-        Sorts our applications by priority. The sorting is done in-place in the
-        L{mAppsList} variable.
-        """
-        self.getAppsList().sort(reverse=True,
-                    cmp=lambda x,y: cmp(x.getPriority(), y.getPriority()))
-
     def generate(self):
         """
         Génère la configuration des différents composants, en utilisant le
-        module L{generator}.
+        L{GeneratorManager}.
 
         Après génération, la configuration est validée, et en cas de succès les
         fichiers de configuration de VigiConf sont comittés en SVN
@@ -263,12 +229,12 @@ class Dispatchator(object):
     def run_generator(self):
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir, ignore_errors=True)
-
+        generator = GeneratorManager(self.applications)
         result = generator.generate(commit_db=(self.mode_db == 'commit'))
         return result
 
     def validate_generation(self):
-        for _App in self.getApplications():
+        for _App in self.applications:
             _App.validate(os.path.join(settings["vigiconf"].get("libdir"),
                                        "deploy"))
         LOGGER.info(_("Validation Successful"))
@@ -525,7 +491,7 @@ class Dispatchator(object):
         @type  iServers: C{list} of L{Server<lib.server.Server>}
         """
         # qualify applications on those servers
-        for _app in self.getApplications():
+        for _app in self.applications:
             _app.qualifyServers(iServers)
 
     def deploy(self):
@@ -560,7 +526,7 @@ class Dispatchator(object):
         @type  iErrorMessage: C{str}
         """
         _result = True
-        _Apps = self.getApplications()
+        _Apps = self.applications
         _CurrentLevel = 0
 
         if len(_Apps) == 0:

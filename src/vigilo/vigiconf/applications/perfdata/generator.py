@@ -1,6 +1,6 @@
 ################################################################################
 #
-# ConfigMgr Nagios perfdata 2 StoreMe plugin configuration generator
+# VigiConf
 # Copyright (C) 2007 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,19 +20,16 @@
 
 """Generator for PerfData handler"""
 
-from __future__ import absolute_import
-
 import urllib
 
-from .. import conf
-from . import FileGenerator
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib.generators import FileGenerator
 
-class PerfDataTpl(FileGenerator):
+class PerfDataGen(FileGenerator):
     """Generator for PerfData handler"""
 
     def generate(self):
         """Generate files"""
-        templates = self.loadTemplates("perfdata")
         for (hostname, ventilation) in self.mapping.iteritems():
             if 'perfdata' not in ventilation:
                 continue
@@ -43,7 +40,7 @@ class PerfDataTpl(FileGenerator):
             fileName = "%s/perf-%s.pm" % (dirName, hostname)
             newhash = h.copy()
             newhash['confid'] = conf.confid
-            self.templateCreate(fileName, templates["header"], newhash)
+            self.templateCreate(fileName, self.templates["header"], newhash)
             for (servicename, perfitems) in h['PDHandlers'].iteritems():
                 for perfitem in perfitems:
                     if perfitem['reRouteFor'] != None:
@@ -58,7 +55,7 @@ class PerfDataTpl(FileGenerator):
                                'ds': rrdname,
                                'perfDataVarName': perfitem['perfDataVarName'],
                                'reRouteFor': reRouteFor}
-                    self.templateAppend(fileName, templates["map"], tplvars)
+                    self.templateAppend(fileName, self.templates["map"], tplvars)
             self.templateAppend(fileName, self.COMMON_PERL_LIB_FOOTER, {})
             self.templateClose(fileName)
 

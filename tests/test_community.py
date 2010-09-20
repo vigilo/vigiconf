@@ -13,8 +13,8 @@ import re
 import socket
 
 import vigilo.vigiconf.conf as conf
-import vigilo.vigiconf.generator as generator
-import vigilo.vigiconf.dispatchator as dispatchator
+from vigilo.vigiconf.lib.generators import GeneratorManager
+from vigilo.vigiconf.applications.nagios import Nagios
 from vigilo.vigiconf.lib.dispatchmodes.local import DispatchatorLocal
 from vigilo.vigiconf.lib.dispatchmodes.remote import DispatchatorRemote
 from vigilo.vigiconf.lib.server import ServerFactory
@@ -62,7 +62,10 @@ class EnterpriseEdition(unittest.TestCase):
                         "Servers": [u"sup.example.com"],
                     },
                 }
-        self.mapping = generator.getventilation()
+        self.dispatchator = dispatchmodes.getinstance()
+        self.genmanager = GeneratorManager(self.dispatchator.applications)
+        self.mapping = self.genmanager.get_ventilation()
+        self.mapping = self.genmanager.ventilation_by_appname(self.mapping)
 
     def tearDown(self):
         """Call after every test case."""
@@ -80,7 +83,7 @@ class EnterpriseEdition(unittest.TestCase):
         """Generation directory in E.E. must be named after the sup server"""
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
-        generator.generate(self.basedir)
+        self.genmanager.generate(self.basedir)
         assert os.path.exists(os.path.join(self.basedir, "sup.example.com",
                                            "nagios", "nagios.cfg"))
 
@@ -120,14 +123,17 @@ class CommunityEdition(unittest.TestCase):
         # Prepare temporary directory
         setup_db()
         MapGroup(name=u'Root')
-        
+
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
         # Load the configuration
         reload_conf()
         delattr(conf, "appsGroupsByServer") # Become the Community(tm) :)
         self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
-        self.mapping = generator.getventilation()
+        self.dispatchator = dispatchmodes.getinstance()
+        self.genmanager = GeneratorManager(self.dispatchator.applications)
+        self.mapping = self.genmanager.get_ventilation()
+        self.mapping = self.genmanager.ventilation_by_appname(self.mapping)
 
     def tearDown(self):
         """Call after every test case."""
@@ -145,7 +151,7 @@ class CommunityEdition(unittest.TestCase):
         """Test the generation in C.E."""
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
-        generator.generate(self.basedir)
+        self.genmanager.generate(self.basedir)
         assert os.path.exists(os.path.join(self.basedir, "localhost",
                               "nagios", "nagios.cfg"))
 

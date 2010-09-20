@@ -28,7 +28,7 @@ from vigilo.models.session import DBSession
 
 from vigilo.models.tables import Application
 
-from vigilo.vigiconf.lib.dbloader import DBLoader
+from vigilo.vigiconf.lib.loaders import DBLoader
 
 from vigilo.vigiconf import conf
 
@@ -39,12 +39,13 @@ class ApplicationLoader(DBLoader):
     """
     Charge les applications en base depuis le modèle mémoire.
     """
-    
-    def __init__(self):
+
+    def __init__(self, apps):
+        self.apps = apps
         super(ApplicationLoader, self).__init__(Application, "name")
 
     def load_conf(self):
-        for appname in conf.apps:
-            app = dict(name=unicode(appname))
+        for app_obj in self.apps:
+            app = dict(name=unicode(app_obj.name))
             self.add(app)
 

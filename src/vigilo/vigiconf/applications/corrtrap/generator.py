@@ -20,62 +20,60 @@
 
 """Generator for the SNMP trap collector (CorrTrap)"""
 
-from __future__ import absolute_import
-
 import os
 import os.path
 
 from vigilo.common.conf import settings
 
-from .. import conf
-from . import FileGenerator 
+from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib.generators import FileGenerator
 
-class CorrTrapTpl(FileGenerator):
+class CorrTrapGen(FileGenerator):
     """Generator for the SNMP trap collector (CorrTrap)"""
-            
+
     def generate(self):
         """Generate files"""
-        templates = self.loadTemplates("corrtrap")
         data = {}
-        serverList = [] 
-        
-        for (host, ventilation) in self.mapping.iteritems():            
+        serverList = []
+
+        for (host, ventilation) in self.mapping.iteritems():
             if 'corrtrap' in ventilation:
                 h = conf.hostsConf[host]
                 server = ventilation['corrtrap']
                 if not (data.has_key(server)):
                     data[server] = {}
                     serverList.append(server)
-        
+
                 for (service, ip) in h['trapItems'].iteritems():
                     for (key, value) in ip.iteritems():
-                        if not (data[server].has_key(service)): 
+                        if not (data[server].has_key(service)):
                             data[server][service] = {key: value}
                         else:
-                            if not (data[server][service].has_key(key)): 
+                            if not (data[server][service].has_key(key)):
                                 data[server][service][key] = value
                             else:
                                 self.addWarning("corrtrap",
-                                                "corrTrap duplicate key : " 
+                                                "corrTrap duplicate key : "
                                                +"[%s][%s][%s]"
                                                % (server, service, key))
-        
+
         for server in serverList:
             dirName = "%s/%s/corrtrap" % (self.baseDir, server)
-            for i in ('rules.sec', ):
-                self.copyFile("%s/corrtrap/%s" % (
-                    os.path.join(settings["vigiconf"].get("confdir"),
-                        "filetemplates"), i), "%s/%s" % (dirName, i))
-    
+            self.copy("rules.sec", os.path.join(dirName, "rules.sec"))
+            #for t in ('rules.sec', ):
+                #dest = open(os.path.join(dirName, t), 'w')
+                #dest.write(self.templates[t])
+                #dest.close()
+
             if not os.path.exists("%s/mapTrap.pm" % (dirName)):
-                fileName = "%s/mapTrap.pm" % (dirName)                    
-                self.templateCreate(fileName, templates["header"],
+                fileName = "%s/mapTrap.pm" % (dirName)
+                self.templateCreate(fileName, self.templates["header"],
                                     {"confid": conf.confid,
                                      "socket": settings["vigiconf"].get(
                                                     "socket_nagios_to_vigilo"
                                                     ),
                                     })
-    
+
                 self.templateAppend(fileName, "\nmy %%mapTrap=(\n", ())
                 for (key, value) in data[server].iteritems():
                     self.templateAppend(fileName, "\t\"%s\" => {\n", (key))
@@ -86,8 +84,8 @@ class CorrTrapTpl(FileGenerator):
                     self.templateAppend(fileName, "\t},\n", ())
 
                 self.templateAppend(fileName, ");\n", ())
-                    
-                self.templateAppend(fileName, templates["footer"],
+
+                self.templateAppend(fileName, self.templates["footer"],
                                     {"mapTrap": "%mapTrap"})
 
 
