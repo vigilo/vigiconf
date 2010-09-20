@@ -29,6 +29,7 @@ install_users:
 
 install: settings.ini
 	$(PYTHON) setup.py install --single-version-externally-managed --root=$(DESTDIR) --record=INSTALLED_FILES
+	chmod a+rX -R $(DESTDIR)$(PREFIX)/lib*/python*/*
 	chmod 750 $(DESTDIR)$(VARDIR)
 
 install_permissions:
