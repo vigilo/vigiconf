@@ -267,10 +267,10 @@ class Dispatchator(object):
             raise DispatchatorError(
                     _("Can't get the SVN status for the configuration dir: %s")
                       % e.value)
-        if not _command.getResult():
-            return result
-        output = ET.fromstring(_command.getResult(stderr=False))
         status = {"add": [], "remove": []}
+        if not _command.getResult():
+            return status
+        output = ET.fromstring(_command.getResult(stderr=False))
         for entry in output.findall(".//entry"):
             state = entry.find("wc-status").get("item")
             if state == "unversioned":
