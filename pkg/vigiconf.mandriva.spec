@@ -7,7 +7,7 @@ Name:       %{name}
 Summary:    Configuration manager for the supervision system
 Version:    %{version}
 Release:    %{release}
-Source0:    %{module}.tar.bz2
+Source0:    %{name}-%{version}.tar.gz
 URL:        http://www.projet-vigilo.org
 Group:      System/Servers
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
@@ -55,7 +55,7 @@ applications used in the supervision system.
 This application is part of the Vigilo Project <http://vigilo-project.org>
 
 %prep
-%setup -q -n %{module}
+%setup -q
 
 %build
 make \
@@ -96,12 +96,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc COPYING doc/*
+%doc COPYING README HACKING doc/*
 %dir %{_sysconfdir}/vigilo
 %dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/
 %config(noreplace) %attr(640,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/settings.ini
 %config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/conf.d
 %config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/ssh
+%dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/plugins
 %{_sysconfdir}/vigilo/%{module}/conf.d.example
 %{_sysconfdir}/vigilo/%{module}/README.source
 %config(noreplace) /etc/cron.d/*
