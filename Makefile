@@ -6,7 +6,7 @@ all: build
 
 include buildenv/Makefile.common
 
-build: pkg/ssh_config pkg/$(PKGNAME).cron settings.ini build
+build: pkg/ssh_config pkg/$(PKGNAME).cron settings.ini
 
 pkg/ssh_config: pkg/ssh_config.in
 	sed -e 's,@CONFDIR@,$(CONFDIR),' $^ > $@
