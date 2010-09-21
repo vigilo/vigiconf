@@ -1,42 +1,45 @@
-This is the README file for ConfMgr.
+VigiConf
+========
 
-ConfMgr is part of the Vigilo project.
+VigiConf is part of the Vigilo project <http://vigilo-project.org>.
 
-ConfMgr acts as a configuration generator, validator and dispatcher for
-several softwares (in parethesis are vigilo modules) that share a common 
-data referential:
+VigiConf acts as a configuration generator, validator and dispatcher for
+several software components, some of them being Vigilo modules (in parethesis),
+that all share a common data referential:
+
   * Nagios
-  * StoreMe (a RRD store)
-  * RRDGraph (a RRD Graph generator)
-  * Collector (an highly optimized SNMP Nagios plugin)
-  * Nagvis
-  * CorrSup (an event correlation system)
-  * SupNav (a graphical frontend to Nagios, and RRDGraph)
-  * bind
-  * Apache2 (as a Reverse proxy configuration generator)
+  * Collector (a highly optimized SNMP Nagios plugin)
+  * Connector-Metro (an XMPP-to-RRD metrology store)
+  * VigiRRD (a web-based RRD graph generator)
+  * VigiMap (a map-sytle interface for Vigilo)
+  * Nagios-HLS (a nagios instance dedicated to High Level Services)
   * CorrTrap (an SNMP Trap receiver and translator)
-  * Perf2Store (a PerfData to StoreMe router)
+  * PerfData (a PerfData-to-XMPP router)
 
-All data definition comes from a single model, described as a bunch of
-Python files contained in a directory. Data definition decribes the
-following:
+All data definition comes from a single model, described as a tree of
+XML files contained in a directory. Data definition decribes the
+assets to supervise:
+
   * hosts
   * host groups
   * supervision servers in charge of hosts groups
   * services associated with hosts
   * the way the services are collected (passively, directly…)
   * SNMP jobs that are to be scheduled for a give host
-  * data sources related to data collected from SNMP Jobs or Nagios' perf
-data
+  * data sources related to data collected from SNMP Jobs or Nagios' perfdata
   * graphes that contain several data sources on a single image
+  * and more…
 
-ConfMgr uses SVN as a configuration versionning system and rely on SSH
-and sudo to copy configuration files, launch command (to validate a
-configuration file validity, stop/start/restart deamons).
+VigiConf uses SVN as a configuration versionning system and rely on SSH
+and sudo to copy configuration files, and launch commands (to validate a
+configuration file validity, stop/start/restart deamons). The actions on the
+(possibly remote) Vigilo server are handled by the VigiConf-local component.
+
 After installing this package, you need to extract the configuration and
-templates directories from the subversion repository.
-See /etc/vigilo/vigiconf/conf.d/README.source for the subversion repository address
-This should be done as the "vigiconf" user.
+templates directories from the subversion repository. See
+/etc/vigilo/vigiconf/conf.d/README.source for the subversion repository
+address.
 
-A full forced configuration dispatch is done by calling "dispatchator"
+All actions are done using the "vigiconf" command, under the the "vigiconf"
+system user.
 
