@@ -134,7 +134,7 @@ class Server(object):
         """
         return os.path.join(settings["vigiconf"].get("libdir"), "deploy")
 
-    def createCommand(self, iCommand):
+    def createCommand(self, iCommand, shell=True):
         """
         @note: To be implemented by subclasses
         @param iCommand: command to execute
@@ -142,7 +142,7 @@ class Server(object):
         @return: the command instance
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
-        c = SystemCommand(iCommand, shell=True)
+        c = SystemCommand(iCommand, shell=False)
         c.simulate = self.is_simulation()
         return c
 
