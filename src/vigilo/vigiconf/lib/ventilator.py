@@ -207,7 +207,8 @@ class Ventilator(object):
             hostGroup = self.get_host_ventilation_group(host, v)
             app_to_vserver = {}
             for appGroup in conf.appsGroupsByServer:
-                if not self.apps_by_appgroup[appGroup]:
+                if appGroup not in self.apps_by_appgroup \
+                        or not self.apps_by_appgroup[appGroup]:
                     continue # pas d'appli dans ce groupe
                 vservers = conf.appsGroupsByServer[appGroup][hostGroup]
                 if not vservers:
