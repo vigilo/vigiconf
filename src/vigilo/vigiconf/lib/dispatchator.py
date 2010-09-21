@@ -413,7 +413,7 @@ class Dispatchator(object):
         while not self.returnsQueue.empty(): # syslog each item of the queue
             _result = False
             _error = self.returnsQueue.get()
-            LOGGER.error(str(_error))
+            LOGGER.error(_error)
         return _result
 
     def actionThread(self, iAction, iServers):
