@@ -47,6 +47,9 @@ from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
 N_ = translate_narrow(__name__)
 
+from vigilo.vigiconf.lib import setup_plugins_path
+setup_plugins_path()
+
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib import VigiConfError
 from vigilo.vigiconf.lib.application import ApplicationError

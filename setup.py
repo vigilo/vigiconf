@@ -51,6 +51,7 @@ def get_data_files():
     files.append( (os.path.join(sysconfdir, "vigilo/vigiconf/conf.d"), []) )
     files.append( (os.path.join(sysconfdir, "vigilo/vigiconf"),
                 ["settings.ini", "src/vigilo/vigiconf/conf.d/README.source"]) )
+    files.append( (os.path.join(sysconfdir, "vigilo/vigiconf/plugins"), []) )
     files.append((os.path.join(sysconfdir, "vigilo/vigiconf/ssh"), ["pkg/ssh_config"]))
     files.append(("/etc/cron.d", ["pkg/vigilo-vigiconf.cron"]))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/deploy"), []))
