@@ -29,6 +29,10 @@ else
     echo "Nagios not installed, aborting validation"
     exit 0
 fi
+if [ ! -d /etc/vigilo/vigiconf/new/nagios ]; then
+    echo "Nagios configuration is not deployed yet, aborting validation"
+    exit 0
+fi
 # Utilisation de sudo pour pouvoir ecrire dans les repertoires specifiques de
 # Nagios (/var/spool/nagios/)
 sudo -u nagios /usr/sbin/nagios${nver} -v /etc/nagios${nver}/nagios-test.cfg
