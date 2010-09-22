@@ -28,7 +28,7 @@ from vigilo.common.conf import settings
 
 from ..server import Server, ServerError
 from ..systemcommand import SystemCommand, SystemCommandError
-from ..remotecommand import RemoteCommand, CommandUser
+from ..remotecommand import RemoteCommand, CommandUser, RemoteCommandError
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
