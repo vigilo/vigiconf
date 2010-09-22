@@ -93,6 +93,34 @@ class NagiosGen(FileGenerator):
 
             # Add the host definition
             self.templateAppend(self.fileName, self.templates["host"], newhash)
+
+            # We need to know if a service is the exact same serviceName as ours.
+            if h.has_key("snmpTrap") and len(h["snmpTrap"]):
+                done = 0
+                for (srvname, srvdata) in h['services'].iteritems():
+                    if srvname == h["snmpTrap"].keys()[0]:
+                        if srvdata["type"] == "passive":
+                            done = 1
+                            break # we already have a configured passive service.
+                        else:
+                            print "Not Found Update nagiosSrvDirs to add \
+                                passive_checked_enabled"
+                            if not newhash['nagiosSrvDirs'].has_key(srvname):
+                                newhash['nagiosSrvDirs'][srvname] = {}
+                            newhash['nagiosSrvDirs'][srvname]["passive_check_enabled"] = 1
+                            break # we did the job, so we can stop the loop.
+
+                # If nothing was found, we use passive service template.
+                if done == 0:
+                    self.templateAppend(self.fileName, self.templates["collector"], {
+                        'name' :  hostname,
+                        'serviceName' : srvname,
+                        'quietOrNot': "",
+                        'notification_period': "",
+                        'generic_sdirectives': "",
+                         })
+                del done
+
             # Add the service item into the Nagios configuration file
             if len(h['services']):
                 if len(h['SNMPJobs']):

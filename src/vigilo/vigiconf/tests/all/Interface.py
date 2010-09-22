@@ -76,8 +76,9 @@ class Interface(Test):
             host.add_graph("Errors %s" % label, [ "inErrs%s"%label, "outErrs%s"%label,
                                         "inDisc%s"%label, "outDisc%s"%label ], "lines",
                                         "packets/s", group="Network interfaces")
-        if ifname != label:
-            host.add_trap("%s.interfaces" % host.get("address"), ifname, label)
+        #if ifname != label:
+        #    host.add_trap("%s.interfaces" % host.get("address"), ifname, label)
+        #edited by gcharbon
 
         # Supervision service
         if warn and crit:
@@ -97,7 +98,6 @@ class Interface(Test):
                                            warn[4], crit[4], 8, weight=self.weight)
                     host.add_metro_service("Errors out %s"%label, "outErrs"+label,
                                            warn[5], crit[5], 8, weight=self.weight)
-
 
     def detect_snmp(self, oids):
         """Detection method, see the documentation in the main Test class"""

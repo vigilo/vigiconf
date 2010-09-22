@@ -2,6 +2,7 @@ apps = [
         "nagios",
         "nagios-hls",
         "corrtrap",
+        "snmptt",
         "connector-metro",
         "collector",
         "perfdata",
