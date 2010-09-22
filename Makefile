@@ -27,7 +27,7 @@ install_users:
 	fi
 	chown $(NAME):$(NAME) $(CONFDIR)/ssh/vigiconf.key
 
-install: settings.ini
+install: settings.ini $(PYTHON)
 	$(PYTHON) setup.py install --single-version-externally-managed --root=$(DESTDIR) --record=INSTALLED_FILES
 	chmod a+rX -R $(DESTDIR)$(PREFIX)/lib*/python*/*
 	chmod 750 $(DESTDIR)$(VARDIR)
