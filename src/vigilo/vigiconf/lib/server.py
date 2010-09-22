@@ -195,7 +195,7 @@ class Server(object):
         Tar the configuration files, before deployment
         """
         cmd = ["tar", "-C",
-               os.path.join(self.getBaseDir(), self.getName()), "-cf",
+               os.path.join(self.getBaseDir(), self.getName()), "-cvf",
                os.path.join(self.getBaseDir(), "%s.tar" % self.getName()), "."]
         cmd = SystemCommand(cmd)
         try:
@@ -203,6 +203,7 @@ class Server(object):
         except SystemCommandError, e:
             raise ServerError(_("Can't tar config for server %s: %s")
                                % (self.getName(), e.value))
+        if os.path.exists(os.path.join(self.getBaseDir(), "%s.tar" % self.getName())):
 
     def deployTar(self):
         """

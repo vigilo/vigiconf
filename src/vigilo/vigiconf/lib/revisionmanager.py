@@ -26,7 +26,6 @@ from __future__ import absolute_import
 import os
 import re
 import locale
-from os.path import isfile
 
 from vigilo.common.conf import settings
 
@@ -68,7 +67,7 @@ class RevisionManager(object):
     @ivar mPrevious: The revision that has been installed last time
     @type mPrevious: C{int}
     """
-    
+
     def __init__(self):
         self.mFilename = ""
         self.mRepository = ""
@@ -77,7 +76,7 @@ class RevisionManager(object):
         self.mInstalled = 0
         self.mPrevious = 0
         #self.readPickle()
-        
+
     def __str__(self):
         _str = "Revision<"
         #_str += "Pickle : %s\n"%(self.mFilename)
@@ -86,31 +85,31 @@ class RevisionManager(object):
         _str += "INS : %d, " % (self.getInstalled())
         _str += "PRE : %d>" % (self.getPrevious())
         return _str
-    
+
     def getRepository(self):
         """@return: L{mRepository}"""
-        return self.mRepository 
-       
+        return self.mRepository
+
     def getSubversion(self):
         """@return: L{mSubversion}"""
         return self.mSubversion
-    
+
     def getDeployed(self):
         """@return: L{mDeployed}"""
         return self.mDeployed
-    
+
     def getInstalled(self):
         """@return: L{mInstalled}"""
         return self.mInstalled
-    
+
     def getPrevious(self):
         """@return: L{mPrevious}"""
         return self.mPrevious
-    
+
     def getFilename(self):
         """@return: L{mFilename}"""
         return self.mFilename
-    
+
     def setSubversion(self, iRevision):
         """
         Sets L{mSubversion}.
@@ -118,7 +117,7 @@ class RevisionManager(object):
         @type  iRevision: C{int}
         """
         self.mSubversion = iRevision
-    
+
     def setDeployed(self, iRevision):
         """
         Sets L{mDeployed}.
@@ -126,7 +125,7 @@ class RevisionManager(object):
         @type  iRevision: C{int}
         """
         self.mDeployed = iRevision
-    
+
     def setInstalled(self, iRevision):
         """
         Sets L{mInstalled}.
@@ -134,7 +133,7 @@ class RevisionManager(object):
         @type  iRevision: C{int}
         """
         self.mInstalled = iRevision
-        
+
     def setPrevious(self, iRevision):
         """
         Sets L{mPrevious}.
@@ -142,7 +141,7 @@ class RevisionManager(object):
         @type  iRevision: C{int}
         """
         self.mPrevious = iRevision
-    
+
     def setFilename(self, iFilename):
         """
         Sets L{mFilename}.
@@ -150,7 +149,7 @@ class RevisionManager(object):
         @type  iFilename: C{str}
         """
         self.mFilename = iFilename
-        
+
     def setRepository(self, iRepository):
         """
         Sets L{mRepository}.
@@ -158,7 +157,7 @@ class RevisionManager(object):
         @type  iRepository: C{str}
         """
         self.mRepository = iRepository
-        
+
     def writeConfigFile(self):
         """
         Write the SVN revision to our state file
@@ -172,23 +171,23 @@ class RevisionManager(object):
             _file.close()
         except Exception, e:
             LOGGER.exception(_("Cannot write the revision file: %s"), e)
-    
+
     def isDeployNeeded(self):
         """
         Test wheather a deployment is needed
         @rtype: C{boolean}
         """
         return (self.getSubversion() != self.getDeployed())
-    
+
     def isRestartNeeded(self):
         """
         Test wheather a restart is needed
         @rtype: C{boolean}
         """
-        return(self.getDeployed() != self.getInstalled())
-    
-## remote gets    
-    
+        return (self.getDeployed() != self.getInstalled())
+
+## remote gets
+
     def getRevision(self, iServer, iFilename):
         """
         Returns the revision value contained in the file named iFilename on the
@@ -201,11 +200,8 @@ class RevisionManager(object):
         @returns: The SVN revision
         @rtype: C{int}
         """
-        
-        # test if iFilename exists
-        if not isfile(iFilename):
-            return 0
-        
+
+        # TODO: ABOMPARD: utiliser vigiconf-local
         _rc = iServer.createCommand("cat %s" % (iFilename))
         _rc.execute()
         #from pprint import pprint; pprint(_rc.getResult())
@@ -217,7 +213,7 @@ class RevisionManager(object):
         else:
             #print("%s"%(_rc.getResult()))
             return None
-    
+
     def update(self, iServer):
         """
         Updates the SVN revision values by getting the new values in the

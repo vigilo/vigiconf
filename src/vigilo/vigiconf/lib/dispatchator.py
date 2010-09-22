@@ -505,6 +505,7 @@ class Dispatchator(object):
                 _srv.updateRevisionManager()
                 _srv.getRevisionManager().setSubversion(self.deploy_revision)
                 if _srv.needsDeployment():
+                    LOGGER.debug(_("Server %s should be deployed."), _srv.getName())
                     _servers.append(_srv)
             if len(_servers) <= 0:
                 LOGGER.info(_("All servers are up-to-date. Nothing to do."))

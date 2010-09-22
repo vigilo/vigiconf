@@ -22,6 +22,7 @@ This file is part of the Enterprise Edition
 
 from __future__ import absolute_import
 
+import os
 import re
 import doctest
 
@@ -117,9 +118,9 @@ class RemoteCommand(SystemCommand):
         """
         # @TODO: est-ce qu'on a vraiment besoin de distinguer les 2 cas ?
         if iServer is None:
-            raise RemoteCommandError(_("Server name set to None."))
+            raise RemoteCommandError(None, _("Server name set to None."))
         if len(iServer) == 0:
-            raise RemoteCommandError(_("Server name incorrect (length = 0)."))
+            raise RemoteCommandError(None, _("Server name incorrect (length = 0)."))
         self.mServer = iServer # pylint: disable-msg=W0201
 
     def setUser(self, iUser):
@@ -161,6 +162,8 @@ class RemoteCommand(SystemCommand):
         @rtype: C{str}
         """
         if self.mCommandType == 'shell':
+            if isinstance(self.mCommand, list):
+                self.mCommand = " ".join(self.mCommand)
             _cmd = ["ssh"] + self.getConfigurationOpts() \
                            + [self.getServerString(), self.mCommand]
         elif self.mCommandType == 'copyTo':
@@ -177,7 +180,7 @@ class RemoteCommand(SystemCommand):
                                    self.mSourceStr))
             _cmd.append(self.mDestinationStr)
         else:
-            raise RemoteCommandError(_('Unknown command type.'))
+            raise RemoteCommandError(None, _('Unknown command type.'))
         if self.shell:
             _cmd = "'%s'" % "' '".join(_cmd)
         return _cmd
@@ -194,6 +197,9 @@ class RemoteCommand(SystemCommand):
         self.mDestinationStr = iDestinationPath
         self.mSourceStr = iSourcePath
         self.mCommandType = 'copyTo'
+        if not os.path.exists(iSourcePath):
+            raise RemoteCommandError(None,
+                    _("The source file does not exist: %s") % iSourcePath)
 
     def copyTo(self, iDestinationPath, iSourcePath):
         """
@@ -210,12 +216,12 @@ class RemoteCommand(SystemCommand):
             # TODO: utiliser les codes de retour
             if re.search("ssh:.*Name or service not known",
                          sce.value) != None:
-                raise RemoteCommandError(_('Cannot reach server.'))
+                raise RemoteCommandError(sce.returncode, _('Cannot reach server.'))
             elif re.search("scp:.*No such file or directory",
                            sce.value) != None:
-                raise RemoteCommandError(_('Cannot find file.'))
+                raise RemoteCommandError(sce.returncode, _('Cannot find file.'))
             else:
-                raise sce.value
+                raise sce
 
     def asCopyFrom(self, iDestinationPath, iSourcePath):
         """
@@ -243,9 +249,9 @@ class RemoteCommand(SystemCommand):
         except SystemCommandError, e:
             # TODO: utiliser les codes de retour
             if re.search("ssh:.*Name or service not known", e.value) != None:
-                raise RemoteCommandError(_('Cannot reach server.'))
+                raise RemoteCommandError(e.returncode, _('Cannot reach server.'))
             elif re.search("scp:.*No such file or directory", e.value) != None:
-                raise RemoteCommandError(_('Cannot find file.'))
+                raise RemoteCommandError(e.returncode, _('Cannot find file.'))
             else:
                 raise e.value
 
