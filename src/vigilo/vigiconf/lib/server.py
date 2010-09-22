@@ -203,7 +203,6 @@ class Server(object):
         except SystemCommandError, e:
             raise ServerError(_("Can't tar config for server %s: %s")
                                % (self.getName(), e.value))
-        if os.path.exists(os.path.join(self.getBaseDir(), "%s.tar" % self.getName())):
 
     def deployTar(self):
         """

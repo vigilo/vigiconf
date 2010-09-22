@@ -188,31 +188,25 @@ class RevisionManager(object):
 
 ## remote gets
 
-    def getRevision(self, iServer, iFilename):
+    def getRevisions(self, iServer):
         """
-        Returns the revision value contained in the file named iFilename on the
+        Returns the revision values contained in the file named iFilename on the
         server iServer. If the file does not exist then 0 is returned (ie:
         first deployment)
         @param iServer: The server to contact
         @type  iServer: L{Server<lib.server.Server>}
-        @param iFilename: The path to the filename to examine
-        @type  iFilename: C{str}
-        @returns: The SVN revision
-        @rtype: C{int}
+        @returns: The SVN revisions
+        @rtype: C{dict}
         """
-
-        # TODO: ABOMPARD: utiliser vigiconf-local
-        _rc = iServer.createCommand("cat %s" % (iFilename))
-        _rc.execute()
-        #from pprint import pprint; pprint(_rc.getResult())
-        _re = re.compile('^Revision: (\d+)$')
-        _blocks = _re.findall(_rc.getResult())
-        #from pprint import pprint; pprint(_blocks)
-        if( len(_blocks) == 1 ):
-            return locale.atoi(_blocks[0])
-        else:
-            #print("%s"%(_rc.getResult()))
-            return None
+        cmd = iServer.createCommand(["vigiconf-local", "get-revisions"])
+        cmd.execute()
+        revisions = {}
+        for line in cmd.getResult().split("\n"):
+            if " " not in line.strip():
+                continue
+            directory, revision = line.strip().split(" ")
+            revisions[directory] = int(revision)
+        return revisions
 
     def update(self, iServer):
         """
@@ -221,9 +215,8 @@ class RevisionManager(object):
         @param iServer: The server to update
         @type  iServer: L{Server<lib.server.Server>}
         """
-        rev_file_tpl = '%s/%%s/revisions.txt' % \
-                        settings["vigiconf"].get("targetconfdir")
-        self.setDeployed( self.getRevision(iServer, rev_file_tpl % 'new'))
-        self.setInstalled(self.getRevision(iServer, rev_file_tpl % 'prod'))
-        self.setPrevious( self.getRevision(iServer, rev_file_tpl % 'old'))
+        revisions = self.getRevisions(iServer)
+        self.setDeployed(revisions["new"])
+        self.setInstalled(revisions["prod"])
+        self.setPrevious(revisions["old"])
 
