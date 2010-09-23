@@ -15,6 +15,6 @@ class SnmpTT(Application):
     start_command = "sudo /etc/init.d/snmptt start"
     stop_command = "sudo /etc/init.d/snmptt stop"
     generator = generator.SnmpTTGen
-    group = "collect"
+    group = "trap"
 
 

@@ -146,7 +146,7 @@ class ExportDBTest(unittest.TestCase):
 
         self.loader.load_ventilation_db(genmgr.get_ventilation())
         print DBSession.query(Ventilation).all()
-        trap_app = DBSession.query(Application).filter_by(name=u"corrtrap").first()
+        trap_app = DBSession.query(Application).filter_by(name=u"snmptt").first()
         trap_ventil = DBSession.query(Ventilation).filter_by(application=trap_app).count()
         self.assertEquals(trap_ventil, 0)
 
