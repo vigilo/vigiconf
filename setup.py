@@ -100,7 +100,6 @@ setup(name='vigilo-vigiconf',
             'vigilo.vigiconf.applications': [
                 'collector = vigilo.vigiconf.applications.collector:Collector',
                 'connector-metro = vigilo.vigiconf.applications.connector_metro:ConnectorMetro',
-                'corrtrap = vigilo.vigiconf.applications.corrtrap:CorrTrap',
                 'snmptt = vigilo.vigiconf.applications.snmptt:SnmpTT',
                 'nagios = vigilo.vigiconf.applications.nagios:Nagios',
                 'nagios-hls = vigilo.vigiconf.applications.nagios_hls:NagiosHLS',
