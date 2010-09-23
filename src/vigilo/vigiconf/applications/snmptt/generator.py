@@ -18,10 +18,11 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-"""Generator for the SNMP trap collector (CorrTrap)"""
+"""Generator for the SNMP trap collector (snmpTT)"""
 
 import os
 import os.path
+import re
 
 from vigilo.common.conf import settings
 
@@ -53,6 +54,10 @@ class SnmpTTGen(FileGenerator):
 
             for k in h["snmpTrap"][serv_desc].keys():
                 vals = h["snmpTrap"][serv_desc][k]
+                # security escape string
+                for key, value in vals.iteritems():
+                    if value:
+                        vals[key] = re.escape(value)
                 if not os.path.exists(self.fileName):
                     templateFunct = self.templateCreate
                 else:
