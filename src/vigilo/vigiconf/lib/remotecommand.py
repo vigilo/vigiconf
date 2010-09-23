@@ -79,24 +79,20 @@ class RemoteCommand(SystemCommand):
     @ivar iServer: The remote server that will execute a command
     @type iServer: C{str}
     @ivar iBaseCommand: The command to be executed (optional)
-    @type iBaseCommand: C{list} or C{str} if L{self.shell} is True
+    @type iBaseCommand: C{list} or C{str}
     @ivar iUser: The user that will execute the command (optional)
     @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
     """
-    shell = False
 
-    def __init__(self, iServer, iBaseCommand='', iUser=None,
-                 shell=False, simulate=False):
+    def __init__(self, iServer, iBaseCommand='', iUser=None, simulate=False):
         """
         Constructor, sets L{iServer}, L{iBaseCommand}, and L{iUser}.
         @param iServer: the remote server that will execute a command
         @type iServer: C{str}
         @param iBaseCommand: the command to be executed (optional)
-        @type iBaseCommand: C{list} or C{str} if L{shell} is True
+        @type iBaseCommand: C{list} or C{str}
         @param iUser: the user that will execute the command (optional)
         @type iUser: L{CommandUser<lib.remotecommand.CommandUser>}
-        @param shell: Run the command from a shell (True) or directly (False).
-        @type shell: C{bool}
         @param simulate: if True, do not actually execute the command
         @type  simulate: C{bool}
         """
@@ -105,7 +101,7 @@ class RemoteCommand(SystemCommand):
         self.mDestinationStr = ''
         self.mSourceStr = ''
         super(RemoteCommand, self).__init__(iBaseCommand=iBaseCommand,
-                                            simulate=simulate, shell=shell)
+                                            simulate=simulate)
         # public
         self.setUser(iUser)
         self.setServer(iServer) # mandatory
@@ -151,7 +147,7 @@ class RemoteCommand(SystemCommand):
         """
         Builds the ssh command from the iCommand provided
         @param iCommand: Command to execute remotely
-        @type  iCommand: C{list} or C{str} if L{self.shell} is True
+        @type  iCommand: C{str} or C{str}
         """
         self.mCommand = iCommand
         self.mCommandType = 'shell'
@@ -181,8 +177,6 @@ class RemoteCommand(SystemCommand):
             _cmd.append(self.mDestinationStr)
         else:
             raise RemoteCommandError(None, _('Unknown command type.'))
-        if self.shell:
-            _cmd = "'%s'" % "' '".join(_cmd)
         return _cmd
 
 

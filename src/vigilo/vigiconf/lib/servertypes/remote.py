@@ -64,15 +64,14 @@ class ServerRemote(Server):
         """@return: L{mCommandUser}"""
         return self.mCommandUser
 
-    def createCommand(self, iCommand, shell=False):
+    def createCommand(self, iCommand):
         """
         @param iCommand: command to execute
         @type  iCommand: C{str}
         @return: the command instance
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
-        c = RemoteCommand(self.getName(), iCommand,
-                          self.getCommandUser(), shell=shell)
+        c = RemoteCommand(self.getName(), iCommand, self.getCommandUser())
         c.simulate = self.is_simulation()
         return c
 
@@ -87,7 +86,6 @@ class ServerRemote(Server):
         if not os.path.exists(tar_src):
             raise RemoteCommandError(None, _("The archive file does not exist: %s")
                                              % tar_src)
-        #cmd = RemoteCommand(self.getName())
         cmd = self.createCommand(None)
         try:
             cmd.copyTo(tar_dest, tar_src)

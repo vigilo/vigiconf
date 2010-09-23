@@ -146,14 +146,14 @@ class Dispatchator(object):
         """
         pass
 
-    def createCommand(self, iCommandStr):
+    def createCommand(self, iCommand):
         """
         Create a new system command
-        @param iCommandStr: Command to execute
-        @type  iCommandStr: C{str}
+        @param iCommand: Command to execute
+        @type  iCommand: C{str}
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
-        return SystemCommand(iCommandStr, simulate=self.simulate)
+        return SystemCommand(iCommand, simulate=self.simulate)
 
     def listApps(self):
         """

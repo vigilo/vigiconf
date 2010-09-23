@@ -39,8 +39,7 @@ class ServerLocal(Server):
 
     def deployTar(self):
         tar = os.path.join(self.getBaseDir(), "%s.tar" % self.getName())
-        cmd = self.createCommand(["vigiconf-local", "receive-conf", tar],
-                                 shell=False)
+        cmd = self.createCommand(["vigiconf-local", "receive-conf", tar])
         try:
             cmd.execute()
         except SystemCommandError, e:

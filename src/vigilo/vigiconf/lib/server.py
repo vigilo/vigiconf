@@ -134,7 +134,7 @@ class Server(object):
         """
         return os.path.join(settings["vigiconf"].get("libdir"), "deploy")
 
-    def createCommand(self, iCommand, shell=True):
+    def createCommand(self, iCommand):
         """
         @note: To be implemented by subclasses
         @param iCommand: command to execute
@@ -142,7 +142,7 @@ class Server(object):
         @return: the command instance
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
-        c = SystemCommand(iCommand, shell=False)
+        c = SystemCommand(iCommand)
         c.simulate = self.is_simulation()
         return c
 
@@ -170,7 +170,7 @@ class Server(object):
          3. if the DIRECTORY prod exists, rename it to old
          4. rename new to prod
         """
-        cmd = "vigiconf-local activate-conf"
+        cmd = ["vigiconf-local", "activate-conf"]
         _command = self.createCommand(cmd)
         try:
             _command.execute()
@@ -262,45 +262,6 @@ class Server(object):
         self.insertValidationDir()
         # now, the deployment directory is complete.
         self.deployFiles()
-
-#    def undo(self):
-#        """Undo a deployment"""
-#        targetdir = settings["vigiconf"].get("targetconfdir")
-#        ## check if the directory exists
-#        #try:
-#        #    _CmdLine = "sh -c '[ -d %s/old ] && [ -d %s/new ]'" \
-#        #               % (targetdir, targetdir)
-#        #     # execution
-#        #    _command = self.createCommand(_CmdLine)
-#        #    _command.execute()
-#        #    if(_command.integerReturnCode() == 1):
-#        #        raise ServerError(_("UNDO can't be done. Directory 'old' "
-#        #                            "does not exist on %s.") % self.getName(),
-#        #                          self.getName())
-#        #except SystemCommandError, e:
-#        #    raise ServerError(_("UNDO can't be done. %s") % (str(e)),
-#        #                      self.getName())
-#        ## undo !
-#        try:
-#
-#            #_newundoStr = "mv %s/new %s/undo" % (targetdir, targetdir)
-#            #_oldnew = "mv %s/old %s/new" % (targetdir, targetdir)
-#            #_undoold = "mv %s/undo %s/old" % (targetdir, targetdir)
-#
-#            #_CmdLine = "sudo sh -c ' %s && %s && %s '" \
-#            #           % (_newundoStr, _oldnew, _undoold)
-#            # execution
-#            #_command = self.createCommand(_CmdLine)
-#            _command = self.createCommand("vigiconf-local revert-conf")
-#            _command.execute()
-#            if(_command.integerReturnCode() == 1):
-#                raise ServerError(_("UNDO failed on %s.") \
-#                                  % (self.getName()), self.getName())
-#            else:
-#                LOGGER.info(_("UNDO successful on %s."), self.getName())
-#        except SystemCommandError, e:
-#            raise ServerError(_("UNDO can't be done. %s") % (str(e)),
-#                              self.getName())
 
     # redirections
     def getDeployed(self):

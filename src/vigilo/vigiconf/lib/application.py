@@ -316,8 +316,8 @@ class Application(object):
         """
         if not self.validation:
             return
-        _commandStr = "vigiconf-local validate-app %s" % self.name
-        _command = iServer.createCommand(_commandStr)
+        _command = ["vigiconf-local", "validate-app", self.name]
+        _command = iServer.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -413,9 +413,8 @@ class Application(object):
             'app': self.name,
             'server': iServer.name,
         })
-        #_commandStr = "sudo " + self.start_command
-        _commandStr = "vigiconf-local start-app %s" % self.name
-        _command = iServer.createCommand(_commandStr)
+        _command = ["vigiconf-local", "start-app", self.name]
+        _command = iServer.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
@@ -506,9 +505,8 @@ class Application(object):
             'app': self.name,
             'server': iServer.name,
         })
-        #_commandStr = "sudo " + self.stop_command
-        _commandStr = "vigiconf-local stop-app %s" % self.name
-        _command = iServer.createCommand(_commandStr)
+        _command = ["vigiconf-local", "stop-app", self.name]
+        _command = iServer.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
