@@ -29,11 +29,24 @@ else
     echo "Nagios not installed, aborting validation"
     exit 0
 fi
-if [ ! -d /etc/vigilo/vigiconf/new/nagios ]; then
-    echo "Nagios configuration is not deployed yet, aborting validation"
+
+BASEDIR=$1
+if [ ! -d $BASEDIR/nagios ]; then
+    echo "Nagios configuration is not available, aborting validation"
     exit 0
 fi
+
+# Création du fichier de configuration de test
+testconffile=`mktemp /tmp/valid-nagios-XXXXXX`
+trap "rm -f $testconffile" EXIT
+chmod 644 $testconffile
+
+# TODO: le chemin vers la conf de vigiconf est hardcodé ici
+
+sed -e 's,/etc/vigilo/vigiconf/prod/nagios,'$BASEDIR'/nagios,' \
+    /etc/nagios${nver}/nagios.cfg > $testconffile
+
 # Utilisation de sudo pour pouvoir ecrire dans les repertoires specifiques de
 # Nagios (/var/spool/nagios/)
-sudo -u nagios /usr/sbin/nagios${nver} -v /etc/nagios${nver}/nagios-test.cfg
+sudo -u nagios /usr/sbin/nagios${nver} -v $testconffile
 exit $?
