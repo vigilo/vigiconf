@@ -161,18 +161,6 @@ class Application(object):
 
     # methods
 
-    #def getGroup(self):
-    #    """Get the app's group"""
-    #    appgroup = None
-    #    for group, appnames in conf.appsByAppGroups.iteritems():
-    #        if self.name in appnames:
-    #            appgroup = group
-    #            break
-    #    if appgroup is None:
-    #        raise ApplicationError(_("Can't find the appgroup for app %s")
-    #                               % self.name)
-    #    return appgroup
-
     def filterServers(self, iServers):
         """
         @param iServers: the list of servers to filter on
@@ -425,6 +413,7 @@ class Application(object):
                 'reason': e.value,
             })
             error.cause = e
+            raise error
         LOGGER.info(_("%(app)s started on %(server)s"), {
             'app': self.name,
             'server': iServer.name,
@@ -517,6 +506,7 @@ class Application(object):
                 'reason': e.value,
             })
             error.cause = e
+            raise error
         LOGGER.info(_("%(app)s stopped on %(server)s"), {
             'app': self.name,
             'server': iServer.name,

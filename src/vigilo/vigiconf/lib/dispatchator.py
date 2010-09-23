@@ -701,16 +701,6 @@ class Dispatchator(object):
             self.startOrStopApplications(self.startThread, [_servers],
                                         _("Start applications failed"))
 
-#    # Undo
-#    def undo(self):
-#        """Performs an "undo" on the configuration files"""
-#        for _srv in self.getServers():
-#            try:
-#                _srv.undo()
-#            except ServerError, se:
-#                LOGGER.exception(se)
-
-
     def printState(self):
         """Prints a summary"""
         _revision = self.getLastRevision()
