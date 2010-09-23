@@ -196,27 +196,44 @@ class ParseHost(unittest.TestCase):
     def test_trap(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <trap service="test.add_trap" key="test.name">test.label</trap>
+            <test name="Trap">
+                <arg name="command">echo</arg>
+                <arg name="service">service_name</arg>
+                <arg name="label">test.label</arg>
+                <arg name="OID">1.2.3.4.5.6.7.8.9</arg>
+            </test>
             <group>/Servers</group>
         </host>""")
         self.host.close()
+        srv = "service_name"
+        OID = "1.2.3.4.5.6.7.8.9"
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert conf.hostsConf["testserver1"].has_key("trapItems") and \
-                conf.hostsConf["testserver1"]["trapItems"]["test.add_trap"]["test.name"] == "test.label", \
+        print conf.hostsConf["testserver1"]["snmpTrap"]
+        assert conf.hostsConf["testserver1"].has_key("snmpTrap") and \
+                conf.hostsConf["testserver1"]["snmpTrap"][srv][OID]["label"] == "test.label", \
                 "The \"trap\" tag is not properly parsed"
 
     def test_trap_whitespace(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <trap service=" test.add_trap " key=" test.name "> test.label </trap>
+            <test name="Trap">
+                <arg name="command">echo</arg>
+                <arg name="service">service_name</arg>
+                <arg name="label">test.label</arg>
+                <arg name="OID">1.2.3.4.5.6.7.8.9</arg>
+            </test>
             <group>/Servers</group>
         </host>""")
         self.host.close()
+        srv = "service_name"
+        OID="1.2.3.4.5.6.7.8.9"
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "trapItems" in conf.hostsConf["testserver1"] and \
-               "test.add_trap" in conf.hostsConf["testserver1"]["trapItems"] and \
-               "test.name" in conf.hostsConf["testserver1"]["trapItems"]["test.add_trap"] and \
-               conf.hostsConf["testserver1"]["trapItems"]["test.add_trap"]["test.name"] == "test.label", \
+        print conf.hostsConf["testserver1"]["snmpTrap"]
+        assert "snmpTrap" in conf.hostsConf["testserver1"] and \
+               "service_name" in conf.hostsConf["testserver1"]["snmpTrap"] and \
+               OID in conf.hostsConf["testserver1"]["snmpTrap"][srv] and \
+               "label" in conf.hostsConf["testserver1"]["snmpTrap"][srv][OID] and \
+               conf.hostsConf["testserver1"]["snmpTrap"][srv][OID]["label"] == "test.label", \
                "The \"trap\" tag parsing does not strip whitespaces"
 
     def test_group(self):
