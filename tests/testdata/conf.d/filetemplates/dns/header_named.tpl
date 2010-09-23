@@ -1,2 +1,0 @@
-// confid:%(confid)s
-
