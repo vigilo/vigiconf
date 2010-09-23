@@ -47,17 +47,11 @@ class SnmpTTGen(FileGenerator):
 
             serv_desc = h["snmpTrap"].keys()[0]
             # if serv_desc contains space, it can be problematic for filename
-            self.fileName = "%s/%s/snmptt/snmptt.conf.%s" \
-                            % (self.baseDir, ventilation['snmptt'],
-                                "_".join(serv_desc.split(" "))
-                                )
+            self.fileName = "%s/%s/snmptt/snmptt.conf" \
+                            % (self.baseDir, ventilation['snmptt'])
 
             for k in h["snmpTrap"][serv_desc].keys():
                 vals = h["snmpTrap"][serv_desc][k]
-                # security escape string
-                for key, value in vals.iteritems():
-                    if value:
-                        vals[key] = re.escape(value)
                 if not os.path.exists(self.fileName):
                     templateFunct = self.templateCreate
                 else:
@@ -65,7 +59,7 @@ class SnmpTTGen(FileGenerator):
                 templateFunct(self.fileName, self.templates["snmptt.conf"],
                     {"event": vals["label"],
                         "oid": k,
-                        "command": vals["command"],
+                        "command": re.escape(vals["command"]),
                         "host": hostname,
                         "service": serv_desc,
                         "match" : "MATCH $ar: %s" % vals["address"],
