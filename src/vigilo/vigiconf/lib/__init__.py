@@ -49,21 +49,38 @@ def setup_plugins_path():
         pkg_resources.Environment(plugins_path)
     )
     for dist in distributions:
-        LOGGER.debug('Adding plugin %s from %s', dist, dist.location)
+        LOGGER.debug('Adding plugin %(plugin)s from %(location)s', {
+            'plugin': dist,
+            'location': dist.location,
+        })
         pkg_resources.working_set.add(dist)
 
     def _log_error(item, e):
         if isinstance(e, pkg_resources.DistributionNotFound):
-            LOGGER.debug('Skipping "%s": ("%s" not found)', item, e)
+            LOGGER.debug('Skipping "%(item)s": ("%(module)s" not found)', {
+                'item': item,
+                'module': e,
+            })
         elif isinstance(e, pkg_resources.VersionConflict):
-            LOGGER.error(_('Skipping "%s": (version conflict "%s")'), item, e)
+            LOGGER.error(_('Skipping "%(item)s": (version conflict "%(error)s")'), {
+                'item': item,
+                'error': e,
+            })
         elif isinstance(e, pkg_resources.UnknownExtra):
-            LOGGER.error(_('Skipping "%s": (unknown extra "%s")'), item, e)
+            LOGGER.error(_('Skipping "%(item)s": (unknown extra "%(error)s")'), {
+                'item': item,
+                'error': e,
+            })
         elif isinstance(e, ImportError):
-            LOGGER.error(_('Skipping "%s": (can\'t import "%s")'), item, e)
+            LOGGER.error(_('Skipping "%(item)s": (can\'t import "%(error)s")'), {
+                'item': item,
+                'error': e,
+            })
         else:
-            LOGGER.error(_('Skipping "%s": (error "%s")'), item, e)
+            LOGGER.error(_('Skipping "%(item)s": (error "%(error)s")'), {
+                'item': item,
+                'error': e,
+            })
 
     for dist, e in errors.iteritems():
         _log_error(dist, e)
-
