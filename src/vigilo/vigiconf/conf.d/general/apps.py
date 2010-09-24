@@ -1,7 +1,7 @@
 apps = [
         "nagios",
         "nagios-hls",
-        "snmptt",
+        #"snmptt",
         "connector-metro",
         "collector",
         "perfdata",
