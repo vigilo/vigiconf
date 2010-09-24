@@ -201,8 +201,11 @@ class Server(object):
         try:
             cmd.execute()
         except SystemCommandError, e:
-            raise ServerError(_("Can't tar config for server %s: %s")
-                               % (self.getName(), e.value))
+            raise ServerError(_("Can't tar config for server "
+                                "%(server)s: %(error)s") % {
+                                    'server': self.getName(),
+                                    'error': e.value,
+                                })
 
     def deployTar(self):
         """

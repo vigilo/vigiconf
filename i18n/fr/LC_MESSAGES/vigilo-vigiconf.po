@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2010-09-24 10:43+0200\n"
+"PO-Revision-Date: 2010-09-24 11:00+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -123,9 +123,8 @@ msgid "Prints a summary of the current configuration."
 msgstr "Affiche un résumé de la configuration actuelle."
 
 #: src/vigilo/vigiconf/commandline.py:174
-#, fuzzy
 msgid "Supervision servers to query, all of them if not specified."
-msgstr "Serveurs à interroger; tous si aucun n'est donné."
+msgstr "Serveurs de supervision à interroger; tous si aucun n'est donné."
 
 #: src/vigilo/vigiconf/commandline.py:181
 msgid "Application status management."
@@ -184,9 +183,8 @@ msgstr ""
 "modifiée."
 
 #: src/vigilo/vigiconf/commandline.py:231
-#, fuzzy
 msgid "Supervision servers to deploy to, all of them if not specified."
-msgstr "Serveurs vers lesquels déployer; tous si aucun n'est donné."
+msgstr "Serveurs de supervision vers lesquels déployer; tous si aucun n'est donné."
 
 #: src/vigilo/vigiconf/commandline.py:238
 msgid "Discover the services available on a remote server."
@@ -328,7 +326,9 @@ msgstr "\"%(item)s\" ignoré : (conflit de version \"%(error)s\")"
 #: src/vigilo/vigiconf/lib/__init__.py:70
 #, python-format
 msgid "Skipping \"%(item)s\": (unknown extra \"%(error)s\")"
-msgstr "\"%(item)s\" ignoré : (fonctionnalité supplémentaire inconnue \"%(error)s\")"
+msgstr ""
+"\"%(item)s\" ignoré : (fonctionnalité supplémentaire inconnue "
+"\"%(error)s\")"
 
 #: src/vigilo/vigiconf/lib/__init__.py:75
 #, python-format
@@ -342,67 +342,69 @@ msgstr "\"%(item)s\" ignoré : (erreur \"%(error)s\")"
 
 #: src/vigilo/vigiconf/lib/application.py:224
 #, python-format
-msgid "Can't find the validation script for app %s: %s"
-msgstr "Impossible de trouver le script de validation pour l'application %s : %s"
+msgid "Can't find the validation script for app %(app)s: %(error)s"
+msgstr ""
+"Impossible de trouver le script de validation pour l'application %(app)s "
+": %(error)s"
 
-#: src/vigilo/vigiconf/lib/application.py:261
+#: src/vigilo/vigiconf/lib/application.py:264
 #, python-format
 msgid "%(app)s: validation failed for server '%(server)s': %(reason)s"
 msgstr "%(app)s : échec de la validation pour le serveur '%(server)s' : %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:268
+#: src/vigilo/vigiconf/lib/application.py:271
 #, python-format
 msgid "%(app)s : Validation successful for server: %(server)s"
 msgstr "%(app)s : validation réussie pour le serveur %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:312
+#: src/vigilo/vigiconf/lib/application.py:315
 #, python-format
 msgid "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
 msgstr "%(app)s : échec de la qualification sur '%(server)s' - RAISON : %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:320
+#: src/vigilo/vigiconf/lib/application.py:323
 #, python-format
 msgid "%(app)s : Qualification successful on server : %(server)s"
 msgstr "%(app)s : qualification réussie sur le serveur %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:364
-#: src/vigilo/vigiconf/lib/application.py:388
+#: src/vigilo/vigiconf/lib/application.py:367
+#: src/vigilo/vigiconf/lib/application.py:391
 #, python-format
 msgid "%s : Start process failed."
 msgstr "%s : échec du démarrage du processus."
 
-#: src/vigilo/vigiconf/lib/application.py:400
+#: src/vigilo/vigiconf/lib/application.py:403
 #, python-format
 msgid "Starting %(app)s on %(server)s ..."
 msgstr "Démarrage de %(app)s sur le serveur %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:409
+#: src/vigilo/vigiconf/lib/application.py:412
 #, python-format
 msgid "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 msgstr "Impossible de démarrer %(app)s sur %(server)s - RAISON %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:417
+#: src/vigilo/vigiconf/lib/application.py:420
 #, python-format
 msgid "%(app)s started on %(server)s"
 msgstr "%(app)s démarré sur %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:457
-#: src/vigilo/vigiconf/lib/application.py:481
+#: src/vigilo/vigiconf/lib/application.py:460
+#: src/vigilo/vigiconf/lib/application.py:484
 #, python-format
 msgid "%s : Stop process failed."
 msgstr "%s : échec de l'arrêt du processus."
 
-#: src/vigilo/vigiconf/lib/application.py:493
+#: src/vigilo/vigiconf/lib/application.py:496
 #, python-format
 msgid "Stopping %(app)s on %(server)s ..."
 msgstr "Arrêt de %(app)s sur %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:502
+#: src/vigilo/vigiconf/lib/application.py:505
 #, python-format
 msgid "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 msgstr "Impossible d'arrêter %(app)s sur %(server)s  - RAISON %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:510
+#: src/vigilo/vigiconf/lib/application.py:513
 #, python-format
 msgid "%(app)s stopped on %(server)s"
 msgstr "%(app)s arrêté sur %(server)s"
@@ -419,7 +421,9 @@ msgstr ""
 #: src/vigilo/vigiconf/lib/dispatchator.py:173
 #, python-format
 msgid "Application %s is installed but disabled (see conf.d/general/apps.py)"
-msgstr "L'application %s est installée mais elle est désactivée (voir conf.d/general/apps.py)"
+msgstr ""
+"L'application %s est installée mais elle est désactivée (voir "
+"conf.d/general/apps.py)"
 
 #: src/vigilo/vigiconf/lib/dispatchator.py:177
 #, python-format
@@ -437,7 +441,8 @@ msgid ""
 "Application %s has been added to conf.d/general/apps.py, but is not "
 "installed"
 msgstr ""
-"L'application %s a été ajoutée dans conf.d/general/apps.py, mais elle n'est pas installée"
+"L'application %s a été ajoutée dans conf.d/general/apps.py, mais elle "
+"n'est pas installée"
 
 #: src/vigilo/vigiconf/lib/dispatchator.py:240
 msgid "Validation Successful"
@@ -585,9 +590,9 @@ msgid "Unknown command type."
 msgstr "Type de commande inconnu."
 
 #: src/vigilo/vigiconf/lib/remotecommand.py:196
-#, fuzzy, python-format
+#, python-format
 msgid "The source file does not exist: %s"
-msgstr "Le fichier XSD n'existe pas : %s"
+msgstr "Le fichier source n'existe pas : %s"
 
 #: src/vigilo/vigiconf/lib/remotecommand.py:213
 #: src/vigilo/vigiconf/lib/remotecommand.py:246
@@ -619,15 +624,15 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/server.py:204
 #, python-format
-msgid "Can't tar config for server %s: %s"
-msgstr "Impossible d'archiver la configuration du serveur %s: %s"
+msgid "Can't tar config for server %(server)s: %(error)s"
+msgstr "Impossible d'archiver la configuration du serveur %(server)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/server.py:219
+#: src/vigilo/vigiconf/lib/server.py:222
 #, python-format
 msgid "%s : deployement successful."
 msgstr "%s : déploiement réussi."
 
-#: src/vigilo/vigiconf/lib/server.py:233
+#: src/vigilo/vigiconf/lib/server.py:236
 #, python-format
 msgid "Cannot copy files (%(from)s to %(to)s): %(error)s."
 msgstr "Impossible de copier les fichier (de %(from)s vers %(to)s) : %(error)s."
@@ -874,8 +879,8 @@ msgstr "Erreur de syntaxe dans \"%(path)s\" : %(error)s"
 
 #: src/vigilo/vigiconf/lib/servertypes/local.py:46
 #, python-format
-msgid "Can't deploy the tar archive for server %s: %s"
-msgstr "Impossible de déployer l'archive tar du serveur %s: %s"
+msgid "Can't deploy the tar archive for server %(server)s: %(error)s"
+msgstr "Impossible de déployer l'archive tar du serveur %(server)s: %(error)s"
 
 #: src/vigilo/vigiconf/lib/servertypes/remote.py:50
 #, python-format
@@ -883,19 +888,21 @@ msgid "Cannot find SSH config file: %s"
 msgstr "Impossible de trouver le fichier de configuration SSH : %s"
 
 #: src/vigilo/vigiconf/lib/servertypes/remote.py:87
-#, fuzzy, python-format
+#, python-format
 msgid "The archive file does not exist: %s"
-msgstr "Le fichier XSD n'existe pas : %s"
+msgstr "L'archive n'existe pas : %s"
 
 #: src/vigilo/vigiconf/lib/servertypes/remote.py:93
 #, python-format
-msgid "Can't copy the config. archive to %s: %s"
-msgstr "Impossible de copier l'archive' de configuration sur %s : %s"
+msgid "Can't copy the configuration archive to %(server)s: %(error)s"
+msgstr ""
+"Impossible de copier l'archive' de configuration sur %(server)s : "
+"%(error)s"
 
-#: src/vigilo/vigiconf/lib/servertypes/remote.py:105
+#: src/vigilo/vigiconf/lib/servertypes/remote.py:108
 #, python-format
-msgid "Can't deploy the config. for server %s: %s"
-msgstr "Impossible de déployer la configuration du serveur %s : %s"
+msgid "Can't deploy the configuration for server %(server)s: %(error)s"
+msgstr "Impossible de déployer la configuration du serveur %(server)s : %(error)s"
 
 #: src/vigilo/vigiconf/loaders/dependency.py:61
 #, python-format
@@ -964,3 +971,4 @@ msgstr "Groupe inconnu \"%(group)s\" sur l'hôte \"%(host)s\"."
 #, python-format
 msgid "Could not find a group matching this path: %s"
 msgstr "Impossible de trouver un groupe correspondant au chemin %s"
+

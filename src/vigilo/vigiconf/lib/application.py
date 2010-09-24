@@ -222,7 +222,10 @@ class Application(object):
             return
         if not resource_exists(self.__module__, self.validation):
             raise ApplicationError(_("Can't find the validation script for "
-                                 "app %s: %s") % (self.name, self.validation))
+                                    "app %(app)s: %(error)s") % {
+                                        'app': self.name,
+                                        'error': self.validation,
+                                    })
         for vserver in self.servers:
             scripts_dir = os.path.join(basedir, vserver.name,
                                        "apps", self.name)

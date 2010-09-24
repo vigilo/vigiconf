@@ -44,7 +44,10 @@ class ServerLocal(Server):
             cmd.execute()
         except SystemCommandError, e:
             raise ServerError(_("Can't deploy the tar archive for server "
-                                "%s: %s") % (self.getName(), e.value))
+                                "%(server)s: %(error)s") % {
+                                    'server': self.getName(),
+                                    'error': e.value,
+                                })
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

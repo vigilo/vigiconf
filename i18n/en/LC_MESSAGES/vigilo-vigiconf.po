@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2010-09-24 10:43+0200\n"
-"PO-Revision-Date: 2010-09-24 10:43+0200\n"
+"POT-Creation-Date: 2010-09-24 10:58+0200\n"
+"PO-Revision-Date: 2010-09-24 11:00+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -332,67 +332,67 @@ msgstr "Skipping \"%(item)s\": (error \"%(error)s\")"
 
 #: src/vigilo/vigiconf/lib/application.py:224
 #, python-format
-msgid "Can't find the validation script for app %s: %s"
-msgstr "Can't find the validation script for app %s: %s"
+msgid "Can't find the validation script for app %(app)s: %(error)s"
+msgstr "Can't find the validation script for app %(app)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/application.py:261
+#: src/vigilo/vigiconf/lib/application.py:264
 #, python-format
 msgid "%(app)s: validation failed for server '%(server)s': %(reason)s"
 msgstr "%(app)s: validation failed for server '%(server)s': %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:268
+#: src/vigilo/vigiconf/lib/application.py:271
 #, python-format
 msgid "%(app)s : Validation successful for server: %(server)s"
 msgstr "%(app)s : Validation successful for server: %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:312
+#: src/vigilo/vigiconf/lib/application.py:315
 #, python-format
 msgid "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
 msgstr "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:320
+#: src/vigilo/vigiconf/lib/application.py:323
 #, python-format
 msgid "%(app)s : Qualification successful on server : %(server)s"
 msgstr "%(app)s : Qualification successful on server : %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:364
-#: src/vigilo/vigiconf/lib/application.py:388
+#: src/vigilo/vigiconf/lib/application.py:367
+#: src/vigilo/vigiconf/lib/application.py:391
 #, python-format
 msgid "%s : Start process failed."
 msgstr "%s : Start process failed."
 
-#: src/vigilo/vigiconf/lib/application.py:400
+#: src/vigilo/vigiconf/lib/application.py:403
 #, python-format
 msgid "Starting %(app)s on %(server)s ..."
 msgstr "Starting %(app)s on %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:409
+#: src/vigilo/vigiconf/lib/application.py:412
 #, python-format
 msgid "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 msgstr "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:417
+#: src/vigilo/vigiconf/lib/application.py:420
 #, python-format
 msgid "%(app)s started on %(server)s"
 msgstr "%(app)s started on %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:457
-#: src/vigilo/vigiconf/lib/application.py:481
+#: src/vigilo/vigiconf/lib/application.py:460
+#: src/vigilo/vigiconf/lib/application.py:484
 #, python-format
 msgid "%s : Stop process failed."
 msgstr "%s : Stop process failed."
 
-#: src/vigilo/vigiconf/lib/application.py:493
+#: src/vigilo/vigiconf/lib/application.py:496
 #, python-format
 msgid "Stopping %(app)s on %(server)s ..."
 msgstr "Stopping %(app)s on %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:502
+#: src/vigilo/vigiconf/lib/application.py:505
 #, python-format
 msgid "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 msgstr "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:510
+#: src/vigilo/vigiconf/lib/application.py:513
 #, python-format
 msgid "%(app)s stopped on %(server)s"
 msgstr "%(app)s stopped on %(server)s"
@@ -606,15 +606,15 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/server.py:204
 #, python-format
-msgid "Can't tar config for server %s: %s"
-msgstr "Can't tar config for server %s: %s"
+msgid "Can't tar config for server %(server)s: %(error)s"
+msgstr "Can't tar config for server %(server)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/server.py:219
+#: src/vigilo/vigiconf/lib/server.py:222
 #, python-format
 msgid "%s : deployement successful."
 msgstr "%s : deployement successful."
 
-#: src/vigilo/vigiconf/lib/server.py:233
+#: src/vigilo/vigiconf/lib/server.py:236
 #, python-format
 msgid "Cannot copy files (%(from)s to %(to)s): %(error)s."
 msgstr "Cannot copy files (%(from)s to %(to)s): %(error)s."
@@ -854,8 +854,8 @@ msgstr "Syntax error in \"%(path)s\": %(error)s"
 
 #: src/vigilo/vigiconf/lib/servertypes/local.py:46
 #, python-format
-msgid "Can't deploy the tar archive for server %s: %s"
-msgstr "Can't deploy the tar archive for server %s: %s"
+msgid "Can't deploy the tar archive for server %(server)s: %(error)s"
+msgstr "Can't deploy the tar archive for server %(server)s: %(error)s"
 
 #: src/vigilo/vigiconf/lib/servertypes/remote.py:50
 #, python-format
@@ -869,13 +869,13 @@ msgstr "The archive file does not exist: %s"
 
 #: src/vigilo/vigiconf/lib/servertypes/remote.py:93
 #, python-format
-msgid "Can't copy the config. archive to %s: %s"
-msgstr "Can't copy the config. archive to %s: %s"
+msgid "Can't copy the configuration archive to %(server)s: %(error)s"
+msgstr "Can't copy the configuration archive to %(server)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/servertypes/remote.py:105
+#: src/vigilo/vigiconf/lib/servertypes/remote.py:108
 #, python-format
-msgid "Can't deploy the config. for server %s: %s"
-msgstr "Can't deploy the config. for server %s: %s"
+msgid "Can't deploy the configuration for server %(server)s: %(error)s"
+msgstr "Can't deploy the configuration for server %(server)s: %(error)s"
 
 #: src/vigilo/vigiconf/loaders/dependency.py:61
 #, python-format

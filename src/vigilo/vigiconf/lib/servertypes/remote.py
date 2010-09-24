@@ -90,8 +90,11 @@ class ServerRemote(Server):
         try:
             cmd.copyTo(tar_dest, tar_src)
         except SystemCommandError, e:
-            raise ServerError(_("Can't copy the config. archive to %s: %s")
-                                % (self.getName(), e.value))
+            raise ServerError(_("Can't copy the configuration archive "
+                                "to %(server)s: %(error)s") % {
+                                    'server': self.getName(),
+                                    'error': e.value,
+                                })
         finally:
             os.remove(tar_src)
 
@@ -102,8 +105,11 @@ class ServerRemote(Server):
         try:
             cmd.execute()
         except SystemCommandError, e:
-            raise ServerError(_("Can't deploy the config. for server %s: %s")
-                               % (self.getName(), e.value))
+            raise ServerError(_("Can't deploy the configuration for "
+                                "server %(server)s: %(error)s") % {
+                                    'server': self.getName(),
+                                    'error': e.value,
+                                })
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
