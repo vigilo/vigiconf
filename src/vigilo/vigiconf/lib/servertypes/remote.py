@@ -45,7 +45,7 @@ class ServerRemote(Server):
         Server.__init__(self, iName)
         # mCommandUser
         ssh_conf_file = os.path.join(settings["vigiconf"].get("confdir"),
-                                     "ssh", "ssh_config")
+                                     "..", "ssh", "ssh_config")
         if not os.path.exists(ssh_conf_file):
             raise ServerError(_("Cannot find SSH config file: %s")
                                         % ssh_conf_file)
