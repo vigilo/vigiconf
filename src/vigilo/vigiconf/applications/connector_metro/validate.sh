@@ -21,6 +21,10 @@
 
 export BASE=$1
 
+if [ "$2" == "local" ] ; then
+    ls /etc/init.d/vigilo-connector-metro >/dev/null || exit 1
+fi
+
 if [ ! -r $BASE/connector-metro.conf.py ]
 then
     exit 0

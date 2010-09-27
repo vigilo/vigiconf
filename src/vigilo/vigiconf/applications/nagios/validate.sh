@@ -18,6 +18,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
+if [ "$2" == "local" ] ; then
+    ls /etc/init.d/nagios >/dev/null || exit 1
+fi
 
 if [ -e /usr/sbin/nagios2 ]; then
     nver=2
