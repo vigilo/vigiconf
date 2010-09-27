@@ -4,10 +4,7 @@
 	<group name="High Level Services" >
 		<group name="HLS group 1"/>
 		<group name="HLS group 2"/>
-		<group name="HLS group 3">
-			<group name="HLS group 3.1"/>
-			<group name="HLS group 3.2"/>
-		</group>
+        <group name="HLS group 3"/>
 	</group>
 
 </groups>
