@@ -251,11 +251,8 @@ class Application(object):
         # iterate through the servers
         if not self.validation:
             return
-        _filesDir = os.path.join(iBaseDir, iServer.name)
-        dest_script = os.path.join(_filesDir, "apps", self.name,
-                                   "validation.sh")
-        os.chdir(_filesDir)
-        _command = ["sh", dest_script, _filesDir]
+        files_dir = os.path.join(iBaseDir, iServer.name)
+        _command = ["vigiconf-local", "validate-app", self.name, files_dir]
         _command = SystemCommand(_command)
         try:
             _command.execute()
@@ -307,7 +304,9 @@ class Application(object):
         """
         if not self.validation:
             return
-        _command = ["vigiconf-local", "validate-app", self.name]
+        # A priori pas necessaire, valeur par défaut
+        #files_dir = os.path.join(settings["vigiconf"].get("targetconfdir"), "new")
+        _command = ["vigiconf-local", "validate-app", self.name] #, files_dir]
         _command = iServer.createCommand(_command)
         try:
             _command.execute()
