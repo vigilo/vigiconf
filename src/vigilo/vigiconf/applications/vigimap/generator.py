@@ -202,7 +202,6 @@ class VigiMapGen(MapGenerator):
         LOGGER.debug(_("Creating Map for SupItemGroup %(group)s in MapGroup %(mapgroup)s"),
                      {"group": supitemgroup.name, "mapgroup": parent_mapgroup.name})
         newmap = self.create_map(supitemgroup.name, [parent_mapgroup,], self.map_defaults)
-        self.populate_map(newmap, supitemgroup, self.map_defaults)
         return newmap
 
     def _remove_mapgroup(self, mapgroup):
@@ -289,6 +288,7 @@ class VigiMapGen(MapGenerator):
         if supitemgroup.supitems:
             newmap = self._make_map(supitemgroup, parent_mapgroup)
             results.append(newmap)
+            self.populate_map(newmap, supitemgroup, self.map_defaults)
         return results
 
     def generate(self):
