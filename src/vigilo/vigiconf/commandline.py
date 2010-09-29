@@ -268,6 +268,8 @@ def change_user():
             LOGGER.error(_("Unable to switch to user 'vigiconf'. Aborting."))
             sys.exit(2)
 
+        # Permet de charger les groupes supplémentaires
+        # associés à l'utilisateur "vigiconf".
         groups = grp.getgrall()
         suppl_groups = []
         for grp_name, grp_pwd, grp_gid, grp_suppl in groups:
