@@ -79,7 +79,7 @@ hosts element contains one ore more host elements
                 </xs:choice>
 
                 <xs:attribute name="name" type="xs:string"/>
-                <xs:attribute name="weight" type="xs:positiveInteger"/>
+                <xs:attribute name="weight" type="xs:positiveInteger" use="optional"/>
             </xs:complexType>
         </xs:element>
 
@@ -108,7 +108,7 @@ hosts element contains one ore more host elements
         <xs:element name="group" type="xs:string"/>
 
         <!-- Poids accordé à l'hôte (entier strictement positif). -->
-        <xs:element name="weight" type="xs:positiveInteger"/>
+        <xs:element name="weight" minOccurs="0" type="xs:positiveInteger"/>
     </xs:choice>
 
     <!-- Libellé de l'hôte. -->
@@ -134,7 +134,7 @@ hosts element contains one ore more host elements
 <xs:element name="hosts">
     <xs:complexType>
         <xs:sequence>
-            <xs:element maxOccurs="unbounded" minOccurs="0" name="host"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" ref="host"/>
         </xs:sequence>
     </xs:complexType>
 </xs:element>

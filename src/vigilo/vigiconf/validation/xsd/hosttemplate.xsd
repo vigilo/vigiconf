@@ -56,14 +56,14 @@
                                 </xs:sequence>
 
                                 <xs:attribute name="name" type="xs:string"/>
-                                <xs:attribute name="weight" type="xs:positiveInteger"/>
+                                <xs:attribute name="weight" type="xs:positiveInteger" use="optional"/>
                             </xs:complexType>
                         </xs:element>
 
 
                         <!-- nagios host specific bloc -->
                         <xs:element ref="nagios"/>
-                        <xs:element name="weight" type="xs:positiveInteger"/>
+                        <xs:element name="weight" minOccurs="0" type="xs:positiveInteger"/>
                     </xs:choice>
 
                     <xs:attribute name="name" type="xs:string" use="required"/>
