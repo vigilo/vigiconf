@@ -200,11 +200,14 @@ class RevisionManager(object):
         """
         cmd = iServer.createCommand(["vigiconf-local", "get-revisions"])
         cmd.execute()
+        rev_re = re.compile("^\s*(\w+)\s+(\d+)\s*$")
         revisions = {}
         for line in cmd.getResult().split("\n"):
-            if " " not in line.strip():
+            rev_match = rev_re.match(line)
+            if not rev_match:
                 continue
-            directory, revision = line.strip().split(" ")
+            directory = rev_match.group(1)
+            revision = rev_match.group(2)
             revisions[directory] = int(revision)
         return revisions
 
