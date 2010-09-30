@@ -20,40 +20,21 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
 License:    GPLv2
 Buildarch:  noarch
 
+Buildrequires: python26-distribute
+#Buildrequires: graphviz # Documentation generation
+
 Requires:   python26-distribute
 Requires:   perl
 Requires:   subversion
 Requires:   openssh-clients
 Requires:   tar
-Requires:   libxml2-utils
+Requires:   libxml2
 Requires:   python26-argparse
 Requires:   vigilo-models
 Requires:   vigilo-common
 
 Requires(pre): shadow-utils
 Requires(post): openssh
-
-######### Dependance from python dependance tree ########
-Requires:   python26-argparse
-Requires:   python26-babel
-Requires:   python26-configobj
-Requires:   python26-paste
-Requires:   python26-pastedeploy
-Requires:   python26-pastescript
-Requires:   python26-psycopg2
-Requires:   python26-distribute
-Requires:   python26-sqlalchemy
-Requires:   python26-transaction
-Requires:   vigilo-common
-Requires:   vigilo-models
-Requires:   vigilo-vigiconf
-Requires:   python26-zope-interface
-Requires:   python26-zope.sqlalchemy
-#Buildrequires: graphviz # Documentation generation
-
-# Renamed from vigilo-confmgr
-Obsoletes:  vigilo-confmgr < 1.36-2
-Provides:   vigilo-confmgr = %{version}-%{release}
 
 
 %description
