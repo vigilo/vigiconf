@@ -12,28 +12,20 @@ def get_text(elem):
     """
     Renvoie le texte contenu dans une balise.
     Cette fonction élimine les caractères blancs autour du texte.
-    
+
     @param elem: Élément dont on souhaite retourner le texte.
     @type elem: C{etree.ElementTree}
     @return: Le texte de l'élément ou None s'il n'y en a pas
         ou si l'élément ne contient que des caractères blancs.
     @rtype: C{unicode} ou C{None}
     """
-    text = elem.text
-    if not text:
-        return None
-
-    text = text.strip()
-    if not text:
-        return None
-    return text
-
+    return elem.text and elem.text.strip() or None
 
 def get_attrib(elem, attr):
     """
     Renvoie la valeur d'un attribut de l'élément.
     Cette fonction élimine les caractères blancs autour de la valeur.
-    
+
     @param elem: Élément dont on souhaite retourner un attribut.
     @type elem: C{etree.ElementTree}
     @param attr: Nom de l'attribut à retourner sur cet élément.
@@ -113,4 +105,3 @@ def parse_path(path):
         return None
 
     return parts
-
