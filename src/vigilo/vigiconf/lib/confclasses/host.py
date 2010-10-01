@@ -309,7 +309,7 @@ class Host(object):
         @param function: the Collector function to use
         @type  function: C{str}
         @param params: the parameters for the Collector function
-        @type  params: C{str}
+        @type  params: C{list}
         @param variables: the variables for the Collector function
         @type  variables: C{list}
         @param cti: alert reference (Category - Type - Item)
@@ -358,7 +358,7 @@ class Host(object):
         @param function: the Collector function to use
         @type  function: C{str}
         @param params: the parameters for the Collector function
-        @type  params: C{str}
+        @type  params: C{list}
         @param variables: the variables for the Collector function
         @type  variables: C{list}
         @param dstype: datasource type
@@ -402,13 +402,13 @@ class Host(object):
         @param supfunction: the Collector function to use for supervision
         @type  supfunction: C{str}
         @param supparams: the parameters for the Collector supervision function
-        @type  supparams: C{str}
+        @type  supparams: C{list}
         @param supvars: the variables for the Collector supervision function
         @type  supvars: C{list}
         @param metrofunction: the Collector function to use for metrology
         @type  metrofunction: C{str}
         @param metroparams: the parameters for the Collector metrology function
-        @type  metroparams: C{str}
+        @type  metroparams: C{list}
         @param metrovars: the variables for the Collector metrology function
         @type  metrovars: C{list}
         @param dstype: datasource type
