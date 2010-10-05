@@ -40,6 +40,7 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.models.session import DBSession
+from vigilo.models.tables import SupItem
 
 from .dbloader import DBLoader
 from vigilo.vigiconf.lib import ParsingError
@@ -329,3 +330,19 @@ class XMLLoader(DBLoader):
             for d in dirs: # Don't visit subversion/CVS directories
                 if not self.visit_dir(d):
                     dirs.remove(d)
+
+    # Fonctions utilitaires
+    def get_supitem(self, elem):
+        supitem = None
+        host = None
+        service = None
+        if "host" in elem.attrib:
+            host = self.get_uattrib("host", elem)
+        if "service" in elem.attrib:
+            service = self.get_uattrib("service", elem)
+        supitem = SupItem.get_supitem(host, service)
+        if supitem is None:
+            raise ParsingError(_("Can't find an item matching %s") %
+                repr(elem.attrib))
+        return DBSession.query(SupItem).get(supitem)
+

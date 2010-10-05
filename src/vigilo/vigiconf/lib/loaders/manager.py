@@ -93,9 +93,9 @@ class LoaderManager(object):
         hlserviceloader.load()
 
         # dépendances topologiques
-        from vigilo.vigiconf.loaders.dependency import DependencyLoader
-        dependencyloader = DependencyLoader()
-        dependencyloader.load()
+        from vigilo.vigiconf.loaders.topology import TopologyLoader
+        topologyloader = TopologyLoader()
+        topologyloader.load()
 
         DBSession.flush()
 

@@ -5,14 +5,14 @@ loaders test.
 
  * host groups
  * service groups
- * dependencies
+ * topology
 """
 
 import os, unittest, shutil
 
 from vigilo.vigiconf.lib import ParsingError
 from vigilo.vigiconf.loaders.group import GroupLoader
-from vigilo.vigiconf.loaders.dependency import DependencyLoader
+from vigilo.vigiconf.loaders.topology import TopologyLoader
 
 import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
@@ -77,7 +77,7 @@ class DepLoaderTest(XMLLoaderTest):
     def setUp(self):
         super(DepLoaderTest, self).setUp()
         self.grouploader = GroupLoader()
-        self.dependencyloader = DependencyLoader()
+        self.topologyloader = TopologyLoader()
         self.host1 =  Host(
             name=u'host1',
             checkhostcmd=u'halt -f',
@@ -111,15 +111,6 @@ class DepLoaderTest(XMLLoaderTest):
             weight=44,
         )
         DBSession.add(self.host12)
-        self.hlservice1 = HighLevelService(
-            servicename=u'hlservice1',
-            op_dep=u'+',
-            message=u'Hello world',
-            warning_threshold=50,
-            critical_threshold=80,
-            priority=1
-        )
-        DBSession.add(self.hlservice1)
         self.service11 = LowLevelService(
             servicename=u'service11',
             op_dep=u'+',
@@ -136,35 +127,13 @@ class DepLoaderTest(XMLLoaderTest):
         DBSession.add(self.service12)
         DBSession.flush()
 
-    def test_load_dependencies(self):
+    def test_load_topologies(self):
         # let's create hosts and services
-
-
         print DBSession.query(Dependency).count()
-        self.dependencyloader.load_dir('tests/testdata/xsd/dependencies/ok/loader')
-
-        """ The dependency links are as following:
-        <dependency>
-            <host name="host1" />
-            <!-- always high level services here -->
-            <service name="hlservice1" />
-
-            <subitems>
-                <host name="host11" />
-                <host name="host12" />
-
-                <!-- low level services supported by each host above -->
-                <!-- or high level services if no host in the subitems section -->
-                <service name="service11" />
-                <service name="service12" />
-            </subitems>
-
-        </dependency>
-        """
-        # 4 dependencies
-        self.assertEquals(4, DBSession.query(Dependency).count(), "4 dependencies")
+        self.topologyloader.load_dir('tests/testdata/xsd/topologies/ok/loader')
+        # 4 topologies
+        self.assertEquals(2, DBSession.query(Dependency).count())
         # host11/service11 is a dependence of host1
-
         si_host1 = SupItem.get_supitem(hostname=u"host1", servicename=None)
         si_host11 = SupItem.get_supitem(hostname=u"host11", servicename=u"service11")
         self.assertTrue(si_host1, "si_host1 not null")
@@ -175,15 +144,7 @@ class DepLoaderTest(XMLLoaderTest):
                                      .count(),
           "One dependency: host11/service11 is a dependence of host1")
 
-        # host11/service11 is a dependence of hlservice1
-        si_hls1 = SupItem.get_supitem(hostname=None, servicename=u"hlservice1")
-        self.assertEquals(1,
-          DBSession.query(Dependency).filter(Dependency.idsupitem1==si_hls1)\
-                                     .filter(Dependency.idsupitem2==si_host11)\
-                                     .count(),
-          "One dependency: host11/service11 is a dependence of hlservice1")
-
-    def test_load_conf_dependencies(self):
+    def test_load_conf_topologies(self):
         """ Test de chargement des dépendances de la conf.
         """
         localhost =  Host(
@@ -207,15 +168,15 @@ class DepLoaderTest(XMLLoaderTest):
         DBSession.add(interface)
         DBSession.flush()
 
-        self.dependencyloader.load_dir('tests/testdata/conf.d/dependencies')
+        self.topologyloader.load_dir('tests/testdata/conf.d/topologies')
 
-    def test_load_dependencies_ko(self):
+    def test_load_topologies_ko(self):
         """ Test de fichiers xml valides selon XSD mais invalides pour le loader.
 
         """
-        basedir = 'tests/testdata/xsd/dependencies/ok/loader_ko'
+        basedir = 'tests/testdata/xsd/topologies/ok/loader_ko'
 
-        self.assertRaises(ParsingError, self.dependencyloader.load_dir, basedir)
+        self.assertRaises(ParsingError, self.topologyloader.load_dir, basedir)
 
     def test_hostgroups_hierarchy(self):
         """ Test de grouploader.get_groups_hierarchy().
