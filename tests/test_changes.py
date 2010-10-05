@@ -8,7 +8,7 @@ Gestion du changement lors du chargement de
 
 import unittest
 
-from vigilo.vigiconf.loaders.dependency import DependencyLoader
+from vigilo.vigiconf.loaders.topology import TopologyLoader
 
 import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
@@ -24,7 +24,7 @@ class ChangeManagementTest(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
-        self.dependencyloader = DependencyLoader()
+        self.topologyloader = TopologyLoader()
 
         # Présents dans les fichiers XML
         localhost =  Host(
@@ -88,28 +88,28 @@ class ChangeManagementTest(unittest.TestCase):
     def test_change_dependencies_suppr(self):
         """ Test de la gestion des changements des dépendances.
         """
-        self.dependencyloader.load()
+        self.topologyloader.load()
         dep = Dependency(supitem1=self.testhost1, supitem2=self.testhost2)
         DBSession.add(dep)
         DBSession.flush()
         depnum_before = DBSession.query(Dependency).count()
-        self.dependencyloader.load()
+        self.topologyloader.load()
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before - 1)
         
     def test_change_dependencies_add(self):
-        self.dependencyloader.load()
+        self.topologyloader.load()
         DBSession.delete(DBSession.query(Dependency).first())
         DBSession.flush()
         depnum_before = DBSession.query(Dependency).count()
-        self.dependencyloader.load()
+        self.topologyloader.load()
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before + 1)
         
     def test_change_dependencies_nothing(self):
-        self.dependencyloader.load()
+        self.topologyloader.load()
         depnum_before = DBSession.query(Dependency).count()
-        self.dependencyloader.load()
+        self.topologyloader.load()
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before)
 
