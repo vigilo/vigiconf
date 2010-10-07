@@ -6,6 +6,7 @@ ventilator test
 
 
 import os, unittest, shutil
+from pprint import pprint
 
 import vigilo.vigiconf.conf as conf
 
@@ -138,6 +139,51 @@ class VentilatorTest(unittest.TestCase):
         group4 = add_supitemgroup("Group4", group3)
         host.groups = [group2, group4]
         self.assertRaises(ParsingError, self.ventilator.get_host_ventilation_group, "localhost", {})
+
+    def test_reventilate(self):
+        """Cas où un serveur est supprimé de la conf"""
+        # besoin de localhost en base
+        host = add_host("localhost")
+        # chargement des apps
+        loader = LoaderManager()
+        loader.load_apps_db(self.generator.apps)
+        DBSession.flush()
+        # On ajoute 2 autres serveurs de supervision
+        for appGroup in conf.appsGroupsByServer:
+            for hostGroup in conf.appsGroupsByServer[appGroup]:
+                conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver2.example.com')
+                conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
+        loader.load_vigilo_servers_db()
+        for i in range(9):
+            hostname = "localhost%d" % i
+            conf.hostsConf[hostname] = conf.hostsConf["localhost"].copy()
+            conf.hostsConf[hostname]["name"] = hostname
+            add_host(hostname)
+        ventilation = self.generator.get_ventilation()
+        loader.load_ventilation_db(ventilation)
+        # On vérifie que des hôtes ont quand même été affectés à supserver3.example.com
+        ss3_hosts = []
+        for host in ventilation:
+            for app in ventilation[host]:
+                if ventilation[host][app] == "supserver3.example.com":
+                    ss3_hosts.append(host)
+        assert len(ss3_hosts) > 0
+        # Et maintenant, on supprime supserver3.example.com
+        for appGroup in conf.appsGroupsByServer:
+            for hostGroup in conf.appsGroupsByServer[appGroup]:
+                conf.appsGroupsByServer[appGroup][hostGroup].remove(u'supserver3.example.com')
+        # On reventile
+        ventilation = self.generator.get_ventilation()
+        loader.load_ventilation_db(ventilation)
+
+        # Tout doit avoir été reventilé sur les autres serveurs
+        for host in ventilation:
+            for app in ventilation[host]:
+                self.assertNotEquals(ventilation[host][app],
+                        "supserver3.example.com",
+                        u"L'hote %s est toujours supervise par un "
+                            % host +
+                        u"serveur qui a ete supprime")
 
 
 if __name__ == '__main__':

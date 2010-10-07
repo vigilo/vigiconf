@@ -123,7 +123,7 @@ class Ventilator(object):
         @rtype:  C{str}
         """
         previous_server = self.get_previous_server(host, appgroup)
-        if previous_server:
+        if previous_server and previous_server in servers:
             return previous_server
         # not found yet, choose next server
         vserver = self.getNextServerToUse(servers)
