@@ -294,7 +294,7 @@ class Dispatchator(object):
 
     def _svn_add(self, path):
         LOGGER.debug(_("Adding a new configuration file to the repository: %s"), path)
-        _cmd = self._get_auth_svn_cmd_prefix('add')
+        _cmd = ["svn", "add"]
         _cmd.append(path)
         _command = self.createCommand(_cmd)
         try:
