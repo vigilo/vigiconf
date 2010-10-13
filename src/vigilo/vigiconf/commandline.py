@@ -35,9 +35,6 @@ import gettext
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
-from vigilo.common.logging import get_logger
-LOGGER = get_logger(__name__)
-
 from vigilo.models.configure import configure_db
 configure_db(settings['database'], 'sqlalchemy_',
     settings['database']['db_basename'])
@@ -57,6 +54,10 @@ from vigilo.vigiconf.lib import dispatchmodes
 
 from xml.etree import ElementTree as ET # Python 2.5
 
+# Doit être fait à la fin des imports, sinon ça ne marche pas sur py2.6
+# (raison inconnue)
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
 
 
 def get_dispatchator(args):
