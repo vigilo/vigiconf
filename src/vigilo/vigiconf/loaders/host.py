@@ -147,9 +147,9 @@ class HostLoader(DBLoader):
             for part in parse_path(path):
                 parent = SupItemGroup.by_parent_and_name(parent, part)
                 if not parent:
-                    LOGGER.error(_("Could not find a group matching "
-                                    "this path: %s"), path)
-                    break
+                    msg = _("syntax error in host %s: could not find a group "
+                            "matching path \"%s\"")
+                    raise ParsingError(msg % (host.name, path))
             if parent and parent not in hostgroups_cache:
                 host.groups.append(parent)
                 hostgroups_cache[path] = parent
