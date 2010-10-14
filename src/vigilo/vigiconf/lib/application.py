@@ -254,6 +254,7 @@ class Application(object):
         files_dir = os.path.join(iBaseDir, iServer.name)
         _command = ["vigiconf-local", "validate-app", self.name, files_dir]
         _command = SystemCommand(_command)
+        _command.simulate = settings["vigiconf"].as_bool("simulate")
         try:
             _command.execute()
         except SystemCommandError, e:

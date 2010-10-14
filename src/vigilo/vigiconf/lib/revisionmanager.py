@@ -201,7 +201,7 @@ class RevisionManager(object):
         cmd = iServer.createCommand(["vigiconf-local", "get-revisions"])
         cmd.execute()
         rev_re = re.compile("^\s*(\w+)\s+(\d+)\s*$")
-        revisions = {}
+        revisions = {"new": 0, "prod": 0, "old": 0,}
         for line in cmd.getResult().split("\n"):
             rev_match = rev_re.match(line)
             if not rev_match:
