@@ -29,7 +29,6 @@ import os.path
 import types
 
 import transaction
-from pkg_resources import working_set
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -43,6 +42,7 @@ _ = translate(__name__)
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.loaders import LoaderManager
+from vigilo.vigiconf.lib.ventilation import get_ventilator
 from .base import Generator
 
 
@@ -57,46 +57,19 @@ class GeneratorManager(object):
 
     def __init__(self, apps):
         self.apps = apps
+        self.ventilator = get_ventilator(self.apps)
         try:
             self.genshi_enabled = settings['vigiconf'].as_bool(
                                     'enable_genshi_generation')
         except KeyError:
             self.genshi_enabled = False
 
-    def get_ventilation(self):
-        """Wrapper for the ventilator"""
-        if hasattr(conf, "appsGroupsByServer"):
-            for entry in working_set.iter_entry_points(
-                            "vigilo.vigiconf.extensions", "ventilator"):
-                ventilator_class = entry.load()
-                ventilator = ventilator_class(self.apps)
-                return ventilator.ventilate()
-        # Community Edition, ventilator is not available.
-        return self._get_local_ventilation()
-
-    def _get_local_ventilation(self):
-        """Map every app to localhost (Community Edition)"""
-        mapping = {}
-        for host in conf.hostsConf.keys():
-            mapping[host] = {}
-            for app in self.apps:
-                mapping[host][app] = "localhost"
-        return mapping
-
-    def ventilation_by_appname(self, ventilation):
-        vba = {}
-        for host in ventilation:
-            vba[host] = {}
-            for app, vserver in ventilation[host].iteritems():
-                vba[host][app.name] = vserver
-        return vba
-
     def run_all_generators(self, ventilation, validator):
         """
         Execute la méthode I{generate()} de la classe pointée par l'attribut
         I{generate} de chaque application
         """
-        vba = self.ventilation_by_appname(ventilation)
+        vba = self.ventilator.ventilation_by_appname(ventilation)
         LOGGER.debug("Generating configuration")
         for app in self.apps:
             if not app.generator:
@@ -122,7 +95,7 @@ class GeneratorManager(object):
         loader.load_apps_db(self.apps)
         loader.load_conf_db()
         loader.load_vigilo_servers_db()
-        ventilation = self.get_ventilation()
+        ventilation = self.ventilator.ventilate()
         loader.load_ventilation_db(ventilation)
 
         validator = Validator(ventilation)

@@ -29,6 +29,7 @@ This file is part of the Enterprise Edition
 
 from __future__ import absolute_import
 
+import transaction
 
 from vigilo.models.session import DBSession
 from vigilo.models import tables
@@ -41,16 +42,18 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.vigiconf import conf
-from . import ParsingError, VigiConfError
+from vigilo.vigiconf.lib import ParsingError, VigiConfError
+from vigilo.vigiconf.lib.ventilation import Ventilator
 
 
 __docformat__ = "epytext"
+__all__ = ("VentilatorRemote",)
 
 
-class Ventilator(object):
+class VentilatorRemote(Ventilator):
 
     def __init__(self, apps):
-        self.apps = apps
+        super(VentilatorRemote, self).__init__(apps)
         self.apps_by_appgroup = self.get_app_by_appgroup()
 
     def appendHost(self, vservername, hostname, appgroup):
@@ -103,6 +106,8 @@ class Ventilator(object):
                             ).join(tables.Ventilation.host
                             ).filter(
                                 tables.Host.name == unicode(host)
+                            ).filter(
+                                tables.VigiloServer.disabled == False
                             ).first()
             if prev_srv is not None:
                 return prev_srv.name
@@ -164,6 +169,22 @@ class Ventilator(object):
             appgroups.setdefault(app.group, []).append(app)
         return appgroups
 
+    def filter_vservers(self, vserverlist):
+        """
+        Filtre une liste pour ne garder que les serveurs qui ne sont pas désactivés.
+        Désactive un serveur Vigilo
+        @param vservername: nom du serveur Vigilo
+        @type  vservername: C{str}
+        """
+        for vservername in vserverlist:
+            vserver = tables.VigiloServer.by_vigiloserver_name(unicode(vservername))
+            if vserver is None:
+                raise VigiConfError(_("The Vigilo server %s does not exist")
+                                    % vservername)
+            if vserver.disabled:
+                vserverlist.remove(vservername)
+        return vserverlist
+
     def ventilate(self):
         """
         Try to find the best server where to monitor the hosts contained in the
@@ -211,6 +232,7 @@ class Ventilator(object):
                         or not self.apps_by_appgroup[appGroup]:
                     continue # pas d'appli dans ce groupe
                 vservers = conf.appsGroupsByServer[appGroup][hostGroup]
+                vservers = self.filter_vservers(vservers)
                 if not vservers:
                     continue # pas de serveurs affectés à ce groupe
                 if len(vservers) == 1:
@@ -222,6 +244,59 @@ class Ventilator(object):
                     app_to_vserver[app] = server
             r[host] = app_to_vserver
         return r
+
+    # Gestion des serveurs Vigilo
+
+    def disable_server(self, vservername):
+        """
+        Désactive un serveur Vigilo
+        @param vservername: nom du serveur Vigilo
+        @type  vservername: C{str}
+        """
+        vserver = tables.VigiloServer.by_vigiloserver_name(unicode(vservername))
+        if vserver is None:
+            raise VigiConfError(_("The Vigilo server %s does not exist")
+                                % vservername)
+        if vserver.disabled:
+            raise VigiConfError(_("The Vigilo server %s is already disabled")
+                                % vservername)
+        vserver.disabled = True
+        DBSession.flush()
+        transaction.commit()
+
+    def enable_server(self, vservername):
+        """
+        Active un serveur Vigilo
+        @param vservername: nom du serveur Vigilo
+        @type  vservername: C{str}
+        """
+        vserver = tables.VigiloServer.by_vigiloserver_name(unicode(vservername))
+        if vserver is None:
+            raise VigiConfError(_("The Vigilo server %s does not exist")
+                                % vservername)
+        if not vserver.disabled:
+            raise VigiConfError(_("The Vigilo server %s is already enabled")
+                                % vservername)
+        # On efface les associations précédentes
+        prev_ventil = DBSession.query(
+                    tables.Ventilation.idapp, tables.Ventilation.idhost
+                ).filter(
+                    tables.Ventilation.idvigiloserver == vserver.idvigiloserver
+                ).all()
+        for idapp, idhost in prev_ventil:
+            temp_ventils = DBSession.query(tables.Ventilation
+                ).filter(
+                    tables.Ventilation.idapp == idapp
+                ).filter(
+                    tables.Ventilation.idhost == idhost
+                ).filter(
+                    tables.Ventilation.idvigiloserver != vserver.idvigiloserver
+                ).all()
+            for temp_ventil in temp_ventils:
+                DBSession.delete(temp_ventil)
+        vserver.disabled = False
+        DBSession.flush()
+        transaction.commit()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -14,7 +14,8 @@ from confutil import reload_conf, setup_tmpdir
 from confutil import setup_db, teardown_db
 
 from vigilo.vigiconf.lib import dispatchmodes
-from vigilo.vigiconf.lib.ventilator import Ventilator
+from vigilo.vigiconf.lib.ventilation.local import VentilatorLocal
+from vigilo.vigiconf.lib.ventilation.remote import VentilatorRemote
 from vigilo.vigiconf.lib.generators import GeneratorManager
 from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib import ParsingError
@@ -25,7 +26,7 @@ from vigilo.models.tables import Host, Ventilation, Application, SupItemGroup
 from vigilo.models.demo.functions import add_host, add_vigiloserver, add_supitemgroup
 
 class VentilatorTest(unittest.TestCase):
-    """Test Ventilator"""
+    """Test VentilatorRemote"""
 
     def setUp(self):
         """Call before every test case."""
@@ -38,7 +39,8 @@ class VentilatorTest(unittest.TestCase):
         reload_conf()
         dispatchator = dispatchmodes.getinstance()
         self.generator = GeneratorManager(dispatchator.applications)
-        self.ventilator = Ventilator(dispatchator.applications)
+        self.ventilator = VentilatorRemote(dispatchator.applications)
+        self.ventilator_local = VentilatorLocal(dispatchator.applications)
 
     def tearDown(self):
         """Call after every test case."""
@@ -52,7 +54,7 @@ class VentilatorTest(unittest.TestCase):
         le remplacement de la persistance pickle par db n'est pas testée
         ici.
         """
-        ventilation = self.generator._get_local_ventilation()
+        ventilation = self.ventilator_local.ventilate()
         num_apps = len(ventilation['localhost'])
 
         # need locahost in db
@@ -159,7 +161,7 @@ class VentilatorTest(unittest.TestCase):
             conf.hostsConf[hostname] = conf.hostsConf["localhost"].copy()
             conf.hostsConf[hostname]["name"] = hostname
             add_host(hostname)
-        ventilation = self.generator.get_ventilation()
+        ventilation = self.ventilator.ventilate()
         loader.load_ventilation_db(ventilation)
         # On vérifie que des hôtes ont quand même été affectés à supserver3.example.com
         ss3_hosts = []
@@ -173,7 +175,7 @@ class VentilatorTest(unittest.TestCase):
             for hostGroup in conf.appsGroupsByServer[appGroup]:
                 conf.appsGroupsByServer[appGroup][hostGroup].remove(u'supserver3.example.com')
         # On reventile
-        ventilation = self.generator.get_ventilation()
+        ventilation = self.ventilator.ventilate()
         loader.load_ventilation_db(ventilation)
 
         # Tout doit avoir été reventilé sur les autres serveurs

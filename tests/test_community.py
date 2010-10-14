@@ -21,6 +21,7 @@ from vigilo.vigiconf.lib.server import ServerFactory
 from vigilo.vigiconf.lib.servertypes.local import ServerLocal
 from vigilo.vigiconf.lib.servertypes.remote import ServerRemote
 from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib import dispatchmodes
 
 from vigilo.models.tables import MapGroup
@@ -64,8 +65,9 @@ class EnterpriseEdition(unittest.TestCase):
                 }
         self.dispatchator = dispatchmodes.getinstance()
         self.genmanager = GeneratorManager(self.dispatchator.applications)
-        self.mapping = self.genmanager.get_ventilation()
-        self.mapping = self.genmanager.ventilation_by_appname(self.mapping)
+        self.ventilator = get_ventilator(self.dispatchator.applications)
+        self.mapping = self.ventilator.ventilate()
+        self.mapping = self.ventilator.ventilation_by_appname(self.mapping)
 
     def tearDown(self):
         """Call after every test case."""
@@ -132,8 +134,9 @@ class CommunityEdition(unittest.TestCase):
         self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
         self.dispatchator = dispatchmodes.getinstance()
         self.genmanager = GeneratorManager(self.dispatchator.applications)
-        self.mapping = self.genmanager.get_ventilation()
-        self.mapping = self.genmanager.ventilation_by_appname(self.mapping)
+        self.ventilator = get_ventilator(self.dispatchator.applications)
+        self.mapping = self.ventilator.ventilate()
+        self.mapping = self.ventilator.ventilation_by_appname(self.mapping)
 
     def tearDown(self):
         """Call after every test case."""

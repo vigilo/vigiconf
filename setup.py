@@ -108,7 +108,7 @@ setup(name='vigilo-vigiconf',
                 'vigimap = vigilo.vigiconf.applications.vigimap:VigiMap',
                 ],
             'vigilo.vigiconf.extensions': [
-                'ventilator = vigilo.vigiconf.lib.ventilator:Ventilator',
+                'ventilator = vigilo.vigiconf.lib.ventilation.remote:VentilatorRemote',
                 'server_remote = vigilo.vigiconf.lib.servertypes.remote:ServerRemote',
                 'dispatchator_remote = vigilo.vigiconf.lib.dispatchmodes.remote:DispatchatorRemote',
                 ],

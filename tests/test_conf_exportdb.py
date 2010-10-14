@@ -122,8 +122,10 @@ class ExportDBTest(unittest.TestCase):
     def test_export_ventilation_db(self):
         from vigilo.vigiconf.lib import dispatchmodes
         from vigilo.vigiconf.lib.generators import GeneratorManager
+        from vigilo.vigiconf.lib.ventilation import get_ventilator
         dispatchator = dispatchmodes.getinstance()
         genmgr = GeneratorManager(dispatchator.applications)
+        ventilator = get_ventilator(dispatchator.applications)
         self.loader.load_apps_db(genmgr.apps)
         self.loader.load_conf_db()
         self.loader.load_vigilo_servers_db()
@@ -134,7 +136,8 @@ class ExportDBTest(unittest.TestCase):
         nb_vigiloservers = DBSession.query(VigiloServer).count()
         self.assertEquals(nb_vigiloservers, 2)
 
-        self.loader.load_ventilation_db(genmgr.get_ventilation())
+        ventilation = ventilator.ventilate()
+        self.loader.load_ventilation_db(ventilation)
         print DBSession.query(Ventilation).all()
         #
         del conf.appsGroupsByServer["trap"]
@@ -144,7 +147,8 @@ class ExportDBTest(unittest.TestCase):
         nb_vigiloservers = DBSession.query(VigiloServer).count()
         self.assertEquals(nb_vigiloservers, 2)
 
-        self.loader.load_ventilation_db(genmgr.get_ventilation())
+        ventilation = ventilator.ventilate()
+        self.loader.load_ventilation_db(ventilation)
         print DBSession.query(Ventilation).all()
         trap_app = DBSession.query(Application).filter_by(name=u"snmptt").first()
         trap_ventil = DBSession.query(Ventilation).filter_by(application=trap_app).count()

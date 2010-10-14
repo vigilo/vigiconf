@@ -47,9 +47,11 @@ from vigilo.vigiconf.lib import setup_plugins_path
 setup_plugins_path()
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib import VigiConfError
+from vigilo.vigiconf.lib import VigiConfError, EditionError
 from vigilo.vigiconf.lib.application import ApplicationError
 from vigilo.vigiconf.lib.dispatchator import DispatchatorError
+from vigilo.vigiconf.lib.ventilation import get_ventilator
+from vigilo.vigiconf.lib.ventilation.local import VentilatorLocal
 from vigilo.vigiconf.lib import dispatchmodes
 
 from xml.etree import ElementTree as ET # Python 2.5
@@ -130,6 +132,22 @@ def discover(args):
     indent(elements)
     print """<?xml version="1.0"?>"""
     print(ET.tostring(elements))
+
+def server(args):
+    dispatchator = get_dispatchator(args)
+    ventilator = get_ventilator(dispatchator.applications)
+    if isinstance(ventilator, VentilatorLocal):
+        raise EditionError(_("Vigilo server management is only available "
+                             "in the Enterprise edition. Aborting."))
+    for server in args.server:
+        if args.status == "disable":
+            ventilator.disable_server(server)
+        elif args.status == "enable":
+            ventilator.enable_server(server)
+    if not args.no_deploy:
+        dispatchator.setModeForce(True)
+        dispatchator.run()
+
 
 def parse_args():
     """Parses the commandline and starts the requested actions"""
@@ -253,7 +271,22 @@ def parse_args():
                    "of an snmpwalk command on the '.1' OID with the "
                    "'-OnQe' options."))
 
+    # server-status
+    parser_server = subparsers.add_parser('server-status',
+                        add_help=False,
+                        parents=[common_args_parser],
+                        help=N_("Enables or disables a Vigilo server"))
+    parser_server.set_defaults(func=server)
+    parser_server.add_argument("-n", "--no-deploy", action="store_true",
+                        help=N_("Don't re-deploy the configuration, "
+                                "only set the status."))
+    parser_server.add_argument("status", choices=["enable", "disable"],
+                               help=N_("New status"))
+    parser_server.add_argument("server", nargs="+",
+                               help=N_("Server name(s) to enable/disable"))
+
     return parser.parse_args()
+
 
 def change_user():
     uid = os.getuid()

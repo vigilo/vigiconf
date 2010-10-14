@@ -11,6 +11,7 @@ from vigilo.vigiconf.lib.generators import GeneratorManager
 from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.models.tables import MapGroup
 from vigilo.models.demo.functions import add_host
 
@@ -41,7 +42,8 @@ class Generator(unittest.TestCase):
         loader.load_apps_db(self.dispatchator.applications)
         loader.load_vigilo_servers_db()
         self.genmanager = GeneratorManager(self.dispatchator.applications)
-        self.mapping = self.genmanager.get_ventilation()
+        ventilator = get_ventilator(self.dispatchator.applications)
+        self.mapping = ventilator.ventilate()
 
     def tearDown(self):
         """Call after every test case."""
@@ -127,7 +129,8 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         loader.load_apps_db(self.dispatchator.applications)
         loader.load_vigilo_servers_db()
         self.genmanager = GeneratorManager(self.dispatchator.applications)
-        self.mapping = self.genmanager.get_ventilation()
+        self.ventilator = get_ventilator(self.dispatchator.applications)
+        self.mapping = self.ventilator.ventilate()
 
     def tearDown(self):
         """Call after every test case."""
@@ -136,7 +139,7 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
 
     def test_nagios_generator(self):
         v = Validator(self.mapping)
-        vba = self.genmanager.ventilation_by_appname(self.mapping)
+        vba = self.ventilator.ventilation_by_appname(self.mapping)
         tpl = NagiosGeneratorForTest(self.nagios_app, vba, v)
         tpl.generate()
         # recuperation de la generation pour host
