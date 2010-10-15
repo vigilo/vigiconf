@@ -341,9 +341,9 @@ def main():
         "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
     try:
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except Exception, exp:
+    except IOError, e:
         LOGGER.error(_("Can't obtain lock on lockfile. Dispatchator already "
-                        "running ? REASON : %s"), exp)
+                        "running ? REASON : %s"), e)
         sys.exit(1)
     try:
         args.func(args)
