@@ -24,7 +24,8 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib import dispatchmodes
 
-from vigilo.models.tables import MapGroup
+from vigilo.models.session import DBSession
+from vigilo.models.tables import MapGroup, VigiloServer
 
 from confutil import setup_tmpdir, reload_conf
 from confutil import setup_db, teardown_db
@@ -63,6 +64,9 @@ class EnterpriseEdition(unittest.TestCase):
                         "Servers": [u"sup.example.com"],
                     },
                 }
+        vs = VigiloServer(name="sup.example.com")
+        DBSession.add(vs)
+        DBSession.flush()
         self.dispatchator = dispatchmodes.getinstance()
         self.genmanager = GeneratorManager(self.dispatchator.applications)
         self.ventilator = get_ventilator(self.dispatchator.applications)
