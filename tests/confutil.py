@@ -70,12 +70,12 @@ def setup_db():
     DBSession.add(StateName(statename=u'DOWN', order=4))
     DBSession.flush()
 
-#Teardown that database 
+#Teardown that database
 def teardown_db():
     """Supprime toutes les tables du modèle de la BDD."""
     # pour postgres, sinon ça bloque
     transaction.abort()
-    
+
     metadata.drop_all()
 
 

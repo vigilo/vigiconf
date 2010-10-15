@@ -64,7 +64,7 @@ class EnterpriseEdition(unittest.TestCase):
                         "Servers": [u"sup.example.com"],
                     },
                 }
-        vs = VigiloServer(name="sup.example.com")
+        vs = VigiloServer(name=u"sup.example.com")
         DBSession.add(vs)
         DBSession.flush()
         self.dispatchator = dispatchmodes.getinstance()
