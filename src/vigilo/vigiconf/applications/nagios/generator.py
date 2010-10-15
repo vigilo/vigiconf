@@ -32,120 +32,109 @@ from vigilo.vigiconf.lib.generators import FileGenerator
 class NagiosGen(FileGenerator):
     """
     This class is in charge of generating a nagios compliant configuration
-    file given the internal data model of ConfMgr (see conf.py)
+    file given the internal data model of VigiConf (see conf.py)
 
-    WARNING: most of the followin logic assumes that:
-     - there is one and one only instance of CorrSup aimed by this Nagios Server
-     - there is one and one only instance of NDO aimed by this Nagios Server
-     - in other words, all the hosts associated with a same Nagios instance have
-       to share the same CorrSup and Nagvis instance, otherwise the generation
-       will act wrongly.
+    @todo: this really deserves a refactoring, use safety glasses
     """
 
     def generate(self):
-        """Generate files"""
-        files = {}
-        for (hostname, ventilation) in self.mapping.iteritems():
-            # grab a tuple containing the name of an host to monitor and an
-            # hasmap:
-            # {<application name>: <server to deploy this host's conf
-            #                       for this application>}
-            if 'nagios' not in ventilation:
-                # We are generating Nagios' configuration file, so we anly care
-                # about hosts that need a Nagios configuration.
-                continue
-            self.fileName = "%s/%s/nagios/nagios.cfg" \
-                            % (self.baseDir, ventilation['nagios'])
-            if self.fileName not in files:
-                files[self.fileName] = {}
-            # loads the configuration for host
-            h = conf.hostsConf[hostname]
-            if not os.path.exists(self.fileName):
-                # One Nagios server routes all its events to a single CorrSup
-                # instance.
-                # WARNING: The first host that has to be monitored on this
-                # Nagios instance gives the name of the corrsup server for
-                # anyone else in this Nagios instance!!
-                self.templateCreate(self.fileName, self.templates["header"],
-                    {"confid": conf.confid,
-                     "socket": settings["vigiconf"].get("socket_nagios_to_vigilo")})
-            newhash = h.copy()
-            # Groups
-            self.__fillgroups(hostname, newhash, files)
-            # Notification periods
-            if h.has_key("notification_period") and h["notification_period"]:
-                newhash["notification_period"] = "notification_period " \
-                                                 + h["notification_period"]
-            else:
-                newhash["notification_period"] = ""
-            # Dependencies
-            parents = self.__getdeps(hostname, ventilation)
-            if parents:
-                newhash['parents'] = "	parents    "+",".join(parents)
-            else:
-                newhash['parents'] = ""
+        self._files = {}
+        super(NagiosGen, self).generate()
 
-            #   directives generiques
-            newhash['generic_directives'] = ""
-            for directive, value in newhash['nagiosDirectives'].iteritems():
-                newhash['generic_directives'] += "%s    %s\n    " % \
-                    (directive, value)
+    def generate_host(self, hostname, vserver):
+        self.fileName = os.path.join(self.baseDir, vserver, "nagios",
+                                     "nagios.cfg")
+        if self.fileName not in self._files:
+            self._files[self.fileName] = {}
+        # loads the configuration for host
+        h = conf.hostsConf[hostname]
+        if not os.path.exists(self.fileName):
+            # One Nagios server routes all its events to a single
+            # connector-nagios instance.
+            # WARNING: The first host that has to be monitored on this
+            # Nagios instance gives the name of the corrsup server for
+            # anyone else in this Nagios instance!!
+            self.templateCreate(self.fileName, self.templates["header"],
+                {"confid": conf.confid,
+                 "socket": settings["vigiconf"].get("socket_nagios_to_vigilo")})
+        newhash = h.copy()
+        # Groups
+        self.__fillgroups(hostname, newhash)
+        # Notification periods
+        if h.has_key("notification_period") and h["notification_period"]:
+            newhash["notification_period"] = "notification_period " \
+                                             + h["notification_period"]
+        else:
+            newhash["notification_period"] = ""
+        # Dependencies
+        parents = self.__getdeps(hostname)
+        if parents:
+            newhash['parents'] = "	parents    "+",".join(parents)
+        else:
+            newhash['parents'] = ""
 
-            # Add the host definition
-            self.templateAppend(self.fileName, self.templates["host"], newhash)
+        #   directives generiques
+        newhash['generic_directives'] = ""
+        for directive, value in newhash['nagiosDirectives'].iteritems():
+            newhash['generic_directives'] += "%s    %s\n    " % \
+                (directive, value)
 
-            # We need to know if a service is the exact same serviceName as ours.
-            if h.has_key("snmpTrap") and len(h["snmpTrap"]):
-                done = 0
-                for (srvname, srvdata) in h['services'].iteritems():
-                    if srvname == h["snmpTrap"].keys()[0]:
-                        if srvdata["type"] == "passive":
-                            done = 1
-                            break # we already have a configured passive service.
-                        else:
-                            print "Not Found Update nagiosSrvDirs to add \
-                                passive_checked_enabled"
-                            if not newhash['nagiosSrvDirs'].has_key(srvname):
-                                newhash['nagiosSrvDirs'][srvname] = {}
-                            newhash['nagiosSrvDirs'][srvname]["passive_check_enabled"] = 1
-                            break # we did the job, so we can stop the loop.
+        # Add the host definition
+        self.templateAppend(self.fileName, self.templates["host"], newhash)
 
-                # If nothing was found, we use passive service template.
-                if done == 0:
-                    self.templateAppend(self.fileName, self.templates["collector"], {
-                        'name' :  hostname,
-                        'serviceName' : srvname,
-                        'quietOrNot': "",
-                        'notification_period': "",
-                        'generic_sdirectives': "",
-                         })
-                del done
+        # We need to know if a service is the exact same serviceName as ours.
+        if h.has_key("snmpTrap") and len(h["snmpTrap"]):
+            done = 0
+            for (srvname, srvdata) in h['services'].iteritems():
+                if srvname == h["snmpTrap"].keys()[0]:
+                    if srvdata["type"] == "passive":
+                        done = 1
+                        break # we already have a configured passive service.
+                    else:
+                        print "Not Found Update nagiosSrvDirs to add \
+                            passive_checked_enabled"
+                        if not newhash['nagiosSrvDirs'].has_key(srvname):
+                            newhash['nagiosSrvDirs'][srvname] = {}
+                        newhash['nagiosSrvDirs'][srvname]["passive_check_enabled"] = 1
+                        break # we did the job, so we can stop the loop.
 
-            # Add the service item into the Nagios configuration file
-            if len(h['services']):
-                if len(h['SNMPJobs']):
-                    # add a static actif service calling Collector if needed
-                    self.templateAppend(self.fileName,
-                                        self.templates["collector_main"],
-                                        newhash)
-                self.__fillservices(hostname, newhash, ventilation)
-            # WARNING: ugly hack to handle routes (GCE based, must disappear)!!
-            # unused unless your host has a '-RT-DC' in its name
-            # TODO: use tags
-            if h['name'].count('-RT-DC'):
-                if len(h['routeItems']):
-                    for kk in self.mapping.keys():
-                        hh = conf.hostsConf[kk]
-                        if hh['name'].count('-RT-DC'):
-                            if len(hh['routeItems']):
-                                for (kkk) in hh['routeItems'].keys():
-                                    sname = 'route '+hh['routeItems'][kkk]
-                                    self.templateAppend(self.fileName,
-                                                    self.templates["collector"],
-                                                    {'name': h['name'],
-                                                    'serviceName': sname})
+            # If nothing was found, we use passive service template.
+            if done == 0:
+                self.templateAppend(self.fileName, self.templates["collector"], {
+                    'name' :  hostname,
+                    'serviceName' : srvname,
+                    'quietOrNot': "",
+                    'notification_period': "",
+                    'generic_sdirectives': "",
+                     })
+            del done
 
-    def __fillgroups(self, hostname, newhash, files):
+        # Add the service item into the Nagios configuration file
+        if len(h['services']):
+            if len(h['SNMPJobs']):
+                # add a static actif service calling Collector if needed
+                self.templateAppend(self.fileName,
+                                    self.templates["collector_main"],
+                                    newhash)
+            self.__fillservices(hostname, newhash)
+
+        ## WARNING: ugly hack to handle routes (GCE based, must disappear)!!
+        ## unused unless your host has a '-RT-DC' in its name
+        ## TODO: use tags
+        #if h['name'].count('-RT-DC'):
+        #    if len(h['routeItems']):
+        #        for kk in self.mapping.keys():
+        #            hh = conf.hostsConf[kk]
+        #            if hh['name'].count('-RT-DC'):
+        #                if len(hh['routeItems']):
+        #                    for (kkk) in hh['routeItems'].keys():
+        #                        sname = 'route '+hh['routeItems'][kkk]
+        #                        self.templateAppend(self.fileName,
+        #                                        self.templates["collector"],
+        #                                        {'name': h['name'],
+        #                                        'serviceName': sname})
+
+    def __fillgroups(self, hostname, newhash):
         """Fill the groups in the configuration file"""
         h = conf.hostsConf[hostname]
         if h.get("otherGroups", None):
@@ -153,8 +142,8 @@ class NagiosGen(FileGenerator):
                 ','.join(h['otherGroups'])
             # builds a list of all groups memberships
             for i in h['otherGroups']:
-                if i not in files[self.fileName]:
-                    files[self.fileName][i] = 1
+                if i not in self._files[self.fileName]:
+                    self._files[self.fileName][i] = 1
                     # @TODO: réfléchir à la gestion des groupes Nagios.
                     # L'ancien code a été conservé ci-dessous.
                     self.templateAppend(self.fileName,
@@ -169,11 +158,11 @@ class NagiosGen(FileGenerator):
             newhash['hostGroups'] = "# no hostgroups defined"
         newhash['quietOrNot'] = ""
 
-    def __getdeps(self, hostname, ventilation):
+    def __getdeps(self, hostname):
         """Extract the parents list"""
         h = conf.hostsConf[hostname]
         parents = []
-        # looks for the dependencies defined into ConfMgr
+        # looks for the dependencies defined into VigiConf
         # (addDependency(...)) and extract a subset of them, only the ones
         # that can be written into Nagios dependancy system, which is
         # too limited for our use
@@ -184,14 +173,14 @@ class NagiosGen(FileGenerator):
             if len(d["and"]) >= 2:
                 continue # we only deal with "or"-type dependencies
             for (parenthost, parenttype) in d["or"] + d["and"]:
-                parent_ventilation = self.mapping[parenthost]["nagios"]
+                parent_ventilation = self.ventilation[parenthost]["nagios"]
                 if parenttype != "Host" or \
-                        ventilation['nagios'] != parent_ventilation:
+                        self.ventilation[hostname]['nagios'] != parent_ventilation:
                     continue # only host-to-host dependencies
                 parents.append(parenthost)
         return parents
 
-    def __fillservices(self, hostname, newhash, ventilation):
+    def __fillservices(self, hostname, newhash):
         """Fill the services section in the configuration file"""
         h = conf.hostsConf[hostname]
         for (srvname, srvdata) in h['services'].iteritems():
@@ -228,12 +217,12 @@ class NagiosGen(FileGenerator):
             else:
                 if scopy['command'].count("$METROSERVER$") > 0:
                     # Replace the keyword
-                    if not ventilation.has_key("connector-metro"):
+                    if not self.ventilation[hostname].has_key("connector-metro"):
                         # Hey, I have no metro server! I can't check that!
                         self.addWarning(hostname, "Can't find the metro "
                                         +"server for an RRD-based service")
                     else:
-                        mserver = ventilation['connector-metro']
+                        mserver = self.ventilation[hostname]['connector-metro']
                         newcmd = scopy['command']
                         newcmd = newcmd.replace("$METROSERVER$", mserver)
                         scopy['command'] = newcmd

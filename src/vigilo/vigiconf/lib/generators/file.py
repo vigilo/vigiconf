@@ -63,8 +63,8 @@ class FileGenerator(Generator):
 
     COMMON_PERL_LIB_FOOTER = "1;\n"
 
-    def __init__(self, application, mapping, validator):
-        super(FileGenerator, self).__init__(application, mapping, validator)
+    def __init__(self, application, ventilation, validator):
+        super(FileGenerator, self).__init__(application, ventilation, validator)
         self.override_path = os.path.join(
                                 settings["vigiconf"].get("confdir"),
                                 "filetemplates", self.application.name)

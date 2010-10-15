@@ -68,8 +68,8 @@ class VigiMapGen(MapGenerator):
           les groupes de premier niveau à générer.
     """
 
-    def __init__(self, application, mapping, validator):
-        super(VigiMapGen, self).__init__(application, mapping, validator)
+    def __init__(self, application, ventilation, validator):
+        super(VigiMapGen, self).__init__(application, ventilation, validator)
         self.current_hierarchy = {}
         self.new_hierarchy = {}
 

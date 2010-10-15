@@ -20,6 +20,7 @@
 
 """Generator for the Collector"""
 
+import os
 import urllib
 
 from vigilo.vigiconf import conf
@@ -29,34 +30,28 @@ from vigilo.vigiconf.lib.generators import FileGenerator
 class CollectorGen(FileGenerator):
     """Generator for the Collector"""
 
-    def generate(self):
-        """Generate files"""
-        for hostname, ventilation in self.mapping.iteritems():
-            if 'collector' not in ventilation:
-                continue
-            dirName = "%s/%s/collector" % (self.baseDir,
-                                           ventilation['collector'])
-            fileName = "%s/%s.pm" % (dirName, hostname)
-            h = conf.hostsConf[hostname]
-            newhash = h.copy()
-            newhash['spoolmeServer'] = ventilation['nagios']
-            if newhash['snmpVersion'] == '2' or newhash['snmpVersion'] == '1':
-                newhash['snmpAuth'] = "communityString => '%(community)s'" \
-                                      % newhash
-            else:
-                if newhash['snmpVersion'] == '3':
-                    newhash['snmpAuth'] = "'seclevel'=> '%(seclevel)s', " \
-                                      +"'authproto' => '%(authproto)s', " \
-                                      +"'secname' => '%(secname)s', " \
-                                      +"'authpass' => '%(authpass)s'" \
-                                      % newhash
-            newhash['confid'] = conf.confid
-            self.templateCreate(fileName, self.templates["header"], newhash)
-            if len(h['SNMPJobs']):
-                self.__fillsnmpjobs(hostname, fileName)
-            self.templateAppend(fileName, self.COMMON_PERL_LIB_FOOTER, {})
-            self.templateClose(fileName)
-
+    def generate_host(self, hostname, vserver):
+        fileName = os.path.join(self.baseDir, vserver, self.application.name,
+                                "%s.pm" % hostname)
+        h = conf.hostsConf[hostname]
+        newhash = h.copy()
+        newhash['spoolmeServer'] = self.ventilation[hostname]['nagios']
+        if newhash['snmpVersion'] == '2' or newhash['snmpVersion'] == '1':
+            newhash['snmpAuth'] = "communityString => '%(community)s'" \
+                                  % newhash
+        else:
+            if newhash['snmpVersion'] == '3':
+                newhash['snmpAuth'] = "'seclevel'=> '%(seclevel)s', " \
+                                  +"'authproto' => '%(authproto)s', " \
+                                  +"'secname' => '%(secname)s', " \
+                                  +"'authpass' => '%(authpass)s'" \
+                                  % newhash
+        newhash['confid'] = conf.confid
+        self.templateCreate(fileName, self.templates["header"], newhash)
+        if len(h['SNMPJobs']):
+            self.__fillsnmpjobs(hostname, fileName)
+        self.templateAppend(fileName, self.COMMON_PERL_LIB_FOOTER, {})
+        self.templateClose(fileName)
 
     def __fillsnmpjobs(self, hostname, fileName):
         """Fill the contents of the SNMP jobs file"""
@@ -80,7 +75,7 @@ class CollectorGen(FileGenerator):
                 forHost = jobdata['reRouteFor']['host']
                 if jobtype != 'perfData': # service check result => forHost's spoolme server
                     tplvars['reRouteFor'] = "{server => '%s', " \
-                                            % self.mapping[forHost]['nagios'] \
+                                            % self.ventilation[forHost]['nagios'] \
                                             +"host => '%s', " % forHost \
                                             +"service => '%s'}" \
                                             % jobdata['reRouteFor']['service']

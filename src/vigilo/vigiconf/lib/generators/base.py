@@ -32,16 +32,17 @@ class Generator(object):
     """
     La classe de base pour les générateurs
 
-    @ivar mapping: mapping de ventilation
-    @type mapping: C{dict}, voir la méthode
+    @ivar ventilation: correspondance entre les hôtes, les applications et les
+        serveurs Vigilo
+    @type ventilation: C{dict}, voir la méthode
         L{vigilo.vigiconf.lib.ventilator.Ventilator.ventilate}()
     @ivar validator: validator instance for warnings and errors
     @type validator: L{Validator<lib.validator.Validator>}
     """
 
-    def __init__(self, application, mapping, validator):
+    def __init__(self, application, ventilation, validator):
         self.application = application
-        self.mapping = mapping
+        self.ventilation = ventilation
         self.validator = validator
         validator.addAGenerator()
         self.baseDir = os.path.join(settings["vigiconf"].get("libdir"),
@@ -52,10 +53,24 @@ class Generator(object):
 
     def generate(self):
         """
-        The main generation method.
-        @note: To be reimplemented by sub-classes
+        La méthode principale de génération. Peut-être réimplémentée par des
+        sous-classes si besoin.
         """
-        raise NotImplementedError(_("Generators must define the generate() method"))
+        for hostname in self.ventilation:
+            if self.application.name not in self.ventilation[hostname]:
+                continue
+            vservers = self.ventilation[hostname][self.application.name]
+            if isinstance(vservers, basestring):
+                vservers = [vservers, ]
+            for vserver in vservers:
+                self.generate_host(hostname, vserver)
+
+    def generate_host(self, hostname, vserver):
+        """
+        La génération de conf pour un hôte et son serveur associé.
+        @note: À implémenter dans les sous-classes
+        """
+        raise NotImplementedError(_("Generators must define the generate_host() method"))
 
     def addWarning(self, element, msg):
         """
@@ -79,7 +94,7 @@ class Generator(object):
 
     def get_vigilo_servers(self):
         vservers = set()
-        for hostname, ventilation in self.mapping.iteritems():
+        for hostname, ventilation in self.ventilation.iteritems():
             if self.application.name not in ventilation:
                 continue
             vservers.add(ventilation[self.application.name])

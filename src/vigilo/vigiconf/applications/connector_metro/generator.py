@@ -34,34 +34,30 @@ from vigilo.vigiconf.lib.generators import FileGenerator
 class ConnectorMetroGen(FileGenerator):
     """Generator for connector-metro, the RRD db generator"""
 
-    def generate(self):
+    def generate_host(self, hostname, vserver):
         """Generate files"""
-        for (hostname, ventilation) in self.mapping.iteritems():
-            if 'connector-metro' not in ventilation:
-                continue
-            h = conf.hostsConf[hostname]
-            if not h.has_key("dataSources") or len(h['dataSources']) == 0:
-                continue
-            fileName = "%s/%s/connector-metro.conf.py" \
-                       % (self.baseDir, ventilation['connector-metro'])
-            if not os.path.exists(fileName):
-                self.templateCreate(fileName, self.templates["header"],
-                                    {"confid": conf.confid})
-            self.templateAppend(fileName, self.templates["host"],
-                                {'host': hostname})
-            keys = h['dataSources'].keys()
-            keys.sort()
-            for k2 in keys:
-                v2 = h['dataSources'][k2]
-                tplvars = {
-                    'host': hostname,
-                    'dsType': v2['dsType'],
-                    'dsName': k2,
-                    'label': v2["label"],
-                }
-                rrdname = urllib.quote_plus(k2).strip()
-                tplvars["host"] = hostname
-                tplvars["dsName"] = rrdname
-                self.templateAppend(fileName, self.templates["ds"], tplvars)
+        h = conf.hostsConf[hostname]
+        if not h.has_key("dataSources") or len(h['dataSources']) == 0:
+            return
+        fileName = os.path.join(self.baseDir, vserver, "connector-metro.conf.py")
+        if not os.path.exists(fileName):
+            self.templateCreate(fileName, self.templates["header"],
+                                {"confid": conf.confid})
+        self.templateAppend(fileName, self.templates["host"],
+                            {'host': hostname})
+        keys = h['dataSources'].keys()
+        keys.sort()
+        for k2 in keys:
+            v2 = h['dataSources'][k2]
+            tplvars = {
+                'host': hostname,
+                'dsType': v2['dsType'],
+                'dsName': k2,
+                'label': v2["label"],
+            }
+            rrdname = urllib.quote_plus(k2).strip()
+            tplvars["host"] = hostname
+            tplvars["dsName"] = rrdname
+            self.templateAppend(fileName, self.templates["ds"], tplvars)
 
 

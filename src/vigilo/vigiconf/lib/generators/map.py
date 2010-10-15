@@ -79,8 +79,8 @@ class MapGenerator(Generator):
     # Hardcodé pour l'instant
     rootgroup_name = "Root"
 
-    def __init__(self, application, mapping, validator):
-        super(MapGenerator, self).__init__(application, mapping, validator)
+    def __init__(self, application, ventilation, validator):
+        super(MapGenerator, self).__init__(application, ventilation, validator)
         self.map_defaults = conf.param_maps_auto['AutoMap']['map_defaults']
 
     def get_root_group(self):

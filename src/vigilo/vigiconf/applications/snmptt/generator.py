@@ -32,37 +32,31 @@ from vigilo.vigiconf.lib.generators import FileGenerator
 class SnmpTTGen(FileGenerator):
     """Generator for the SNMP trap collector (snmpTT)"""
 
-    def generate(self):
-        """Generate files"""
+    def generate_host(self, hostname, vserver):
+        h = conf.hostsConf[hostname]
+        # loads the configuration for host
+        h = conf.hostsConf[hostname]
+        if not len(h["snmpTrap"]): # if no trap is configured.
+            return
 
-        for (hostname, ventilation) in self.mapping.iteritems():
-            if not 'snmptt' in ventilation:
-                continue
+        serv_desc = h["snmpTrap"].keys()[0]
+        # if serv_desc contains space, it can be problematic for filename
+        self.fileName = os.path.join(self.baseDir, vserver,
+                                     "snmptt", "snmptt.conf")
 
-            h = conf.hostsConf[hostname]
-            # loads the configuration for host
-            h = conf.hostsConf[hostname]
-            if not len(h["snmpTrap"]): # if no trap is configured.
-                continue
-
-            serv_desc = h["snmpTrap"].keys()[0]
-            # if serv_desc contains space, it can be problematic for filename
-            self.fileName = "%s/%s/snmptt/snmptt.conf" \
-                            % (self.baseDir, ventilation['snmptt'])
-
-            for k in h["snmpTrap"][serv_desc].keys():
-                vals = h["snmpTrap"][serv_desc][k]
-                if not os.path.exists(self.fileName):
-                    templateFunct = self.templateCreate
-                else:
-                    templateFunct = self.templateAppend
-                templateFunct(self.fileName, self.templates["snmptt.conf"],
-                    {"event": vals["label"],
-                        "oid": k,
-                        "command": re.escape(vals["command"]),
-                        "host": hostname,
-                        "service": serv_desc,
-                        "match" : "MATCH $ar: %s" % vals["address"],
-                        })
+        for k in h["snmpTrap"][serv_desc].keys():
+            vals = h["snmpTrap"][serv_desc][k]
+            if not os.path.exists(self.fileName):
+                templateFunct = self.templateCreate
+            else:
+                templateFunct = self.templateAppend
+            templateFunct(self.fileName, self.templates["snmptt.conf"],
+                {"event": vals["label"],
+                    "oid": k,
+                    "command": re.escape(vals["command"]),
+                    "host": hostname,
+                    "service": serv_desc,
+                    "match" : "MATCH $ar: %s" % vals["address"],
+                    })
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

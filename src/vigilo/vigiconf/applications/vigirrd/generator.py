@@ -31,48 +31,50 @@ class VigiRRDGen(FileGenerator):
     """Generator for RRD graph generator"""
 
     def generate(self):
-        """Generate files"""
-        all_ds_graph = set()
-        all_ds_metro = set()
-        for host, ventilation in self.mapping.iteritems():
-            if not 'vigirrd' in ventilation.keys():
-                continue
-            h = conf.hostsConf[host]
-            if len(h['graphItems']) == 0:
-                continue
-            fileName = "%s/%s/vigirrd.conf.py" \
-                       % (self.baseDir, ventilation['vigirrd'])
-            # fill the template
-            if not os.path.exists(fileName):
-                self.templateCreate(fileName, self.templates["header_host"],
-                                    {"confid": conf.confid})
-                self.templateAppend(fileName, self.templates["header_label"], {})
-            self.templateAppend(fileName, self.templates["host"],
-                                {'host': host, 'graphes': h["graphItems"]})
-            # list all ds for validation
-            for graphvalues in h["graphItems"].values():
-                all_ds_graph.update(set(graphvalues["ds"]))
-            if conf.mode != "onedir":
-                # add human-readable labels
-                for dsid in h["dataSources"]:
-                    self.templateAppend(fileName, self.templates["label"],
-                                    {'label': dsid,
-                                     'value': h["dataSources"][dsid]["label"]})
-                    all_ds_metro.add(dsid)
+        self._all_ds_graph = set()
+        self._all_ds_metro = set()
+        super(VigiRRDGen, self).generate()
+        self.validate_ds_list()
+
+    def generate_host(self, hostname, vserver):
+        h = conf.hostsConf[hostname]
+        if len(h['graphItems']) == 0:
+            return
+        fileName = os.path.join(self.baseDir, vserver, "vigirrd.conf.py")
+        # fill the template
+        if not os.path.exists(fileName):
+            self.templateCreate(fileName, self.templates["header_host"],
+                                {"confid": conf.confid})
+            self.templateAppend(fileName, self.templates["header_label"], {})
+        self.templateAppend(fileName, self.templates["host"],
+                            {'host': hostname, 'graphes': h["graphItems"]})
+        # list all ds for validation
+        for graphvalues in h["graphItems"].values():
+            self._all_ds_graph.update(set(graphvalues["ds"]))
+        if conf.mode != "onedir":
+            # add human-readable labels
             for dsid in h["dataSources"]:
-                all_ds_metro.add(dsid)
+                self.templateAppend(fileName, self.templates["label"],
+                                {'label': dsid,
+                                 'value': h["dataSources"][dsid]["label"]})
+                self._all_ds_metro.add(dsid)
+        for dsid in h["dataSources"]:
+            self._all_ds_metro.add(dsid)
+
+    def validate_ds_list(self):
         # compare the DS lists for validation
-        if all_ds_graph != all_ds_metro:
-            missing_ds = all_ds_metro - all_ds_graph
-            # Convert to human-readable
-            missing_ds_human = []
-            for ds in missing_ds:
-                for host in conf.hostsConf.keys():
-                    h = conf.hostsConf[host]
-                    if h["dataSources"].has_key(ds):
-                        missing_ds_human.append(h["dataSources"][ds]["label"])
-            self.addWarning("RRDGraph", "All the defined DSs are not graphed: "
-                                       +"%s" % ", ".join(missing_ds_human))
+        if self._all_ds_graph == self._all_ds_metro:
+            return
+        missing_ds = self._all_ds_metro - self._all_ds_graph
+        # Convert to human-readable
+        missing_ds_human = []
+        for ds in missing_ds:
+            for host in conf.hostsConf.keys():
+                h = conf.hostsConf[host]
+                if h["dataSources"].has_key(ds):
+                    missing_ds_human.append(h["dataSources"][ds]["label"])
+        self.addWarning("RRDGraph", "All the defined DSs are not graphed: "
+                                   +"%s" % ", ".join(missing_ds_human))
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
