@@ -141,9 +141,9 @@ def server(args):
                              "in the Enterprise edition. Aborting."))
     for server in args.server:
         if args.status == "disable":
-            ventilator.disable_server(server)
+            ventilator.disable_server(server) # pylint:disable-msg=E1103
         elif args.status == "enable":
-            ventilator.enable_server(server)
+            ventilator.enable_server(server) # pylint:disable-msg=E1103
     if not args.no_deploy:
         dispatchator.setModeForce(True)
         dispatchator.run()
