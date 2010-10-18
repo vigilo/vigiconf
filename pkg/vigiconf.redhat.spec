@@ -32,6 +32,7 @@ Requires:   libxml2
 Requires:   python26-argparse
 Requires:   vigilo-models
 Requires:   vigilo-common
+Requires:   net-snmp-utils
 
 Requires(pre): shadow-utils
 Requires(post): openssh

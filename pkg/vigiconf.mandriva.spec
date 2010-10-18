@@ -25,6 +25,7 @@ Requires:   libxml2-utils
 Requires:   python-argparse
 Requires:   vigilo-models
 Requires:   vigilo-common
+Requires:   net-snmp-utils
 ######### Dependance from python dependance tree ########
 Requires:   python-argparse
 Requires:   python-babel
