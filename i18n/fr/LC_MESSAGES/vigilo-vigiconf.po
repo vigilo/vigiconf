@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2010-10-18 10:36+0200\n"
+"PO-Revision-Date: 2010-10-19 11:01+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -32,8 +32,8 @@ msgid ""
 "Vigilo server management is only available in the Enterprise edition. "
 "Aborting."
 msgstr ""
-"La gestion des serveurs Vigilo n'est possible qu'avec l'édition Entreprise. "
-"Abandon."
+"La gestion des serveurs Vigilo n'est possible qu'avec l'édition "
+"Entreprise. Abandon."
 
 #: src/vigilo/vigiconf/commandline.py:156
 msgid "usage: "
@@ -731,62 +731,85 @@ msgstr ""
 "suivants: %(args)s (et uniquement ceux-là)"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:646
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:323
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:346
 #, python-format
 msgid "Successfully parsed %s"
 msgstr "Analyse de %s réussie"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:671
+#: src/vigilo/vigiconf/lib/confclasses/host.py:675
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:114
 #, python-format
-msgid "XML validation failed for file %s"
-msgstr "Échec de la validation XML pour le fichier %s"
+msgid "Not enough memory to validate %(file)s"
+msgstr "Mémoire insuffisante pour valider %(file)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:714
+#: src/vigilo/vigiconf/lib/confclasses/host.py:680
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:263
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:119
+#, python-format
+msgid "Invalid XML validation schema %(schema)s found while validating %(file)s"
+msgstr "Le schéma %(schema)s n'est pas valide pour valider %(file)s"
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:687
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:270
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:126
+#, python-format
+msgid "XML validation failed (%(file)s with schema %(schema)s)"
+msgstr "Échec de la validation XML (%(file)s avec le schéma %(schema)s)"
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:692
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:275
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
+#, python-format
+msgid ""
+"XML validation failed for file %(file)s, using schema %(schema)s, due to "
+"an error. Make sure the permissions are set correctly."
+msgstr ""
+"Échec de la validation XML du fichier %(file)s avec le schéma %(schema)s, "
+"une erreur est survenue. Vérifiez les permissions sur les fichiers."
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:740
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Groupe de ventilation non valide : %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:740
+#: src/vigilo/vigiconf/lib/confclasses/host.py:766
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr ""
 "Valeur du poids non valide pour le test %(test)s sur l'hôte %(host)s : "
 "%(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:785
+#: src/vigilo/vigiconf/lib/confclasses/host.py:811
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
 #: src/vigilo/vigiconf/loaders/hlservice.py:86
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Nom de groupe non valide (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:794
+#: src/vigilo/vigiconf/lib/confclasses/host.py:820
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr "Valeur du poids non valide pour l'hôte %(host)s : %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:807
+#: src/vigilo/vigiconf/lib/confclasses/host.py:833
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "Vous devez associer l'hôte \"%s\" avec au moins un groupe."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:820
+#: src/vigilo/vigiconf/lib/confclasses/host.py:846
 #, python-format
 msgid "Loaded host %(host)s, address %(address)s"
 msgstr "Chargé : hôte %(host)s, adresse %(address)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:254
-msgid "XML validation failed"
-msgstr "Échec de la validation XML"
-
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:327
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:353
 #, python-format
 msgid "Invalid weight value for test %(test)s in template %(tpl)s: %(weight)r"
 msgstr ""
 "Valeur du poids non valide pour le test %(test)s dans le patron %(tpl)s :"
 " %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:349
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:375
 #, python-format
 msgid "Invalid weight value for template %(tpl)s: %(weight)r"
 msgstr "Valeur du poids non valide dans le patron %(tpl)s : %(weight)r"
@@ -882,22 +905,17 @@ msgstr "Un schéma XSD doit être fourni pour la validation."
 msgid "XSD file does not exist: %s"
 msgstr "Le fichier XSD n'existe pas : %s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:110
-#, python-format
-msgid "XML validation failed (%(file)s with schema %(schema)s)"
-msgstr "Échec de la validation XML (%(file)s avec le schéma %(schema)s)"
-
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:172
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:195
 #, python-format
 msgid "End tag mismatch error: %(start)s/%(end)s"
 msgstr "Balises de début/fin différentes : %(start)s/%(end)s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:179
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:202
 #, python-format
 msgid "Syntax error in \"%(path)s\": %(error)s"
 msgstr "Erreur de syntaxe dans \"%(path)s\" : %(error)s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:345
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:368
 #, python-format
 msgid "Can't find an item matching %s"
 msgstr "Impossible de trouver un élément correspondant à %s"
@@ -1015,3 +1033,9 @@ msgstr "Aucun élément supervisé dépendant"
 #, python-format
 msgid "Creating dependency from %(from)s to %(to)s"
 msgstr "Création d'une dépendance de %(from)s sur %(to)s"
+
+#~ msgid "XML validation failed for file %s"
+#~ msgstr "Échec de la validation XML pour le fichier %s"
+
+#~ msgid "XML validation failed"
+#~ msgstr "Échec de la validation XML"
