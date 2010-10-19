@@ -667,8 +667,34 @@ class HostFactory(object):
         result = subprocess.call(["xmllint", "--noout", "--schema", xsd, source],
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
-        if result != 0:
-            raise ParsingError(_("XML validation failed for file %s") % source)
+        # Lorsque le fichier est valide.
+        if result == 0:
+            return
+        # Plus assez de mémoire.
+        if result == 9:
+            raise ParsingError(_("Not enough memory to validate %(file)s") % {
+                                    'file': source,
+                                })
+        # Schéma de validation ou DTD invalide.
+        if result in (2, 5):
+            raise ParsingError(_("Invalid XML validation schema %(schema)s "
+                                "found while validating %(file)s") % {
+                                    'schema': xsd,
+                                    'source': source,
+                                })
+        # Erreur de validation du fichier par rapport au schéma.
+        if result in (3, 4):
+            raise ParsingError(_("XML validation failed (%(file)s with "
+                                "schema %(schema)s)") % {
+                                    'schema': xsd,
+                                    'file': source,
+                                })
+        raise ParsingError(_("XML validation failed for file %(file)s, "
+                            "using schema %(schema)s, due to an error. "
+                            "Make sure the permissions are set correctly.") % {
+                                'schema': xsd,
+                                'source': source,
+                            })
 
     def _loadhosts(self, source):
         """

@@ -250,8 +250,34 @@ class HostTemplateFactory(object):
         result = subprocess.call(["xmllint", "--noout", "--schema", xsd, source],
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
-        if result != 0:
-            raise ParsingError(_("XML validation failed"))
+        # Lorsque le fichier est valide.
+        if result == 0:
+            return
+        # Plus assez de mémoire.
+        if result == 9:
+            raise ParsingError(_("Not enough memory to validate %(file)s") % {
+                                    'file': source,
+                                })
+        # Schéma de validation ou DTD invalide.
+        if result in (2, 5):
+            raise ParsingError(_("Invalid XML validation schema %(schema)s "
+                                "found while validating %(file)s") % {
+                                    'schema': xsd,
+                                    'source': source,
+                                })
+        # Erreur de validation du fichier par rapport au schéma.
+        if result in (3, 4):
+            raise ParsingError(_("XML validation failed (%(file)s with "
+                                "schema %(schema)s)") % {
+                                    'schema': xsd,
+                                    'file': source,
+                                })
+        raise ParsingError(_("XML validation failed for file %(file)s, "
+                            "using schema %(schema)s, due to an error. "
+                            "Make sure the permissions are set correctly.") % {
+                                'schema': xsd,
+                                'source': source,
+                            })
 
     def __load(self, source):
         """
@@ -433,7 +459,7 @@ class HostTemplateFactory(object):
             # Copy the parent list back too, it's not used except by unit tests
             self.templates[tplname]["parent"].extend(
                             templates_save[tplname]["parent"])
-    
+
     def apply(self, host, tplname):
         """
         Applies a template to a host
@@ -449,17 +475,17 @@ class HostTemplateFactory(object):
         if tpl.has_key("groups"):
             for group in tpl["groups"]:
                 host.add_group(group)
-        
+
         # nagios generics
         if tpl.has_key("nagiosDirectives"):
             for name, value in tpl["nagiosDirectives"].iteritems():
                 host.add_nagios_directive(name, value)
-                
+
         if tpl.has_key("nagiosSrvDirs"):
             for srv, data in tpl["nagiosSrvDirs"].iteritems():
                 for name, value in data.iteritems():
                     host.add_nagios_service_directive(srv, name, value)
-        
+
         # tests
         if tpl.has_key("tests"):
             for testdict in tpl["tests"]:

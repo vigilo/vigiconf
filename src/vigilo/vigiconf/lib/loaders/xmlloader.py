@@ -106,11 +106,34 @@ class XMLLoader(DBLoader):
                     ["xmllint", "--noout", "--schema", xsd, xmlfile],
                     stdout=devnull, stderr=subprocess.STDOUT)
         devnull.close()
-        if result != 0:
-            raise ParsingError(_("XML validation failed (%(file)s with schema %(schema)s)") % {
-                'file': xmlfile,
-                'schema': xsd,
-            })
+        # Lorsque le fichier est valide.
+        if result == 0:
+            return
+        # Plus assez de mémoire.
+        if result == 9:
+            raise ParsingError(_("Not enough memory to validate %(file)s") % {
+                                    'file': xmlfile,
+                                })
+        # Schéma de validation ou DTD invalide.
+        if result in (2, 5):
+            raise ParsingError(_("Invalid XML validation schema %(schema)s "
+                                "found while validating %(file)s") % {
+                                    'schema': xsd,
+                                    'source': xmlfile,
+                                })
+        # Erreur de validation du fichier par rapport au schéma.
+        if result in (3, 4):
+            raise ParsingError(_("XML validation failed (%(file)s with "
+                                "schema %(schema)s)") % {
+                                    'schema': xsd,
+                                    'file': xmlfile,
+                                })
+        raise ParsingError(_("XML validation failed for file %(file)s, "
+                            "using schema %(schema)s, due to an error. "
+                            "Make sure the permissions are set correctly.") % {
+                                'schema': xsd,
+                                'source': xmlfile,
+                            })
 
     def visit_dir(self, dirname):
         """ validate the exploration of a directory.
@@ -345,4 +368,3 @@ class XMLLoader(DBLoader):
             raise ParsingError(_("Can't find an item matching %s") %
                 repr(elem.attrib))
         return DBSession.query(SupItem).get(supitem)
-
