@@ -28,6 +28,7 @@ import fcntl
 import sys
 import os
 import pwd, grp
+import atexit
 
 import argparse
 import gettext
@@ -326,6 +327,10 @@ def change_user():
         LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. Aborting."))
         sys.exit(2)
 
+def delete_lock(f):
+    LOGGER.debug(_("Removing the lock."))
+    fcntl.flock(f, fcntl.LOCK_UN)
+
 def main():
     # @FIXME: argparse utilise le domaine par défaut pour les traductions.
     # On définit explicitement le domaine par défaut ici. Ceci permet de
@@ -340,11 +345,17 @@ def main():
     f = open(settings["vigiconf"].get("lockfile",
         "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
     try:
+        LOGGER.debug(_("Acquiring the lock."))
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except IOError, e:
         LOGGER.error(_("Can't obtain lock on lockfile. Dispatchator already "
                         "running ? REASON : %s"), e)
         sys.exit(1)
+
+    # On veut être sûr que le verrou sera supprimé
+    # à l'arrêt de vigiconf.
+    atexit.register(delete_lock, f)
+
     try:
         args.func(args)
     except VigiConfError, e:
