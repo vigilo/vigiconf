@@ -135,6 +135,15 @@ class VentilatorRemote(Ventilator):
         self.appendHost(vserver, host, appgroup)
         return vserver
 
+    def is_mode_duplicate(self, appgroup, hostgroup):
+        if getattr(conf, "appsGroupsMode", None) is None:
+            return False
+        if appgroup not in conf.appsGroupsMode:
+            return False
+        if hostgroup not in conf.appsGroupsMode[appgroup]:
+            return False
+        return conf.appsGroupsMode[appgroup][hostgroup] == "duplicate"
+
     def get_host_ventilation_group(self, hostname, hostdata):
         if "serverGroup" in hostdata and hostdata["serverGroup"]:
             return hostdata["serverGroup"]
@@ -226,7 +235,7 @@ class VentilatorRemote(Ventilator):
         r = {}
         for (host, v) in conf.hostsConf.iteritems():
             hostGroup = self.get_host_ventilation_group(host, v)
-            app_to_vserver = {}
+            app_to_vservers = {}
             for appGroup in conf.appsGroupsByServer:
                 if appGroup not in self.apps_by_appgroup \
                         or not self.apps_by_appgroup[appGroup]:
@@ -236,13 +245,16 @@ class VentilatorRemote(Ventilator):
                 if not vservers:
                     continue # pas de serveurs affectés à ce groupe
                 if len(vservers) == 1:
-                    server = vservers[0]
+                    servers = [vservers[0], ]
+                elif self.is_mode_duplicate(appGroup, hostGroup):
+                    servers = vservers
                 else:
                     # choose wisely
-                    server = self.getServerToUse(vservers, host, appGroup)
+                    servers = self.getServerToUse(vservers, host, appGroup)
+                    servers = [servers, ]
                 for app in self.apps_by_appgroup[appGroup]:
-                    app_to_vserver[app] = server
-            r[host] = app_to_vserver
+                    app_to_vservers[app] = servers
+            r[host] = app_to_vservers
         return r
 
     # Gestion des serveurs Vigilo

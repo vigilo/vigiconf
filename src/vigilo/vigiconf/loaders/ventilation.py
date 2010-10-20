@@ -90,13 +90,16 @@ class VentilationLoader(DBLoader):
         for application in DBSession.query(Application).all():
             applications[application.name] = application
 
-        for hostname, serverbyapp in self.ventilation.iteritems():
+        for hostname, serversbyapp in self.ventilation.iteritems():
             host = Host.by_host_name(unicode(hostname))
 
-            for app_obj, servername in serverbyapp.iteritems():
-                vigiloserver = vigiloservers[unicode(servername)]
-                application =  applications[unicode(app_obj.name)]
-                v = Ventilation(idhost=host.idhost,
-                                idvigiloserver=vigiloserver.idvigiloserver,
-                                idapp=application.idapp)
-                DBSession.merge(v)
+            for app_obj, servernames in serversbyapp.iteritems():
+                if isinstance(servernames, basestring):
+                    servernames = [servernames, ]
+                for servername in servernames:
+                    vigiloserver = vigiloservers[unicode(servername)]
+                    application =  applications[unicode(app_obj.name)]
+                    v = Ventilation(idhost=host.idhost,
+                                    idvigiloserver=vigiloserver.idvigiloserver,
+                                    idapp=application.idapp)
+                    DBSession.merge(v)

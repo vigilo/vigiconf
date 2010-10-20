@@ -223,6 +223,8 @@ class NagiosGen(FileGenerator):
                                         +"server for an RRD-based service")
                     else:
                         mserver = self.ventilation[hostname]['connector-metro']
+                        if isinstance(mserver, list):
+                            mserver = mserver[0]
                         newcmd = scopy['command']
                         newcmd = newcmd.replace("$METROSERVER$", mserver)
                         scopy['command'] = newcmd

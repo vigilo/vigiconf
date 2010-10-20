@@ -54,7 +54,7 @@ class Generator(unittest.TestCase):
         """Return the supervision server from the ventilation"""
         for mapped_app in self.mapping[host.name]:
             if mapped_app.name == app:
-                return self.mapping[host.name][mapped_app]
+                return self.mapping[host.name][mapped_app][0]
 
     def test_generation(self):
         """Globally test the generation"""

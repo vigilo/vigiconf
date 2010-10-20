@@ -167,7 +167,7 @@ class VentilatorTest(unittest.TestCase):
         ss3_hosts = []
         for host in ventilation:
             for app in ventilation[host]:
-                if ventilation[host][app] == "supserver3.example.com":
+                if "supserver3.example.com" in ventilation[host][app]:
                     ss3_hosts.append(host)
         assert len(ss3_hosts) > 0
         # Et maintenant, on supprime supserver3.example.com
@@ -186,6 +186,33 @@ class VentilatorTest(unittest.TestCase):
                         u"L'hote %s est toujours supervise par un "
                             % host +
                         u"serveur qui a ete supprime")
+
+
+    def test_mode_duplicate(self):
+        conf.appsGroupsMode = {
+            'metrology' : {
+                'P-F'             : "duplicate",
+                'Servers'         : "duplicate",
+                'Telecom'         : "duplicate",
+            },
+        }
+        host = add_host("localhost")
+        # chargement des apps
+        loader = LoaderManager()
+        loader.load_apps_db(self.generator.apps)
+        loader.load_vigilo_servers_db()
+        group1 = add_supitemgroup("Group1")
+        ventilation = self.ventilator.ventilate()
+        conn_metro = [a for a in self.generator.apps if a.name == "connector-metro"][0]
+        pprint(ventilation)
+        self.assertEquals(len(ventilation["localhost"][conn_metro]), 2)
+        loader.load_ventilation_db(ventilation)
+        self.assertEquals(
+                DBSession.query(Ventilation).join(Host).join(Application).filter(
+                    Host.name == u"localhost"
+                ).filter(
+                    Application.name == u"connector-metro"
+                ).count(), 2)
 
 
 if __name__ == '__main__':

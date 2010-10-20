@@ -99,12 +99,12 @@ class Validator(object):
         @rtype: C{boolean}
         """
         self._stats["nbHosts"] = len(conf.hostsConf)
-        apps = {}
-        servers = {}
+        apps = set()
+        servers = set()
         for hostVentilation in self._mapping.values():
-            for (app, server) in hostVentilation.iteritems():
-                apps[app] = 1
-                servers[server] = 1
+            for (app, vservers) in hostVentilation.iteritems():
+                apps.add(app)
+                servers.update(set(vservers))
         self._stats["nbServers"] = len(servers)
         self._stats["nbApps"] = len(apps)
         returnCode = True
