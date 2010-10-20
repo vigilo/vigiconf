@@ -63,7 +63,7 @@ class GroupLoader(XMLLoader):
     _xsd_filename = "group.xsd"
     
     def __init__(self):
-        super(GroupLoader, self).__init__(SupItemGroup, "name")
+        super(GroupLoader, self).__init__(SupItemGroup)
 
     def load_conf(self):
         confdir = settings['vigiconf'].get('confdir')
@@ -115,7 +115,7 @@ class GroupLoader(XMLLoader):
 
     def insert(self, data):
         LOGGER.debug(_("Inserting: %s"), self.get_key(data))
-        instance = self._class(name=data["name"], parent=self._current_parent)
+        instance = self._class(name=data["name"], parent=data["parent"])
         self._in_conf[self.get_key(data)] = instance
         DBSession.flush()
         return instance
@@ -132,7 +132,8 @@ class GroupLoader(XMLLoader):
                 self._current_parent = self._parent_stack[-1]
             else:
                 self._current_parent = None
-            instance = self.add({"name": name})
+            instance = self.add({"name": name,
+                                 "parent": self._current_parent})
             self._parent_stack.append(instance)
 
     def end_element(self, elem):
@@ -155,4 +156,13 @@ class GroupLoader(XMLLoader):
         self._parent_stack = []
         self._current_parent = None
         return super(GroupLoader, self).load_file(path)
+
+    def get_key(self, data):
+        if isinstance(data, SupItemGroup):
+            return data.get_path()
+        if data["parent"]:
+            prefix = data["parent"].get_path()
+        else:
+            prefix = ""
+        return "%s/%s" % (prefix, data["name"])
 
