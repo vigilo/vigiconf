@@ -239,7 +239,8 @@ class Discoverator(object):
 
     def declaration(self):
         """Generate the textual declaration for Vigiconf"""
-        self.hclasses.remove("all")
+        if "all" in self.hclasses:
+            self.hclasses.remove("all")
         decl = ET.Element("host")
         decl.set("name", self.hostname)
         if self.ipaddr is not None:
