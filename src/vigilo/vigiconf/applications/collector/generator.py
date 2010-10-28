@@ -35,7 +35,6 @@ class CollectorGen(FileGenerator):
                                 "%s.pm" % hostname)
         h = conf.hostsConf[hostname]
         newhash = h.copy()
-        newhash['spoolmeServer'] = self.ventilation[hostname]['nagios']
         if newhash['snmpVersion'] == '2' or newhash['snmpVersion'] == '1':
             newhash['snmpAuth'] = "communityString => '%(community)s'" \
                                   % newhash
@@ -73,13 +72,10 @@ class CollectorGen(FileGenerator):
             # reRouting arguements
             if jobdata['reRouteFor'] != None:
                 forHost = jobdata['reRouteFor']['host']
-                if jobtype != 'perfData': # service check result => forHost's spoolme server
-                    tplvars['reRouteFor'] = "{server => '%s', " \
-                                            % self.ventilation[forHost]['nagios'] \
-                                            +"host => '%s', " % forHost \
-                                            +"service => '%s'}" \
-                                            % jobdata['reRouteFor']['service']
                 service = jobdata['reRouteFor']['service']
+                if jobtype != 'perfData': # service check result => forHost's spoolme server
+                    tplvars['reRouteFor'] = "{host => '%s', service => '%s'}" \
+                                            % (forHost, service)
             else:
                 forHost = hostname
                 service = jobname
