@@ -47,8 +47,16 @@ class ConnectorMetroGen(FileGenerator):
                             {'host': hostname})
         keys = h['dataSources'].keys()
         keys.sort()
+        netflow_keys=[]
+        for ip in h['netflow']['IPs']:
+            netflow_keys.append("in_bytes_" + ip)
+            netflow_keys.append("out_bytes_" + ip)
+            netflow_keys.append("in_packets_" + ip)
+            netflow_keys.append("out_packets_" + ip)
         for k2 in keys:
             v2 = h['dataSources'][k2]
+            if k2 in netflow_keys:
+                k2 = "/".join(i for i in k2.split("/")[:-1])
             tplvars = {
                 'host': hostname,
                 'dsType': v2['dsType'],
@@ -58,6 +66,9 @@ class ConnectorMetroGen(FileGenerator):
             rrdname = urllib.quote_plus(k2).strip()
             tplvars["host"] = hostname
             tplvars["dsName"] = rrdname
-            self.templateAppend(fileName, self.templates["ds"], tplvars)
+            if not k2 in netflow_keys:
+                self.templateAppend(fileName, self.templates["ds"], tplvars)
+            else:
+                self.templateAppend(fileName, self.templates["ds_netflow"], tplvars)
 
 

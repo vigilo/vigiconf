@@ -79,7 +79,8 @@ class Host(object):
                 "graphItems"     : {},
                 "routeItems"     : {},
                 "trapItems"      : {},
-                "snmpTrap"           : {},
+                "snmpTrap"       : {},
+                "netflow"        : {},
                 "graphGroups"    : {},
                 "reports"        : {},
                 "cti"            : 1,
@@ -296,6 +297,17 @@ class Host(object):
             data["address"] = self.hosts[self.name]["address"]
         for key, value in data.iteritems():
             self.hosts[self.name]["snmpTrap"][service][oid].update({key: value})
+
+    def add_netflow(self, data={}):
+        """
+        Add netflow handler (for pmacct and pmacct-snmp)
+        @param data: dictionary contains data like inbound, outboun, binary
+        path and ip list.
+        @type data: C{dict}
+        """
+        if not self.hosts[self.name].has_key("netflow"):
+            self.hosts[self.name]["netflow"] = {}
+        self.hosts[self.name]["netflow"] = data.copy()
 
 #### Collector-related functions ####
 
