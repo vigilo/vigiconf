@@ -48,7 +48,7 @@ class ConnectorMetroGen(FileGenerator):
         keys = h['dataSources'].keys()
         keys.sort()
         netflow_keys=[]
-        for ip in h['netflow']['IPs']:
+        for ip in h['netflow'].get('IPs', {}):
             netflow_keys.append("in_bytes_" + ip)
             netflow_keys.append("out_bytes_" + ip)
             netflow_keys.append("in_packets_" + ip)
