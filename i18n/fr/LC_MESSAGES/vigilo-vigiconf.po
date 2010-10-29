@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2010-10-20 11:16+0200\n"
+"PO-Revision-Date: 2010-10-29 20:30+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -271,18 +271,20 @@ msgstr "Acquisition du verrou."
 
 #: src/vigilo/vigiconf/commandline.py:351
 #, python-format
-msgid "Can't obtain lock on lockfile. Dispatchator already running ? REASON : %s"
+msgid ""
+"Can't obtain lock on lockfile (%(lockfile)s). Dispatchatoralready running"
+" ? REASON : %(error)s"
 msgstr ""
-"Impossible d'obtenir un verrou sur le fichier. Le dispatchator est-il "
-"déjà lancé ? Raison : %s"
+"Impossible d'obtenir un verrou sur le fichier %(lockfile)s. Le dispatchator est-il "
+"déjà lancé ? Raison : %(error)s"
 
-#: src/vigilo/vigiconf/commandline.py:363
-#: src/vigilo/vigiconf/commandline.py:365
+#: src/vigilo/vigiconf/commandline.py:366
+#: src/vigilo/vigiconf/commandline.py:368
 #, python-format
 msgid "VigiConf error: %s"
 msgstr "Erreur dans VigiConf : %s"
 
-#: src/vigilo/vigiconf/commandline.py:368
+#: src/vigilo/vigiconf/commandline.py:371
 msgid "VigiConf ended."
 msgstr "VigiConf s'est arrêté."
 
@@ -729,7 +731,7 @@ msgstr ""
 msgid "%(filesWritten)d files have been generated in %(dirsCreated)d directories"
 msgstr "%(filesWritten)d fichiers ont été générés dans %(dirsCreated)d dossiers"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:160
+#: src/vigilo/vigiconf/lib/confclasses/host.py:161
 #, python-format
 msgid ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
@@ -738,34 +740,34 @@ msgstr ""
 "Le test \"%(test_name)s\" sur \"%(host)s\" nécessite les arguments "
 "suivants: %(args)s (et uniquement ceux-là)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:646
+#: src/vigilo/vigiconf/lib/confclasses/host.py:665
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:346
 #, python-format
 msgid "Successfully parsed %s"
 msgstr "Analyse de %s réussie"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:675
+#: src/vigilo/vigiconf/lib/confclasses/host.py:694
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:114
 #, python-format
 msgid "Not enough memory to validate %(file)s"
 msgstr "Mémoire insuffisante pour valider %(file)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:680
+#: src/vigilo/vigiconf/lib/confclasses/host.py:699
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:263
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:119
 #, python-format
 msgid "Invalid XML validation schema %(schema)s found while validating %(file)s"
 msgstr "Le schéma %(schema)s n'est pas valide pour valider %(file)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:687
+#: src/vigilo/vigiconf/lib/confclasses/host.py:706
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:270
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:126
 #, python-format
 msgid "XML validation failed (%(file)s with schema %(schema)s)"
 msgstr "Échec de la validation XML (%(file)s avec le schéma %(schema)s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:692
+#: src/vigilo/vigiconf/lib/confclasses/host.py:711
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:275
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
 #, python-format
@@ -776,36 +778,36 @@ msgstr ""
 "Échec de la validation XML du fichier %(file)s avec le schéma %(schema)s,"
 " une erreur est survenue. Vérifiez les permissions sur les fichiers."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:740
+#: src/vigilo/vigiconf/lib/confclasses/host.py:759
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Groupe de ventilation non valide : %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:766
+#: src/vigilo/vigiconf/lib/confclasses/host.py:785
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr ""
 "Valeur du poids non valide pour le test %(test)s sur l'hôte %(host)s : "
 "%(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:811
+#: src/vigilo/vigiconf/lib/confclasses/host.py:830
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
 #: src/vigilo/vigiconf/loaders/hlservice.py:86
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Nom de groupe non valide (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:820
+#: src/vigilo/vigiconf/lib/confclasses/host.py:839
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr "Valeur du poids non valide pour l'hôte %(host)s : %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:833
+#: src/vigilo/vigiconf/lib/confclasses/host.py:852
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "Vous devez associer l'hôte \"%s\" avec au moins un groupe."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:846
+#: src/vigilo/vigiconf/lib/confclasses/host.py:865
 #, python-format
 msgid "Loaded host %(host)s, address %(address)s"
 msgstr "Chargé : hôte %(host)s, adresse %(address)s"
@@ -960,19 +962,19 @@ msgstr "Impossible de déployer la configuration du serveur %(server)s : %(error
 msgid "Can't find application %s in database"
 msgstr "Impossible de trouver l'application %s dans la base de données"
 
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:182
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:258
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:275
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:191
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:270
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:287
 #, python-format
 msgid "The Vigilo server %s does not exist"
 msgstr "Le serveur Vigilo %s n'existe pas."
 
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:261
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:273
 #, python-format
 msgid "The Vigilo server %s is already disabled"
 msgstr "Le serveur Vigilo %s est déjà désactivé."
 
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:278
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:290
 #, python-format
 msgid "The Vigilo server %s is already enabled"
 msgstr "Le serveur Vigilo %s est déjà activé."

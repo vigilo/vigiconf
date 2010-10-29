@@ -348,8 +348,11 @@ def main():
         LOGGER.debug(_("Acquiring the lock."))
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except IOError, e:
-        LOGGER.error(_("Can't obtain lock on lockfile (%s). Dispatchator"
-                       "already running ? REASON : %s"), f.name, e)
+        LOGGER.error(_("Can't obtain lock on lockfile (%(lockfile)s). Dispatchator"
+                       "already running ? REASON : %(error)s"), {
+                            'lockfile': f.name,
+                            'error': e,
+                       })
         sys.exit(1)
 
     # On veut être sûr que le verrou sera supprimé
