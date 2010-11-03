@@ -38,7 +38,6 @@ class NetflowGen(FileGenerator):
                 continue
         if not len(h["netflow"]): # if no netflow is configured.
             return
-        print h["netflow"]
 
         # Set different filename for each.
         # pmacct-snmp
