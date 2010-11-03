@@ -32,28 +32,22 @@ from vigilo.vigiconf.lib.generators import FileGenerator
 class NetflowGen(FileGenerator):
     """Generator for pmacct and pmacct-snmp (netflow collector)"""
 
-    def generate_host(self, hostname, vserver):
-        """Generate files"""
-
-        #for (hostname, ventilation) in self.mapping.iteritems():
-        #    if not "netflow" in ventilation:
-        #        continue
-
-        h = conf.hostsConf[hostname]
-        # loads the configuration for host
+    def generate(self):
+        for (hostname, ventilation) in self.mapping.iteritems():
+            if not "netflow" in ventilation:
+                continue
         if not len(h["netflow"]): # if no netflow is configured.
             return
         print h["netflow"]
 
         # Set different filename for each.
         # pmacct-snmp
-        # nfacctd
-        # network.lst (used by nfacctd)
+        # network.lst (used by nfacctd or pmacctd)
 
         self.fileName_pmacct_snmp = "%s/%s/pmacct/pmacct-snmp.conf" \
-                        % (self.baseDir, vserver)
+                        % (self.baseDir, ventilation['netflow'])
         #self.fileName_snmpd = "%s/%s/snmp/snmpd.conf" \
-        #                % (self.baseDir, vserver)
+        #                % (self.baseDir, ventilation['netflow'])
         #
         # Les templates sont conserves 'au cas ou'. L'utilisation de SNMPD
         # pour faire des demandes de donnees netflow requiert une modification
@@ -63,10 +57,10 @@ class NetflowGen(FileGenerator):
         # ou sur le wiki :
         # https://vigilo-dev/trac/wiki/Dev/Netflow
 
-        self.fileName_nfacct = "%s/%s/pmacct/nfacct.conf" \
-                        % (self.baseDir, vserver)
+        #self.fileName_nfacct = "%s/%s/pmacct/nfacct.conf" \
+        #                % (self.baseDir, ventilation['netflow'])
         self.fileName_network = "%s/%s/pmacct/networks.lst" \
-                        % (self.baseDir, vserver)
+                        % (self.baseDir, ventilation['netflow'])
         ip_list = ""
         ip_list_net = ""
         for ip in h["netflow"]["IPs"]:
