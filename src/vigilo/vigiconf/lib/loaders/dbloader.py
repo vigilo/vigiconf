@@ -133,12 +133,25 @@ class DBLoader(object):
         for key, value in data.iteritems():
             old_value = getattr(instance, key)
             if type(old_value) != type(value):
-                LOGGER.debug("WARNING: different types between old an new, "
-                             "comparasion will always fail. "
-                             "Old is %s (%s), new is %s (%s).",
-                             old_value, type(old_value), value, type(value))
+                LOGGER.debug(_("WARNING: Different types between old and new "
+                                "value, comparasion will always fail. "
+                                "Old is %(old_value)s (%(old_type)s), "
+                                "new is %(new_value)s (%(new_type)s)."), {
+                                    'old_value': old_value,
+                                    'old_type': type(old_value),
+                                    'new_value': value,
+                                    'new_type': type(value),
+                                 })
             if old_value != value:
-                LOGGER.debug("Updating property %s from %s (%s) to %s (%s)", key, old_value, type(old_value), value, type(value))
+                LOGGER.debug(_("Updating property %(property)s from "
+                                "%(old_value)s (%(old_type)s) to "
+                                "%(new_value)s (%(new_type)s)"), {
+                                    'property': key,
+                                    'old_value': old_value,
+                                    'old_type': type(old_value),
+                                    'new_value': value,
+                                    'new_type': type(value),
+                                })
                 setattr(instance, key, value)
         self._in_conf[self.get_key(data)] = instance
         return instance
@@ -153,4 +166,3 @@ class DBLoader(object):
     def delete(self, instance):
         LOGGER.info(_("Deleting: %s"), instance)
         DBSession.delete(instance)
-
