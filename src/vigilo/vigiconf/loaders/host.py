@@ -55,7 +55,10 @@ class HostLoader(DBLoader):
         super(HostLoader, self).__init__(Host, "name")
 
     def load_conf(self):
-        for hostname in sorted(conf.hostsConf):
+        hostnames = sorted(conf.hostsConf)
+        hosts = {}
+
+        for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
             LOGGER.info(_("Loading host %s"), hostname)
             hostname = unicode(hostname)
@@ -69,11 +72,23 @@ class HostLoader(DBLoader):
                         weight=hostdata['weight'],
                         snmpversion=unicode(hostdata['snmpVersion']))
             host = self.add(host)
+            hosts[hostname] = host
+
+            if hostdata['services'] and hostdata['SNMPJobs']:
+                LOGGER.info(
+                    _('Adding "Collector" service on host %s'),
+                    hostname
+                )
+                collector_loader = CollectorLoader(host)
+                collector_loader.load()
+
+        for hostname in hostnames:
+            hostdata = conf.hostsConf[hostname]
+            host = hosts[hostname]
 
             # groupes
             LOGGER.debug(_("Loading groups for host %s"), hostname)
             self._load_groups(host, hostdata)
-
 
             # services
             LOGGER.debug(_("Loading services for host %s"), hostname)
@@ -166,21 +181,48 @@ class ServiceLoader(DBLoader):
         self.host = host
 
     def _list_db(self):
-        return DBSession.query(self._class).filter_by(host=self.host).all()
+        return DBSession.query(self._class).filter_by(host=self.host
+            ).filter(self._class.servicename != u'Collector').all()
 
     def load_conf(self):
         # TODO: implémenter les détails: op_dep, weight, command
         for service in conf.hostsConf[self.host.name]['services']:
+            idcollector = None
+
+            # L'hôte héberge un Collector, on récupère l'ID du Collector.
+            if (service, 'service') in \
+                conf.hostsConf[self.host.name]['SNMPJobs']:
+                idcollector = LowLevelService.get_supitem(
+                    self.host.name, u'Collector')
+
+            # L'hôte est rerouté, on récupère l'ID du service de reroutage.
+            elif conf.hostsConf[self.host.name]['services'] \
+                [service]['reRoutedBy']:
+                reRoutedBy = conf.hostsConf[self.host.name]['services'] \
+                    [service]['reRoutedBy']
+                idcollector = LowLevelService.get_supitem(
+                    reRoutedBy['host'], reRoutedBy['service'])
+
             service = unicode(service)
             lls = dict(host=self.host, servicename=service,
-                       op_dep=u'+', weight=1)
+                       op_dep=u'+', weight=1, idcollector=idcollector)
             lls = self.add(lls)
+
             # directives Nagios du service
             nagios_directives = conf.hostsConf[self.host.name]['nagiosSrvDirs']
             if nagios_directives.has_key(service):
                 nagiosconf_loader = NagiosConfLoader(lls, nagios_directives[service])
                 nagiosconf_loader.load()
 
+class CollectorLoader(ServiceLoader):
+    def _list_db(self):
+        return DBSession.query(self._class).filter_by(host=self.host
+            ).filter(self._class.servicename == u'Collector').all()
+
+    def load_conf(self):
+        lls = dict(host=self.host, servicename=u"Collector",
+                   op_dep=u'+', weight=1)
+        lls = self.add(lls)
 
 class NagiosConfLoader(DBLoader):
     """

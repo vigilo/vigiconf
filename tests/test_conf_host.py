@@ -81,28 +81,52 @@ class HostMethods(unittest.TestCase):
 
     def test_add_collector_service(self):
         """Test for the add_collector_service method on hosts"""
-        self.host.add_collector_service( "TestAddCS", "TestAddCSFunction",
-                                ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"] )
-        assert conf.hostsConf["testserver1"]["services"]["TestAddCS"]["type"] == "passive", \
-                "add_collector_service does not fill the services sub-hashmap"
-        assert conf.hostsConf["testserver1"]["SNMPJobs"][("TestAddCS","service")] == \
-                {'function': "TestAddCSFunction", 'params': ["fake arg 1"], \
-                 'vars': ["GET/.1.3.6.1.2.1.1.3.0"], 'reRouteFor': None}, \
-                "add_collector_service does not fill the SNMPJobs sub-hashmap"
+        self.host.add_collector_service(
+            "TestAddCS",
+            "TestAddCSFunction",
+            ["fake arg 1"],
+            ["GET/.1.3.6.1.2.1.1.3.0"]
+        )
+        assert conf.hostsConf["testserver1"]["services"] \
+            ["TestAddCS"]["type"] == "passive", \
+            "add_collector_service does not fill the services sub-hashmap"
+        assert conf.hostsConf["testserver1"]["SNMPJobs"] \
+            [("TestAddCS", "service")] == {
+                'function': "TestAddCSFunction",
+                'params': ["fake arg 1"],
+                'vars': ["GET/.1.3.6.1.2.1.1.3.0"],
+                'reRouteFor': None,
+            }, "add_collector_service does not fill the SNMPJobs sub-hashmap"
 
     def test_add_collector_service_reroute(self):
         """Test for the add_collector_service host method with rerouting"""
         host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
-        host2.add_collector_service( "TestAddCSReRoute", "TestAddCSReRouteFunction",
-                ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
-                reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )
-        assert conf.hostsConf["testserver1"]["services"]["TestAddCSReRoute"]["type"] == "passive", \
-                "add_collector_service rerouting does not work with the services sub-hashmap"
-        assert conf.hostsConf["testserver2"]["SNMPJobs"][("TestAddCSReRoute","service")] == \
-                {'function': "TestAddCSReRouteFunction", 'params': ["fake arg 1"], \
-                 'vars': ["GET/.1.3.6.1.2.1.1.3.0"], 'reRouteFor': \
-                 {'host':"testserver1", "service" : "TestAddCSReRoute"}}, \
-                "add_collector_service rerouting does not work with the SNMPJobs sub-hashmap"
+        host2.add_collector_service(
+            "TestAddCSReRoute",
+            "TestAddCSReRouteFunction",
+            ["fake arg 1"],
+            ["GET/.1.3.6.1.2.1.1.3.0"],
+            reroutefor={
+                'host': "testserver1",
+                "service": "TestAddCSReRoute",
+            },
+        )
+        assert conf.hostsConf["testserver1"]["services"] \
+            ["TestAddCSReRoute"]["type"] == "passive", \
+            "add_collector_service rerouting does not work " \
+            "with the services sub-hashmap"
+        assert conf.hostsConf["testserver2"]["SNMPJobs"] \
+            [("TestAddCSReRoute", "service")] == {
+                'function': "TestAddCSReRouteFunction",
+                'params': ["fake arg 1"],
+                 'vars': ["GET/.1.3.6.1.2.1.1.3.0"],
+                 'reRouteFor': {
+                    'host': "testserver1",
+                    "service": "TestAddCSReRoute"
+                },
+            }, \
+            "add_collector_service rerouting does not work " \
+                "with the SNMPJobs sub-hashmap"
 
     def test_add_collector_metro(self):
         """Test for the add_collector_metro host method"""

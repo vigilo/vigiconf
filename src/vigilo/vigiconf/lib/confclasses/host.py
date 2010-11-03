@@ -329,7 +329,8 @@ class Host(object):
         @param reroutefor: Service routing information.
             This parameter indicates that the given service receives
             information for another service, whose host and label are
-            given by the "host" and "service" key of this dict.
+            given by the "host" and "service" keys of this dict,
+            respectively.
         @type  reroutefor: C{dict}
         @param weight: service weight
         @type  weight: C{int}
@@ -338,9 +339,14 @@ class Host(object):
         if reroutefor == None:
             target = self.name
             service = label
+            reroutedby = None
         else:
             target = reroutefor["host"]
             service = reroutefor['service']
+            reroutedby = {
+                'host': self.name,
+                'service': label,
+            }
 
         if directives is None:
             directives = {}
@@ -352,6 +358,7 @@ class Host(object):
                                                'cti': cti,
                                                "weight": weight,
                                                "directives": directives,
+                                               "reRoutedBy": reroutedby,
                                               })
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (label, 'service'),
@@ -389,9 +396,12 @@ class Host(object):
         else:
             target = reroutefor['host']
             service = reroutefor['service']
+
         # Add the RRD datasource (rerouting-dependant)
-        self.add(target, "dataSources", service,
-                 {'dsType': dstype, 'label': label})
+        self.add(target, "dataSources", service, {
+            'dsType': dstype,
+            'label': label,
+        })
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (name, 'perfData'),
                                         {'function': function,
@@ -522,9 +532,14 @@ class Host(object):
         for (dname, dvalue) in directives.iteritems():
             self.add_nagios_service_directive(name, dname, dvalue)
 
-        self.add(self.name, 'services', name, {'type': 'active',
-                'command': command, 'cti': cti, 'weight': weight,
-                'directives': directives})
+        self.add(self.name, 'services', name, {
+            'type': 'active',
+            'command': command,
+            'cti': cti,
+            'weight': weight,
+            'directives': directives,
+            'reRoutedBy': None,
+        })
 
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
                               dstype="GAUGE", reroutefor=None):
