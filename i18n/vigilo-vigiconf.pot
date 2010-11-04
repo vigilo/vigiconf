@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2010-10-29 20:30+0200\n"
+"POT-Creation-Date: 2010-11-04 10:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -680,34 +680,34 @@ msgid ""
 "%(args)s (and only those)"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:665
+#: src/vigilo/vigiconf/lib/confclasses/host.py:673
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:346
 #, python-format
 msgid "Successfully parsed %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:694
+#: src/vigilo/vigiconf/lib/confclasses/host.py:702
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:114
 #, python-format
 msgid "Not enough memory to validate %(file)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:699
+#: src/vigilo/vigiconf/lib/confclasses/host.py:707
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:263
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:119
 #, python-format
 msgid "Invalid XML validation schema %(schema)s found while validating %(file)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:706
+#: src/vigilo/vigiconf/lib/confclasses/host.py:714
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:270
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:126
 #, python-format
 msgid "XML validation failed (%(file)s with schema %(schema)s)"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:711
+#: src/vigilo/vigiconf/lib/confclasses/host.py:719
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:275
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
 #, python-format
@@ -716,34 +716,34 @@ msgid ""
 "error. Make sure the permissions are set correctly."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:759
+#: src/vigilo/vigiconf/lib/confclasses/host.py:767
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:785
+#: src/vigilo/vigiconf/lib/confclasses/host.py:793
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:830
+#: src/vigilo/vigiconf/lib/confclasses/host.py:838
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
 #: src/vigilo/vigiconf/loaders/hlservice.py:86
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:839
+#: src/vigilo/vigiconf/lib/confclasses/host.py:847
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:852
+#: src/vigilo/vigiconf/lib/confclasses/host.py:860
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:865
+#: src/vigilo/vigiconf/lib/confclasses/host.py:873
 #, python-format
 msgid "Loaded host %(host)s, address %(address)s"
 msgstr ""
@@ -820,13 +820,28 @@ msgstr ""
 msgid "Updating: %(key)s (%(class)s)"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:147
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:136
+#, python-format
+msgid ""
+"WARNING: Different types between old and new value, comparasion will always "
+"fail. Old is %(old_value)s (%(old_type)s), new is %(new_value)s "
+"(%(new_type)s)."
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:146
+#, python-format
+msgid ""
+"Updating property %(property)s from %(old_value)s (%(old_type)s) to "
+"%(new_value)s (%(new_type)s)"
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:160
 #: src/vigilo/vigiconf/loaders/group.py:117
 #, python-format
 msgid "Inserting: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:154
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:167
 #, python-format
 msgid "Deleting: %s"
 msgstr ""
@@ -907,46 +922,51 @@ msgstr ""
 msgid "Service group %s does not exist."
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:60
+#: src/vigilo/vigiconf/loaders/host.py:63
 #, python-format
 msgid "Loading host %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:74
+#: src/vigilo/vigiconf/loaders/host.py:79
+#, python-format
+msgid "Adding \"Collector\" service on host %s"
+msgstr ""
+
+#: src/vigilo/vigiconf/loaders/host.py:90
 #, python-format
 msgid "Loading groups for host %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:79
+#: src/vigilo/vigiconf/loaders/host.py:94
 #, python-format
 msgid "Loading services for host %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:84
+#: src/vigilo/vigiconf/loaders/host.py:99
 #, python-format
 msgid "Loading nagios conf for host %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:89
+#: src/vigilo/vigiconf/loaders/host.py:104
 #, python-format
 msgid "Loading perfdatasources for host %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:94
+#: src/vigilo/vigiconf/loaders/host.py:109
 #, python-format
 msgid "Loading graphs for host %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:99
+#: src/vigilo/vigiconf/loaders/host.py:114
 msgid "Cleaning up old graphs and graphgroups"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:121
+#: src/vigilo/vigiconf/loaders/host.py:136
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:150
+#: src/vigilo/vigiconf/loaders/host.py:165
 #, python-format
 msgid "syntax error in host %s: could not find a group matching path \"%s\""
 msgstr ""
