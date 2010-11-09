@@ -111,7 +111,9 @@ class XMLLoader(DBLoader):
             return
         # Plus assez de mémoire.
         if result == 9:
-            raise ParsingError(_("Not enough memory to validate %(file)s") % {
+            raise ParsingError(_("Not enough memory to validate %(file)s "
+                                 "using schema %(schema)s") % {
+                                    'schema': xsd,
                                     'file': xmlfile,
                                 })
         # Schéma de validation ou DTD invalide.
@@ -119,7 +121,7 @@ class XMLLoader(DBLoader):
             raise ParsingError(_("Invalid XML validation schema %(schema)s "
                                 "found while validating %(file)s") % {
                                     'schema': xsd,
-                                    'source': xmlfile,
+                                    'file': xmlfile,
                                 })
         # Erreur de validation du fichier par rapport au schéma.
         if result in (3, 4):
@@ -132,7 +134,7 @@ class XMLLoader(DBLoader):
                             "using schema %(schema)s, due to an error. "
                             "Make sure the permissions are set correctly.") % {
                                 'schema': xsd,
-                                'source': xmlfile,
+                                'file': xmlfile,
                             })
 
     def visit_dir(self, dirname):

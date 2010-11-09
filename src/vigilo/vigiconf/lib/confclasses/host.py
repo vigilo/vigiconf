@@ -699,7 +699,9 @@ class HostFactory(object):
             return
         # Plus assez de mémoire.
         if result == 9:
-            raise ParsingError(_("Not enough memory to validate %(file)s") % {
+            raise ParsingError(_("Not enough memory to validate %(file)s "
+                                 "using schema %(schema)s") % {
+                                    'schema': xsd,
                                     'file': source,
                                 })
         # Schéma de validation ou DTD invalide.
@@ -707,7 +709,7 @@ class HostFactory(object):
             raise ParsingError(_("Invalid XML validation schema %(schema)s "
                                 "found while validating %(file)s") % {
                                     'schema': xsd,
-                                    'source': source,
+                                    'file': source,
                                 })
         # Erreur de validation du fichier par rapport au schéma.
         if result in (3, 4):
@@ -720,7 +722,7 @@ class HostFactory(object):
                             "using schema %(schema)s, due to an error. "
                             "Make sure the permissions are set correctly.") % {
                                 'schema': xsd,
-                                'source': source,
+                                'file': source,
                             })
 
     def _loadhosts(self, source):
