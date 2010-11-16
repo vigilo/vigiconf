@@ -32,10 +32,14 @@ from vigilo.vigiconf.lib.generators import FileGenerator
 class NetflowGen(FileGenerator):
     """Generator for pmacct and pmacct-snmp (netflow collector)"""
 
-    def generate(self):
-        for (hostname, ventilation) in self.mapping.iteritems():
-            if not "netflow" in ventilation:
-                continue
+    def generate(self, *args, **kwargs):
+        pass
+
+    def generate_host(self, hostname, vserver):
+
+        if not self.ventilation.has_key("netflow"):
+            return
+        h = conf.hostConf["hostname"]
         if not len(h["netflow"]): # if no netflow is configured.
             return
 
