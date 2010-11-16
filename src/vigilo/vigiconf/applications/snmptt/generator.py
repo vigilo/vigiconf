@@ -1,4 +1,4 @@
-################################################################################
+###############################################################################
 #
 # ConfigMgr snmpTT configuration file generator
 # Copyright (C) 2007 CS-SI
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-################################################################################
+###############################################################################
 
 """Generator for the SNMP trap collector (snmpTT)"""
 
@@ -32,6 +32,9 @@ from vigilo.vigiconf.lib.generators import FileGenerator
 class SnmpTTGen(FileGenerator):
     """Generator for the SNMP trap collector (snmpTT)"""
 
+    def generate(self):
+        super(SnmpTTGen, self).generate()
+
     def generate_host(self, hostname, vserver):
         h = conf.hostsConf[hostname]
         # loads the configuration for host
@@ -41,16 +44,16 @@ class SnmpTTGen(FileGenerator):
 
         serv_desc = h["snmpTrap"].keys()[0]
         # if serv_desc contains space, it can be problematic for filename
-        self.fileName = os.path.join(self.baseDir, vserver,
+        fileName = os.path.join(self.baseDir, vserver,
                                      "snmptt", "snmptt.conf")
 
         for k in h["snmpTrap"][serv_desc].keys():
             vals = h["snmpTrap"][serv_desc][k]
-            if not os.path.exists(self.fileName):
+            if not os.path.exists(fileName):
                 templateFunct = self.templateCreate
             else:
                 templateFunct = self.templateAppend
-            templateFunct(self.fileName, self.templates["snmptt.conf"],
+            templateFunct(fileName, self.templates["snmptt.conf"],
                 {"event": vals["label"],
                     "oid": k,
                     "command": re.escape(vals["command"]),
