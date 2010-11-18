@@ -88,13 +88,13 @@ class Host(object):
                 "checkHostCMD"   : "check-host-alive",
                 "snmpVersion"    : "2",
                 "community"      : "public",
-                "port"           : 161,
+                "snmpPort"       : 161,
                 "snmpOIDsPerPDU" : 10,
                 "nagiosDirectives": {},
                 "nagiosSrvDirs"  : {},
                 "weight"         : 1,
             }
-        self.attr_types = {"port": int,
+        self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
                            "weight": int,
                           }

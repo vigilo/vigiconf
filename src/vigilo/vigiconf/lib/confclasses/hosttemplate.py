@@ -59,7 +59,7 @@ class HostTemplate(object):
                 "nagiosDirectives": {},
                 "nagiosSrvDirs": {},
             }
-        self.attr_types = {"port": int,
+        self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
                            "weight": int,
                           }

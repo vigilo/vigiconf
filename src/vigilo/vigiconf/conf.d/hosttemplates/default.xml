@@ -9,7 +9,7 @@
     <!-- Default SNMP values -->
     <attribute name="snmpVersion">2</attribute>
     <attribute name="community">public</attribute>
-    <attribute name="port">161</attribute>
+    <attribute name="snmpPort">161</attribute>
     <attribute name="snmpOIDsPerPDU">10</attribute>
     <test name="UpTime"/>
 </template>
