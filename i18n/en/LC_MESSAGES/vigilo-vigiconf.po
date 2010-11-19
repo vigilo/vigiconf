@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2010-11-04 10:55+0100\n"
-"PO-Revision-Date: 2010-11-04 10:56+0100\n"
+"POT-Creation-Date: 2010-11-19 13:19+0100\n"
+"PO-Revision-Date: 2010-11-19 13:26+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -725,35 +725,34 @@ msgstr ""
 "%(args)s (and only those)"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:673
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:346
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:348
 #, python-format
 msgid "Successfully parsed %s"
 msgstr "Successfully parsed %s"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:702
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:114
 #, python-format
-msgid "Not enough memory to validate %(file)s"
-msgstr "Not enough memory to validate %(file)s"
+msgid "Not enough memory to validate %(file)s using schema %(schema)s"
+msgstr "Not enough memory to validate %(file)s using schema %(schema)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:707
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:263
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:119
+#: src/vigilo/vigiconf/lib/confclasses/host.py:709
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:265
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:121
 #, python-format
 msgid "Invalid XML validation schema %(schema)s found while validating %(file)s"
 msgstr "Invalid XML validation schema %(schema)s found while validating %(file)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:714
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:270
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:126
+#: src/vigilo/vigiconf/lib/confclasses/host.py:716
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:272
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:128
 #, python-format
 msgid "XML validation failed (%(file)s with schema %(schema)s)"
 msgstr "XML validation failed (%(file)s with schema %(schema)s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:719
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:275
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
+#: src/vigilo/vigiconf/lib/confclasses/host.py:721
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:277
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:133
 #, python-format
 msgid ""
 "XML validation failed for file %(file)s, using schema %(schema)s, due to "
@@ -762,44 +761,49 @@ msgstr ""
 "XML validation failed for file %(file)s, using schema %(schema)s, due to "
 "an error. Make sure the permissions are set correctly."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:767
+#: src/vigilo/vigiconf/lib/confclasses/host.py:769
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Invalid ventilation group: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:793
+#: src/vigilo/vigiconf/lib/confclasses/host.py:795
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:838
+#: src/vigilo/vigiconf/lib/confclasses/host.py:840
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
 #: src/vigilo/vigiconf/loaders/hlservice.py:86
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Invalid group name (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:847
+#: src/vigilo/vigiconf/lib/confclasses/host.py:849
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr "Invalid weight value for host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:860
+#: src/vigilo/vigiconf/lib/confclasses/host.py:862
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "You must associate host \"%s\" with at least one group."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:873
+#: src/vigilo/vigiconf/lib/confclasses/host.py:875
 #, python-format
 msgid "Loaded host %(host)s, address %(address)s"
 msgstr "Loaded host %(host)s, address %(address)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:353
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
+#, python-format
+msgid "Not enough memory to validate %(file)s using schema %(schema)"
+msgstr "Not enough memory to validate %(file)s using schema %(schema)"
+
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:355
 #, python-format
 msgid "Invalid weight value for test %(test)s in template %(tpl)s: %(weight)r"
 msgstr "Invalid weight value for test %(test)s in template %(tpl)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:375
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:377
 #, python-format
 msgid "Invalid weight value for template %(tpl)s: %(weight)r"
 msgstr "Invalid weight value for template %(tpl)s: %(weight)r"
@@ -912,17 +916,17 @@ msgstr "An XSD schema should be provided for validation."
 msgid "XSD file does not exist: %s"
 msgstr "XSD file does not exist: %s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:195
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:197
 #, python-format
 msgid "End tag mismatch error: %(start)s/%(end)s"
 msgstr "End tag mismatch error: %(start)s/%(end)s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:202
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:204
 #, python-format
 msgid "Syntax error in \"%(path)s\": %(error)s"
 msgstr "Syntax error in \"%(path)s\": %(error)s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:368
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:370
 #, python-format
 msgid "Can't find an item matching %s"
 msgstr "Can't find an item matching %s"
