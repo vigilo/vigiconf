@@ -67,7 +67,7 @@ class HostLoader(DBLoader):
                         hosttpl=unicode(hostdata['hostTPL']),
                         snmpcommunity=unicode(hostdata['community']),
                         address=unicode(hostdata['address']),
-                        snmpport=hostdata['port'],
+                        snmpport=hostdata['snmpPort'],
                         snmpoidsperpdu=hostdata['snmpOIDsPerPDU'],
                         weight=hostdata['weight'],
                         snmpversion=unicode(hostdata['snmpVersion']))
