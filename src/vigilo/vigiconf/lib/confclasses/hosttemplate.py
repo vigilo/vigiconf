@@ -256,7 +256,7 @@ class HostTemplateFactory(object):
         # Plus assez de mémoire.
         if result == 9:
             raise ParsingError(_("Not enough memory to validate %(file)s "
-                                 "using schema %(schema)") % {
+                                 "using schema %(schema)s") % {
                                     'schame': xsd,
                                     'file': source,
                                 })

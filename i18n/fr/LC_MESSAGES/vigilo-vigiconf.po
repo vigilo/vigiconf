@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2010-11-19 13:26+0100\n"
+"PO-Revision-Date: 2010-11-19 14:58+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -747,10 +747,11 @@ msgid "Successfully parsed %s"
 msgstr "Analyse de %s réussie"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:702
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:114
-#, fuzzy, python-format
+#, python-format
 msgid "Not enough memory to validate %(file)s using schema %(schema)s"
-msgstr "Mémoire insuffisante pour valider %(file)s"
+msgstr "Mémoire insuffisante pour valider %(file)s avec le schéma %(schema)s"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:709
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:265
@@ -810,11 +811,6 @@ msgstr "Vous devez associer l'hôte \"%s\" avec au moins un groupe."
 #, python-format
 msgid "Loaded host %(host)s, address %(address)s"
 msgstr "Chargé : hôte %(host)s, adresse %(address)s"
-
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
-#, fuzzy, python-format
-msgid "Not enough memory to validate %(file)s using schema %(schema)"
-msgstr "Mémoire insuffisante pour valider %(file)s"
 
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:355
 #, python-format
@@ -1014,9 +1010,9 @@ msgid "Loading host %s"
 msgstr "Chargement de l'hôte %s"
 
 #: src/vigilo/vigiconf/loaders/host.py:79
-#, fuzzy, python-format
+#, python-format
 msgid "Adding \"Collector\" service on host %s"
-msgstr "Chargement des services pour l'hôte %s"
+msgstr "Ajout du service \"Collector\" sur l'hôte %s"
 
 #: src/vigilo/vigiconf/loaders/host.py:90
 #, python-format

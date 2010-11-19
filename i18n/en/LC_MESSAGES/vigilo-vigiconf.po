@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2010-11-19 13:26+0100\n"
+"POT-Creation-Date: 2010-11-19 14:58+0100\n"
+"PO-Revision-Date: 2010-11-19 14:58+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -731,6 +731,7 @@ msgid "Successfully parsed %s"
 msgstr "Successfully parsed %s"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:702
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:114
 #, python-format
 msgid "Not enough memory to validate %(file)s using schema %(schema)s"
@@ -792,11 +793,6 @@ msgstr "You must associate host \"%s\" with at least one group."
 #, python-format
 msgid "Loaded host %(host)s, address %(address)s"
 msgstr "Loaded host %(host)s, address %(address)s"
-
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
-#, python-format
-msgid "Not enough memory to validate %(file)s using schema %(schema)"
-msgstr "Not enough memory to validate %(file)s using schema %(schema)"
 
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:355
 #, python-format
