@@ -61,17 +61,17 @@ class Interface(Test):
                          "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
                         weight=self.weight, directives=self.directives)
 
-            host.add_graph("Traffic %s" % label, ["in%s" % label, "out%s" % label],
-                        "area-line", "b/s", group="Network interfaces",
-                        factors={
-                            "in%s" % label: 8,
-                            "out%s" % label: 8,
-                        },
-                        max_values={
-                            "in%s" % label: max,
-                            "out%s" % label: max,
-                        },
-            )
+        host.add_graph("Traffic %s" % label, ["in%s" % label, "out%s" % label],
+                    "area-line", "b/s", group="Network interfaces",
+                    factors={
+                        "in%s" % label: 8,
+                        "out%s" % label: 8,
+                    },
+                    max_values={
+                        "in%s" % label: max,
+                        "out%s" % label: max,
+                    },
+        )
         if errors:
             host.add_graph("Errors %s" % label, [ "inErrs%s"%label, "outErrs%s"%label,
                                         "inDisc%s"%label, "outDisc%s"%label ], "lines",
