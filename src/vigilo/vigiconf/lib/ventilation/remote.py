@@ -156,16 +156,16 @@ class VentilatorRemote(Ventilator):
             groups.add(group.get_top_parent().name)
 
         if not groups:
-            raise ParsingError('Could not determine how to '
+            raise ParsingError(_('Could not determine how to '
                 'ventilate host "%s". Affect some groups to '
-                'this host or use the ventilation attribute.' %
+                'this host or use the ventilation attribute.') %
                 hostname)
 
         if len(groups) != 1:
-            raise ParsingError('Found multiple candidates for '
-                'ventilation (%(candidates)r) on "%(host)s", '
-                'use the ventilation attribute to select one.' % {
-                    'candidates': ', '.join(map(str, groups)),
+            raise ParsingError(_('Found multiple candidates for '
+                    'ventilation (%(candidates)r) on "%(host)s", '
+                    'use the ventilation attribute to select one.') % {
+                    'candidates': u', '.join(map(unicode, groups)),
                     'host': hostname,
                 })
         ventilation = groups.pop()

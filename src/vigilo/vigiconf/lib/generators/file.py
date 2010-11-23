@@ -120,7 +120,7 @@ class FileGenerator(Generator):
         @param args: the formatting elements, if needed
         @type  args: C{dict}
         """
-        self.openFiles[filename].write(template % args)
+        self.openFiles[filename].write((template % args).encode('utf8'))
 
     def templateClose(self, filename):
         """
