@@ -2,7 +2,7 @@ apps = [
         "nagios",
         "nagios-hls",
 #        "snmptt",
-        "netflow",
+#        "netflow",
         "connector-metro",
         "collector",
         "perfdata",
