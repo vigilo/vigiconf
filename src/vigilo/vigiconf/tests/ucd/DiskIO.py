@@ -3,9 +3,10 @@
 class DiskIO(Test):
     """Monitor the disks Input/Output"""
 
-    def add_test(self, host, diskname="hdisk0", warn=None, crit=None):
+    def add_test(self, host, diskname="hdisk0", IOQueue=None, warn=None, crit=None):
         """Arguments:
         diskname: disk name. Default: hdisk0
+        IOQueue: unused
         warn: tuple containing the thresholds for WARNING status. Ex: (limit_reads, limit_writes)
         crit: tuple containing the thresholds for CRITICAL status. Ex: (limit_reads, limit_writes)
         """
