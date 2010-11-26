@@ -60,6 +60,7 @@ class Partition(Test):
             if not label:
                 # No mountpoint found: maybe Windows ? Use partname
                 label = oids[ ".1.3.6.1.2.1.25.2.3.1.3."+partid ]
+                label = label.replace("\\", "") # Windows drive letters
             tests.append({"label": label, "partname": partname})
         return tests
 
@@ -75,6 +76,7 @@ class Partition(Test):
                 # now use HOST-RESOURCES-MIB::hrFSMountPoint
                 label = oids[ ".1.3.6.1.2.1.25.3.8.1.2."+fsid ]
                 label = label.replace('"', '')
+                label = label.replace("\\", "")
                 return label
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
