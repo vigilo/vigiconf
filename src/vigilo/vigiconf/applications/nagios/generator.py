@@ -84,11 +84,14 @@ class NagiosGen(FileGenerator):
 
         # We need to know if a service is the exact same serviceName as ours.
         if h.has_key("snmpTrap") and len(h["snmpTrap"]):
+            srvnames = h["services"].keys()
             # We can have something like:
             # {'SERVICE1': {'2.3.4.5.6': {'label': 'LAB1, 'command': '/usr/bin/cmd1', 'service': 'SERVICE1', 'address': '127.0.0.1'}}
             #, 'SERVICE2': {'1.2.3.4.5': {'label': 'LAB2', 'command': '/usr/bin/cmd2', 'service': 'SERVICE2', 'address': '127.0.0.1'}}}
             # 2 services about Trap for the same host
             for k in h["snmpTrap"]:
+                if k in srvnames:
+                    continue
                 self.templateAppend(self.fileName, self.templates["collector"], {
                     'name' :  hostname,
                     'serviceName' : k,
