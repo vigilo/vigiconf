@@ -56,7 +56,7 @@ class SnmpTTGen(FileGenerator):
             templateFunct(fileName, self.templates["snmptt.conf"],
                 {"event": vals["label"],
                     "oid": k,
-                    "command": re.escape(vals["command"]),
+                    "command": vals["command"],
                     "host": hostname,
                     "service": serv_desc,
                     "match" : "MATCH $ar: %s" % vals["address"],
