@@ -42,24 +42,26 @@ class SnmpTTGen(FileGenerator):
         if not len(h["snmpTrap"]): # if no trap is configured.
             return
 
-        serv_desc = h["snmpTrap"].keys()[0]
-        # if serv_desc contains space, it can be problematic for filename
         fileName = os.path.join(self.baseDir, vserver,
                                      "snmptt", "snmptt.conf")
 
-        for k in h["snmpTrap"][serv_desc].keys():
-            vals = h["snmpTrap"][serv_desc][k]
-            if not os.path.exists(fileName):
-                templateFunct = self.templateCreate
-            else:
-                templateFunct = self.templateAppend
-            templateFunct(fileName, self.templates["snmptt.conf"],
-                {"event": vals["label"],
-                    "oid": k,
-                    "command": vals["command"],
-                    "host": hostname,
-                    "service": serv_desc,
-                    "match" : "MATCH $ar: %s" % vals["address"],
-                    })
+        # we received something like
+        # {servicename1: {OID:{label:<>,command:<>, address:<>, etc.}, OID: {..}},
+        #  servicename2: etc.
+        for srvname in srvnames.keys():
+            for oid in h["snmpTrap"][srvname].keys():
+                vals = h["snmpTrap"][srvname][oid]
+                if not os.path.exists(fileName):
+                    templateFunct = self.templateCreate
+                else:
+                    templateFunct = self.templateAppend
+                templateFunct(fileName, self.templates["snmptt.conf"],
+                    {"event": vals["label"],
+                        "oid": oid,
+                        "command": vals["command"],
+                        "host": hostname,
+                        "service": srvname,
+                        "match" : "MATCH $ar: %s" % vals["address"],
+                        })
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
