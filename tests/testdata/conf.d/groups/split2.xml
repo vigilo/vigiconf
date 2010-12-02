@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<groups>
+  <group name="split_group">
+    <group name="bar"/>
+  </group>
+</groups>
