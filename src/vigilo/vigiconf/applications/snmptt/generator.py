@@ -48,7 +48,7 @@ class SnmpTTGen(FileGenerator):
         # we received something like
         # {servicename1: {OID:{label:<>,command:<>, address:<>, etc.}, OID: {..}},
         #  servicename2: etc.
-        for srvname in srvnames.keys():
+        for srvname in h["snmpTrap"].keys():
             for oid in h["snmpTrap"][srvname].keys():
                 vals = h["snmpTrap"][srvname][oid]
                 if not os.path.exists(fileName):
