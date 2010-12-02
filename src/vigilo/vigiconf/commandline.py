@@ -332,6 +332,10 @@ def delete_lock(f):
     fcntl.flock(f, fcntl.LOCK_UN)
 
 def main():
+    # Évite des problèmes d'accès aux fichiers ensuite
+    # sur les machines durcies avec un UMASK en 077 (#324).
+    os.umask(0022)
+
     # @FIXME: argparse utilise le domaine par défaut pour les traductions.
     # On définit explicitement le domaine par défaut ici. Ceci permet de
     # définir les traductions pour les textes de argparse dans VigiConf.
