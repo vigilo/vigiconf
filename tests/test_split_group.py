@@ -28,7 +28,7 @@ class TestSplitGroup(unittest.TestCase):
         split_group = DBSession.query(
                 SupItemGroup
             ).filter(SupItemGroup.name == u'split_group'
-            ).all()
+            ).one()
 
         children = split_group.children
         self.assertEquals(2, len(children), "2 groupes fils attendus")
