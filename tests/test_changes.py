@@ -14,7 +14,8 @@ import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
 
 from vigilo.models.tables import Host
-from vigilo.models.tables import LowLevelService, HighLevelService, Dependency
+from vigilo.models.tables import LowLevelService, HighLevelService, \
+                                    Dependency, DependencyGroup
 
 from vigilo.models.session import DBSession
 
@@ -40,7 +41,8 @@ class ChangeManagementTest(unittest.TestCase):
         DBSession.add(localhost)
         hlservice1 = HighLevelService(
             servicename=u'hlservice1',
-            op_dep=u'+',
+            # @TODO: op_dep
+#            op_dep=u'+',
             message=u'Hello world',
             warning_threshold=50,
             critical_threshold=80,
@@ -49,12 +51,11 @@ class ChangeManagementTest(unittest.TestCase):
         DBSession.add(hlservice1)
         interface = LowLevelService(
             servicename=u'Interface eth0',
-            op_dep=u'+',
             weight=100,
             host=localhost
         )
         DBSession.add(interface)
-        
+
         # Pour les tests
         self.testhost1 =  Host(
             name=u'test_change_deps_1',
@@ -79,24 +80,27 @@ class ChangeManagementTest(unittest.TestCase):
         )
         DBSession.add(self.testhost2)
         DBSession.flush()
-        
+
     def tearDown(self):
         """Call after every test case."""
         teardown_db()
 
-    
-    def test_change_dependencies_suppr(self):
+
+    def test_change_dependencies_remove(self):
         """ Test de la gestion des changements des dépendances.
         """
         self.topologyloader.load()
-        dep = Dependency(supitem1=self.testhost1, supitem2=self.testhost2)
+        dep_group = DependencyGroup(dependent=self.testhost1, operator=u'&')
+        DBSession.add(dep_group)
+        DBSession.flush()
+        dep = Dependency(group=dep_group, supitem=self.testhost2)
         DBSession.add(dep)
         DBSession.flush()
         depnum_before = DBSession.query(Dependency).count()
         self.topologyloader.load()
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before - 1)
-        
+
     def test_change_dependencies_add(self):
         self.topologyloader.load()
         DBSession.delete(DBSession.query(Dependency).first())
@@ -105,11 +109,10 @@ class ChangeManagementTest(unittest.TestCase):
         self.topologyloader.load()
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before + 1)
-        
+
     def test_change_dependencies_nothing(self):
         self.topologyloader.load()
         depnum_before = DBSession.query(Dependency).count()
         self.topologyloader.load()
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before)
-

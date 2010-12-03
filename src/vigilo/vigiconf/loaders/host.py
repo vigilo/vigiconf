@@ -185,7 +185,7 @@ class ServiceLoader(DBLoader):
             ).filter(self._class.servicename != u'Collector').all()
 
     def load_conf(self):
-        # TODO: implémenter les détails: op_dep, weight, command
+        # TODO: implémenter les détails: weight, command
         for service in conf.hostsConf[self.host.name]['services']:
             idcollector = None
 
@@ -205,7 +205,7 @@ class ServiceLoader(DBLoader):
 
             service = unicode(service)
             lls = dict(host=self.host, servicename=service,
-                       op_dep=u'+', weight=1, idcollector=idcollector)
+                       weight=1, idcollector=idcollector)
             lls = self.add(lls)
 
             # directives Nagios du service
@@ -220,8 +220,8 @@ class CollectorLoader(ServiceLoader):
             ).filter(self._class.servicename == u'Collector').all()
 
     def load_conf(self):
-        lls = dict(host=self.host, servicename=u"Collector",
-                   op_dep=u'+', weight=1)
+        # @TODO : implémenter les "détails" ;) [weight]
+        lls = dict(host=self.host, servicename=u"Collector", weight=1)
         lls = self.add(lls)
 
 class NagiosConfLoader(DBLoader):

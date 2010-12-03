@@ -18,7 +18,8 @@ import vigilo.vigiconf.conf as conf
 from confutil import reload_conf, setup_db, teardown_db
 
 from vigilo.models.tables import SupItemGroup, SupItemGroup, Host, SupItem
-from vigilo.models.tables import LowLevelService, HighLevelService, Dependency
+from vigilo.models.tables import LowLevelService, HighLevelService, \
+                                    Dependency, DependencyGroup
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
 
@@ -113,14 +114,12 @@ class DepLoaderTest(XMLLoaderTest):
         DBSession.add(self.host12)
         self.service11 = LowLevelService(
             servicename=u'service11',
-            op_dep=u'+',
             weight=100,
             host=self.host11
         )
         DBSession.add(self.service11)
         self.service12 = LowLevelService(
             servicename=u'service12',
-            op_dep=u'+',
             weight=100,
             host=self.host12
         )
@@ -139,10 +138,15 @@ class DepLoaderTest(XMLLoaderTest):
         self.assertTrue(si_host1, "si_host1 not null")
         self.assertTrue(si_host11, "si_host11 not null")
         self.assertEquals(1,
-          DBSession.query(Dependency).filter(Dependency.idsupitem1==si_host1)\
-                                     .filter(Dependency.idsupitem2==si_host11)\
-                                     .count(),
-          "One dependency: host11/service11 is a dependence of host1")
+            DBSession.query(
+                    Dependency
+                ).join(
+                    (DependencyGroup, DependencyGroup.idgroup == \
+                        Dependency.idgroup),
+                ).filter(DependencyGroup.iddependent == si_host1
+                ).filter(Dependency.idsupitem == si_host11
+                ).count(),
+          "One dependency: host1 depends on host11/service11")
 
     def test_load_conf_topologies(self):
         """ Test de chargement des dépendances de la conf.
@@ -161,7 +165,6 @@ class DepLoaderTest(XMLLoaderTest):
 
         interface = LowLevelService(
             servicename=u'Interface eth0',
-            op_dep=u'+',
             weight=100,
             host=localhost
         )
@@ -189,4 +192,3 @@ class DepLoaderTest(XMLLoaderTest):
         self.assertEquals(len(gh.keys()), 5, "5 top hostgroups")
         self.assertEquals(gh["root_group3"]["hgroup31"], 1)
         self.assertEquals(gh["root_group3"]["hgroup33"]["Linux servers 3"], 1)
-
