@@ -46,30 +46,8 @@ class NetflowGen(FileGenerator):
                 vserver,
                 "pmacct/pmacct-snmp.conf"
                 )
-        # Set different filename for each.
-        # pmacct-snmp
-        # network.lst (used by nfacctd or pmacctd)
-
-        #fileName_snmpd = os.path.join(
-        #        self.baseDir,
-        #        vserver,
-        #        "snmp/snmpd.conf"
-        #        )
-        #
-        # Les templates sont conserves 'au cas ou'. L'utilisation de SNMPD
-        # pour faire des demandes de donnees netflow requiert une modification
-        # de nfacct.conf pour une utilisation du plugin memory.
-        # Plus d'infos sur le site officiel :
-        # http://www.net-track.ch/opensource/pmacct-snmp/README.php
-        # ou sur le wiki :
-        # https://vigilo-dev/trac/wiki/Dev/Netflow
-
-        #fileName_nfacct = os.path.join(
-        #        self.baseDir,
-        #        vserver,
-        #        "pmacct/nfacct.conf"
-        #        )
-        fileName_network = os.path.join(self.baseDir, vserver, "pmacct/networks.lst")
+        fileName_network = os.path.join(self.baseDir, vserver,
+                "pmacct/pmacctd-networks.lst")
         ip_list = ""
         ip_list_net = ""
         for ip in h["netflow"]["IPs"]:
@@ -82,8 +60,8 @@ class NetflowGen(FileGenerator):
                 }
         # On ne veut que le sous reseau
 
-        self.templateCreate(fileName_network, self.templates["networks"],
-            {"ip": ip_list}
+        self.templateCreate(fileName_network,
+                self.templates["pmacctd-networks"], {"ip": ip_list}
             )
         self.templateCreate(
                 fileName_pmacct_snmp,
