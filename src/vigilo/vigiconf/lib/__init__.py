@@ -46,9 +46,11 @@ def setup_plugins_path():
         settings["vigiconf"].get("pluginsdir", "/etc/vigilo/vigiconf/plugins")
     ))
     distributions, errors = pkg_resources.working_set.find_plugins(
-        pkg_resources.Environment(plugins_path)
+        pkg_resources.Environment([plugins_path])
     )
     for dist in distributions:
+        if dist in pkg_resources.working_set:
+            continue
         LOGGER.debug('Adding plugin %(plugin)s from %(location)s', {
             'plugin': dist,
             'location': dist.location,
