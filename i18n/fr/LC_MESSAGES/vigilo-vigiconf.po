@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2010-11-19 14:58+0100\n"
+"PO-Revision-Date: 2010-12-06 13:37+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -261,15 +261,15 @@ msgstr "VigiConf n'a pas été lancé en utilisant le compte 'vigiconf'. Abandon
 msgid "Removing the lock."
 msgstr "Suppression du verrou."
 
-#: src/vigilo/vigiconf/commandline.py:344
+#: src/vigilo/vigiconf/commandline.py:348
 msgid "VigiConf starting..."
 msgstr "Démarrage de VigiConf..."
 
-#: src/vigilo/vigiconf/commandline.py:348
+#: src/vigilo/vigiconf/commandline.py:352
 msgid "Acquiring the lock."
 msgstr "Acquisition du verrou."
 
-#: src/vigilo/vigiconf/commandline.py:351
+#: src/vigilo/vigiconf/commandline.py:355
 #, python-format
 msgid ""
 "Can't obtain lock on lockfile (%(lockfile)s). Dispatchatoralready running"
@@ -278,13 +278,13 @@ msgstr ""
 "Impossible d'obtenir un verrou sur le fichier %(lockfile)s. Le "
 "dispatchator est-il déjà lancé ? Raison : %(error)s"
 
-#: src/vigilo/vigiconf/commandline.py:366
-#: src/vigilo/vigiconf/commandline.py:368
+#: src/vigilo/vigiconf/commandline.py:370
+#: src/vigilo/vigiconf/commandline.py:372
 #, python-format
 msgid "VigiConf error: %s"
 msgstr "Erreur dans VigiConf : %s"
 
-#: src/vigilo/vigiconf/commandline.py:371
+#: src/vigilo/vigiconf/commandline.py:375
 msgid "VigiConf ended."
 msgstr "VigiConf s'est arrêté."
 
@@ -352,24 +352,24 @@ msgstr "Suppression de la Map pour le groupe %s"
 msgid "Generating maps for the host groups"
 msgstr "Génération des cartes pour les groupes d'hôtes"
 
-#: src/vigilo/vigiconf/lib/__init__.py:65
+#: src/vigilo/vigiconf/lib/__init__.py:67
 #, python-format
 msgid "Skipping \"%(item)s\": (version conflict \"%(error)s\")"
 msgstr "\"%(item)s\" ignoré : (conflit de version \"%(error)s\")"
 
-#: src/vigilo/vigiconf/lib/__init__.py:70
+#: src/vigilo/vigiconf/lib/__init__.py:72
 #, python-format
 msgid "Skipping \"%(item)s\": (unknown extra \"%(error)s\")"
 msgstr ""
 "\"%(item)s\" ignoré : (fonctionnalité supplémentaire inconnue "
 "\"%(error)s\")"
 
-#: src/vigilo/vigiconf/lib/__init__.py:75
+#: src/vigilo/vigiconf/lib/__init__.py:77
 #, python-format
 msgid "Skipping \"%(item)s\": (can't import \"%(error)s\")"
 msgstr "\"%(item)s\" ignoré : (échec de l'import \"%(error)s\")"
 
-#: src/vigilo/vigiconf/lib/__init__.py:80
+#: src/vigilo/vigiconf/lib/__init__.py:82
 #, python-format
 msgid "Skipping \"%(item)s\": (error \"%(error)s\")"
 msgstr "\"%(item)s\" ignoré : (erreur \"%(error)s\")"
@@ -792,7 +792,7 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:840
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
-#: src/vigilo/vigiconf/loaders/hlservice.py:86
+#: src/vigilo/vigiconf/loaders/hlservice.py:88
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Nom de groupe non valide (%s)"
@@ -899,21 +899,21 @@ msgstr "Mise à jour : %(key)s (%(class)s)"
 #, python-format
 msgid ""
 "WARNING: Different types between old and new value, comparasion will "
-"always fail. Old is %(old_value)s (%(old_type)s), new is %(new_value)s "
-"(%(new_type)s)."
+"always fail. Old is %(old_value)s (%(old_type)r), new is %(new_value)s "
+"(%(new_type)r)."
 msgstr ""
 "AVERTISSEMENT: Types différents entre l'ancienne et la nouvelle valeur, "
 "la comparaison échouera toujours. Ancienne valeur: %(old_value)s "
-"(%(old_type)s), nouvelle valeur: %(new_value)s (%(new_type)s)."
+"(%(old_type)r), nouvelle valeur: %(new_value)s (%(new_type)r)."
 
 #: src/vigilo/vigiconf/lib/loaders/dbloader.py:146
 #, python-format
 msgid ""
-"Updating property %(property)s from %(old_value)s (%(old_type)s) to "
-"%(new_value)s (%(new_type)s)"
+"Updating property %(property)s from %(old_value)s (%(old_type)r) to "
+"%(new_value)s (%(new_type)r)"
 msgstr ""
-"Mise à jour de la propriété %(property)s de %(old_value)s (%(old_type)s) "
-"en %(new_value)s (%(new_type)s)"
+"Mise à jour de la propriété %(property)s de %(old_value)s (%(old_type)r) "
+"en %(new_value)s (%(new_type)r)"
 
 #: src/vigilo/vigiconf/lib/loaders/dbloader.py:160
 #: src/vigilo/vigiconf/loaders/group.py:117
@@ -982,6 +982,24 @@ msgstr "Impossible de déployer la configuration du serveur %(server)s : %(error
 msgid "Can't find application %s in database"
 msgstr "Impossible de trouver l'application %s dans la base de données"
 
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:159
+#, python-format
+msgid ""
+"Could not determine how to ventilate host \"%s\". Affect some groups to "
+"this host or use the ventilation attribute."
+msgstr ""
+"Impossible de déterminer comment ventiler l'hôte \"%s\". Affectez cet hôte à "
+"un groupe ou utilisez l'attribut 'ventilation'."
+
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:165
+#, python-format
+msgid ""
+"Found multiple candidates for ventilation (%(candidates)r) on "
+"\"%(host)s\", use the ventilation attribute to select one."
+msgstr ""
+"Plusieurs candidats (%(candidates)r) ont été trouvés pour la ventilation de "
+"\"%(host)s\", utilisez l'attribut 'ventilation' pour en choisir un."
+
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:191
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:270
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:287
@@ -999,7 +1017,7 @@ msgstr "Le serveur Vigilo %s est déjà désactivé."
 msgid "The Vigilo server %s is already enabled"
 msgstr "Le serveur Vigilo %s est déjà activé."
 
-#: src/vigilo/vigiconf/loaders/hlservice.py:104
+#: src/vigilo/vigiconf/loaders/hlservice.py:107
 #, python-format
 msgid "Service group %s does not exist."
 msgstr "Le groupe de services %s n'existe pas."
@@ -1064,8 +1082,7 @@ msgstr "Pas une dépendance : %s"
 msgid "No dependent supervised item"
 msgstr "Aucun élément supervisé dépendant"
 
-#: src/vigilo/vigiconf/loaders/topology.py:107
+#: src/vigilo/vigiconf/loaders/topology.py:115
 #, python-format
-msgid "Creating dependency from %(from)s to %(to)s"
+msgid "Creating dependency for %(from)s on %(to)s"
 msgstr "Création d'une dépendance de %(from)s sur %(to)s"
-

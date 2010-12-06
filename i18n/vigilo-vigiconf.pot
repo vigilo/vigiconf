@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2010-11-19 14:58+0100\n"
+"POT-Creation-Date: 2010-12-06 13:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -243,27 +243,27 @@ msgstr ""
 msgid "Removing the lock."
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:344
+#: src/vigilo/vigiconf/commandline.py:348
 msgid "VigiConf starting..."
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:348
+#: src/vigilo/vigiconf/commandline.py:352
 msgid "Acquiring the lock."
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:351
+#: src/vigilo/vigiconf/commandline.py:355
 #, python-format
 msgid ""
 "Can't obtain lock on lockfile (%(lockfile)s). Dispatchatoralready running ? "
 "REASON : %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:366 src/vigilo/vigiconf/commandline.py:368
+#: src/vigilo/vigiconf/commandline.py:370 src/vigilo/vigiconf/commandline.py:372
 #, python-format
 msgid "VigiConf error: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:371
+#: src/vigilo/vigiconf/commandline.py:375
 msgid "VigiConf ended."
 msgstr ""
 
@@ -326,22 +326,22 @@ msgstr ""
 msgid "Generating maps for the host groups"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/__init__.py:65
+#: src/vigilo/vigiconf/lib/__init__.py:67
 #, python-format
 msgid "Skipping \"%(item)s\": (version conflict \"%(error)s\")"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/__init__.py:70
+#: src/vigilo/vigiconf/lib/__init__.py:72
 #, python-format
 msgid "Skipping \"%(item)s\": (unknown extra \"%(error)s\")"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/__init__.py:75
+#: src/vigilo/vigiconf/lib/__init__.py:77
 #, python-format
 msgid "Skipping \"%(item)s\": (can't import \"%(error)s\")"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/__init__.py:80
+#: src/vigilo/vigiconf/lib/__init__.py:82
 #, python-format
 msgid "Skipping \"%(item)s\": (error \"%(error)s\")"
 msgstr ""
@@ -728,7 +728,7 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:840
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
-#: src/vigilo/vigiconf/loaders/hlservice.py:86
+#: src/vigilo/vigiconf/loaders/hlservice.py:88
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr ""
@@ -824,15 +824,15 @@ msgstr ""
 #, python-format
 msgid ""
 "WARNING: Different types between old and new value, comparasion will always "
-"fail. Old is %(old_value)s (%(old_type)s), new is %(new_value)s "
-"(%(new_type)s)."
+"fail. Old is %(old_value)s (%(old_type)r), new is %(new_value)s "
+"(%(new_type)r)."
 msgstr ""
 
 #: src/vigilo/vigiconf/lib/loaders/dbloader.py:146
 #, python-format
 msgid ""
-"Updating property %(property)s from %(old_value)s (%(old_type)s) to "
-"%(new_value)s (%(new_type)s)"
+"Updating property %(property)s from %(old_value)s (%(old_type)r) to "
+"%(new_value)s (%(new_type)r)"
 msgstr ""
 
 #: src/vigilo/vigiconf/lib/loaders/dbloader.py:160
@@ -900,6 +900,20 @@ msgstr ""
 msgid "Can't find application %s in database"
 msgstr ""
 
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:159
+#, python-format
+msgid ""
+"Could not determine how to ventilate host \"%s\". Affect some groups to this "
+"host or use the ventilation attribute."
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:165
+#, python-format
+msgid ""
+"Found multiple candidates for ventilation (%(candidates)r) on \"%(host)s\", "
+"use the ventilation attribute to select one."
+msgstr ""
+
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:191
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:270
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:287
@@ -917,7 +931,7 @@ msgstr ""
 msgid "The Vigilo server %s is already enabled"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/hlservice.py:104
+#: src/vigilo/vigiconf/loaders/hlservice.py:107
 #, python-format
 msgid "Service group %s does not exist."
 msgstr ""
@@ -980,8 +994,8 @@ msgstr ""
 msgid "No dependent supervised item"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/topology.py:107
+#: src/vigilo/vigiconf/loaders/topology.py:115
 #, python-format
-msgid "Creating dependency from %(from)s to %(to)s"
+msgid "Creating dependency for %(from)s on %(to)s"
 msgstr ""
 
