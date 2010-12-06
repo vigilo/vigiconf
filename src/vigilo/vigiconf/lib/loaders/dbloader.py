@@ -135,8 +135,8 @@ class DBLoader(object):
             if type(old_value) != type(value):
                 LOGGER.debug(_("WARNING: Different types between old and new "
                                 "value, comparasion will always fail. "
-                                "Old is %(old_value)s (%(old_type)s), "
-                                "new is %(new_value)s (%(new_type)s)."), {
+                                "Old is %(old_value)s (%(old_type)r), "
+                                "new is %(new_value)s (%(new_type)r)."), {
                                     'old_value': old_value,
                                     'old_type': type(old_value),
                                     'new_value': value,
@@ -144,8 +144,8 @@ class DBLoader(object):
                                  })
             if old_value != value:
                 LOGGER.debug(_("Updating property %(property)s from "
-                                "%(old_value)s (%(old_type)s) to "
-                                "%(new_value)s (%(new_type)s)"), {
+                                "%(old_value)s (%(old_type)r) to "
+                                "%(new_value)s (%(new_type)r)"), {
                                     'property': key,
                                     'old_value': old_value,
                                     'old_type': type(old_value),
