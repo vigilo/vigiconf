@@ -37,11 +37,11 @@ from vigilo.vigiconf.lib.loaders import XMLLoader
 
 class GroupLoader(XMLLoader):
     """ Classe de base pour charger des fichiers XML groupes .
-    
+
     Peut être directement instanciée, ou comme c'est le cas
     pour les groupes d'hosts ou de services, être utilisée comme
     classe de base.
-        
+
     @ivar _tag_group: balise xml qui permet de définir les groupes ("group")
     @type _tag_group: C{str}
     @ivar _xsd_filename: fichier schema xsd pour validation
@@ -58,10 +58,10 @@ class GroupLoader(XMLLoader):
         - configuration des règles de corrélations associé à un service de haut
             niveau : ajout/modification/suppression d'une règle de corrélation
     """
-    
+
     _tag_group = "group"
     _xsd_filename = "group.xsd"
-    
+
     def __init__(self):
         super(GroupLoader, self).__init__(SupItemGroup)
 
@@ -74,7 +74,7 @@ class GroupLoader(XMLLoader):
 
     def get_hosts_conf(self):
         """ reconstruit le dico hostsGroup v1
-        
+
         TODO: refactoring
         """
         hostsgroups = {}
@@ -85,7 +85,7 @@ class GroupLoader(XMLLoader):
 
     def get_groups_hierarchy(self):
         """ reconstruit le dico groupsHierarchy v1
-        
+
         TODO: refactoring
         """
         hgroups = {}
@@ -96,7 +96,7 @@ class GroupLoader(XMLLoader):
 
     def _get_children_hierarchy(self, group):
         """ fonction récursive construisant un dictionnaire hiérarchique.
-        
+
         @param group: an XML file
         @type  group: C{Group}
         """
@@ -114,9 +114,15 @@ class GroupLoader(XMLLoader):
         return instance
 
     def insert(self, data):
-        LOGGER.debug(_("Inserting: %s"), self.get_key(data))
+        key = self.get_key(data)
+        # Si l'instance a déjà été créée au cours du déploiement,
+        # on réutilise l'instance créée. Ceci évite de créer des
+        # groupes différents ayant le même chemin (#336).
+        if key in self._in_conf:
+            return self._in_conf[key]
+        LOGGER.debug(_("Inserting: %s"), key)
         instance = self._class(name=data["name"], parent=data["parent"])
-        self._in_conf[self.get_key(data)] = instance
+        self._in_conf[key] = instance
         DBSession.flush()
         return instance
 
@@ -148,11 +154,11 @@ class GroupLoader(XMLLoader):
 
     def load_file(self, path):
         """ Charge des groupes génériques depuis un fichier xml.
-        
+
         @param path: an XML file
         @type  path: C{str}
         """
-        
+
         self._parent_stack = []
         self._current_parent = None
         return super(GroupLoader, self).load_file(path)
@@ -165,4 +171,3 @@ class GroupLoader(XMLLoader):
         else:
             prefix = ""
         return "%s/%s" % (prefix, data["name"])
-
