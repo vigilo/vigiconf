@@ -27,58 +27,61 @@ class Interface(Test):
             If warn and crit contain 4 or 6 values, the next values will be
             applied in order to Discards and Errors if they are not None.
         """
+        snmp_oids = {
+            # using by default High Capacity (64Bits) COUNTER for in and out
+            # http://www.ietf.org/rfc/rfc2233.txt
+                "in": ".1.3.6.1.2.1.31.1.1.1.6",
+                "out": ".1.3.6.1.2.1.31.1.1.1.10",
+                "inDisc": ".1.3.6.1.2.1.2.2.1.13",
+                "outDisc": ".1.3.6.1.2.1.2.2.1.19",
+                "inErrs": ".1.3.6.1.2.1.2.2.1.14",
+                "outErrs": ".1.3.6.1.2.1.2.2.1.20",
+                }
+
+        HCIf = host.get_attribute("DisableHighCapacityInterface", True)
+        if HCIf is not True:
+            # using Low Capacity (32Bits) COUNTER for in and out
+            snmp_oids["in"] = ".1.3.6.1.2.1.2.2.1.10"
+            snmp_oids["out"] = ".1.3.6.1.2.1.2.2.1.16"
 
         if "nokia" in host.classes:
             errors = False # Not supported on Nokia hardware
-        snmp_ids = { 10:"in", 16:"out" }
-        if errors:
-            snmp_ids.update( {13: "inDisc",
-                              19: "outDisc",
-                              14: "inErrs",
-                              20: "outErrs",
-                              })
+            del snmp_oids["inDisc"]
+            del snmp_oids["outDisc"]
+            del snmp_oids["inErrs"]
+            del snmp_oids["outErrs"]
+
 
         if staticindex:
-            for snmpindex, snmpname in snmp_ids.iteritems():
+            collector_function = "staticIfOperStatus"
+            for snmpname, snmpoid in snmp_oids.iteritems():
                 host.add_collector_metro("%s%s" % (snmpname, label),
                                          "directValue", [],
-                                         [ "GET/.1.3.6.1.2.1.2.2.1.%s.%s" % (snmpindex, ifname) ],
+                                         [ "GET/%s.%s" % (snmpoid, ifname) ],
                                          "COUNTER")
-            host.add_collector_service("Interface %s" % label, "staticIfOperStatus",
-                        [ifname, label, "i"],
-                        ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
-                         "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
-                        weight=self.weight, directives=self.directives)
         else:
-            for snmpindex, snmpname in snmp_ids.iteritems():
+            collector_function = "ifOperStatus"
+            for snmpname, snmpoid in snmp_oids.iteritems():
                 host.add_collector_metro("%s%s" % (snmpname, label),
                                          "m_table", [ifname],
-                                         [ "WALK/.1.3.6.1.2.1.2.2.1.%s" % snmpindex,
+                                         [ "WALK/%s" % snmpoid,
                                            "WALK/.1.3.6.1.2.1.2.2.1.2"], "COUNTER")
-            host.add_collector_service("Interface %s" % label, "ifOperStatus",
-                        [ifname, label, "i"],
-                        ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
-                         "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
-                        weight=self.weight, directives=self.directives)
+
+        host.add_collector_service("Interface %s" % label, collector_function,
+                [ifname, label, "i"],
+                ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
+                 "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
+                weight=self.weight, directives=self.directives)
 
         host.add_graph("Traffic %s" % label, ["in%s" % label, "out%s" % label],
                     "area-line", "b/s", group="Network interfaces",
-                    factors={
-                        "in%s" % label: 8,
-                        "out%s" % label: 8,
-                    },
-                    max_values={
-                        "in%s" % label: max,
-                        "out%s" % label: max,
-                    },
-        )
+                    factors={"in%s" % label: 8, "out%s" % label: 8, },
+                    max_values={"in%s" % label: max, "out%s" % label: max, },)
         if errors:
-            host.add_graph("Errors %s" % label, [ "inErrs%s"%label, "outErrs%s"%label,
-                                        "inDisc%s"%label, "outDisc%s"%label ], "lines",
-                                        "packets/s", group="Network interfaces")
-        #if ifname != label:
-        #    host.add_trap("%s.interfaces" % host.get("address"), ifname, label)
-        #edited by gcharbon
+            host.add_graph("Errors %s" % label,
+                    [ "inErrs%s"%label, "outErrs%s"%label,
+                      "inDisc%s"%label, "outDisc%s"%label ],
+                    "lines", "packets/s", group="Network interfaces")
 
         # Supervision service
         if warn and crit:
@@ -131,6 +134,15 @@ class Interface(Test):
             label = label.replace("FastEthernet", "FE")
             tests.append({"label": label, "ifname": ifname})
         return tests
+
+    def detect_attribute_snmp(self, oids):
+        """Detection method for the host attribute used in this test.
+        See the documentation in the main Test class for details"""
+        # Search if HighCapacity Counter must be disabled
+        for oid in oids.keys():
+            if oid.startswith(".1.3.6.1.2.1.31.1.1.1.6."):
+                return None
+        return {"DisableHighCapacityInterface": "yes"}
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
