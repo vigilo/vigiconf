@@ -38,12 +38,6 @@ class ExportDBTest(unittest.TestCase):
         self.assertEquals(len(conf.hostsConf.items()), 1,
                           "one host in conf (%d)"%len(conf.hostsConf.items()))
         self.loader.load_conf_db()
-        # check host groups
-        nb = len(conf.hostsGroups.keys())
-
-        nbdb = DBSession.query(SupItemGroup).count()
-        for g in DBSession.query(SupItemGroup).all(): print g.name
-        self.assertEquals(nb, nbdb, "nb hostgroups conf:%d db:%d" % (nb, nbdb))
 
         # check if localhost exists in db
         h = Host.by_host_name(u'localhost')

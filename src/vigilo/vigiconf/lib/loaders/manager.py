@@ -84,7 +84,7 @@ class LoaderManager(object):
 
         # hôtes
         from vigilo.vigiconf.loaders.host import HostLoader
-        hostloader = HostLoader()
+        hostloader = HostLoader(grouploader)
         hostloader.load()
 
         # services de haut niveau
@@ -130,4 +130,3 @@ class LoaderManager(object):
         ventilationloader = VentilationLoader(ventilation)
         ventilationloader.load()
         DBSession.flush()
-

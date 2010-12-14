@@ -125,13 +125,14 @@ class DBLoader(object):
         @param data: un dictionnaire des données à mettre à jour
         @type  data: C{dict}
         """
+        key = self.get_key(data)
         LOGGER.debug(_("Updating: %(key)s (%(class)s)"), {
-            'key': self.get_key(data),
+            'key': key,
             'class': self._class.__name__,
         })
-        instance = self._in_db[self.get_key(data)]
-        for key, value in data.iteritems():
-            old_value = getattr(instance, key)
+        instance = self._in_db[key]
+        for attr, value in data.iteritems():
+            old_value = getattr(instance, attr)
             if type(old_value) != type(value):
                 LOGGER.debug(_("WARNING: Different types between old and new "
                                 "value, comparasion will always fail. "
@@ -146,21 +147,22 @@ class DBLoader(object):
                 LOGGER.debug(_("Updating property %(property)s from "
                                 "%(old_value)s (%(old_type)r) to "
                                 "%(new_value)s (%(new_type)r)"), {
-                                    'property': key,
+                                    'property': attr,
                                     'old_value': old_value,
                                     'old_type': type(old_value),
                                     'new_value': value,
                                     'new_type': type(value),
                                 })
-                setattr(instance, key, value)
-        self._in_conf[self.get_key(data)] = instance
+                setattr(instance, attr, value)
+        self._in_conf[key] = instance
         return instance
 
     def insert(self, data):
-        LOGGER.debug(_("Inserting: %s"), self.get_key(data))
+        key = self.get_key(data)
+        LOGGER.debug(_("Inserting: %s"), key)
         instance = self._class(**data)
         DBSession.add(instance)
-        self._in_conf[self.get_key(data)] = instance
+        self._in_conf[key] = instance
         return instance
 
     def delete(self, instance):

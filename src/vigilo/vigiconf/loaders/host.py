@@ -51,8 +51,9 @@ class HostLoader(DBLoader):
     Dépend de GroupLoader
     """
 
-    def __init__(self):
+    def __init__(self, grouploader):
         super(HostLoader, self).__init__(Host, "name")
+        self.grouploader = grouploader
 
     def load_conf(self):
         hostnames = sorted(conf.hostsConf)
@@ -153,21 +154,21 @@ class HostLoader(DBLoader):
                 del hostgroups_cache[path]
 
         # Ajout des nouveaux groupes associés à l'hôte.
+        hierarchy = self.grouploader.get_hierarchy()
         for path in hostdata['otherGroups']:
             if path in hostgroups_cache:
                 continue
 
-            # Chemin absolu.
-            parent = None
-            for part in parse_path(path):
-                parent = SupItemGroup.by_parent_and_name(parent, part)
-                if not parent:
-                    msg = _("syntax error in host %s: could not find a group "
-                            "matching path \"%s\"")
-                    raise ParsingError(msg % (host.name, path))
-            if parent and parent not in hostgroups_cache:
-                host.groups.append(parent)
-                hostgroups_cache[path] = parent
+            if path not in hierarchy:
+                msg = _("syntax error in host %(host)s: could not find a group "
+                        "matching path \"%(path)s\"")
+                raise ParsingError(msg % {
+                    'host': host.name,
+                    'path': path,
+                })
+
+            host.groups.append(hierarchy[path])
+            hostgroups_cache[path] = hierarchy[path]
 
 class ServiceLoader(DBLoader):
     """

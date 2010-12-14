@@ -187,8 +187,7 @@ class DepLoaderTest(XMLLoaderTest):
         réimplémentation avec db du dico python conf.groupsHierarchy
         """
         self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
-        gh = self.grouploader.get_groups_hierarchy()
+        gh = self.grouploader._in_conf
         print gh
-        self.assertEquals(len(gh.keys()), 5, "5 top hostgroups")
-        self.assertEquals(gh["root_group3"]["hgroup31"], 1)
-        self.assertEquals(gh["root_group3"]["hgroup33"]["Linux servers 3"], 1)
+        self.assertTrue("/root_group3/hgroup31" in gh)
+        self.assertTrue("/root_group3/hgroup33/Linux servers 3" in gh)

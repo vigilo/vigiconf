@@ -64,53 +64,102 @@ class GroupLoader(XMLLoader):
 
     def __init__(self):
         super(GroupLoader, self).__init__(SupItemGroup)
+        self.__in_db = {}
+
+        # On récupère tous les groupes déjà en base et on génère un cache
+        # (groupnames) de leurs noms formattés pour ajout dans un chemin.
+        groupnames = {}
+        instances = DBSession.query(
+                SupItemGroup,
+                GroupHierarchy.idchild
+            ).join(
+                (GroupHierarchy, SupItemGroup.idgroup == GroupHierarchy.idparent),
+            ).order_by(GroupHierarchy.hops.desc()
+            ).all()
+
+        hierarchy = {}
+        for grouphierarchy in instances:
+            parent = grouphierarchy[0]
+            parent_name = groupnames.setdefault(
+                parent.idgroup,
+                parent.name
+                    .replace('\\', '\\\\')
+                    .replace('/', '\\/')
+            )
+
+            hierarchy.setdefault(parent.idgroup, {
+                'path': u'',
+                'ids_path': [],
+                'instance': parent,
+            })
+
+            hierarchy.setdefault(grouphierarchy.idchild, {
+                'path': u'',
+                'ids_path': [],
+                'instance': None,
+            })
+
+            hierarchy[grouphierarchy.idchild]['ids_path'].append(
+                parent.idgroup)
+            hierarchy[grouphierarchy.idchild]['path'] += u'/%s' % (
+                groupnames[parent.idgroup],
+            )
+            if grouphierarchy.idchild == parent.idgroup:
+                hierarchy[grouphierarchy.idchild]['instance'] = parent
+        self._hierarchy = hierarchy
+
+        # Mise en cache des instances existantes, à la fois
+        # avec leur identifiant de groupe et avec leur chemin.
+        for idgroup, data in self._hierarchy.iteritems():
+            self.__in_db[idgroup] = data['instance']
+            self.__in_db[data['path']] = data['instance']
+
+    def is_in_db(self, data):
+        """
+        @param data: un dictionnaire des données à insérer ou à mettre à jour
+        @type  data: C{dict}
+        """
+        if self.get_key(data) in self.__in_db:
+            return True
+        else:
+            return False
+
+    def get_hierarchy(self):
+        return self._in_conf
 
     def load_conf(self):
         confdir = settings['vigiconf'].get('confdir')
         self.load_dir(os.path.join(confdir, 'groups'))
-        # les groupes se chargent maintenant avec loader XML
-        conf.hostsGroups = self.get_hosts_conf()
-        conf.groupsHierarchy = self.get_groups_hierarchy()
 
-    def get_hosts_conf(self):
-        """ reconstruit le dico hostsGroup v1
-
-        TODO: refactoring
-        """
-        hostsgroups = {}
-        for g in DBSession.query(SupItemGroup).all():
-            uname = unicode(g.name)
-            hostsgroups[uname] = uname
-        return hostsgroups
-
-    def get_groups_hierarchy(self):
-        """ reconstruit le dico groupsHierarchy v1
-
-        TODO: refactoring
-        """
-        hgroups = {}
-        for top in SupItemGroup.get_top_groups():
-            uname = unicode(top.name)
-            hgroups[uname] = self._get_children_hierarchy(top)
-        return hgroups
-
-    def _get_children_hierarchy(self, group):
-        """ fonction récursive construisant un dictionnaire hiérarchique.
-
-        @param group: an XML file
-        @type  group: C{Group}
-        """
-        hchildren = {}
-        for g in group.children:
-            hchildren[unicode(g.name)] = self._get_children_hierarchy(g)
-        if not hchildren:
-            return 1
-        return hchildren
+    def cleanup(self):
+        for data in self._hierarchy.itervalues():
+            if data['path'] not in self._in_conf.keys():
+                self.delete(self.__in_db[data['path']])
 
     def update(self, data):
-        instance = super(GroupLoader, self).update(data)
-        instance.parent = self._current_parent
-        DBSession.flush()
+        # On ne fait pas appel à la méthode update() de la classe mère
+        # car elle exécuterait trop de requêtes SQL pour le même résultat.
+        key = self.get_key(data)
+        instance = self.__in_db[key]
+
+        LOGGER.debug(_("Updating: %(key)s (%(class)s)"), {
+            'key': key,
+            'class': self._class.__name__,
+        })
+
+        # On évite les requêtes SQL lorsqu'il n'y a rien à changer.
+        current_idparent = self._current_parent and \
+            self._current_parent.idgroup or None
+
+        try:
+            idparent = self._hierarchy[instance.idgroup]['ids_path'][-2]
+        except IndexError:
+            idparent = None
+
+        if idparent != current_idparent:
+            instance.parent = self._current_parent
+            DBSession.flush()
+        self._in_conf[key] = instance
         return instance
 
     def insert(self, data):
@@ -122,6 +171,12 @@ class GroupLoader(XMLLoader):
             return self._in_conf[key]
         LOGGER.debug(_("Inserting: %s"), key)
         instance = self._class(name=data["name"], parent=data["parent"])
+        parent_ids = data["parent"] and data["parent"]["ids_path"] or []
+        self._hierarchy[instance.idgroup] = {
+            'path': key,
+            'ids_path': parent_ids + [instance.idgroup],
+            'instance': instance,
+        }
         self._in_conf[key] = instance
         DBSession.flush()
         return instance
@@ -165,9 +220,19 @@ class GroupLoader(XMLLoader):
 
     def get_key(self, data):
         if isinstance(data, SupItemGroup):
+            if data.idgroup in self._hierarchy:
+                return self._hierarchy[data.idgroup]['path']
             return data.get_path()
         if data["parent"]:
-            prefix = data["parent"].get_path()
+            if data["parent"].idgroup in self._hierarchy:
+                prefix = self._hierarchy[data["parent"].idgroup]['path']
+            else:
+                prefix = data["parent"].get_path()
         else:
             prefix = ""
-        return "%s/%s" % (prefix, data["name"])
+        return "%s/%s" % (
+            prefix,
+            data["name"]
+                .replace('\\', '\\\\')
+                .replace('/', '\\/')
+        )

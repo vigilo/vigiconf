@@ -30,8 +30,8 @@ def main():
         conf.loadConf()
         print "hostsConf="
         pprint.pprint(conf.hostsConf)
-        print "groupsHierarchy="
-        pprint.pprint(conf.groupsHierarchy)
+#        print "groupsHierarchy="
+#        pprint.pprint(conf.groupsHierarchy)
         print "dependencies="
         pprint.pprint(conf.dependencies)
         print "dynamic groups="
