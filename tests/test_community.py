@@ -68,11 +68,10 @@ class EnterpriseEdition(unittest.TestCase):
         DBSession.add(vs)
         DBSession.flush()
         self.dispatchator = dispatchmodes.getinstance()
-        dummy_dispatchator = DummyDispatchator(modified=[
-            'dummy.xml',
-            'tests/testdata/conf.d/hosts/localhost.xml',
-        ])
-        self.genmanager = GeneratorManager(self.dispatchator.applications, dummy_dispatchator)
+        self.genmanager = GeneratorManager(
+            self.dispatchator.applications,
+            DummyDispatchator()
+        )
         self.ventilator = get_ventilator(self.dispatchator.applications)
         self.mapping = self.ventilator.ventilate()
         self.mapping = self.ventilator.ventilation_by_appname(self.mapping)
@@ -141,11 +140,10 @@ class CommunityEdition(unittest.TestCase):
         delattr(conf, "appsGroupsByServer") # Become the Community(tm) :)
         self.host = Host(conf.hostsConf, "dummy.xml", "testserver1", "192.168.1.1", "Servers")
         self.dispatchator = dispatchmodes.getinstance()
-        dummy_dispatchator = DummyDispatchator(modified=[
-            'dummy.xml',
-            'tests/testdata/conf.d/hosts/localhost.xml',
-        ])
-        self.genmanager = GeneratorManager(self.dispatchator.applications, dummy_dispatchator)
+        self.genmanager = GeneratorManager(
+            self.dispatchator.applications,
+            DummyDispatchator(),
+        )
         self.ventilator = get_ventilator(self.dispatchator.applications)
         self.mapping = self.ventilator.ventilate()
         self.mapping = self.ventilator.ventilation_by_appname(self.mapping)

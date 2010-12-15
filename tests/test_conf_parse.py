@@ -11,7 +11,7 @@ from vigilo.vigiconf.lib import ParsingError
 from vigilo.vigiconf.loaders.group import GroupLoader
 
 from confutil import reload_conf, setup_tmpdir, setup_path
-from confutil import setup_db, teardown_db
+from confutil import setup_db, teardown_db, DummyDispatchator
 
 class ValidateXSD(unittest.TestCase):
 
@@ -77,7 +77,7 @@ class ParseHost(unittest.TestCase):
 
     def test_host(self):
         """Test the parsing of a basic host declaration"""
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <group>/Servers/Linux servers</group>
@@ -135,7 +135,7 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        self.assert_(conf.hostsConf["testserver1"].has_key("cpulist") and 
+        self.assert_(conf.hostsConf["testserver1"].has_key("cpulist") and
                      conf.hostsConf["testserver1"]["cpulist"] == "2",
                      "The \"attribute\" tag is not properly parsed")
 
@@ -237,7 +237,7 @@ class ParseHost(unittest.TestCase):
                "The \"trap\" tag parsing does not strip whitespaces"
 
     def test_group(self):
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <group>Linux servers</group>
@@ -248,7 +248,7 @@ class ParseHost(unittest.TestCase):
                      "The \"group\" tag is not properly parsed")
 
     def test_group_whitespace(self):
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <group> Linux servers </group>
@@ -259,7 +259,7 @@ class ParseHost(unittest.TestCase):
                      "The \"group\" tag parsing does not strip whitespaces")
 
     def test_group_multiple(self):
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <group>Linux servers</group>
@@ -331,7 +331,7 @@ class ParseHost(unittest.TestCase):
                           "L'attribut weight n'a pas la bonne valeur par défaut")
 
     def test_test_weight_invalid(self):
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
         <test name="Interface" weight="invalid">
@@ -345,7 +345,7 @@ class ParseHost(unittest.TestCase):
 
     def test_ventilation_explicit_server(self):
         """Ventilation en utilisant un groupe explicitement nommé."""
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="foo" address="127.0.0.1" ventilation="P-F">
             <arg name="label">eth0</arg>
@@ -410,7 +410,7 @@ class ParseHost(unittest.TestCase):
         )
 
     def test_host_weight(self):
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1">
             <weight>42</weight>
@@ -424,7 +424,7 @@ class ParseHost(unittest.TestCase):
                           "L'attribut weight n'a pas la bonne valeur")
 
     def test_host_weight_default(self):
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1">
             <group>/Servers/Linux servers</group>
@@ -437,7 +437,7 @@ class ParseHost(unittest.TestCase):
                           "L'attribut weight n'a pas la bonne valeur par défaut")
 
     def test_host_weight_invalid(self):
-        GroupLoader().load()
+        GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1">
             <weight>invalid</weight>

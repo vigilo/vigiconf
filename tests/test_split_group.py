@@ -2,7 +2,7 @@
 
 import unittest
 
-from confutil import setup_db, teardown_db, setup_path
+from confutil import setup_db, teardown_db, setup_path, DummyDispatchator
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.models.session import DBSession
 from vigilo.models.tables import SupItemGroup
@@ -20,7 +20,7 @@ class TestSplitGroup(unittest.TestCase):
     def test_split_group(self):
         """Test l'éclatement de la définition des groupes (#336)"""
         # Chargement des groupes.
-        grouploader = GroupLoader()
+        grouploader = GroupLoader(DummyDispatchator())
         grouploader.load()
         DBSession.flush()
 

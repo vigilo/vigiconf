@@ -32,7 +32,7 @@ def setup_path():
     settings["vigiconf"]["confdir"] = os.path.join(os.path.dirname(__file__),
                                                    "testdata", "conf.d")
 
-def reload_conf(hostsdir=None):
+def reload_conf(hostsdir=None, dispatchator=None):
     """We changed the paths, reload the factories"""
     conf.testfactory.__init__()
     conf.hosttemplatefactory.__init__(conf.testfactory)
@@ -44,7 +44,9 @@ def reload_conf(hostsdir=None):
             conf.hosttemplatefactory,
             conf.testfactory,
       )
-    GroupLoader().load()
+    if dispatchator is None:
+        dispatchator = DummyDispatchator()
+    GroupLoader(dispatchator).load()
     conf.loadConf()
 
 def setup_tmpdir(dirpath=None):
@@ -111,33 +113,11 @@ def teardown_deploy_dir():
     shutil.rmtree(settings["vigiconf"].get("libdir"))
 
 class DummyDispatchator(Dispatchator):
-    def __init__(self, added=None, removed=None, modified=None):
-        if added is None:
-            added = []
-        if removed is None:
-            removed = []
-        if modified is None:
-            modified = []
-        self._svn_status = {
-            'add': added,
-            'remove': removed,
-            'modified': modified,
-        }
-
-        self.mServers = []
-        self.applications = []
-        self.mModeForce = False
-        self.commandsQueue = None # will be initialized as Queue.Queue later
-        self.returnsQueue = None # will be initialized as Queue.Queue later
-        self.deploy_revision = "HEAD"
-
-        self.mode_db = 'commit'
-        # mode simulation: on recopie simplement la commande svn pour
-        # verification
-        try:
-            self.simulate = settings["vigiconf"].as_bool("simulate")
-        except KeyError:
-            self.simulate = False
+    def __init__(self):
+        self.mModeForce = True
 
     def get_svn_status(self):
-        return self._svn_status
+        # On indique qu'aucun changement n'a eu lieu,
+        # car le fait de positionner le flag "mModeForce"
+        # force de toutes façons les opérations.
+        return {'add': [], 'remove': [], 'modified': []}

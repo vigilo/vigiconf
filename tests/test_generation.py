@@ -20,8 +20,6 @@ from confutil import reload_conf, setup_tmpdir
 from confutil import setup_db, teardown_db, DummyDispatchator
 
 from vigilo.vigiconf.applications.nagios.generator import NagiosGen
-from vigilo.common.conf import settings
-settings.load_module(__name__)
 
 import pprint
 
@@ -42,15 +40,14 @@ class Generator(unittest.TestCase):
         add_host("testserver1", conffile)
         add_host("localhost", conffile)
         add_host("localhost2", conffile)
-        dummy_dispatchator = DummyDispatchator(modified=[
-            'dummy',
-            os.path.join(settings["vigiconf"]["confdir"], 'hosts/localhost.xml'),
-        ])
-
+        dummy_dispatchator = DummyDispatchator()
         loader = LoaderManager(dummy_dispatchator)
         loader.load_apps_db(self.dispatchator.applications)
         loader.load_vigilo_servers_db()
-        self.genmanager = GeneratorManager(self.dispatchator.applications, dummy_dispatchator)
+        self.genmanager = GeneratorManager(
+            self.dispatchator.applications,
+            dummy_dispatchator
+        )
         ventilator = get_ventilator(self.dispatchator.applications)
         self.mapping = ventilator.ventilate()
 

@@ -15,7 +15,7 @@ from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.topology import TopologyLoader
 
 import vigilo.vigiconf.conf as conf
-from confutil import reload_conf, setup_db, teardown_db
+from confutil import reload_conf, setup_db, teardown_db, DummyDispatchator
 
 from vigilo.models.tables import SupItemGroup, SupItemGroup, Host, SupItem
 from vigilo.models.tables import LowLevelService, HighLevelService, \
@@ -43,7 +43,7 @@ class GroupLoaderTest(XMLLoaderTest):
 
     def setUp(self):
         super(GroupLoaderTest, self).setUp()
-        self.grouploader = GroupLoader()
+        self.grouploader = GroupLoader(DummyDispatchator())
 
     def test_load_hostgroups(self):
         self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
@@ -77,8 +77,8 @@ class DepLoaderTest(XMLLoaderTest):
 
     def setUp(self):
         super(DepLoaderTest, self).setUp()
-        self.grouploader = GroupLoader()
-        self.topologyloader = TopologyLoader()
+        self.grouploader = GroupLoader(DummyDispatchator())
+        self.topologyloader = TopologyLoader(DummyDispatchator())
         self.host1 =  Host(
             name=u'host1',
             checkhostcmd=u'halt -f',

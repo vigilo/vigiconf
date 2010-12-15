@@ -28,9 +28,7 @@ class ExportDBTest(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
-        self.loader = LoaderManager(DummyDispatchator(modified=[
-            'tests/testdata/conf.d/hosts/localhost.xml'
-        ]))
+        self.loader = LoaderManager(DummyDispatchator())
 
     def tearDown(self):
         """Call after every test case."""

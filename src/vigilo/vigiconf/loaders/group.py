@@ -129,6 +129,7 @@ class GroupLoader(XMLLoader):
         return self._in_conf
 
     def load_conf(self):
+        self._in_conf = {}
         confdir = settings['vigiconf'].get('confdir')
         self.load_dir(os.path.join(confdir, 'groups'))
 
