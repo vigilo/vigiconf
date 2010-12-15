@@ -76,7 +76,7 @@ class LoaderManager(object):
         """mise à jour de la base de données"""
         # hiérarchie des groupes
         from vigilo.vigiconf.loaders.group import GroupLoader
-        grouploader = GroupLoader()
+        grouploader = GroupLoader(self.dispatchator)
         grouploader.load()
 
         # groupes de graphes
@@ -91,12 +91,12 @@ class LoaderManager(object):
 
         # services de haut niveau
         from vigilo.vigiconf.loaders.hlservice import HLServiceLoader
-        hlserviceloader = HLServiceLoader()
+        hlserviceloader = HLServiceLoader(self.dispatchator)
         hlserviceloader.load()
 
         # dépendances topologiques
         from vigilo.vigiconf.loaders.topology import TopologyLoader
-        topologyloader = TopologyLoader()
+        topologyloader = TopologyLoader(self.dispatchator)
         topologyloader.load()
 
         DBSession.flush()

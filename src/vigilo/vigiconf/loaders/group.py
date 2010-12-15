@@ -62,9 +62,10 @@ class GroupLoader(XMLLoader):
     _tag_group = "group"
     _xsd_filename = "group.xsd"
 
-    def __init__(self):
+    def __init__(self, dispatchator):
         super(GroupLoader, self).__init__(SupItemGroup)
         self.__in_db = {}
+        self.dispatchator = dispatchator
 
         # On récupère tous les groupes déjà en base et on génère un cache
         # (groupnames) de leurs noms formattés pour ajout dans un chemin.
