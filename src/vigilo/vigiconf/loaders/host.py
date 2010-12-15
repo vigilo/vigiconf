@@ -31,13 +31,14 @@ from vigilo.models.session import DBSession
 from vigilo.models.tables import Host, SupItemGroup, LowLevelService
 from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import Application, Ventilation, VigiloServer
-from vigilo.models.tables import ConfItem
+from vigilo.models.tables import ConfFile, ConfItem
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE, \
                                                   GRAPH_GROUP_TABLE
 
 from vigilo.vigiconf.lib.loaders import DBLoader
 from vigilo.vigiconf.lib.confclasses import parse_path
 from vigilo.vigiconf.lib import ParsingError
+from vigilo.vigiconf.lib.revisionmanager import RevisionManager
 
 from vigilo.vigiconf import conf
 
@@ -51,14 +52,60 @@ class HostLoader(DBLoader):
     Dépend de GroupLoader
     """
 
-    def __init__(self, grouploader):
+    def __init__(self, grouploader, dispatchator):
         super(HostLoader, self).__init__(Host, "name")
         self.grouploader = grouploader
+        self.svn_status = dispatchator.get_svn_status()
+
+    def cleanup(self):
+        # Rien à faire ici : la fin du load_conf se charge déjà
+        # de supprimer les instances de ConfFile retirées du SVN,
+        # ce qui a pour effet de supprimer les hôtes associés.
+        # Elle supprime aussi les hôtes qui n'ont pas de fichier
+        # attaché (résidus laissés lors de la migration vers ConfFile).
+        pass
 
     def load_conf(self):
-        hostnames = sorted(conf.hostsConf)
+        # On récupère d'abord la liste de tous les hôtes précédemment définis en base.
+        previous_hosts = {}
+        db_hosts = DBSession.query(
+                Host.name,
+                ConfFile.name.label('conffile')
+            ).outerjoin(
+                (ConfFile, Host.idconffile == ConfFile.idconffile),
+            ).all()
+        for db_host in db_hosts:
+            previous_hosts[db_host.name] = db_host.conffile
+
+        # @TODO: gérer le cas du --force
+
+        # On filtre ensuite ceux sur lesquels une modification a eu lieu
+        # (ajout ou modification). On génère en même temps un cache des
+        # instances des fichiers de configuration.
+        hostnames = []
+        conffiles = {}
+
+        for hostname in conf.hostsConf.keys():
+            filename = conf.hostsConf[hostname]["filename"]
+            relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
+            if filename in self.svn_status['add'] or \
+                filename in self.svn_status['modified']:
+                hostnames.append(hostname)
+            # Peuple le cache en créant les instances à la volée si nécessaire.
+            conffiles.setdefault(filename, ConfFile.get_or_create(relfilename))
+
+        # Utile pendant la migration des données :
+        # les hôtes pour lesquels on ne possèdait pas d'informations
+        # quant au fichier de définition doivent être mis à jour.
+        for hostname, conffile in previous_hosts.iteritems():
+            if conffile is None:
+                hostnames.append(hostname)
+
+        # Fera office de cache des instances d'hôtes
+        # entre les deux étapes de la synchronisation.
         hosts = {}
 
+        hostnames = set(hostnames)
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
             LOGGER.info(_("Loading host %s"), hostname)
@@ -71,7 +118,9 @@ class HostLoader(DBLoader):
                         snmpport=hostdata['snmpPort'],
                         snmpoidsperpdu=hostdata['snmpOIDsPerPDU'],
                         weight=hostdata['weight'],
-                        snmpversion=unicode(hostdata['snmpVersion']))
+                        snmpversion=unicode(hostdata['snmpVersion']),
+                        conffile=conffiles[unicode(hostdata['filename'])],
+                    )
             host = self.add(host)
             hosts[hostname] = host
 
@@ -111,13 +160,28 @@ class HostLoader(DBLoader):
             graph_loader = GraphLoader(host)
             graph_loader.load()
 
+        # Suppression des fichiers de configuration retirés du SVN
+        # ainsi que de leurs hôtes (par CASCADE).
+        LOGGER.debug(_("Cleaning up old hosts"))
+        for filename in self.svn_status['remove']:
+            relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
+            DBSession.query(ConfFile).filter(
+                ConfFile.name == relfilename).delete()
+
+        # Suppression des instances d'hôtes qui n'ont pas de
+        # fichier de configuration associé (résidus après migrations).
+        ghost_hosts = DBSession.query(Host).filter(
+                        Host.idconffile == None).all()
+        for host in ghost_hosts:
+            LOGGER.debug(_("Removing ghost host '%s'"), host.name)
+            DBSession.delete(host)
+
         # Nettoyage des graphes et les groupes de graphes vides
         LOGGER.debug(_("Cleaning up old graphs and graphgroups"))
         empty_graphs = DBSession.query(Graph).distinct().filter(
                             ~Graph.perfdatasources.any()).all()
         for graph in empty_graphs:
             DBSession.delete(graph)
-        #        DBSession.delete(graph)
 
         DBSession.flush()
 

@@ -13,7 +13,7 @@ settings.load_module(__name__)
 
 from vigilo.vigiconf.lib.loaders import LoaderManager
 
-from confutil import setup_db, teardown_db, reload_conf
+from confutil import setup_db, teardown_db, reload_conf, DummyDispatchator
 
 from vigilo.models.tables import Host, SupItemGroup, Ventilation, Application
 from vigilo.models.session import DBSession
@@ -28,7 +28,9 @@ class ExportDBTest(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
-        self.loader = LoaderManager()
+        self.loader = LoaderManager(DummyDispatchator(modified=[
+            'tests/testdata/conf.d/hosts/localhost.xml'
+        ]))
 
     def tearDown(self):
         """Call after every test case."""
@@ -118,7 +120,7 @@ class ExportDBTest(unittest.TestCase):
         from vigilo.vigiconf.lib.generators import GeneratorManager
         from vigilo.vigiconf.lib.ventilation import get_ventilator
         dispatchator = dispatchmodes.getinstance()
-        genmgr = GeneratorManager(dispatchator.applications)
+        genmgr = GeneratorManager(dispatchator.applications, dispatchator)
         ventilator = get_ventilator(dispatchator.applications)
         self.loader.load_apps_db(genmgr.apps)
         self.loader.load_conf_db()

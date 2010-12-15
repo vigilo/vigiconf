@@ -38,7 +38,7 @@ class VentilatorTest(unittest.TestCase):
         setup_db()
         reload_conf()
         dispatchator = dispatchmodes.getinstance()
-        self.generator = GeneratorManager(dispatchator.applications)
+        self.generator = GeneratorManager(dispatchator.applications, dispatchator)
         self.ventilator = VentilatorRemote(dispatchator.applications)
         self.ventilator_local = VentilatorLocal(dispatchator.applications)
 
@@ -63,7 +63,8 @@ class VentilatorTest(unittest.TestCase):
         add_vigiloserver(u'localhost')
 
         #need apps in DB
-        loader = LoaderManager()
+        dispatchator = dispatchmodes.getinstance()
+        loader = LoaderManager(dispatchator)
         loader.load_apps_db(self.generator.apps)
         DBSession.flush()
         self.assertEquals(DBSession.query(Application).count(), num_apps,
@@ -74,7 +75,10 @@ class VentilatorTest(unittest.TestCase):
 
         # check that for each app, localhost is supervised by itself
         for app in conf.apps:
-            links = DBSession.query(Ventilation).filter(Ventilation.application.has(Application.name==unicode(app))).filter(Ventilation.host==host)
+            links = DBSession.query(Ventilation
+                ).filter(Ventilation.application.has(
+                    Application.name == unicode(app))
+                ).filter(Ventilation.host==host)
             self.assertEquals(links.count(), 1, "One supervision link (%d)" % links.count())
             self.assertEquals(links.first().vigiloserver.name, u'localhost', "superviser server is localhost")
 
@@ -147,7 +151,8 @@ class VentilatorTest(unittest.TestCase):
         # besoin de localhost en base
         host = add_host("localhost")
         # chargement des apps
-        loader = LoaderManager()
+        dispatchator = dispatchmodes.getinstance()
+        loader = LoaderManager(dispatchator)
         loader.load_apps_db(self.generator.apps)
         DBSession.flush()
         # On ajoute 2 autres serveurs de supervision
@@ -198,7 +203,8 @@ class VentilatorTest(unittest.TestCase):
         }
         host = add_host("localhost")
         # chargement des apps
-        loader = LoaderManager()
+        dispatchator = dispatchmodes.getinstance()
+        loader = LoaderManager(dispatchator)
         loader.load_apps_db(self.generator.apps)
         loader.load_vigilo_servers_db()
         group1 = add_supitemgroup("Group1")

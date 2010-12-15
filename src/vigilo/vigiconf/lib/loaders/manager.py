@@ -62,6 +62,8 @@ __docformat__ = "epytext"
 
 
 class LoaderManager(object):
+    def __init__(self, dispatchator):
+        self.dispatchator = dispatchator
 
     def load_apps_db(self, apps):
         """mise à jour de la liste des application en base"""
@@ -84,7 +86,7 @@ class LoaderManager(object):
 
         # hôtes
         from vigilo.vigiconf.loaders.host import HostLoader
-        hostloader = HostLoader(grouploader)
+        hostloader = HostLoader(grouploader, self.dispatchator)
         hostloader.load()
 
         # services de haut niveau

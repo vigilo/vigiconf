@@ -12,13 +12,16 @@ from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.ventilation import get_ventilator
-from vigilo.models.tables import MapGroup
+from vigilo.models.tables import MapGroup, ConfFile
 from vigilo.models.demo.functions import add_host
+from vigilo.models.session import DBSession
 
 from confutil import reload_conf, setup_tmpdir
-from confutil import setup_db, teardown_db
+from confutil import setup_db, teardown_db, DummyDispatchator
 
 from vigilo.vigiconf.applications.nagios.generator import NagiosGen
+from vigilo.common.conf import settings
+settings.load_module(__name__)
 
 import pprint
 
@@ -34,19 +37,26 @@ class Generator(unittest.TestCase):
         conf.hosttemplatefactory.load_templates()
         reload_conf()
         self.dispatchator = dispatchmodes.getinstance()
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
-        add_host("testserver1")
-        add_host("localhost")
-        add_host("localhost2")
-        loader = LoaderManager()
+        self.host = Host(conf.hostsConf, "dummy", "testserver1", "192.168.1.1", "Servers")
+        conffile = ConfFile.get_or_create("dummy")
+        add_host("testserver1", conffile)
+        add_host("localhost", conffile)
+        add_host("localhost2", conffile)
+        dummy_dispatchator = DummyDispatchator(modified=[
+            'dummy',
+            os.path.join(settings["vigiconf"]["confdir"], 'hosts/localhost.xml'),
+        ])
+
+        loader = LoaderManager(dummy_dispatchator)
         loader.load_apps_db(self.dispatchator.applications)
         loader.load_vigilo_servers_db()
-        self.genmanager = GeneratorManager(self.dispatchator.applications)
+        self.genmanager = GeneratorManager(self.dispatchator.applications, dummy_dispatchator)
         ventilator = get_ventilator(self.dispatchator.applications)
         self.mapping = ventilator.ventilate()
 
     def tearDown(self):
         """Call after every test case."""
+        DBSession.expunge_all()
         teardown_db()
         shutil.rmtree(self.tmpdir)
 
@@ -65,7 +75,7 @@ class Generator(unittest.TestCase):
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                             "GAUGE", label="TestAddCSLabel")
-        host2 = Host(conf.hostsConf, "testserver2", "192.168.1.2", "Servers")
+        host2 = Host(conf.hostsConf, "dummy", "testserver2", "192.168.1.2", "Servers")
         host2.add_collector_service( "TestAddCSReRoute", "TestAddCSReRouteFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )
@@ -124,16 +134,18 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         reload_conf(hostsdir='tests/testdata/generators/nagios/')
         self.dispatchator = dispatchmodes.getinstance()
         self.nagios_app = [ a for a in self.dispatchator.applications if a.name == "nagios" ][0]
-        add_host("example-nagios-spec.xml")
-        loader = LoaderManager()
+        conffile = ConfFile.get_or_create("dummy")
+        add_host("example-nagios-spec.xml", conffile)
+        loader = LoaderManager(self.dispatchator)
         loader.load_apps_db(self.dispatchator.applications)
         loader.load_vigilo_servers_db()
-        self.genmanager = GeneratorManager(self.dispatchator.applications)
+        self.genmanager = GeneratorManager(self.dispatchator.applications, self.dispatchator)
         self.ventilator = get_ventilator(self.dispatchator.applications)
         self.mapping = self.ventilator.ventilate()
 
     def tearDown(self):
         """Call after every test case."""
+        DBSession.expunge_all()
         teardown_db()
         shutil.rmtree(self.tmpdir)
 

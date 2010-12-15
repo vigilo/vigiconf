@@ -55,8 +55,9 @@ class GeneratorManager(object):
 
     genshi_enabled = False
 
-    def __init__(self, apps):
+    def __init__(self, apps, dispatchator):
         self.apps = apps
+        self.dispatchator = dispatchator
         self.ventilator = get_ventilator(self.apps)
         try:
             self.genshi_enabled = settings['vigiconf'].as_bool(
@@ -91,7 +92,7 @@ class GeneratorManager(object):
         """
 
         LOGGER.debug("Syncing with database")
-        loader = LoaderManager()
+        loader = LoaderManager(self.dispatchator)
         loader.load_apps_db(self.apps)
         loader.load_conf_db()
         loader.load_vigilo_servers_db()
@@ -135,5 +136,3 @@ class GeneratorManager(object):
                 LOGGER.info(msg)
             LOGGER.info(_("Generation successful"))
             return True
-
-

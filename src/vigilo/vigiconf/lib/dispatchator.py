@@ -229,7 +229,7 @@ class Dispatchator(object):
     def run_generator(self):
         gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
         shutil.rmtree(gendir, ignore_errors=True)
-        generator = GeneratorManager(self.applications)
+        generator = GeneratorManager(self.applications, self)
         result = generator.generate(commit_db=(self.mode_db == 'commit'))
         return result
 
@@ -248,15 +248,15 @@ class Dispatchator(object):
         """
         Prepare the configuration dir (it's an SVN working directory)
         """
-        status = self._svn_status()
+        status = self.get_svn_status()
         if self.deploy_revision != "HEAD" and \
-                (status["add"] or status["remove"]):
+                (status["add"] or status["remove"] or status["modified"]):
             raise DispatchatorError(_("You can't go back to a former "
                 "revision if you have modified your configuration. "
                 "Use 'svn revert' to cancel your modifications"))
         self._svn_sync(status)
 
-    def _svn_status(self):
+    def get_svn_status(self):
         _cmd = self._get_auth_svn_cmd_prefix('status')
         _cmd.append("--xml")
         _cmd.append(settings["vigiconf"].get("confdir"))
@@ -267,7 +267,7 @@ class Dispatchator(object):
             raise DispatchatorError(
                     _("Can't get the SVN status for the configuration dir: %s")
                       % e.value)
-        status = {"add": [], "remove": []}
+        status = {"add": [], "remove": [], 'modified': []}
         if not _command.getResult():
             return status
         output = ET.fromstring(_command.getResult(stderr=False))
@@ -277,6 +277,8 @@ class Dispatchator(object):
                 status["add"].append(entry.get("path"))
             elif state == "missing":
                 status["remove"].append(entry.get("path"))
+            elif state == "modified" or state == "added":
+                status["modified"].append(entry.get("path"))
         return status
 
     def _svn_sync(self, status=None):
@@ -285,7 +287,7 @@ class Dispatchator(object):
                                "configuration parameter is empty"))
             return 0
         if status is None:
-            status = self._svn_status()
+            status = self.get_svn_status()
         for item in status["add"]:
             self._svn_add(item)
         for item in status["remove"]:

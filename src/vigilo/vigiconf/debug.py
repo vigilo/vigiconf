@@ -27,6 +27,7 @@ def main():
     if module == "conf":
         from . import conf
         import pprint
+
         conf.loadConf()
         print "hostsConf="
         pprint.pprint(conf.hostsConf)

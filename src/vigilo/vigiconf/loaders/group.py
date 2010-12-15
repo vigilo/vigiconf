@@ -171,7 +171,11 @@ class GroupLoader(XMLLoader):
             return self._in_conf[key]
         LOGGER.debug(_("Inserting: %s"), key)
         instance = self._class(name=data["name"], parent=data["parent"])
-        parent_ids = data["parent"] and data["parent"]["ids_path"] or []
+
+        if data["parent"]:
+            parent_ids = self._hierarchy[data["parent"].idgroup]["ids_path"]
+        else:
+            parent_ids = []
         self._hierarchy[instance.idgroup] = {
             'path': key,
             'ids_path': parent_ids + [instance.idgroup],

@@ -63,11 +63,12 @@ class Host(object):
     @type classes: C{list} of C{str}
     """
 
-    def __init__(self, hosts, name, address, servergroup):
+    def __init__(self, hosts, filename, name, address, servergroup):
         self.hosts = hosts
         self.name = name
         self.classes = [ "all" ]
         self.hosts[name] = {
+                "filename": unicode(filename),
                 "name": name,
                 "address": address,
                 "serverGroup": servergroup,
@@ -665,12 +666,13 @@ class HostFactory(object):
         """
         for root, dirs, files in os.walk(self.hostsdir):
             for f in files:
+                fullpath = os.path.join(root, f)
                 if not f.endswith(".xml"):
                     continue
                 if validation:
-                    self._validatehost(os.path.join(root, f))
-                self._loadhosts(os.path.join(root, f))
-                LOGGER.debug(_("Successfully parsed %s"), os.path.join(root, f))
+                    self._validatehost(fullpath)
+                self._loadhosts(fullpath)
+                LOGGER.debug(_("Successfully parsed %s"), fullpath)
             for d in dirs: # Don't visit subversion/CVS directories
                 if d.startswith("."):
                     dirs.remove(d)
@@ -769,7 +771,15 @@ class HostFactory(object):
                         raise ParsingError(_("Invalid ventilation group: %s") %
                             ventilation)
 
-                    cur_host = Host(self.hosts, name, address, ventilation)
+                    # On génère le nom de fichier relatif par rapport
+                    # à la racine du checkout SVN.
+                    cur_host = Host(
+                        self.hosts,
+                        source,
+                        name,
+                        address,
+                        ventilation
+                    )
                     self.hosttemplatefactory.apply(cur_host, "default")
 
                 elif elem.tag == "nagios":

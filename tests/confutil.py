@@ -13,6 +13,7 @@ configure_db(settings['database'], 'sqlalchemy_',
 from vigilo.models.session import metadata, DBSession
 from vigilo.models.tables import VigiloServer, StateName
 from vigilo.vigiconf.loaders.group import GroupLoader
+from vigilo.vigiconf.lib.dispatchator import Dispatchator
 
 import vigilo.vigiconf.conf as conf
 
@@ -109,3 +110,19 @@ def teardown_deploy_dir():
     """
     shutil.rmtree(settings["vigiconf"].get("libdir"))
 
+class DummyDispatchator(Dispatchator):
+    def __init__(self, added=None, removed=None, modified=None):
+        if added is None:
+            added = []
+        if removed is None:
+            removed = []
+        if modified is None:
+            modified = []
+        self._svn_status = {
+            'add': added,
+            'remove': removed,
+            'modified': modified,
+        }
+
+    def get_svn_status(self):
+        return self._svn_status

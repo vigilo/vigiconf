@@ -28,7 +28,7 @@ from vigilo.models.session import DBSession
 from vigilo.models.tables import MapGroup, VigiloServer
 
 from confutil import setup_tmpdir, reload_conf
-from confutil import setup_db, teardown_db
+from confutil import setup_db, teardown_db, DummyDispatchator
 
 
 class EnterpriseEdition(unittest.TestCase):
@@ -44,7 +44,7 @@ class EnterpriseEdition(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         # Load the configuration
         reload_conf()
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, "dummy.xml", "testserver1", "192.168.1.1", "Servers")
         # Create appsGroupsByServer mapping (Enterprise Edition)
         conf.appsGroupsByServer = {
                     "collect": {
@@ -68,7 +68,11 @@ class EnterpriseEdition(unittest.TestCase):
         DBSession.add(vs)
         DBSession.flush()
         self.dispatchator = dispatchmodes.getinstance()
-        self.genmanager = GeneratorManager(self.dispatchator.applications)
+        dummy_dispatchator = DummyDispatchator(modified=[
+            'dummy.xml',
+            'tests/testdata/conf.d/hosts/localhost.xml',
+        ])
+        self.genmanager = GeneratorManager(self.dispatchator.applications, dummy_dispatchator)
         self.ventilator = get_ventilator(self.dispatchator.applications)
         self.mapping = self.ventilator.ventilate()
         self.mapping = self.ventilator.ventilation_by_appname(self.mapping)
@@ -135,15 +139,20 @@ class CommunityEdition(unittest.TestCase):
         # Load the configuration
         reload_conf()
         delattr(conf, "appsGroupsByServer") # Become the Community(tm) :)
-        self.host = Host(conf.hostsConf, "testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, "dummy.xml", "testserver1", "192.168.1.1", "Servers")
         self.dispatchator = dispatchmodes.getinstance()
-        self.genmanager = GeneratorManager(self.dispatchator.applications)
+        dummy_dispatchator = DummyDispatchator(modified=[
+            'dummy.xml',
+            'tests/testdata/conf.d/hosts/localhost.xml',
+        ])
+        self.genmanager = GeneratorManager(self.dispatchator.applications, dummy_dispatchator)
         self.ventilator = get_ventilator(self.dispatchator.applications)
         self.mapping = self.ventilator.ventilate()
         self.mapping = self.ventilator.ventilation_by_appname(self.mapping)
 
     def tearDown(self):
         """Call after every test case."""
+        DBSession.expunge_all()
         teardown_db()
         shutil.rmtree(self.tmpdir)
 
