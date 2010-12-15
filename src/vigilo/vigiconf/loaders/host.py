@@ -55,7 +55,7 @@ class HostLoader(DBLoader):
     def __init__(self, grouploader, dispatchator):
         super(HostLoader, self).__init__(Host, "name")
         self.grouploader = grouploader
-        self.svn_status = dispatchator.get_svn_status()
+        self.dispatchator = dispatchator
 
     def cleanup(self):
         # Rien à faire ici : la fin du load_conf se charge déjà
@@ -66,7 +66,9 @@ class HostLoader(DBLoader):
         pass
 
     def load_conf(self):
-        # On récupère d'abord la liste de tous les hôtes précédemment définis en base.
+        # On récupère d'abord la liste de tous les hôtes
+        # précédemment définis en base et le fichier XML
+        # auquels ils appartiennent.
         previous_hosts = {}
         db_hosts = DBSession.query(
                 Host.name,
@@ -77,20 +79,24 @@ class HostLoader(DBLoader):
         for db_host in db_hosts:
             previous_hosts[db_host.name] = db_host.conffile
 
-        # @TODO: gérer le cas du --force
-
-        # On filtre ensuite ceux sur lesquels une modification a eu lieu
-        # (ajout ou modification). On génère en même temps un cache des
-        # instances des fichiers de configuration.
         hostnames = []
         conffiles = {}
+        svn_status = self.dispatchator.get_svn_status()
 
+        # On ne s'interresse qu'à ceux sur lesquels une modification
+        # a eu lieu (ajout ou modification). On génère en même temps
+        # un cache des instances des fichiers de configuration.
         for hostname in conf.hostsConf.keys():
             filename = conf.hostsConf[hostname]["filename"]
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
-            if filename in self.svn_status['add'] or \
-                filename in self.svn_status['modified']:
+
+            # On ajoute systématiquement le nom du fichier dans la liste
+            # de ceux à traiter si l'option "--force" a été utilisée.
+            if self.dispatchator.getModeForce() or \
+                filename in svn_status['add'] or \
+                filename in svn_status['modified']:
                 hostnames.append(hostname)
+
             # Peuple le cache en créant les instances à la volée si nécessaire.
             conffiles.setdefault(filename, ConfFile.get_or_create(relfilename))
 
@@ -100,12 +106,13 @@ class HostLoader(DBLoader):
         for hostname, conffile in previous_hosts.iteritems():
             if conffile is None:
                 hostnames.append(hostname)
+        del previous_hosts
 
         # Fera office de cache des instances d'hôtes
         # entre les deux étapes de la synchronisation.
         hosts = {}
 
-        hostnames = set(hostnames)
+        hostnames = sorted(list(set(hostnames)))
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
             LOGGER.info(_("Loading host %s"), hostname)
@@ -163,7 +170,7 @@ class HostLoader(DBLoader):
         # Suppression des fichiers de configuration retirés du SVN
         # ainsi que de leurs hôtes (par CASCADE).
         LOGGER.debug(_("Cleaning up old hosts"))
-        for filename in self.svn_status['remove']:
+        for filename in svn_status['remove']:
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
             DBSession.query(ConfFile).filter(
                 ConfFile.name == relfilename).delete()

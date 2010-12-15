@@ -124,5 +124,20 @@ class DummyDispatchator(Dispatchator):
             'modified': modified,
         }
 
+        self.mServers = []
+        self.applications = []
+        self.mModeForce = False
+        self.commandsQueue = None # will be initialized as Queue.Queue later
+        self.returnsQueue = None # will be initialized as Queue.Queue later
+        self.deploy_revision = "HEAD"
+
+        self.mode_db = 'commit'
+        # mode simulation: on recopie simplement la commande svn pour
+        # verification
+        try:
+            self.simulate = settings["vigiconf"].as_bool("simulate")
+        except KeyError:
+            self.simulate = False
+
     def get_svn_status(self):
         return self._svn_status
