@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2010-12-06 13:37+0100\n"
+"PO-Revision-Date: 2010-12-15 16:19+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -499,33 +499,33 @@ msgstr ""
 msgid "Can't get the SVN status for the configuration dir: %s"
 msgstr "Impossible d'obtenir le statut SVN du dossier de configuration : %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:284
+#: src/vigilo/vigiconf/lib/dispatchator.py:286
 msgid "Not updating because the 'svnrepository' configuration parameter is empty"
 msgstr ""
 "Pas de mise à jour car le paramètre 'svnrepository' de la configuration "
 "est vide"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:296
+#: src/vigilo/vigiconf/lib/dispatchator.py:298
 #, python-format
 msgid "Adding a new configuration file to the repository: %s"
 msgstr "Ajout d'un nouveau fichier de configuration au dépôt : %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:304
+#: src/vigilo/vigiconf/lib/dispatchator.py:306
 #, python-format
 msgid "Can't add %(path)s in repository: %(error)s"
 msgstr "Impossible d'ajouter %(path)s au dépôt : %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:311
+#: src/vigilo/vigiconf/lib/dispatchator.py:313
 #, python-format
 msgid "Removing an old configuration file from the repository: %s"
 msgstr "Suppression d'un ancien fichier de configuration du dépôt : %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:319
+#: src/vigilo/vigiconf/lib/dispatchator.py:321
 #, python-format
 msgid "Can't remove %(path)s from repository: %(error)s"
 msgstr "Impossible de supprimer %(path)s du dépôt : %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:327
+#: src/vigilo/vigiconf/lib/dispatchator.py:329
 msgid ""
 "Not committing because the 'svnrepository' configuration parameter is "
 "empty"
@@ -533,12 +533,12 @@ msgstr ""
 "Pas d'enregistrement car le paramètre 'svnrepository' de la configuration"
 " est vide"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:339
+#: src/vigilo/vigiconf/lib/dispatchator.py:341
 #, python-format
 msgid "Can't commit the configuration dir in SVN: %s"
 msgstr "Impossible d'enregistrer le dossier de configuration sur le dépôt : %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:354
+#: src/vigilo/vigiconf/lib/dispatchator.py:356
 #, python-format
 msgid ""
 "Can't execute the request to update the local copy. COMMAND %(cmd)s "
@@ -547,12 +547,12 @@ msgstr ""
 "Impossible de mettre à jour la copie locale. ÉCHEC DE LA COMMANDE "
 "%(cmd)s. RAISON : %(reason)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:396
+#: src/vigilo/vigiconf/lib/dispatchator.py:398
 #, python-format
 msgid "Can't execute the request to get the current revision: %s"
 msgstr "Impossible d'obtenir la révision courante : %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:468
+#: src/vigilo/vigiconf/lib/dispatchator.py:470
 msgid ""
 "The configurations files have not been transfered on every server. See "
 "above for more information."
@@ -560,51 +560,51 @@ msgstr ""
 "Les fichiers de configuration n'ont pas pu être transférés à tous les "
 "serveurs. Lisez les messages précédents pour plus d'information."
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:508
-#: src/vigilo/vigiconf/lib/dispatchator.py:652
+#: src/vigilo/vigiconf/lib/dispatchator.py:510
+#: src/vigilo/vigiconf/lib/dispatchator.py:654
 #, python-format
 msgid "Server %s should be deployed."
 msgstr "Le serveur %s devrait être déployé."
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:511
+#: src/vigilo/vigiconf/lib/dispatchator.py:513
 msgid "All servers are up-to-date. Nothing to do."
 msgstr "Tous les serveurs sont à jour. Il n'y a rien à faire."
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:627
+#: src/vigilo/vigiconf/lib/dispatchator.py:629
 msgid "Switch directories was not successful on each server."
 msgstr "La permutation de dossier a échoué sur certains serveurs."
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:654
+#: src/vigilo/vigiconf/lib/dispatchator.py:656
 msgid "All servers are up-to-date. No restart needed."
 msgstr "Tous les serveurs sont à jour. Un redémarrage n'est pas nécessaire."
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:685
+#: src/vigilo/vigiconf/lib/dispatchator.py:687
 msgid "Stop applications failed"
 msgstr "Échec de l'arrêt des applications"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:702
+#: src/vigilo/vigiconf/lib/dispatchator.py:704
 msgid "Start applications failed"
 msgstr "Échec du démarrage des applications"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:707
+#: src/vigilo/vigiconf/lib/dispatchator.py:709
 #, python-format
 msgid "Current revision in the repository : %d"
 msgstr "Révision actuelle dans le dépôt : %d"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:715
+#: src/vigilo/vigiconf/lib/dispatchator.py:717
 msgid "(should be deployed)"
 msgstr "(devrait être déployé)"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:717
+#: src/vigilo/vigiconf/lib/dispatchator.py:719
 msgid "(should restart)"
 msgstr "(devrait redémarrer)"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:718
+#: src/vigilo/vigiconf/lib/dispatchator.py:720
 #, python-format
 msgid "Revisions for server %(server)s : %(rev)s%(dep)s%(restart)s"
 msgstr "Révisions pour le serveur %(server)s : %(rev)s%(dep)s%(restart)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator.py:723
+#: src/vigilo/vigiconf/lib/dispatchator.py:725
 #, python-format
 msgid "Cannot get revision for server: %(server)s. REASON : %(reason)s"
 msgstr ""
@@ -731,7 +731,7 @@ msgstr ""
 msgid "%(filesWritten)d files have been generated in %(dirsCreated)d directories"
 msgstr "%(filesWritten)d fichiers ont été générés dans %(dirsCreated)d dossiers"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:161
+#: src/vigilo/vigiconf/lib/confclasses/host.py:162
 #, python-format
 msgid ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
@@ -740,34 +740,34 @@ msgstr ""
 "Le test \"%(test_name)s\" sur \"%(host)s\" nécessite les arguments "
 "suivants: %(args)s (et uniquement ceux-là)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:673
+#: src/vigilo/vigiconf/lib/confclasses/host.py:675
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:348
 #, python-format
 msgid "Successfully parsed %s"
 msgstr "Analyse de %s réussie"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:702
+#: src/vigilo/vigiconf/lib/confclasses/host.py:704
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:258
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:114
 #, python-format
 msgid "Not enough memory to validate %(file)s using schema %(schema)s"
 msgstr "Mémoire insuffisante pour valider %(file)s avec le schéma %(schema)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:709
+#: src/vigilo/vigiconf/lib/confclasses/host.py:711
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:265
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:121
 #, python-format
 msgid "Invalid XML validation schema %(schema)s found while validating %(file)s"
 msgstr "Le schéma %(schema)s n'est pas valide pour valider %(file)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:716
+#: src/vigilo/vigiconf/lib/confclasses/host.py:718
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:272
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:128
 #, python-format
 msgid "XML validation failed (%(file)s with schema %(schema)s)"
 msgstr "Échec de la validation XML (%(file)s avec le schéma %(schema)s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:721
+#: src/vigilo/vigiconf/lib/confclasses/host.py:723
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:277
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:133
 #, python-format
@@ -778,36 +778,36 @@ msgstr ""
 "Échec de la validation XML du fichier %(file)s avec le schéma %(schema)s,"
 " une erreur est survenue. Vérifiez les permissions sur les fichiers."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:769
+#: src/vigilo/vigiconf/lib/confclasses/host.py:771
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Groupe de ventilation non valide : %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:795
+#: src/vigilo/vigiconf/lib/confclasses/host.py:805
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr ""
 "Valeur du poids non valide pour le test %(test)s sur l'hôte %(host)s : "
 "%(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:840
+#: src/vigilo/vigiconf/lib/confclasses/host.py:850
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
-#: src/vigilo/vigiconf/loaders/hlservice.py:88
+#: src/vigilo/vigiconf/loaders/hlservice.py:123
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Nom de groupe non valide (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:849
+#: src/vigilo/vigiconf/lib/confclasses/host.py:859
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr "Valeur du poids non valide pour l'hôte %(host)s : %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:862
+#: src/vigilo/vigiconf/lib/confclasses/host.py:872
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "Vous devez associer l'hôte \"%s\" avec au moins un groupe."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:875
+#: src/vigilo/vigiconf/lib/confclasses/host.py:885
 #, python-format
 msgid "Loaded host %(host)s, address %(address)s"
 msgstr "Chargé : hôte %(host)s, adresse %(address)s"
@@ -854,22 +854,22 @@ msgstr "Les générateurs doivent définir la méthode generate_host()."
 msgid "No such template: %s"
 msgstr "Patron de fichier introuvable : %s"
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:106
-#: src/vigilo/vigiconf/lib/generators/manager.py:115
+#: src/vigilo/vigiconf/lib/generators/manager.py:107
+#: src/vigilo/vigiconf/lib/generators/manager.py:116
 msgid "Generation failed!"
 msgstr "Échec de la génération"
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:118
-#: src/vigilo/vigiconf/lib/generators/manager.py:127
-#: src/vigilo/vigiconf/lib/generators/manager.py:131
+#: src/vigilo/vigiconf/lib/generators/manager.py:119
+#: src/vigilo/vigiconf/lib/generators/manager.py:128
+#: src/vigilo/vigiconf/lib/generators/manager.py:132
 msgid "Transaction rollbacked"
 msgstr "Transaction annulée"
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:124
+#: src/vigilo/vigiconf/lib/generators/manager.py:125
 msgid "Transaction commited"
 msgstr "Transaction validée"
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:136
+#: src/vigilo/vigiconf/lib/generators/manager.py:137
 msgid "Generation successful"
 msgstr "Génération réussie"
 
@@ -890,12 +890,13 @@ msgstr ""
 "L'attribut key doit être défini, ou la méthode get_key() doit être "
 "rédéfinie"
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:128
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:129
+#: src/vigilo/vigiconf/loaders/group.py:147
 #, python-format
 msgid "Updating: %(key)s (%(class)s)"
 msgstr "Mise à jour : %(key)s (%(class)s)"
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:136
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:137
 #, python-format
 msgid ""
 "WARNING: Different types between old and new value, comparasion will "
@@ -906,7 +907,7 @@ msgstr ""
 "la comparaison échouera toujours. Ancienne valeur: %(old_value)s "
 "(%(old_type)r), nouvelle valeur: %(new_value)s (%(new_type)r)."
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:146
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:147
 #, python-format
 msgid ""
 "Updating property %(property)s from %(old_value)s (%(old_type)r) to "
@@ -915,13 +916,13 @@ msgstr ""
 "Mise à jour de la propriété %(property)s de %(old_value)s (%(old_type)r) "
 "en %(new_value)s (%(new_type)r)"
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:160
-#: src/vigilo/vigiconf/loaders/group.py:117
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:162
+#: src/vigilo/vigiconf/loaders/group.py:174
 #, python-format
 msgid "Inserting: %s"
 msgstr "Insertion : %s"
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:167
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:169
 #, python-format
 msgid "Deleting: %s"
 msgstr "Suppression : %s"
@@ -988,8 +989,8 @@ msgid ""
 "Could not determine how to ventilate host \"%s\". Affect some groups to "
 "this host or use the ventilation attribute."
 msgstr ""
-"Impossible de déterminer comment ventiler l'hôte \"%s\". Affectez cet hôte à "
-"un groupe ou utilisez l'attribut 'ventilation'."
+"Impossible de déterminer comment ventiler l'hôte \"%s\". Affectez cet "
+"hôte à un groupe ou utilisez l'attribut 'ventilation'."
 
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:165
 #, python-format
@@ -997,8 +998,8 @@ msgid ""
 "Found multiple candidates for ventilation (%(candidates)r) on "
 "\"%(host)s\", use the ventilation attribute to select one."
 msgstr ""
-"Plusieurs candidats (%(candidates)r) ont été trouvés pour la ventilation de "
-"\"%(host)s\", utilisez l'attribut 'ventilation' pour en choisir un."
+"Plusieurs candidats (%(candidates)r) ont été trouvés pour la ventilation "
+"de \"%(host)s\", utilisez l'attribut 'ventilation' pour en choisir un."
 
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:191
 #: src/vigilo/vigiconf/lib/ventilation/remote.py:270
@@ -1017,72 +1018,83 @@ msgstr "Le serveur Vigilo %s est déjà désactivé."
 msgid "The Vigilo server %s is already enabled"
 msgstr "Le serveur Vigilo %s est déjà activé."
 
-#: src/vigilo/vigiconf/loaders/hlservice.py:107
+#: src/vigilo/vigiconf/loaders/hlservice.py:113
+#, python-format
+msgid "Invalid operator \"%(operator)s\". Possible values: %(possibilities)s"
+msgstr "Opérateur non valide \"%(operator)s\". Valeurs possibles : %(possibilities)s"
+
+#: src/vigilo/vigiconf/loaders/hlservice.py:141
 #, python-format
 msgid "Service group %s does not exist."
 msgstr "Le groupe de services %s n'existe pas."
 
-#: src/vigilo/vigiconf/loaders/host.py:63
+#: src/vigilo/vigiconf/loaders/host.py:118
 #, python-format
 msgid "Loading host %s"
 msgstr "Chargement de l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:79
+#: src/vigilo/vigiconf/loaders/host.py:136
 #, python-format
 msgid "Adding \"Collector\" service on host %s"
 msgstr "Ajout du service \"Collector\" sur l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:90
+#: src/vigilo/vigiconf/loaders/host.py:147
 #, python-format
 msgid "Loading groups for host %s"
 msgstr "Chargement des groupes pour l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:94
+#: src/vigilo/vigiconf/loaders/host.py:151
 #, python-format
 msgid "Loading services for host %s"
 msgstr "Chargement des services pour l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:99
+#: src/vigilo/vigiconf/loaders/host.py:156
 #, python-format
 msgid "Loading nagios conf for host %s"
 msgstr "Chargement de la configuration Nagios pour l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:104
+#: src/vigilo/vigiconf/loaders/host.py:161
 #, python-format
 msgid "Loading perfdatasources for host %s"
 msgstr "Chargement des indicateurs de métrologie pour l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:109
+#: src/vigilo/vigiconf/loaders/host.py:166
 #, python-format
 msgid "Loading graphs for host %s"
 msgstr "Chargement des graphes pour l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:114
+#: src/vigilo/vigiconf/loaders/host.py:172
+msgid "Cleaning up old hosts"
+msgstr "Suppression des hôtes obsolètes"
+
+#: src/vigilo/vigiconf/loaders/host.py:183
+#, python-format
+msgid "Removing ghost host '%s'"
+msgstr "Suppression de l'hôte résiduel '%s'"
+
+#: src/vigilo/vigiconf/loaders/host.py:187
 msgid "Cleaning up old graphs and graphgroups"
 msgstr "Suppression des anciens graphes et groupes de graphes"
 
-#: src/vigilo/vigiconf/loaders/host.py:136
+#: src/vigilo/vigiconf/loaders/host.py:208
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Groupe inconnu \"%(group)s\" sur l'hôte \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:165
+#: src/vigilo/vigiconf/loaders/host.py:234
 #, python-format
-msgid "syntax error in host %s: could not find a group matching path \"%s\""
+msgid ""
+"syntax error in host %(host)s: could not find a group matching path "
+"\"%(path)s\""
 msgstr ""
-"erreur de syntaxe sur l'hôte %s : impossible de trouver un groupe "
-"correspondant au chemin \"%s\""
+"erreur de syntaxe sur l'hôte %(host)s : impossible de trouver un groupe "
+"correspondant au chemin \"%(path)s\""
 
-#: src/vigilo/vigiconf/loaders/topology.py:61
+#: src/vigilo/vigiconf/loaders/topology.py:95
 #, python-format
 msgid "Not a Dependency: %s"
 msgstr "Pas une dépendance : %s"
 
-#: src/vigilo/vigiconf/loaders/topology.py:105
+#: src/vigilo/vigiconf/loaders/topology.py:108
 msgid "No dependent supervised item"
 msgstr "Aucun élément supervisé dépendant"
-
-#: src/vigilo/vigiconf/loaders/topology.py:115
-#, python-format
-msgid "Creating dependency for %(from)s on %(to)s"
-msgstr "Création d'une dépendance de %(from)s sur %(to)s"
