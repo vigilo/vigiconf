@@ -276,8 +276,10 @@ class ServiceLoader(DBLoader):
                     reRoutedBy['host'], reRoutedBy['service'])
 
             service = unicode(service)
+            weight = conf.hostsConf[self.host.name]['services'] \
+                [service]['weight']
             lls = dict(host=self.host, servicename=service,
-                       weight=1, idcollector=idcollector)
+                       weight=weight, idcollector=idcollector)
             lls = self.add(lls)
 
             # directives Nagios du service
@@ -292,7 +294,6 @@ class CollectorLoader(ServiceLoader):
             ).filter(self._class.servicename == u'Collector').all()
 
     def load_conf(self):
-        # @TODO : implémenter les "détails" ;) [weight]
         lls = dict(host=self.host, servicename=u"Collector", weight=1)
         lls = self.add(lls)
 
