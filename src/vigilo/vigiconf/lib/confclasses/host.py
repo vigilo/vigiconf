@@ -38,7 +38,8 @@ _ = translate(__name__)
 
 from . import get_text, get_attrib, parse_path
 from .graph import Graph
-from .. import ParsingError
+from vigilo.vigiconf.lib import ParsingError
+from vigilo.vigiconf.lib import SNMP_ENTERPRISE_OID
 
 from vigilo.models.session import DBSession
 from vigilo.models.tables import SupItemGroup
@@ -77,6 +78,7 @@ class Host(object):
                 "dataSources"    : {},
                 "PDHandlers"     : {},
                 "SNMPJobs"       : {},
+                "metro_services" : {},
                 "graphItems"     : {},
                 "routeItems"     : {},
                 "trapItems"      : {},
@@ -588,11 +590,26 @@ class Host(object):
         @param factor: the factor to use, if any
         @type  factor: C{int} or C{float}
         """
-        self.add_external_sup_service(servicename,
-            "check_nrpe_rerouted!$METROSERVER$!check_rrd!%s/%s %s %s %s" % \
-            (self.name, urllib.quote_plus(metroname), warn, crit, factor),
-            weight=weight
-        )
+        oid = [".1.3.6.1.4.1", str(SNMP_ENTERPRISE_OID)]
+        for char in self.name:
+            oid.append(str(ord(char)))
+        oid.append(str(ord("/")))
+        for char in urllib.quote_plus(metroname):
+            oid.append(str(ord(char)))
+        # Ajout du service Nagios
+        self.add(self.name, "services", servicename,
+                 {'type': 'passive',
+                  "weight": weight,
+                  "directives": {},
+                  "reRoutedBy": None,
+                  })
+        # Ajout du service Collector sur le serveur de métro
+        self.add(self.name, "metro_services", (servicename, 'service'),
+                 {'function': "simple_factor",
+                  'params': [warn, crit, factor],
+                  'vars': [ "GET/%s" % ".".join(oid) ],
+                  'reRouteFor': None,
+                  } )
 
     def add_tag(self, service, name, value):
         """

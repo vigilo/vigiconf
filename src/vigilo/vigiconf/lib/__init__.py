@@ -37,8 +37,9 @@ _ = translate(__name__)
 
 
 __all__ = ("VigiConfError", "EditionError", "ParsingError",
-           "setup_plugins_path")
+           "setup_plugins_path", "SNMP_ENTERPRISE_OID")
 
+SNMP_ENTERPRISE_OID = "14132"
 
 def setup_plugins_path():
     """Très fortement inspiré de Trac"""

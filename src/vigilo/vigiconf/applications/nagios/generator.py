@@ -206,19 +206,6 @@ class NagiosGen(FileGenerator):
                          "notification_period": scopy["notification_period"],
                          "generic_sdirectives": generic_directives})
             else:
-                if scopy['command'].count("$METROSERVER$") > 0:
-                    # Replace the keyword
-                    if not self.ventilation[hostname].has_key("connector-metro"):
-                        # Hey, I have no metro server! I can't check that!
-                        self.addWarning(hostname, "Can't find the metro "
-                                        +"server for an RRD-based service")
-                    else:
-                        mserver = self.ventilation[hostname]['connector-metro']
-                        if isinstance(mserver, list):
-                            mserver = mserver[0]
-                        newcmd = scopy['command']
-                        newcmd = newcmd.replace("$METROSERVER$", mserver)
-                        scopy['command'] = newcmd
                 # append an active service, nammed external, as "not handled by
                 # Collector"
                 self.templateAppend(self.fileName, self.templates["ext"],

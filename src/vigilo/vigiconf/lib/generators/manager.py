@@ -39,6 +39,8 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
+from vigilo.models.tables import LowLevelService
+
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.loaders import LoaderManager
@@ -107,6 +109,7 @@ class GeneratorManager(object):
             LOGGER.error(_("Generation failed!"))
             return False
 
+        self.move_metro_services(ventilation, validator)
         self.run_all_generators(ventilation, validator)
 
         if validator.hasErrors():
@@ -136,3 +139,57 @@ class GeneratorManager(object):
                 LOGGER.info(msg)
             LOGGER.info(_("Generation successful"))
             return True
+
+    def move_metro_services(self, ventilation, validator):
+        """
+        On transforme les services sur la métrologie en services reroutés sur
+        le serveur de métro. On ne peut pas le faire plus tôt parce qu'on a pas
+        accès à la ventilation.
+        On règle au passage le reRoutedBy sur le service d'origine.
+        """
+        vba = self.ventilator.ventilation_by_appname(ventilation)
+        for hostname in conf.hostsConf:
+            if not conf.hostsConf[hostname]["metro_services"]:
+                continue
+            metro_services = conf.hostsConf[hostname]["metro_services"]
+            if "connector-metro" not in vba[hostname]:
+                validator.addWarning(hostname, "metro services",
+                                        _("Can't find the metro server "
+                                          "for the RRD-based services"))
+                continue
+            metro_server = vba[hostname]["connector-metro"]
+            if isinstance(metro_server, list):
+                metro_server = metro_server[0]
+            if metro_server not in conf.hostsConf:
+                if metro_server.count(".") and \
+                        metro_server[:metro_server.find(".")] in conf.hostsConf:
+                    metro_server = metro_server[:metro_server.find(".")]
+                else:
+                    validator.addWarning(hostname, "metro services",
+                            _("The metrology server %s must be supervised for "
+                              "the RRD-based services to work") % metro_server)
+                    continue
+            # Réglage du reRouteFor et du reRoutedBy
+            for servicetuple in metro_services:
+                servicename = servicetuple[0]
+                metro_services[servicetuple]["reRouteFor"] = {
+                                "host": hostname,
+                                "service": servicename}
+                conf.hostsConf[hostname]["services"][
+                        servicename]["reRoutedBy"] = {
+                                "host": metro_server,
+                                "service": servicename,
+                                }
+                # Et maintenant on le regle en base (le chargement s'est fait
+                # avant)
+                service = LowLevelService.by_host_service_name(
+                                unicode(hostname), unicode(servicename))
+                idcollector = LowLevelService.get_supitem(
+                                    unicode(metro_server), u'Collector')
+                service.idcollector = idcollector
+                # On met les services Collector sur le serveur de métro
+                jobname = "HOST:%s:%s" % (hostname, servicename)
+                conf.hostsConf[metro_server]["SNMPJobs"] \
+                    [(jobname, "service")] = metro_services[servicetuple].copy()
+                    
+
