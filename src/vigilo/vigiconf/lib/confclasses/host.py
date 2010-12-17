@@ -506,6 +506,7 @@ class Host(object):
     def add_report(self, title, reportname, datesetting=0):
         """
         Add a Report to an host
+        @deprecated: This function is not used anymore in Vigilo V2.
         @param title: Specify a title into SupNavigator
         @type  title: C{str}
         @param reportname: The name of the report with extension
