@@ -25,30 +25,32 @@ class HostMethods(unittest.TestCase):
         self.host.add_tests(test_list, {"label":"eth1", "ifname":"eth1"})
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         self.assertEqual(
-            conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]["command"],
-            "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/ineth1 10 20 1"
-        )
+            conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]
+                ["type"], "passive")
+        self.assert_( ('Traffic in eth1', 'service') in
+                      conf.hostsConf["testserver1"]["metro_services"] )
 
     def test_priority_host_hosttemplate(self):
         """Test priorite du parametrage des hosts sur les hosttemplates"""
         self.assertEqual(
-            conf.hostsConf["localhost"]["services"]["Traffic in eth0"]["command"],
-            "check_nrpe_rerouted!$METROSERVER$!check_rrd!localhost/ineth0 15 35 8"
-        )
+            conf.hostsConf["localhost"]["services"]["Traffic in eth0"]
+                ["type"], "passive")
 
     def test_add_metro_service_INTF(self):
         """Test for the add_metro_service function in the Interface test"""
         test_list = conf.testfactory.get_test("Interface", self.host.classes)
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0", "warn":"10,20", "crit":"30,40"})
         self.assertEqual(
-            conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]["command"],
-            "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/ineth0 10 30 8"
-        )
+            conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]
+                ["type"], "passive")
+        self.assert_( ('Traffic in eth0', 'service') in
+                      conf.hostsConf["testserver1"]["metro_services"] )
 
         self.assertEqual(
-            conf.hostsConf["testserver1"]["services"]["Traffic out eth0"]["command"],
-            "check_nrpe_rerouted!$METROSERVER$!check_rrd!testserver1/outeth0 20 40 8"
-        )
+            conf.hostsConf["testserver1"]["services"]["Traffic out eth0"]
+                ["type"], "passive")
+        self.assert_( ('Traffic out eth0', 'service') in
+                      conf.hostsConf["testserver1"]["metro_services"] )
 
     def test_add_tag_hosts(self):
         """Test for the add_tag method on hosts"""

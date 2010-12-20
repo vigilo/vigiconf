@@ -88,22 +88,34 @@ class Generator(unittest.TestCase):
         nagiosconf = os.path.join(self.basedir,
                                   self.get_supserver(self.host, "nagios"),
                                   "nagios", "nagios.cfg")
-        assert os.path.exists(nagiosconf), \
-            "Nagios conf file was not generated"
+        self.assert_(os.path.exists(nagiosconf),
+                      "Nagios conf file was not generated")
         nagios = open(nagiosconf).read()
 
-        regexp = re.compile(r"""
-            define\s+service\s*\{       # Inside an service definition
-                [^\}]+                  # Any previous declaration
-                host_name\s+testserver1 # Working on the testserver1 host
-                [^\}]+                  # Any following declaration
-                check_command\s+check_nrpe_rerouted!localhost2?!check_rrd!testserver1/ineth1\s10\s20\s1
-                [^\}]+                  # Any following declaration
-                \}                      # End of the host definition
+        regexp_coll = re.compile(r"""
+            define\s+service\s*\{\s*                # Inside an service definition
+                use\s+generic-active-service\s*
+                host_name\s+testserver1\s*
+                service_description\s+Collector\s*
+                check_command\s+Collector\s*
+                [^\}]+                              # Any following declaration
+                \}                                  # End of the host definition
             """,
             re.MULTILINE | re.VERBOSE)
-        assert regexp.search(nagios) is not None, \
-            "add_metro_service does not generate proper nagios conf"
+
+        regexp_svc = re.compile(r"""
+            define\s+service\s*\{\s*                # Inside an service definition
+                use\s+generic-passive-service\s*
+                host_name\s+testserver1\s*          # Working on the testserver1 host
+                service_description\s+Traffic[ ]in[ ]eth1\s*
+                [^\}]+                              # Any following declaration
+                \}                                  # End of the host definition
+            """,
+            re.MULTILINE | re.VERBOSE)
+        self.assert_(regexp_coll.search(nagios) is not None,
+            "add_metro_service does not generate proper nagios conf (Collector service)")
+        self.assert_(regexp_svc.search(nagios) is not None,
+            "add_metro_service does not generate proper nagios conf (passive service)")
 
 
 class NagiosGeneratorForTest(NagiosGen):
