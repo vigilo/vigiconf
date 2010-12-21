@@ -131,13 +131,10 @@ class HostLoader(DBLoader):
             host = self.add(host)
             hosts[hostname] = host
 
-            if hostdata['services'] and hostdata['SNMPJobs']:
-                LOGGER.info(
-                    _('Adding "Collector" service on host %s'),
-                    hostname
-                )
-                collector_loader = CollectorLoader(host)
-                collector_loader.load()
+            # Synchronise le service "Collector"
+            # en fonction des besoins.
+            collector_loader = CollectorLoader(host)
+            collector_loader.load()
 
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
@@ -294,8 +291,14 @@ class CollectorLoader(ServiceLoader):
             ).filter(self._class.servicename == u'Collector').all()
 
     def load_conf(self):
-        lls = dict(host=self.host, servicename=u"Collector", weight=1)
-        lls = self.add(lls)
+        hostdata = conf.hostsConf[self.host.name]
+        if hostdata['services'] and hostdata['SNMPJobs']:
+            LOGGER.info(
+                _('Adding "Collector" service on host %s'),
+                self.host.name
+            )
+            lls = dict(host=self.host, servicename=u"Collector", weight=1)
+            lls = self.add(lls)
 
 class NagiosConfLoader(DBLoader):
     """
