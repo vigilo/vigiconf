@@ -71,11 +71,14 @@ class CollectorGen(FileGenerator):
             # We collect data for another host, analyse the
             # reRouting arguements
             if jobdata['reRouteFor'] != None:
+                rr_tpl = "{vserver => '%s', host => '%s', service => '%s'}"
                 forHost = jobdata['reRouteFor']['host']
                 service = jobdata['reRouteFor']['service']
+                vserver = self.ventilation[forHost]['nagios']
+                if isinstance(vserver, list):
+                    vserver = vserver[0]
                 if jobtype != 'perfData': # service check result => forHost's spoolme server
-                    tplvars['reRouteFor'] = "{host => '%s', service => '%s'}" \
-                                            % (forHost, service)
+                    tplvars['reRouteFor'] = rr_tpl % (vserver, forHost, service)
             else:
                 forHost = hostname
                 service = jobname
