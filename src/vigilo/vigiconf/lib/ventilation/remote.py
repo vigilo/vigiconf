@@ -146,6 +146,8 @@ class VentilatorRemote(Ventilator):
 
     def get_host_ventilation_group(self, hostname, hostdata):
         if "serverGroup" in hostdata and hostdata["serverGroup"]:
+            if hostdata["serverGroup"].count("/") == 1:
+                hostdata["serverGroup"] = hostdata["serverGroup"].lstrip("/")
             return hostdata["serverGroup"]
         groups = set()
         host = tables.Host.by_host_name(unicode(hostname))
@@ -169,6 +171,8 @@ class VentilatorRemote(Ventilator):
                     'host': hostname,
                 })
         ventilation = groups.pop()
+        if ventilation.count("/") == 1:
+            ventilation = ventilation.lstrip("/")
         hostdata['serverGroup'] = ventilation
         return ventilation
 
