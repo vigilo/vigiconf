@@ -99,6 +99,7 @@ setup(name='vigilo-vigiconf',
                 ],
             'vigilo.vigiconf.applications': [
                 'collector = vigilo.vigiconf.applications.collector:Collector',
+                'collector-telnet = vigilo.vigiconf.applications.collector_telnet:CollectorTelnet',
                 'connector-metro = vigilo.vigiconf.applications.connector_metro:ConnectorMetro',
                 'snmptt = vigilo.vigiconf.applications.snmptt:SnmpTT',
                 'netflow = vigilo.vigiconf.applications.netflow:Netflow',
