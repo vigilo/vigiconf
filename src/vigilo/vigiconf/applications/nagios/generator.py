@@ -51,9 +51,6 @@ class NagiosGen(FileGenerator):
         if not os.path.exists(self.fileName):
             # One Nagios server routes all its events to a single
             # connector-nagios instance.
-            # WARNING: The first host that has to be monitored on this
-            # Nagios instance gives the name of the corrsup server for
-            # anyone else in this Nagios instance!!
             self.templateCreate(self.fileName, self.templates["header"],
                 {"confid": conf.confid,
                  "socket": settings["vigiconf"].get("socket_nagios_to_vigilo")})
@@ -75,9 +72,10 @@ class NagiosGen(FileGenerator):
 
         #   directives generiques
         newhash['generic_directives'] = ""
-        for directive, value in newhash['nagiosDirectives'].iteritems():
-            newhash['generic_directives'] += "%s    %s\n    " % \
-                (directive, value)
+        if "nagiosDirectives" in newhash:
+            for directive, value in newhash['nagiosDirectives'].iteritems():
+                newhash['generic_directives'] += "%s    %s\n    " % \
+                    (directive, value)
 
         # Add the host definition
         self.templateAppend(self.fileName, self.templates["host"], newhash)
@@ -101,13 +99,12 @@ class NagiosGen(FileGenerator):
                      })
 
         # Add the service item into the Nagios configuration file
-        if len(h['services']):
-            if len(h['SNMPJobs']):
-                # add a static actif service calling Collector if needed
-                self.templateAppend(self.fileName,
-                                    self.templates["collector_main"],
-                                    newhash)
-            self.__fillservices(hostname, newhash)
+        if len(h['SNMPJobs']):
+            # add a static actif service calling Collector if needed
+            self.templateAppend(self.fileName,
+                                self.templates["collector_main"],
+                                newhash)
+        self.__fillservices(hostname, newhash)
 
         if len(h['telnetJobs']):
             if h['telnetJobs'].has_key("NagiosTimePeriod"):

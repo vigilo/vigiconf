@@ -148,7 +148,7 @@ class GeneratorManager(object):
         On règle au passage le reRoutedBy sur le service d'origine.
         """
         vba = self.ventilator.ventilation_by_appname(ventilation)
-        for hostname in conf.hostsConf:
+        for hostname in conf.hostsConf.copy():
             if not conf.hostsConf[hostname]["metro_services"]:
                 continue
             metro_services = conf.hostsConf[hostname]["metro_services"]
@@ -159,7 +159,7 @@ class GeneratorManager(object):
                 continue
             metro_server = vba[hostname]["connector-metro"]
             if isinstance(metro_server, list):
-                metro_server = metro_server[0]
+                metro_server = self._choose_metro_server(hostname, vba)
             if metro_server not in conf.hostsConf:
                 if metro_server.count(".") and \
                         metro_server[:metro_server.find(".")] in conf.hostsConf:
@@ -169,6 +169,33 @@ class GeneratorManager(object):
                             _("The metrology server %s must be supervised for "
                               "the RRD-based services to work") % metro_server)
                     continue
+            nagios_server = vba[hostname]["nagios"]
+            if isinstance(nagios_server, list):
+                nagios_server = nagios_server[0]
+            metro_nagios_server = vba[metro_server]["nagios"]
+            if isinstance(metro_nagios_server, list):
+                metro_nagios_server = metro_nagios_server[0]
+            if metro_nagios_server == nagios_server:
+                # le serveur de metro est supervisé par le même serveur Nagios,
+                # pas besoin d'ajouter un hôte fictif
+                perf_host = metro_server
+            else:
+                # on doit créer un pseudo-hôte sur ce serveur Nagios
+                perf_host = "_perfservices_"
+                if perf_host not in conf.hostsConf:
+                    conf.hostsConf[perf_host] = {
+                            "name": perf_host,
+                            "otherGroups": ["perf-services"],
+                            "weight": 1,
+                            "checkHostCMD": "check_dummy",
+                            "services": {},
+                            "SNMPJobs": {},
+                            }
+                    for attr in ["address", "serverGroup", "hostTPL",
+                                 "snmpVersion", "community", "snmpPort",
+                                 "snmpOIDsPerPDU"]:
+                        conf.hostsConf[perf_host][attr] = \
+                                conf.hostsConf[metro_server][attr]
             # Réglage du reRouteFor et du reRoutedBy
             for servicetuple in metro_services:
                 servicename = servicetuple[0]
@@ -177,19 +204,37 @@ class GeneratorManager(object):
                                 "service": servicename}
                 conf.hostsConf[hostname]["services"][
                         servicename]["reRoutedBy"] = {
-                                "host": metro_server,
+                                "host": perf_host,
                                 "service": servicename,
                                 }
-                # Et maintenant on le regle en base (le chargement s'est fait
-                # avant)
-                service = LowLevelService.by_host_service_name(
-                                unicode(hostname), unicode(servicename))
-                idcollector = LowLevelService.get_supitem(
-                                    unicode(metro_server), u'Collector')
-                service.idcollector = idcollector
+                # On ne le fait pas en base parce que c'est compliqué et que ça
+                # n'a pas vraiment de sens pour ce genre de services : les RRDs
+                # on un step fixe.
+
                 # On met les services Collector sur le serveur de métro
-                jobname = "HOST:%s:%s" % (hostname, servicename)
-                conf.hostsConf[metro_server]["SNMPJobs"] \
+                jobname = "PERFSERVICE:%s:%s" % (hostname, servicename)
+                conf.hostsConf[perf_host]["SNMPJobs"] \
                     [(jobname, "service")] = metro_services[servicetuple].copy()
-                    
+                # Ajout dans la ventilation
+                if perf_host not in vba:
+                    vba[perf_host] = {}
+                vba[perf_host]["nagios"] = nagios_server
+                vba[perf_host]["collector"] = nagios_server
+                if perf_host not in ventilation:
+                    ventilation[perf_host] = {}
+                for app, vserver in ventilation[hostname].iteritems():
+                    if app.name == "nagios":
+                        ventilation[perf_host][app] = vserver
+                    if app.name == "collector":
+                        ventilation[perf_host][app] = vserver
+
+    def _choose_metro_server(self, hostname, vba):
+        """On choisit le même serveur que nagios si possible"""
+        nagios_servers = vba[hostname]["nagios"]
+        if not isinstance(nagios_servers, list):
+            nagios_servers = [nagios_servers, ]
+        for metro_server in vba[hostname]["connector-metro"]:
+            if metro_server in nagios_servers:
+                return metro_server
+        return vba[hostname]["connector-metro"][0]
 
