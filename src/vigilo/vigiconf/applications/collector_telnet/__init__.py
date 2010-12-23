@@ -10,7 +10,7 @@ from . import generator
 class CollectorTelnet(Application):
 
     name = "collector-telnet"
-    priority = 3
+    priority = -1
     validation = "validate.sh"
     start_command = None
     stop_command = None
