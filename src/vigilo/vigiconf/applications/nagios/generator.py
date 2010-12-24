@@ -106,9 +106,9 @@ class NagiosGen(FileGenerator):
                                 newhash)
         self.__fillservices(hostname, newhash)
 
-        if len(h['telnetJobs']):
-            if h['telnetJobs'].has_key("NagiosTimePeriod"):
-                for _timeperiod in h["telnetJobs"]["NagiosTimePeriod"].keys():
+        if "telnetJobs" in h and h['telnetJobs']:
+            if "NagiosTimePeriod" in h['telnetJobs']:
+                for _timeperiod in h["telnetJobs"]["NagiosTimePeriod"]:
                     self.templateAppend(self.fileName,
                             self.templates["nagios_time"],
                             h["telnetJobs"]["NagiosTimePeriod"][_timeperiod]

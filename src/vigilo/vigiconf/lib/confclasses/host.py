@@ -78,6 +78,7 @@ class Host(object):
                 "dataSources"    : {},
                 "PDHandlers"     : {},
                 "SNMPJobs"       : {},
+                "telnetJobs"     : {},
                 "metro_services" : {},
                 "graphItems"     : {},
                 "routeItems"     : {},
