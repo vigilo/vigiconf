@@ -35,7 +35,7 @@ class Generator(object):
     @ivar ventilation: correspondance entre les hôtes, les applications et les
         serveurs Vigilo
     @type ventilation: C{dict}, voir la méthode
-        L{vigilo.vigiconf.lib.ventilator.Ventilator.ventilate}()
+        L{vigilo.vigiconf.lib.ventilation.Ventilator.ventilate}()
     @ivar validator: validator instance for warnings and errors
     @type validator: L{Validator<lib.validator.Validator>}
     """

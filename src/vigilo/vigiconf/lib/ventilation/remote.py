@@ -185,9 +185,8 @@ class VentilatorRemote(Ventilator):
     def filter_vservers(self, vserverlist):
         """
         Filtre une liste pour ne garder que les serveurs qui ne sont pas désactivés.
-        Désactive un serveur Vigilo
-        @param vservername: nom du serveur Vigilo
-        @type  vservername: C{str}
+        @param vserverlist: list de noms de serveurs Vigilo
+        @type  vserverlist: C{list} de C{str}
         """
         for vservername in vserverlist:
             vserver = tables.VigiloServer.by_vigiloserver_name(unicode(vservername))
