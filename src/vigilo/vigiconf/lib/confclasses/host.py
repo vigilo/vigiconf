@@ -575,9 +575,12 @@ class Host(object):
         # Add the perfdata handler in Nagios
         if not self.get('PDHandlers').has_key(service):
             self.add(self.name, "PDHandlers", service, [])
-        self.hosts[self.name]['PDHandlers'][service].append(
-                {'name': name, 'perfDataVarName': perfdatavarname,
-                 'reRouteFor': reroutefor})
+        existing = [ pdh["perfDataVarName"] for pdh in
+                     self.hosts[self.name]['PDHandlers'][service] ]
+        if perfdatavarname not in existing:
+            self.hosts[self.name]['PDHandlers'][service].append(
+                    {'name': name, 'perfDataVarName': perfdatavarname,
+                     'reRouteFor': reroutefor})
 
     def add_metro_service(self, servicename, metroname, warn, crit, factor=1, weight=1):
         """
