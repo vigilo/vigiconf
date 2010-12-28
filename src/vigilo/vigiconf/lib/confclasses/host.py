@@ -481,7 +481,7 @@ class Host(object):
 
     def add_graph(self, title, dslist, template, vlabel,
                         group="General", factors=None,
-                        max_values=None):
+                        max_values=None, last_is_max=False):
         """
         Add a graph to the host
         @param title: The graph title
@@ -502,7 +502,7 @@ class Host(object):
         graph = Graph(self.hosts, unicode(title), map(unicode, dslist),
                       unicode(template), unicode(vlabel),
                       group=unicode(group), factors=factors,
-                      max_values=max_values)
+                      max_values=max_values, last_is_max=last_is_max)
         graph.add_to_host(self.name)
 
     def add_report(self, title, reportname, datesetting=0):

@@ -18,8 +18,8 @@ class Ping(Test):
         host.add_external_sup_service("Ping", "check_ping!%s,%s%%!%s,%s%%" %
                         (warn[0],warn[1],crit[0],crit[1]), weight=self.weight,
                         directives=self.directives)
-        host.add_perfdata_handler("Ping", 'Ping-loss', 'pl', 'pl')
-        host.add_perfdata_handler("Ping", 'Ping-RTA', 'rta', 'rta')
+        host.add_perfdata_handler("Ping", 'Ping-loss', 'pl', 'Loss')
+        host.add_perfdata_handler("Ping", 'Ping-RTA', 'rta', 'Round-trip average')
         host.add_graph("Ping", [ 'Ping-RTA', 'Ping-loss' ], 'lines', 'ms , %')
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

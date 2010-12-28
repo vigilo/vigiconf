@@ -51,13 +51,11 @@ class VigiRRDGen(FileGenerator):
         # list all ds for validation
         for graphvalues in h["graphItems"].values():
             self._all_ds_graph.update(set(graphvalues["ds"]))
-        if conf.mode != "onedir":
-            # add human-readable labels
-            for dsid in h["dataSources"]:
-                self.templateAppend(fileName, self.templates["label"],
-                                {'label': dsid,
-                                 'value': h["dataSources"][dsid]["label"]})
-                self._all_ds_metro.add(dsid)
+        # add human-readable labels
+        for dsid in h["dataSources"]:
+            self.templateAppend(fileName, self.templates["label"],
+                            {'label': dsid,
+                             'value': h["dataSources"][dsid]["label"]})
         for dsid in h["dataSources"]:
             self._all_ds_metro.add(dsid)
 

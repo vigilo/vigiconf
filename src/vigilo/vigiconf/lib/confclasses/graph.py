@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (C) 2007-2009 CS-SI
@@ -34,7 +35,8 @@ class Graph(object):
     """
 
     def __init__(self, hosts, title, dslist, template, vlabel,
-                    group="General", factors=None, max_values=None):
+                    group="General", factors=None, max_values=None,
+                    last_is_max=False):
         """
         @param hosts: the main hosts configuration dictionary
         @type  hosts: C{dict}
@@ -52,6 +54,10 @@ class Graph(object):
         @type  factors: C{dict}
         @param max_values: the maximum values for each datasource, if any
         @type  max_values: C{dict}
+        @param last_is_max: le dernier DS doit provoquer l'affichage d'une
+            ligne horizontale noire (limite supérieure) et ne pas être listé
+            dans la légende
+        @type  last_is_max: C{bool}
         """
         self.hosts = hosts
         self.title = title
@@ -70,6 +76,8 @@ class Graph(object):
         else:
             self.max_values = max_values
 
+        self.last_is_max = last_is_max
+
     def add_to_host(self, hostname):
         """
         Add a graph to the host
@@ -84,6 +92,7 @@ class Graph(object):
                                      'ds': self.dslist,
                                      'factors': self.factors,
                                      'max_values': self.max_values,
+                                     'last_is_max': self.last_is_max,
                                      }
                         })
         if not self.hosts[hostname].has_key("graphGroups"):
