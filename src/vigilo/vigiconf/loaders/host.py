@@ -31,7 +31,7 @@ from vigilo.models.session import DBSession
 from vigilo.models.tables import Host, SupItemGroup, LowLevelService
 from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import Application, Ventilation, VigiloServer
-from vigilo.models.tables import ConfFile, ConfItem
+from vigilo.models.tables import ConfFile, ConfItem, Change
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE, \
                                                   GRAPH_GROUP_TABLE
 
@@ -188,6 +188,12 @@ class HostLoader(DBLoader):
             DBSession.delete(graph)
 
         DBSession.flush()
+
+        # Si on a changé quelquechose, on le note en base
+        if hostnames or svn_status['remove'] or ghost_hosts or empty_graphs:
+            Change.mark_as_modified(u"Host")
+            Change.mark_as_modified(u"Service")
+            Change.mark_as_modified(u"Graph")
 
     def _absolutize_groups(self, host, hostdata):
         """Transformation des chemins relatifs en chemins absolus."""
