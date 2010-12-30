@@ -18,8 +18,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
-if [ "$2" == "local" ] ; then
+
+BASEDIR=$1
+LOCATION=$2
+
+if [ "$LOCATION" == "local" ] ; then
     ls /etc/init.d/nagios >/dev/null || exit 1
+    if [ ! -d $BASEDIR/nagios ]; then
+        echo "Nagios configuration is not available"
+        exit 1
+    fi
 fi
 
 if [ -e /usr/sbin/nagios2 ]; then
@@ -33,7 +41,6 @@ else
     exit 0
 fi
 
-BASEDIR=$1
 if [ ! -d $BASEDIR/nagios ]; then
     echo "Nagios configuration is not available, aborting validation"
     exit 0

@@ -96,19 +96,19 @@ class VigiMapGen(MapGenerator):
 
     def _populate_hosts(self, map, group, data):
         """ajout des nodes Host"""
+        nodes = DBSession.query(tables.MapNodeHost).filter(
+                        tables.MapNodeHost.map == map).all()
         for host in group.hosts:
+            host_nodes = [n for n in nodes if n.idhost == host.idhost]
             # on regarde si un node existe
-            nodes = DBSession.query(tables.MapNodeHost).filter(
-                                        and_(tables.MapNodeHost.map == map,
-                                             tables.MapNodeHost.host == host)
-                                        ).all()
-            if len(nodes) > 1:
-                # Plus d'une icône pour un même hôte ? On efface tout et on recommence.
-                for node in nodes:
+            if len(host_nodes) > 1:
+                # Plus d'une icône pour un même hôte ? On efface tout et on
+                # recommence.
+                for node in host_nodes:
                     DBSession.delete(node)
                 DBSession.flush()
-                nodes = []
-            if not nodes:
+                host_nodes = []
+            if not host_nodes:
                 node = tables.MapNodeHost(label=host.name,
                                           map=map,
                                           host=host,
@@ -117,28 +117,27 @@ class VigiMapGen(MapGenerator):
                 DBSession.add(node)
                 # on ne fait rien sur ls éléments présents
         # on supprime les éléments qui ne font pas partie du groupe
-        nodes = DBSession.query(tables.MapNodeHost).filter(
-                        tables.MapNodeHost.map == map).all()
         for node in nodes:
-            if node.host not in group.hosts:
+            allowed_ids = [ h.idhost for h in group.hosts ]
+            if node.idhost not in allowed_ids:
                 DBSession.delete(node)
         DBSession.flush()
 
     def _populate_lls(self, map, group, data):
         """ajout des nodes LowLevelService"""
+        nodes = DBSession.query(tables.MapNodeLls).filter(
+                    tables.MapNodeLls.map == map).all()
         for service in group.lls:
+            svc_nodes = [n for n in nodes if n.idservice == service.idservice]
             # on regarde si un node existe
-            nodes = DBSession.query(tables.MapNodeLls).filter(
-                                        and_(tables.MapNodeLls.map == map,
-                                             tables.MapNodeLls.service == service)
-                                        ).all()
-            if len(nodes) > 1:
-                # Plus d'une icône pour un même hôte ? On efface tout et on recommence.
-                for node in nodes:
+            if len(svc_nodes) > 1:
+                # Plus d'une icône pour un même service ? On efface tout et on
+                # recommence.
+                for node in svc_nodes:
                     DBSession.delete(node)
                 DBSession.flush()
-                nodes = []
-            if not nodes:
+                svc_nodes = []
+            if not svc_nodes:
                 node = tables.MapNodeLls(label=service.servicename,
                                          map=map,
                                          service=service,
@@ -146,28 +145,27 @@ class VigiMapGen(MapGenerator):
                                          icon=unicode(data['lls_icon']))
                 DBSession.add(node)
         # on supprime les éléments qui ne font pas partie du groupe
-        nodes = DBSession.query(tables.MapNodeLls)\
-                    .filter(tables.MapNodeLls.map == map)
         for node in nodes:
-            if node.service not in group.lls:
+            allowed_ids = [ s.idservice for s in group.lls ]
+            if node.service not in allowed_ids:
                 DBSession.delete(node)
         DBSession.flush()
 
     def _populate_hls(self, map, group, data):
         """ajout des nodes HighLevelService"""
+        nodes = DBSession.query(tables.MapNodeHls).filter(
+                        tables.MapNodeHls.map == map).all()
         for service in group.hls:
+            svc_nodes = [n for n in nodes if n.idservice == service.idservice]
             # on regarde si un node existe
-            nodes = DBSession.query(tables.MapNodeHls).filter(
-                                        and_(tables.MapNodeHls.map == map,
-                                             tables.MapNodeHls.service == service)
-                                        ).all()
-            if len(nodes) > 1:
-                # Plus d'une icône pour un même hôte ? On efface tout et on recommence.
-                for node in nodes:
+            if len(svc_nodes) > 1:
+                # Plus d'une icône pour un même hls ? On efface tout et on
+                # recommence.
+                for node in svc_nodes:
                     DBSession.delete(node)
                 DBSession.flush()
                 nodes = []
-            if not nodes:
+            if not svc_nodes:
                 node = tables.MapNodeHls(label=service.servicename,
                                          map=map,
                                          service=service,
@@ -175,10 +173,9 @@ class VigiMapGen(MapGenerator):
                                          icon=unicode(data['hls_icon']))
                 DBSession.add(node)
         # on supprime les éléments qui ne font pas partie du groupe
-        nodes = DBSession.query(tables.MapNodeHls).filter(
-                        tables.MapNodeHls.map == map).all()
         for node in nodes:
-            if node.service not in group.hls:
+            allowed_ids = [ s.idservice for s in group.hls ]
+            if node.service not in allowed_ids:
                 DBSession.delete(node)
         DBSession.flush()
 
@@ -186,21 +183,21 @@ class VigiMapGen(MapGenerator):
         existing = tables.MapGroup.by_parent_and_name(parent_mapgroup,
                                                       supitemgroup.name)
         if existing:
-            LOGGER.debug(_("Using existing MapGroup for group %s"),
-                           supitemgroup.name)
+            LOGGER.debug("Using existing MapGroup for group %s",
+                         supitemgroup.name)
             return existing
-        LOGGER.debug(_("Creating MapGroup for group %s"), supitemgroup.name)
+        LOGGER.debug("Creating MapGroup for group %s", supitemgroup.name)
         return tables.MapGroup(name=supitemgroup.name, parent=parent_mapgroup)
 
     def _make_map(self, supitemgroup, parent_mapgroup):
         existing = tables.Map.by_group_and_title(parent_mapgroup,
                                                  supitemgroup.name)
         if existing:
-            LOGGER.debug(_("Using existing Map for group %s"),
-                           supitemgroup.name)
+            LOGGER.debug("Using existing Map for group %s", supitemgroup.name)
             return existing
-        LOGGER.debug(_("Creating Map for SupItemGroup %(group)s in MapGroup %(mapgroup)s"),
-                     {"group": supitemgroup.name, "mapgroup": parent_mapgroup.name})
+        LOGGER.debug("Creating Map for SupItemGroup %(group)s in MapGroup "
+                     "%(mapgroup)s", {"group": supitemgroup.name,
+                                      "mapgroup": parent_mapgroup.name})
         newmap = self.create_map(supitemgroup.name, [parent_mapgroup,], self.map_defaults)
         return newmap
 
@@ -209,7 +206,7 @@ class VigiMapGen(MapGenerator):
         Équivalent d'un gros "rm -rf" bien bourrin. Supprime aussi les
         sous-cartes.
         """
-        LOGGER.debug(_("Removing MapGroup %s and its children"), mapgroup.name)
+        LOGGER.debug("Removing MapGroup %s and its children", mapgroup.name)
         abort_deletion = False
         for submapgroup in mapgroup.get_all_children():
             has_manual_maps = False
@@ -272,7 +269,7 @@ class VigiMapGen(MapGenerator):
                 self._remove_mapgroup(submapgroup)
         for submap in parent_mapgroup.maps:
             if submap.title not in allowed_submaps and submap.generated:
-                LOGGER.debug(_("Removing Map for group %s"), supitemgroup.name)
+                LOGGER.debug("Removing Map for group %s", supitemgroup.name)
                 DBSession.delete(submap)
 
     def _handle_supitemgroup(self, supitemgroup, parent_mapgroup):
@@ -292,5 +289,5 @@ class VigiMapGen(MapGenerator):
         return results
 
     def generate(self):
-        LOGGER.debug(_("Generating maps for the host groups"))
+        LOGGER.debug("Generating maps for the host groups")
         self._walk_hierarchy()

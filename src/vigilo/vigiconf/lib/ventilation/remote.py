@@ -236,28 +236,54 @@ class VentilatorRemote(Ventilator):
 
         """
         LOGGER.debug("Ventilation begin")
-        r = {}
-        errors = set()
+        # On collecte tous les groupes d'hôtes
+        hostgroups = {}
         for (host, v) in conf.hostsConf.iteritems():
-            hostGroup = self.get_host_ventilation_group(host, v)
-            app_to_vservers = {}
-            for appGroup in conf.appsGroupsByServer:
+            hostgroup = self.get_host_ventilation_group(host, v)
+            if hostgroup not in hostgroups:
+                hostgroups[hostgroup] = []
+            hostgroups[hostgroup].append(host)
+        # On calcule les pools de ventilation pour chaque groupe d'application,
+        # en prenant en compte les serveurs désactivés et le backup
+        appgroup_servers = {}
+        errors = set()
+        for hostgroup in hostgroups:
+            for appgroup in conf.appsGroupsByServer:
                 try:
-                    ventilation = self._ventilate_host(host, appGroup, hostGroup)
+                    servers = self._ventilate_appgroup(appgroup, hostgroup)
                 except NoServerAvailable, e:
                     errors.add(e.value)
                     continue
-                if ventilation is not None:
-                    app_to_vservers.update(ventilation)
-            r[host] = app_to_vservers
+                if servers is None:
+                    continue
+                if appgroup not in appgroup_servers:
+                    appgroup_servers[appgroup] = {}
+                appgroup_servers[appgroup][hostgroup] = servers
         for error in errors:
             LOGGER.warning(_("No server available for the appgroup %(appgroup)s"
                              " and the hostgroup %(hostgroup)s, skipping it"),
                            {"appgroup": error[0], "hostgroup": error[1]})
+        r = {}
+        for hostgroup, hosts in hostgroups.iteritems():
+            for host in hosts:
+                app_to_vservers = {}
+                for appgroup, hg_servers in appgroup_servers.iteritems():
+                    if hostgroup not in hg_servers:
+                        continue
+                    servers = hg_servers[hostgroup]
+                    if len(servers) > 1 and \
+                                not self.is_mode_duplicate(appgroup, hostgroup):
+                        # choose wisely
+                        server = self.getServerToUse(servers, host, appgroup)
+                        servers = [server, ]
+                    for app in self.apps_by_appgroup[appgroup]:
+                        app_to_vservers[app] = servers
+                r[host] = app_to_vservers
+        #from pprint import pprint; pprint(r)
         LOGGER.debug("Ventilation end")
         return r
 
-    def _ventilate_host(self, host, appGroup, hostGroup):
+    def _ventilate_appgroup(self, appGroup, hostGroup):
         if appGroup not in self.apps_by_appgroup or \
                 not self.apps_by_appgroup[appGroup]:
             return None # pas d'appli dans ce groupe
@@ -274,18 +300,7 @@ class VentilatorRemote(Ventilator):
         if not vservers:
             # pas de serveur dispo, même dans le backup. On abandonne.
             raise NoServerAvailable((appGroup, hostGroup))
-        if len(vservers) == 1:
-            servers = [vservers[0], ]
-        elif self.is_mode_duplicate(appGroup, hostGroup):
-            servers = vservers
-        else:
-            # choose wisely
-            servers = self.getServerToUse(vservers, host, appGroup)
-            servers = [servers, ]
-        result = {}
-        for app in self.apps_by_appgroup[appGroup]:
-            result[app] = servers
-        return result
+        return vservers
 
 
     # Gestion des serveurs Vigilo

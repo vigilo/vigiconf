@@ -72,10 +72,10 @@ class Generator(unittest.TestCase):
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                             "GAUGE", label="TestAddCSLabel")
-        host2 = Host(conf.hostsConf, "dummy", "testserver2", "192.168.1.2", "Servers")
-        host2.add_collector_service( "TestAddCSReRoute", "TestAddCSReRouteFunction",
+        host2 = Host(conf.hostsConf, "dummy", u"testserver2", "192.168.1.2", "Servers")
+        host2.add_collector_service( u"TestAddCSReRoute", "TestAddCSReRouteFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
-                reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )
+                reroutefor={'host': "testserver1", "service": u"TestAddCSReRoute"} )
         # Try the generation
         self.genmanager.generate()
 

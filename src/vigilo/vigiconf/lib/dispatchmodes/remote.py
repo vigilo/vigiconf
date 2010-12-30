@@ -167,6 +167,8 @@ class DispatchatorRemote(Dispatchator):
                 # d'être ajouté)
                 continue
             if server_db.disabled:
+                LOGGER.debug("Removing disabled server %s from the "
+                             "deployment list", server)
                 servers.remove(server)
         self.restrict(servers)
 
