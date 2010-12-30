@@ -28,6 +28,9 @@ This file is part of the Enterprise Edition.
 
 from __future__ import absolute_import
 
+from vigilo.models.session import DBSession
+from vigilo.models import tables
+
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -36,6 +39,7 @@ _ = translate(__name__)
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.dispatchator import Dispatchator
+from vigilo.vigiconf.lib.server import Server, ServerFactory
 
 
 class DispatchatorRemote(Dispatchator):
@@ -151,6 +155,20 @@ class DispatchatorRemote(Dispatchator):
                 _app.servers = serversforapp
                 newapplications.append(_app)
         self.applications = newapplications
+
+    def filter_disabled(self):
+        """@see: L{lib.dispatchator.Dispatchator.filter_disabled}"""
+        servers = self.getServersList()
+        for server in servers[:]:
+            server_db = tables.VigiloServer.by_vigiloserver_name(
+                            unicode(server))
+            if server_db is None:
+                # pas en base, donc pas désactivé (peut-être qu'il vient
+                # d'être ajouté)
+                continue
+            if server_db.disabled:
+                servers.remove(server)
+        self.restrict(servers)
 
 
 

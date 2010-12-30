@@ -42,7 +42,8 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib import ParsingError, VigiConfError
+from vigilo.vigiconf.lib.exceptions import ParsingError, VigiConfError, \
+            NoServerAvailable
 from vigilo.vigiconf.lib.ventilation import Ventilator
 
 
@@ -234,31 +235,58 @@ class VentilatorRemote(Ventilator):
           }
 
         """
-        LOGGER.debug("Ventilation")
+        LOGGER.debug("Ventilation begin")
         r = {}
+        errors = set()
         for (host, v) in conf.hostsConf.iteritems():
             hostGroup = self.get_host_ventilation_group(host, v)
             app_to_vservers = {}
             for appGroup in conf.appsGroupsByServer:
-                if appGroup not in self.apps_by_appgroup \
-                        or not self.apps_by_appgroup[appGroup]:
-                    continue # pas d'appli dans ce groupe
-                vservers = conf.appsGroupsByServer[appGroup][hostGroup]
-                vservers = self.filter_vservers(vservers)
-                if not vservers:
-                    continue # pas de serveurs affectés à ce groupe
-                if len(vservers) == 1:
-                    servers = [vservers[0], ]
-                elif self.is_mode_duplicate(appGroup, hostGroup):
-                    servers = vservers
-                else:
-                    # choose wisely
-                    servers = self.getServerToUse(vservers, host, appGroup)
-                    servers = [servers, ]
-                for app in self.apps_by_appgroup[appGroup]:
-                    app_to_vservers[app] = servers
+                try:
+                    ventilation = self._ventilate_host(host, appGroup, hostGroup)
+                except NoServerAvailable, e:
+                    errors.add(e.value)
+                    continue
+                if ventilation is not None:
+                    app_to_vservers.update(ventilation)
             r[host] = app_to_vservers
+        for error in errors:
+            LOGGER.warning(_("No server available for the appgroup %(appgroup)s"
+                             " and the hostgroup %(hostgroup)s, skipping it"),
+                           {"appgroup": error[0], "hostgroup": error[1]})
+        LOGGER.debug("Ventilation end")
         return r
+
+    def _ventilate_host(self, host, appGroup, hostGroup):
+        if appGroup not in self.apps_by_appgroup or \
+                not self.apps_by_appgroup[appGroup]:
+            return None # pas d'appli dans ce groupe
+        vservers = conf.appsGroupsByServer[appGroup][hostGroup]
+        vservers = self.filter_vservers(vservers) # ne garde que les actifs
+        if not vservers:
+            # pas de serveurs affectés à ce groupe, ou alors ils sont tous
+            # désactivés
+            backup_mapping = getattr(conf, "appsGroupsBackup", {})
+            if appGroup in backup_mapping and \
+                    hostGroup in backup_mapping[appGroup]:
+                vservers = backup_mapping[appGroup][hostGroup]
+                vservers = self.filter_vservers(vservers)
+        if not vservers:
+            # pas de serveur dispo, même dans le backup. On abandonne.
+            raise NoServerAvailable((appGroup, hostGroup))
+        if len(vservers) == 1:
+            servers = [vservers[0], ]
+        elif self.is_mode_duplicate(appGroup, hostGroup):
+            servers = vservers
+        else:
+            # choose wisely
+            servers = self.getServerToUse(vservers, host, appGroup)
+            servers = [servers, ]
+        result = {}
+        for app in self.apps_by_appgroup[appGroup]:
+            result[app] = servers
+        return result
+
 
     # Gestion des serveurs Vigilo
 

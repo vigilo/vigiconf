@@ -49,4 +49,11 @@ class ParsingError(VigiConfError):
     """
     pass
 
+class NoServerAvailable(VigiConfError):
+    """
+    Exception remontée quand il n'y a pas de serveur Vigilo où ventiler un
+    groupe d'hôtes
+    """
+    pass
+
 # vim:set expandtab tabstop=4 shiftwidth=4:

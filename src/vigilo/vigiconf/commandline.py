@@ -63,10 +63,10 @@ from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
 
-def get_dispatchator(args):
+def get_dispatchator(args, restrict=True):
     conf.loadConf()
     dispatchator = dispatchmodes.getinstance()
-    if args.server:
+    if restrict and args.server:
         try:
             dispatchator.restrict(args.server)
         except KeyError, e:
@@ -135,7 +135,7 @@ def discover(args):
     print(ET.tostring(elements))
 
 def server(args):
-    dispatchator = get_dispatchator(args)
+    dispatchator = get_dispatchator(args, restrict=False)
     ventilator = get_ventilator(dispatchator.applications)
     if isinstance(ventilator, VentilatorLocal):
         raise EditionError(_("Vigilo server management is only available "
