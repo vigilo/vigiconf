@@ -145,9 +145,13 @@ def server(args):
             ventilator.disable_server(server) # pylint:disable-msg=E1103
         elif args.status == "enable":
             ventilator.enable_server(server) # pylint:disable-msg=E1103
-    if not args.no_deploy:
-        dispatchator.setModeForce(True)
-        dispatchator.run()
+    if args.no_deploy:
+        return
+    dispatchator.setModeForce(True)
+    dispatchator.generate(nosyncdb=True)
+    servers_by_task = dispatchator.getServersByTask()
+    dispatchator.deploy(servers_by_task["deploy"])
+    dispatchator.restart(servers_by_task["restart"])
 
 
 def parse_args():

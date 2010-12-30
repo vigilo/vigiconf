@@ -45,6 +45,7 @@ from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.ventilation import get_ventilator
+from vigilo.vigiconf.lib.exceptions import GenerationError
 from .base import Generator
 
 
@@ -77,27 +78,28 @@ class GeneratorManager(object):
         for app in self.apps:
             if not app.generator:
                 continue
+            LOGGER.debug("Generating configuration for %s" % app.name)
             generator = app.generator(app, vba, validator)
             generator.generate()
             generator.write_scripts()
+        LOGGER.debug("Configuration generated")
 
-    def generate(self, commit_db=False):
+    def generate(self, commit_db=False, nosyncdb=False):
         """
         Main method of this class, produces the configuration files.
 
         @param commit_db: True means that data is commited in the database
                after generation; if False, a rollback is done.
         @type commit_db: C{boolean}
-        @return: True if sucessful, False otherwise
-        @rtype: C{boolean}
-        @TODO: lever des exceptions plutôt que de retourner False
+        @raise: L{GenerationError}
         """
 
-        LOGGER.debug("Syncing with database")
         loader = LoaderManager(self.dispatchator)
-        loader.load_apps_db(self.apps)
-        loader.load_conf_db()
-        loader.load_vigilo_servers_db()
+        if not nosyncdb:
+            LOGGER.debug("Syncing with database")
+            loader.load_apps_db(self.apps)
+            loader.load_conf_db()
+            loader.load_vigilo_servers_db()
         ventilation = self.ventilator.ventilate()
         loader.load_ventilation_db(ventilation)
 
@@ -106,8 +108,7 @@ class GeneratorManager(object):
             # TODO: exception
             for errmsg in validator.getSummary(details=True, stats=True):
                 LOGGER.error(errmsg)
-            LOGGER.error(_("Generation failed!"))
-            return False
+            raise GenerationError()
 
         self.move_metro_services(ventilation, validator)
         self.run_all_generators(ventilation, validator)
@@ -116,11 +117,10 @@ class GeneratorManager(object):
             # TODO: exception
             for errmsg in validator.getSummary(details=True, stats=True):
                 LOGGER.error(errmsg)
-            LOGGER.error(_("Generation failed!"))
             if commit_db:
                 transaction.abort()
                 LOGGER.debug(_("Transaction rollbacked"))
-            return False
+            raise GenerationError()
         else:
             try:
                 if commit_db:
@@ -133,12 +133,10 @@ class GeneratorManager(object):
                 # TODO: exception
                 transaction.abort()
                 LOGGER.debug(_("Transaction rollbacked"))
-                return False
+                raise GenerationError()
 
             for msg in validator.getSummary(details=True, stats=True):
                 LOGGER.info(msg)
-            LOGGER.info(_("Generation successful"))
-            return True
 
     def move_metro_services(self, ventilation, validator):
         """

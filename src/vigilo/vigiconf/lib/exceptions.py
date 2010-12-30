@@ -49,6 +49,12 @@ class ParsingError(VigiConfError):
     """
     pass
 
+class GenerationError(VigiConfError):
+    """
+    Exception remontée quand il y a eu une erreur à la génération
+    """
+    pass
+
 class NoServerAvailable(VigiConfError):
     """
     Exception remontée quand il n'y a pas de serveur Vigilo où ventiler un

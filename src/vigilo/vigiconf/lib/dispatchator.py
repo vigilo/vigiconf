@@ -56,6 +56,7 @@ from .application import Application, ApplicationError
 from .systemcommand import SystemCommand, SystemCommandError
 from . import VigiConfError
 from .server import ServerFactory, ServerError
+from .exceptions import GenerationError
 from . import dispatchmodes
 
 
@@ -224,7 +225,7 @@ class Dispatchator(object):
             _servers.append(_srvobj)
         return _servers
 
-    def generate(self):
+    def generate(self, nosyncdb=False):
         """
         Génère la configuration des différents composants, en utilisant le
         L{GeneratorManager}.
@@ -232,24 +233,22 @@ class Dispatchator(object):
         Après génération, la configuration est validée, et en cas de succès les
         fichiers de configuration de VigiConf sont comittés en SVN
         """
-        if not self.run_generator():
-            return False
-        self.validate_generation()
-        return True
-
-    def run_generator(self):
-        gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
-        shutil.rmtree(gendir, ignore_errors=True)
-        generator = GeneratorManager(self.applications, self)
-        result = generator.generate(commit_db=(self.mode_db == 'commit'))
-        return result
-
-    def validate_generation(self):
+        try:
+            gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
+            shutil.rmtree(gendir, ignore_errors=True)
+            generator = GeneratorManager(self.applications, self)
+            generator.generate(commit_db=(self.mode_db == 'commit'), nosyncdb=nosyncdb)
+        except GenerationError, e:
+            LOGGER.error(_("Generation failed!"))
+            raise
+        else:
+            LOGGER.info(_("Generation successful"))
+        # Validation de la génération
         for _App in self.applications:
             _App.validate(os.path.join(settings["vigiconf"].get("libdir"),
                                        "deploy"))
         LOGGER.info(_("Validation Successful"))
-        #Commit Configuration
+        # Commit de la configuration
         last_rev = self._svn_commit()
         if self.deploy_revision == "HEAD":
             self.deploy_revision = last_rev
@@ -738,8 +737,7 @@ class Dispatchator(object):
 
     def run(self, stop_after=None):
         self.prepare_svn()
-        if not self.generate():
-            return
+        self.generate()
         if stop_after == "generation":
             return
         servers_by_task = self.getServersByTask()
