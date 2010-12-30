@@ -91,7 +91,7 @@ class GeneratorManager(object):
         @param commit_db: True means that data is commited in the database
                after generation; if False, a rollback is done.
         @type commit_db: C{boolean}
-        @raise: L{GenerationError}
+        @raise L{GenerationError}
         """
 
         loader = LoaderManager(self.dispatchator)
