@@ -514,12 +514,7 @@ class Dispatchator(object):
 
     def deploy(self):
         """
-        Déploie et qualifie la configuration sur les serveurs spécifiés.
-        Si L{servers} vaut C{None}, la liste des serveurs concernés est
-        calculée.
-        @param servers: liste des serveurs sur lesquels déployer la
-            configuration
-        @type  servers: C{list} de L{Server<lib.server.Server>}s
+        Déploie et qualifie la configuration sur les serveurs concernés.
         """
         servers = self.getServers()
         if not self.getModeForce():
@@ -658,10 +653,7 @@ class Dispatchator(object):
 
     def restart(self):
         """
-        Redémarre les applications sur les serveurs spécifiés. Si L{servers}
-        vaut C{None}, la liste des serveurs concernés est calculée.
-        @param servers: liste des serveurs à redémarrer
-        @type  servers: C{list} de L{Server<lib.server.Server>}s
+        Redémarre les applications sur les serveurs concernés.
         """
         servers = self.getServers()
         if not self.getModeForce():

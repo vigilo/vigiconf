@@ -126,7 +126,7 @@ class DBLoader(object):
         @type  data: C{dict}
         """
         key = self.get_key(data)
-        LOGGER.debug(_("Updating: %(key)s (%(class)s)"), {
+        LOGGER.debug("Updating: %(key)s (%(class)s)", {
             'key': key,
             'class': self._class.__name__,
         })
@@ -134,32 +134,32 @@ class DBLoader(object):
         for attr, value in data.iteritems():
             old_value = getattr(instance, attr)
             if type(old_value) != type(value):
-                LOGGER.debug(_("WARNING: Different types between old and new "
-                                "value, comparasion will always fail. "
-                                "Old is %(old_value)s (%(old_type)r), "
-                                "new is %(new_value)s (%(new_type)r)."), {
+                LOGGER.debug("WARNING: Different types between old and new "
+                             "value, comparasion will always fail. "
+                             "Old is %(old_value)s (%(old_type)r), "
+                             "new is %(new_value)s (%(new_type)r).", {
                                     'old_value': old_value,
                                     'old_type': type(old_value),
                                     'new_value': value,
                                     'new_type': type(value),
-                                 })
+                             })
             if old_value != value:
-                LOGGER.debug(_("Updating property %(property)s from "
-                                "%(old_value)s (%(old_type)r) to "
-                                "%(new_value)s (%(new_type)r)"), {
+                LOGGER.debug("Updating property %(property)s from "
+                             "%(old_value)s (%(old_type)r) to "
+                             "%(new_value)s (%(new_type)r)", {
                                     'property': attr,
                                     'old_value': old_value,
                                     'old_type': type(old_value),
                                     'new_value': value,
                                     'new_type': type(value),
-                                })
+                             })
                 setattr(instance, attr, value)
         self._in_conf[key] = instance
         return instance
 
     def insert(self, data):
         key = self.get_key(data)
-        LOGGER.debug(_("Inserting: %s"), key)
+        LOGGER.debug("Inserting: %s", key)
         instance = self._class(**data)
         DBSession.add(instance)
         self._in_conf[key] = instance

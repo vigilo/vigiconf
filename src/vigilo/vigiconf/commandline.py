@@ -374,7 +374,7 @@ def main():
             LOGGER.error(_("VigiConf error: %s"), e.value)
         #for l in traceback.format_exc().split("\n"):
         #    LOGGER.error(l)
-    LOGGER.debug(_("VigiConf ended."))
+    LOGGER.debug("VigiConf is done.")
 
 
 if __name__ == "__main__":

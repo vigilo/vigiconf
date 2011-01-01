@@ -128,19 +128,19 @@ class GeneratorManager(object):
                 LOGGER.error(errmsg)
             if commit_db:
                 transaction.abort()
-                LOGGER.debug(_("Transaction rollbacked"))
+                LOGGER.debug("Transaction rollbacked")
             raise GenerationError("validation")
         else:
             try:
                 if commit_db:
                     transaction.commit()
-                    LOGGER.debug(_("Transaction commited"))
+                    LOGGER.debug("Transaction commited")
                 else:
                     transaction.abort()
-                    LOGGER.debug(_("Transaction rollbacked"))
+                    LOGGER.debug("Transaction rollbacked")
             except Exception, v:
                 transaction.abort()
-                LOGGER.debug(_("Transaction rollbacked"))
+                LOGGER.debug("Transaction rollbacked")
                 raise GenerationError("db commit")
 
             for msg in validator.getSummary(details=True, stats=True):

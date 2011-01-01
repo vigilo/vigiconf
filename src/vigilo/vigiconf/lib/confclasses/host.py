@@ -695,7 +695,7 @@ class HostFactory(object):
                 if validation:
                     self._validatehost(fullpath)
                 self._loadhosts(fullpath)
-                LOGGER.debug(_("Successfully parsed %s"), fullpath)
+                LOGGER.debug("Successfully parsed %s", fullpath)
             for d in dirs: # Don't visit subversion/CVS directories
                 if d.startswith("."):
                     dirs.remove(d)
@@ -905,7 +905,7 @@ class HostFactory(object):
                     for (dname, dvalue) in directives.iteritems():
                         cur_host.add_nagios_directive(dname, dvalue)
 
-                    LOGGER.debug(_("Loaded host %(host)s, address %(address)s") %
+                    LOGGER.debug("Loaded host %(host)s, address %(address)s" %
                                  {'host': cur_host.name,
                                   'address': cur_host.get_attribute('address'),
                                  })

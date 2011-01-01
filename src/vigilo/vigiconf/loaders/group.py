@@ -146,10 +146,8 @@ class GroupLoader(XMLLoader):
         key = self.get_key(data)
         instance = self.__in_db[key]
 
-        LOGGER.debug(_("Updating: %(key)s (%(class)s)"), {
-            'key': key,
-            'class': self._class.__name__,
-        })
+        LOGGER.debug("Updating: %(key)s (%(class)s)",
+                     {'key': key, 'class': self._class.__name__})
 
         # On évite les requêtes SQL lorsqu'il n'y a rien à changer.
         current_idparent = self._current_parent and \
@@ -173,7 +171,7 @@ class GroupLoader(XMLLoader):
         # groupes différents ayant le même chemin (#336).
         if key in self._in_conf:
             return self._in_conf[key]
-        LOGGER.debug(_("Inserting: %s"), key)
+        LOGGER.debug("Inserting: %s", key)
         instance = self._class(name=data["name"], parent=data["parent"])
 
         if data["parent"]:

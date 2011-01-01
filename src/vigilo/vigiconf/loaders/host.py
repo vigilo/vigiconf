@@ -149,33 +149,33 @@ class HostLoader(DBLoader):
             host = hosts[hostname]
 
             # groupes
-            LOGGER.debug(_("Loading groups for host %s"), hostname)
+            LOGGER.debug("Loading groups for host %s", hostname)
             self._load_groups(host, hostdata)
 
             # services
-            LOGGER.debug(_("Loading services for host %s"), hostname)
+            LOGGER.debug("Loading services for host %s", hostname)
             service_loader = ServiceLoader(host)
             service_loader.load()
 
             # directives Nagios de l'hôte
-            LOGGER.debug(_("Loading nagios conf for host %s"), hostname)
+            LOGGER.debug("Loading nagios conf for host %s", hostname)
             nagiosconf_loader = NagiosConfLoader(host,
                                     hostdata['nagiosDirectives'])
             nagiosconf_loader.load()
 
             # données de performance
-            LOGGER.debug(_("Loading perfdatasources for host %s"), hostname)
+            LOGGER.debug("Loading perfdatasources for host %s", hostname)
             pds_loader = PDSLoader(host)
             pds_loader.load()
 
             # graphes
-            LOGGER.debug(_("Loading graphs for host %s"), hostname)
+            LOGGER.debug("Loading graphs for host %s", hostname)
             graph_loader = GraphLoader(host)
             graph_loader.load()
 
         # Suppression des fichiers de configuration retirés du SVN
         # ainsi que de leurs hôtes (par CASCADE).
-        LOGGER.debug(_("Cleaning up old hosts"))
+        LOGGER.debug("Cleaning up old hosts")
         for filename in svn_status['remove']:
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
             DBSession.query(ConfFile).filter(
@@ -186,11 +186,11 @@ class HostLoader(DBLoader):
         ghost_hosts = DBSession.query(Host).filter(
                         Host.idconffile == None).all()
         for host in ghost_hosts:
-            LOGGER.debug(_("Removing ghost host '%s'"), host.name)
+            LOGGER.debug("Removing ghost host '%s'", host.name)
             DBSession.delete(host)
 
         # Nettoyage des graphes et les groupes de graphes vides
-        LOGGER.debug(_("Cleaning up old graphs and graphgroups"))
+        LOGGER.debug("Cleaning up old graphs and graphgroups")
         empty_graphs = DBSession.query(Graph).distinct().filter(
                             ~Graph.perfdatasources.any()).all()
         for graph in empty_graphs:
