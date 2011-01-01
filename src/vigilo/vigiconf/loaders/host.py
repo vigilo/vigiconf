@@ -58,12 +58,23 @@ class HostLoader(DBLoader):
         self.dispatchator = dispatchator
 
     def cleanup(self):
-        # Rien à faire ici : la fin du load_conf se charge déjà
+        # Presque rien à faire ici : la fin du load_conf se charge déjà
         # de supprimer les instances de ConfFile retirées du SVN,
         # ce qui a pour effet de supprimer les hôtes associés.
         # Elle supprime aussi les hôtes qui n'ont pas de fichier
         # attaché (résidus laissés lors de la migration vers ConfFile).
-        pass
+        # Il reste uniquement à vérifier qu'on a pas encore en base des
+        # fichiers qui auraient disparu du disque (modif SVN manuelle par
+        # exemple)
+        LOGGER.debug("Checking for leftover ConfFiles")
+        for conffile in DBSession.query(ConfFile).all():
+            filename = os.path.join(settings["vigiconf"].get("confdir"),
+                                    conffile.name)
+            if not os.path.exists(filename):
+                LOGGER.warning(_("Deleting leftover config file from "
+                                 "database: %s"), conffile.name)
+                DBSession.delete(conffile)
+        DBSession.flush()
 
     def load_conf(self):
         # On récupère d'abord la liste de tous les hôtes

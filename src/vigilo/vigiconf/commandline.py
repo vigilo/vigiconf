@@ -149,9 +149,9 @@ def server(args):
         return
     dispatchator.setModeForce(True)
     dispatchator.generate(nosyncdb=True)
-    servers_by_task = dispatchator.getServersByTask()
-    dispatchator.deploy(servers_by_task["deploy"])
-    dispatchator.restart(servers_by_task["restart"])
+    dispatchator.filter_disabled()
+    dispatchator.deploy()
+    dispatchator.restart()
 
 
 def parse_args():

@@ -506,25 +506,17 @@ class Dispatchator(object):
         for _app in self.applications:
             _app.qualifyServers(iServers)
 
-    def getServersByTask(self):
-        # 1 - construire la liste des serveurs sur lesquels travailler
+    def prepareServers(self):
+        """prépare la liste des serveurs sur lesquels travailler"""
         self.filter_disabled()
-        servers = self.getServers()
         if self.getModeForce():
-            return {"deploy": servers, "restart": servers}
-        result = {"deploy": [], "restart": []}
+            return
+        servers = self.getServers()
         for _srv in servers:
             _srv.updateRevisionManager()
             _srv.getRevisionManager().setSubversion(self.deploy_revision)
-            if _srv.needsDeployment():
-                LOGGER.debug("Server %s should be deployed.", _srv.getName())
-                result["deploy"].append(_srv)
-            if _srv.needsRestart():
-                LOGGER.debug("Server %s should be restarted.", _srv.getName())
-                result["restart"].append(_srv)
-        return result
 
-    def deploy(self, servers=None):
+    def deploy(self):
         """
         Déploie et qualifie la configuration sur les serveurs spécifiés.
         Si L{servers} vaut C{None}, la liste des serveurs concernés est
@@ -533,8 +525,14 @@ class Dispatchator(object):
             configuration
         @type  servers: C{list} de L{Server<lib.server.Server>}s
         """
-        if servers is None:
-            servers = self.getServersByTask()["deploy"]
+        servers = self.getServers()
+        if not self.getModeForce():
+            for server in servers[:]:
+                if server.needsDeployment():
+                    LOGGER.debug("Server %s should be deployed.",
+                                 server.getName())
+                else:
+                    servers.remove(server)
         if not servers:
             LOGGER.info(_("All servers are up-to-date, no deployment needed."))
         self.deploysOnServers(servers, self.deploy_revision)
@@ -662,15 +660,21 @@ class Dispatchator(object):
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
 
-    def restart(self, servers=None):
+    def restart(self):
         """
         Redémarre les applications sur les serveurs spécifiés. Si L{servers}
         vaut C{None}, la liste des serveurs concernés est calculée.
         @param servers: liste des serveurs à redémarrer
         @type  servers: C{list} de L{Server<lib.server.Server>}s
         """
-        if servers is None:
-            servers = self.getServersByTask()["restart"]
+        servers = self.getServers()
+        if not self.getModeForce():
+            for server in servers[:]:
+                if server.needsRestart():
+                    LOGGER.debug("Server %s should be restarted.",
+                                 server.getName())
+                else:
+                    servers.remove(server)
         if not servers:
             LOGGER.info(_("All servers are up-to-date. No restart needed."))
         self.stopApplicationsOn(servers)
@@ -740,11 +744,11 @@ class Dispatchator(object):
         self.generate()
         if stop_after == "generation":
             return
-        servers_by_task = self.getServersByTask()
-        self.deploy(servers_by_task["deploy"])
+        self.prepareServers()
+        self.deploy()
         if stop_after == "deployment":
             return
-        self.restart(servers_by_task["restart"])
+        self.restart()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

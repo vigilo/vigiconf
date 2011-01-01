@@ -27,6 +27,9 @@ from .. import conf
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
+from vigilo.models.session import DBSession
+from vigilo.models import tables
+
 class Validator(object):
     """
     Used by the generators to validate the configuration.
@@ -108,6 +111,8 @@ class Validator(object):
         self._stats["nbServers"] = len(servers)
         self._stats["nbApps"] = len(apps)
         returnCode = True
+        if not self.preValidateDB():
+            returnCode = False
         if len(servers) == 0:
             self.addError("Base Config", "servers",
                           _("No server configuration to be generated"))
@@ -119,6 +124,62 @@ class Validator(object):
         if len(conf.hostsConf) == 0:
             self.addError("Base Config", "hosts",
                           _("No host configuration to be generated"))
+            returnCode = False
+        return returnCode
+
+    def preValidateDB(self):
+        returnCode = True
+        hosts_db = DBSession.query(tables.Host).count()
+        if hosts_db != self._stats["nbHosts"]:
+            self.addError("DBLoader", "hosts",
+                _("The number of host entries in the database does not match "
+                  "the number of hosts in the configuration. "
+                  "Found: %(found)d, expected: %(expected)d")
+                % {"found": hosts_db, "expected": self._stats["nbHosts"]})
+            #hosts_db = set([h.name for h in DBSession.query(tables.Host).all()])
+            #hosts_conf = set(map(unicode, conf.hostsConf.keys()))
+            #print hosts_db - hosts_conf
+            returnCode = False
+        svc_db = DBSession.query(tables.LowLevelService).count()
+        svc_conf = 0
+        #svc_conf_detail = []
+        for host in conf.hostsConf:
+            if "services" in conf.hostsConf[host]:
+                svc_conf += len(conf.hostsConf[host]["services"])
+                #svc_conf_detail.extend(conf.hostsConf[host]["services"])
+            if "SNMPJobs" in conf.hostsConf[host] and \
+                        conf.hostsConf[host]["SNMPJobs"]:
+                svc_conf += 1
+                #svc_conf_detail.append("Collector")
+            if "TelnetJobs" in conf.hostsConf[host] and \
+                        conf.hostsConf[host]["TelnetJobs"]:
+                svc_conf += 1
+                #svc_conf_detail.append("collector-telnet")
+        if svc_db != svc_conf:
+            self.addError("DBLoader", "services",
+                _("The number of services entries in the database does not "
+                  "match the number of services in the configuration. "
+                  "Found: %(found)d, expected: %(expected)d")
+                % {"found": svc_db, "expected": svc_conf})
+            #svc_db_detail = [s.servicename for s in DBSession.query(tables.LowLevelService).all()]
+            #print set(svc_db_detail) - set(svc_conf_detail)
+            returnCode = False
+        apps_db = DBSession.query(tables.Application).count()
+        if apps_db != self._stats["nbApps"]:
+            self.addError("DBLoader", "applications",
+                _("The number of apps entries in the database does not match "
+                  "the number of apps in the configuration. "
+                  "Found: %(found)d, expected: %(expected)d")
+                % {"found": apps_db, "expected": self._stats["nbApps"]})
+            returnCode = False
+        ventilation_db = DBSession.query(tables.Ventilation).count()
+        if ventilation_db != self._stats["nbHosts"] * self._stats["nbApps"]:
+            self.addError("DBLoader", "ventilation",
+                _("The number of ventilation entries in the database does "
+                  "not match the number of host and apps. "
+                  "Found: %(found)d, expected: %(expected)d")
+                % {"found": ventilation_db,
+                   "expected": self._stats["nbHosts"] * self._stats["nbApps"]})
             returnCode = False
         return returnCode
 

@@ -101,26 +101,28 @@ class GeneratorManager(object):
             loader.load_conf_db()
             loader.load_vigilo_servers_db()
         ventilation = self.ventilator.ventilate()
+        LOGGER.debug("Loading ventilation in DB")
         loader.load_ventilation_db(ventilation)
 
+        LOGGER.debug("Validating ventilation")
         validator = Validator(ventilation)
         if not validator.preValidate():
-            # TODO: exception
             for errmsg in validator.getSummary(details=True, stats=True):
                 LOGGER.error(errmsg)
-            raise GenerationError()
+            raise GenerationError("prevalidation")
 
+        LOGGER.debug("Moving metro services")
         self.move_metro_services(ventilation, validator)
+        LOGGER.debug("Running all generators")
         self.run_all_generators(ventilation, validator)
 
         if validator.hasErrors():
-            # TODO: exception
             for errmsg in validator.getSummary(details=True, stats=True):
                 LOGGER.error(errmsg)
             if commit_db:
                 transaction.abort()
                 LOGGER.debug(_("Transaction rollbacked"))
-            raise GenerationError()
+            raise GenerationError("validation")
         else:
             try:
                 if commit_db:
@@ -130,10 +132,9 @@ class GeneratorManager(object):
                     transaction.abort()
                     LOGGER.debug(_("Transaction rollbacked"))
             except Exception, v:
-                # TODO: exception
                 transaction.abort()
                 LOGGER.debug(_("Transaction rollbacked"))
-                raise GenerationError()
+                raise GenerationError("db commit")
 
             for msg in validator.getSummary(details=True, stats=True):
                 LOGGER.info(msg)

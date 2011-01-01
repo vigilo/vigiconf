@@ -28,8 +28,8 @@ class RAM(Test):
         host.add_collector_metro("Avail memory Swap", "directValue", [],
                 [ "GET/.1.3.6.1.4.1.2021.4.4.0" ], "GAUGE")
         host.add_graph("RAM usage (swap)",
-                [ "Total memory Swap", "Avail memory Swap" ],
-                "areas-from-zero", "bytes", group="Performance",
+                [ "Avail memory Swap", "Total memory Swap" ],
+                "stacks", "bytes", group="Performance", last_is_max=True,
                 factors={"Total memory Swap": 1024,
                          "Avail memory Swap": 1024})
 
@@ -38,8 +38,8 @@ class RAM(Test):
         host.add_collector_metro("Avail memory Real", "directValue", [],
                 [ "GET/.1.3.6.1.4.1.2021.4.6.0" ], "GAUGE")
         host.add_graph("RAM usage (Real)",
-                [ "Total memory Real", "Avail memory Real" ],
-                "areas-from-zero", "bytes", group="Performance",
+                ["Avail memory Real", "Total memory Real" ],
+                "stacks", "bytes", group="Performance", last_is_max=True,
                 factors={"Total memory Real": 1024,
                          "Avail memory Real": 1024})
 

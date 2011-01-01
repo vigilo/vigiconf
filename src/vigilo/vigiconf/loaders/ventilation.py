@@ -78,8 +78,10 @@ class VentilationLoader(DBLoader):
         DBSession.flush()
 
     def load_conf(self):
-        DBSession.query(Ventilation).delete()
-        DBSession.flush()
+        current = {}
+        for v in DBSession.query(Ventilation).all():
+            current[(v.idhost, v.idvigiloserver, v.idapp)] = v
+        LOGGER.debug("Current ventlation entries: %d" % len(current))
 
         vigiloservers = {}
         for vigiloserver in DBSession.query(VigiloServer).all():
@@ -99,7 +101,16 @@ class VentilationLoader(DBLoader):
                 for servername in servernames:
                     vigiloserver = vigiloservers[unicode(servername)]
                     application =  applications[unicode(app_obj.name)]
-                    v = Ventilation(idhost=idhost,
-                                    idvigiloserver=vigiloserver.idvigiloserver,
-                                    idapp=application.idapp)
-                    DBSession.merge(v)
+                    key = (idhost, vigiloserver.idvigiloserver, application.idapp)
+                    if key in current:
+                        del current[key]
+                    else:
+                        v = Ventilation(idhost=idhost,
+                                        idvigiloserver=vigiloserver.idvigiloserver,
+                                        idapp=application.idapp)
+                        DBSession.add(v)
+        DBSession.flush()
+        # et maintenant on supprime ce qui reste
+        LOGGER.debug("Obsolete ventlation entries: %d" % len(current))
+        for v in current.values():
+            DBSession.delete(v)
