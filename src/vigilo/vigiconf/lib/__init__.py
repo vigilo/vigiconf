@@ -65,20 +65,15 @@ def setup_plugins_path():
                 'module': e,
             })
         elif isinstance(e, pkg_resources.VersionConflict):
-            LOGGER.error(_('Skipping "%(item)s": (version conflict "%(error)s")'), {
-                'item': item,
-                'error': e,
-            })
+            LOGGER.error(_('Skipping "%(item)s": (version conflict '
+                           '"%(error)s")'),
+                         {'item': item, 'error': e})
         elif isinstance(e, pkg_resources.UnknownExtra):
-            LOGGER.error(_('Skipping "%(item)s": (unknown extra "%(error)s")'), {
-                'item': item,
-                'error': e,
-            })
+            LOGGER.error(_('Skipping "%(item)s": (unknown extra "%(error)s")'),
+                         {'item': item, 'error': e })
         elif isinstance(e, ImportError):
-            LOGGER.error(_('Skipping "%(item)s": (can\'t import "%(error)s")'), {
-                'item': item,
-                'error': e,
-            })
+            LOGGER.error(_('Skipping "%(item)s": (can\'t import "%(error)s")'),
+                         {'item': item, 'error': e })
         else:
             LOGGER.error(_('Skipping "%(item)s": (error "%(error)s")'), {
                 'item': item,

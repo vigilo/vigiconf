@@ -45,7 +45,7 @@ from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.ventilation import get_ventilator
-from vigilo.vigiconf.lib.exceptions import GenerationError
+from . import GenerationError
 from .base import Generator
 
 

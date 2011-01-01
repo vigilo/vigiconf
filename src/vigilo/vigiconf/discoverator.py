@@ -25,11 +25,9 @@ configuation of a host by analysing its SNMP MIB.
 from __future__ import absolute_import
 
 import os
-import sys
 import subprocess
 import re
 import socket
-from optparse import OptionParser
 from xml.etree import ElementTree as ET # Python 2.5
 #from pprint import pprint
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ################################################################################
 #
@@ -101,13 +100,14 @@ class VentilationLoader(DBLoader):
                 for servername in servernames:
                     vigiloserver = vigiloservers[unicode(servername)]
                     application =  applications[unicode(app_obj.name)]
-                    key = (idhost, vigiloserver.idvigiloserver, application.idapp)
+                    key = (idhost, vigiloserver.idvigiloserver,
+                           application.idapp)
                     if key in current:
                         del current[key]
                     else:
                         v = Ventilation(idhost=idhost,
-                                        idvigiloserver=vigiloserver.idvigiloserver,
-                                        idapp=application.idapp)
+                                    idvigiloserver=vigiloserver.idvigiloserver,
+                                    idapp=application.idapp)
                         DBSession.add(v)
         DBSession.flush()
         # et maintenant on supprime ce qui reste

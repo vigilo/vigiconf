@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# vim:set expandtab tabstop=4 shiftwidth=4:
 ################################################################################
 #
 # ConfigMgr Data Consistancy validator
@@ -23,6 +25,9 @@
 from __future__ import absolute_import
 
 from .. import conf
+
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
@@ -129,6 +134,7 @@ class Validator(object):
 
     def preValidateDB(self):
         returnCode = True
+        # Hosts
         hosts_db = DBSession.query(tables.Host).count()
         if hosts_db != self._stats["nbHosts"]:
             self.addError("DBLoader", "hosts",
@@ -136,34 +142,41 @@ class Validator(object):
                   "the number of hosts in the configuration. "
                   "Found: %(found)d, expected: %(expected)d")
                 % {"found": hosts_db, "expected": self._stats["nbHosts"]})
-            #hosts_db = set([h.name for h in DBSession.query(tables.Host).all()])
-            #hosts_conf = set(map(unicode, conf.hostsConf.keys()))
-            #print hosts_db - hosts_conf
+            hosts_db = set([h.name for h in DBSession.query(tables.Host).all()])
+            hosts_conf = set([ unicode(h) for h in conf.hostsConf.keys() ])
+            LOGGER.debug("Hosts: difference between conf and DB: %s",
+                         " ".join(hosts_db ^ hosts_conf))
             returnCode = False
+        # Services
         svc_db = DBSession.query(tables.LowLevelService).count()
         svc_conf = 0
-        #svc_conf_detail = []
+        svc_conf_detail = []
         for host in conf.hostsConf:
             if "services" in conf.hostsConf[host]:
                 svc_conf += len(conf.hostsConf[host]["services"])
-                #svc_conf_detail.extend(conf.hostsConf[host]["services"])
+                svc_conf_detail.extend(["%s::%s" % (host, s)
+                        for s in conf.hostsConf[host]["services"]])
             if "SNMPJobs" in conf.hostsConf[host] and \
                         conf.hostsConf[host]["SNMPJobs"]:
                 svc_conf += 1
-                #svc_conf_detail.append("Collector")
+                svc_conf_detail.append("%s::Collector" % host)
             if "TelnetJobs" in conf.hostsConf[host] and \
                         conf.hostsConf[host]["TelnetJobs"]:
                 svc_conf += 1
-                #svc_conf_detail.append("collector-telnet")
+                svc_conf_detail.append("%s::collector-telnet" % host)
         if svc_db != svc_conf:
             self.addError("DBLoader", "services",
                 _("The number of services entries in the database does not "
                   "match the number of services in the configuration. "
                   "Found: %(found)d, expected: %(expected)d")
                 % {"found": svc_db, "expected": svc_conf})
-            #svc_db_detail = [s.servicename for s in DBSession.query(tables.LowLevelService).all()]
-            #print set(svc_db_detail) - set(svc_conf_detail)
+            svc_db_detail = ["%s::%s" % (s.host.name, s.servicename)
+                    for s in DBSession.query(tables.LowLevelService).all()]
+            svc_conf_detail = [ unicode(s) for s in svc_conf_detail ]
+            LOGGER.debug("Services: difference between conf and DB: %s",
+                         ", ".join(set(svc_db_detail) ^ set(svc_conf_detail)))
             returnCode = False
+        # Applications
         apps_db = DBSession.query(tables.Application).count()
         if apps_db != self._stats["nbApps"]:
             self.addError("DBLoader", "applications",
@@ -171,7 +184,16 @@ class Validator(object):
                   "the number of apps in the configuration. "
                   "Found: %(found)d, expected: %(expected)d")
                 % {"found": apps_db, "expected": self._stats["nbApps"]})
+            apps_db = set([a.name for a in
+                           DBSession.query(tables.Application).all()])
+            apps_conf = set()
+            for hostVentilation in self._mapping.values():
+                for app in hostVentilation:
+                    apps_conf.add(app.name)
+            LOGGER.debug("Applications: difference between conf and DB: %s",
+                         " ".join(apps_db ^ apps_conf))
             returnCode = False
+        # Ventilation
         ventilation_db = DBSession.query(tables.Ventilation).count()
         if ventilation_db != self._stats["nbHosts"] * self._stats["nbApps"]:
             self.addError("DBLoader", "ventilation",
@@ -202,11 +224,10 @@ class Validator(object):
         """
         if self._stats["nbApps"] != self._stats["nbGenerators"]:
             self.addWarning("Base Config", "generators",
-                            _("%(nb_gens)d generators exist whereas %(nb_apps)d "
-                                "applications have been configured") % {
-                                'nb_gens': self._stats["nbGenerators"],
-                                'nb_apps': self._stats["nbApps"],
-                            })
+                    _("%(nb_gens)d generators exist whereas %(nb_apps)d "
+                      "applications have been configured")
+                    % {'nb_gens': self._stats["nbGenerators"],
+                       'nb_apps': self._stats["nbApps"]})
         s = []
         if details:
             for i in self._errors:
@@ -233,12 +254,3 @@ class Validator(object):
         return s
 
 
-if __name__ == "__main__":
-    import generator
-    conf.loadConf()
-    _ventilation = generator.getventilation()
-    v = Validator(_ventilation)
-    v.preValidate()
-    print "\n".join(v.getSummary(stats = True) + [''])
-
-# vim:set expandtab tabstop=4 shiftwidth=4:

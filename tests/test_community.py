@@ -47,6 +47,10 @@ class EnterpriseEdition(unittest.TestCase):
         self.host = Host(conf.hostsConf, "dummy.xml", "testserver1", "192.168.1.1", "Servers")
         # Create appsGroupsByServer mapping (Enterprise Edition)
         conf.appsGroupsByServer = {
+                    "interface": {
+                        "P-F":     [u"sup.example.com"],
+                        "Servers": [u"sup.example.com"],
+                    },
                     "collect": {
                         "P-F":     [u"sup.example.com"],
                         "Servers": [u"sup.example.com"],

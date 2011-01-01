@@ -28,7 +28,6 @@ This file is part of the Enterprise Edition.
 
 from __future__ import absolute_import
 
-from vigilo.models.session import DBSession
 from vigilo.models import tables
 
 from vigilo.common.logging import get_logger
@@ -39,7 +38,6 @@ _ = translate(__name__)
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.dispatchator import Dispatchator
-from vigilo.vigiconf.lib.server import Server, ServerFactory
 
 
 class DispatchatorRemote(Dispatchator):

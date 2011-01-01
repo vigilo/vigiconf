@@ -30,15 +30,11 @@ from vigilo.models.session import DBSession
 
 from vigilo.models.tables import Host, SupItemGroup, LowLevelService
 from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
-from vigilo.models.tables import Application, Ventilation, VigiloServer
 from vigilo.models.tables import ConfFile, ConfItem, Change
-from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE, \
-                                                  GRAPH_GROUP_TABLE
+from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE
 
 from vigilo.vigiconf.lib.loaders import DBLoader
-from vigilo.vigiconf.lib.confclasses import parse_path
 from vigilo.vigiconf.lib import ParsingError
-from vigilo.vigiconf.lib.revisionmanager import RevisionManager
 
 from vigilo.vigiconf import conf
 
@@ -108,7 +104,8 @@ class HostLoader(DBLoader):
                 filename in svn_status['modified']:
                 hostnames.append(hostname)
 
-            # Peuple le cache en créant les instances à la volée si nécessaire.
+            # Peuple le cache en créant les instances à la volée si
+            # nécessaire.
             conffiles.setdefault(filename, ConfFile.get_or_create(relfilename))
 
         # Utile pendant la migration des données :
@@ -162,7 +159,8 @@ class HostLoader(DBLoader):
 
             # directives Nagios de l'hôte
             LOGGER.debug(_("Loading nagios conf for host %s"), hostname)
-            nagiosconf_loader = NagiosConfLoader(host, hostdata['nagiosDirectives'])
+            nagiosconf_loader = NagiosConfLoader(host,
+                                    hostdata['nagiosDirectives'])
             nagiosconf_loader.load()
 
             # données de performance
@@ -219,8 +217,9 @@ class HostLoader(DBLoader):
                         ).filter(SupItemGroup.name == old_group
                         ).all()
             if not groups:
-                raise ParsingError(_('Unknown group "%(group)s" in host "%(host)s".')
-                                  % {"group": old_group, "host": host.name})
+                raise ParsingError(_('Unknown group "%(group)s" in host '
+                                     '"%(host)s".')
+                                   % {"group": old_group, "host": host.name})
             for group in groups:
                 hostdata["otherGroups"].add(group.path)
 
@@ -299,7 +298,8 @@ class ServiceLoader(DBLoader):
             # directives Nagios du service
             nagios_directives = conf.hostsConf[self.host.name]['nagiosSrvDirs']
             if nagios_directives.has_key(service):
-                nagiosconf_loader = NagiosConfLoader(lls, nagios_directives[service])
+                nagiosconf_loader = NagiosConfLoader(lls,
+                                        nagios_directives[service])
                 nagiosconf_loader.load()
 
 class CollectorLoader(ServiceLoader):
@@ -309,7 +309,7 @@ class CollectorLoader(ServiceLoader):
 
     def load_conf(self):
         hostdata = conf.hostsConf[self.host.name]
-        if hostdata['services'] and hostdata['SNMPJobs']:
+        if "SNMPJobs" in hostdata and hostdata['SNMPJobs']:
             LOGGER.info(
                 _('Adding "Collector" service on host %s'),
                 self.host.name
@@ -333,7 +333,8 @@ class NagiosConfLoader(DBLoader):
         self.directives = directives
 
     def _list_db(self):
-        return DBSession.query(self._class).filter_by(supitem=self.supitem).all()
+        return DBSession.query(self._class).filter_by(
+                    supitem=self.supitem).all()
 
     def load_conf(self):
         for name, value in self.directives.iteritems():
@@ -366,7 +367,8 @@ class PDSLoader(DBLoader):
             pds = dict(idhost=self.host.idhost, name=unicode(dsname),
                        type=unicode(dsdata["dsType"]),
                        label=unicode(dsdata['label']))
-            for graphname, graphdata in conf.hostsConf[self.host.name]['graphItems'].iteritems():
+            for graphdata in conf.hostsConf[self.host.name]\
+                                                ['graphItems'].values():
                 if graphdata['factors'].get(dsname, None) is not None:
                     pds["factor"] = float(graphdata['factors'][dsname])
                 if graphdata['max_values'].get(dsname, None) is not None:
@@ -389,14 +391,16 @@ class GraphLoader(DBLoader):
         """Charge toutes les instances depuis la base de données"""
         return DBSession.query(self._class).join(
                         (GRAPH_PERFDATASOURCE_TABLE, \
-                            GRAPH_PERFDATASOURCE_TABLE.c.idgraph == Graph.idgraph),
+                            GRAPH_PERFDATASOURCE_TABLE.c.idgraph
+                                == Graph.idgraph),
                         (PerfDataSource, PerfDataSource.idperfdatasource == \
                             GRAPH_PERFDATASOURCE_TABLE.c.idperfdatasource),
                     ).filter(PerfDataSource.host == self.host).all()
 
     def load_conf(self):
         # lecture du modèle mémoire
-        for graphname, graphdata in conf.hostsConf[self.host.name]['graphItems'].iteritems():
+        for graphname, graphdata in conf.hostsConf[self.host.name]\
+                                            ['graphItems'].iteritems():
             graphname = unicode(graphname)
             graph = dict(name=graphname,
                          template=unicode(graphdata['template']),
@@ -414,10 +418,12 @@ class GraphLoader(DBLoader):
         graphdata = conf.hostsConf[self.host.name]['graphItems'][graphname]
         # lien avec les PerfDataSources
         for dsname in graphdata['ds']:
-            pds = PerfDataSource.by_host_and_source_name(self.host, unicode(dsname))
+            pds = PerfDataSource.by_host_and_source_name(self.host,
+                                                         unicode(dsname))
             graph.perfdatasources.append(pds)
         # lien avec les GraphGroups
-        for groupname, graphnames in conf.hostsConf[self.host.name]['graphGroups'].iteritems():
+        for groupname, graphnames in conf.hostsConf[self.host.name]\
+                                                ['graphGroups'].iteritems():
             if graphname not in graphnames:
                 continue
             group = GraphGroup.by_group_name(groupname)

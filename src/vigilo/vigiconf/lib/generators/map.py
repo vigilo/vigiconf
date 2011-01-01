@@ -25,8 +25,7 @@ Générateur de cartes automatiques pour Vigilo
 
 from datetime import datetime
 
-from vigilo.models.tables import SupItemGroup, MapGroup, Map
-from vigilo.models.tables.grouphierarchy import GroupHierarchy
+from vigilo.models.tables import MapGroup, Map
 from vigilo.models.session import DBSession
 
 from .base import Generator

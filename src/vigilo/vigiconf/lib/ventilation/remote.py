@@ -34,7 +34,6 @@ import transaction
 from vigilo.models.session import DBSession
 from vigilo.models import tables
 
-from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -42,14 +41,20 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib.exceptions import ParsingError, VigiConfError, \
-            NoServerAvailable
+from vigilo.vigiconf.lib.exceptions import ParsingError, VigiConfError
 from vigilo.vigiconf.lib.ventilation import Ventilator
 
 
 __docformat__ = "epytext"
-__all__ = ("VentilatorRemote",)
+__all__ = ("VentilatorRemote", "NoServerAvailable")
 
+
+class NoServerAvailable(VigiConfError):
+    """
+    Exception remontée quand il n'y a pas de serveur Vigilo où ventiler un
+    groupe d'hôtes
+    """
+    pass
 
 class VentilatorRemote(Ventilator):
 
@@ -168,7 +173,7 @@ class VentilatorRemote(Ventilator):
             raise ParsingError(_('Found multiple candidates for '
                     'ventilation (%(candidates)r) on "%(host)s", '
                     'use the ventilation attribute to select one.') % {
-                    'candidates': u', '.join(map(unicode, groups)),
+                    'candidates': u', '.join([unicode(g) for g in groups]),
                     'host': hostname,
                 })
         ventilation = groups.pop()
@@ -185,12 +190,14 @@ class VentilatorRemote(Ventilator):
 
     def filter_vservers(self, vserverlist):
         """
-        Filtre une liste pour ne garder que les serveurs qui ne sont pas désactivés.
+        Filtre une liste pour ne garder que les serveurs qui ne sont pas
+        désactivés.
         @param vserverlist: list de noms de serveurs Vigilo
         @type  vserverlist: C{list} de C{str}
         """
         for vservername in vserverlist:
-            vserver = tables.VigiloServer.by_vigiloserver_name(unicode(vservername))
+            vserver = tables.VigiloServer.by_vigiloserver_name(
+                                unicode(vservername))
             if vserver is None:
                 raise VigiConfError(_("The Vigilo server %s does not exist")
                                     % vservername)

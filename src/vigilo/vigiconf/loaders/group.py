@@ -32,8 +32,8 @@ from vigilo.models.tables.grouphierarchy import GroupHierarchy
 
 from vigilo.models.session import DBSession
 
-from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.loaders import XMLLoader
+
 
 class GroupLoader(XMLLoader):
     """ Classe de base pour charger des fichiers XML groupes .
@@ -74,13 +74,15 @@ class GroupLoader(XMLLoader):
                 SupItemGroup,
                 GroupHierarchy.idchild
             ).join(
-                (GroupHierarchy, SupItemGroup.idgroup == GroupHierarchy.idparent),
+                (GroupHierarchy, SupItemGroup.idgroup ==
+                                 GroupHierarchy.idparent),
             ).order_by(GroupHierarchy.hops.desc()
             ).all()
 
         hierarchy = {}
         for grouphierarchy in instances:
             parent = grouphierarchy[0]
+            # TODO: cette variable ne semble pas utilisée ?
             parent_name = groupnames.setdefault(
                 parent.idgroup,
                 parent.name

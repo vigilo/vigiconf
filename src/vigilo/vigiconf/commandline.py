@@ -49,7 +49,6 @@ setup_plugins_path()
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib import VigiConfError, EditionError
-from vigilo.vigiconf.lib.application import ApplicationError
 from vigilo.vigiconf.lib.dispatchator import DispatchatorError
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib.ventilation.local import VentilatorLocal
@@ -119,7 +118,7 @@ def info(args):
     dispatchator.printState()
 
 def discover(args):
-    from .discoverator import Discoverator, DiscoveratorError, indent
+    from .discoverator import Discoverator, indent
     discoverator = Discoverator(args.group)
     for target in args.target:
         if os.path.exists(target):
@@ -140,11 +139,11 @@ def server(args):
     if isinstance(ventilator, VentilatorLocal):
         raise EditionError(_("Vigilo server management is only available "
                              "in the Enterprise edition. Aborting."))
-    for server in args.server:
+    for s in args.server:
         if args.status == "disable":
-            ventilator.disable_server(server) # pylint:disable-msg=E1103
+            ventilator.disable_server(s) # pylint:disable-msg=E1103
         elif args.status == "enable":
-            ventilator.enable_server(server) # pylint:disable-msg=E1103
+            ventilator.enable_server(s) # pylint:disable-msg=E1103
     if args.no_deploy:
         return
     dispatchator.setModeForce(True)
@@ -245,9 +244,9 @@ def parse_args():
                                "servers, and before restarting the services."))
     parser_deploy.add_argument("--revision", type=int,
                         help=N_("Deploy the given revision"))
-    parser_deploy.add_argument("-f", "--force", action="store_true", dest="force",
-                      help=N_("Force the immediate execution of the command. "
-                            +"Do not wait. Bypass all checks."))
+    parser_deploy.add_argument("-f", "--force", action="store_true",
+            dest="force", help=N_("Force the immediate execution of the "
+                                  "command. Do not wait. Bypass all checks."))
     parser_deploy.add_argument("-n", "--dry-run", action="store_true",
                       dest="simulate", help=N_("Simulate only, no copy will "
                       "actually be made, no commit in the database."))
@@ -328,11 +327,12 @@ def change_user():
         os.environ["SHELL"] = entry.pw_shell
 
     if pwd.getpwuid(os.getuid()).pw_name != 'vigiconf':
-        LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. Aborting."))
+        LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. "
+                       "Aborting."))
         sys.exit(2)
 
 def delete_lock(f):
-    LOGGER.debug(_("Removing the lock."))
+    LOGGER.debug("Removing the lock.")
     fcntl.flock(f, fcntl.LOCK_UN)
 
 def main():
@@ -349,18 +349,16 @@ def main():
     if not args.nochuid:
         change_user()
 
-    LOGGER.debug(_("VigiConf starting..."))
+    LOGGER.debug("VigiConf starting...")
     f = open(settings["vigiconf"].get("lockfile",
         "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
     try:
-        LOGGER.debug(_("Acquiring the lock."))
+        LOGGER.debug("Acquiring the lock.")
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except IOError, e:
-        LOGGER.error(_("Can't obtain lock on lockfile (%(lockfile)s). Dispatchator"
-                       "already running ? REASON : %(error)s"), {
-                            'lockfile': f.name,
-                            'error': e,
-                       })
+        LOGGER.error(_("Can't obtain lock on lockfile (%(lockfile)s). "
+                       "VigiConf already running ? REASON : %(error)s"),
+                     { 'lockfile': f.name, 'error': e })
         sys.exit(1)
 
     # On veut être sûr que le verrou sera supprimé

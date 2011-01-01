@@ -40,6 +40,7 @@ class Generator(unittest.TestCase):
         add_host("testserver1", conffile)
         add_host("localhost", conffile)
         add_host("localhost2", conffile)
+        Host(conf.hostsConf, "dummy", "localhost2", "127.0.0.1", "Servers")
         dummy_dispatchator = DummyDispatchator()
         loader = LoaderManager(dummy_dispatchator)
         loader.load_apps_db(self.dispatchator.applications)

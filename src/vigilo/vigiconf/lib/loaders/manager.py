@@ -39,23 +39,12 @@ sur les serveurs de supervision.
 
 from __future__ import absolute_import
 
-import sys
-import os
-
 from pkg_resources import working_set
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
 from vigilo.models.session import DBSession
-
-from vigilo.models.tables import Host, SupItemGroup, LowLevelService
-from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
-from vigilo.models.tables import Application, Ventilation, VigiloServer
-from vigilo.models.tables import ConfItem
-
-
-from vigilo.vigiconf  import conf
 
 
 __docformat__ = "epytext"
@@ -102,15 +91,15 @@ class LoaderManager(object):
         DBSession.flush()
 
         # Loaders spécifiques
-        # deux boucles parce qu'on veut forcer le tri des loaders par leur nom dans
-        # une distribution donnée. Par défaut, il n'y a pas de tri à l'intérieur
-        # d'une même distribution (voir doc de pkg_resources)
+        # deux boucles parce qu'on veut forcer le tri des loaders par leur nom
+        # dans une distribution donnée. Par défaut, il n'y a pas de tri à
+        # l'intérieur d'une même distribution (voir doc de pkg_resources)
         specific_loaders = {}
         for entry in working_set.iter_entry_points("vigilo.vigiconf.loaders"):
             dist = entry.dist.key
             specific_loaders.setdefault(dist, []).append(entry)
         for dist, loaders in specific_loaders.iteritems():
-            loaders.sort(cmp=lambda x,y: cmp(x.name, y.name))
+            loaders.sort(cmp=lambda x, y: cmp(x.name, y.name))
             for loader_entry in loaders:
                 loadclass = loader_entry.load()
                 loader_instance = loadclass()

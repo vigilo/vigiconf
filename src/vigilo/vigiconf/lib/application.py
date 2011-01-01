@@ -40,7 +40,6 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-from vigilo.vigiconf import conf
 from .systemcommand import SystemCommand, SystemCommandError
 from . import VigiConfError
 
@@ -266,10 +265,9 @@ class Application(object):
                            "reason": e})
             error.cause = e
             raise error
-        LOGGER.info(_("%(app)s : Validation successful for server: %(server)s"), {
-            'app': self.name,
-            'server': iServer.name,
-        })
+        LOGGER.info(_("%(app)s : Validation successful for server: "
+                      "%(server)s"),
+                    {'app': self.name, 'server': iServer.name})
 
 
     def qualify(self):
@@ -306,7 +304,6 @@ class Application(object):
         if not self.validation:
             return
         # A priori pas necessaire, valeur par défaut
-        #files_dir = os.path.join(settings["vigiconf"].get("targetconfdir"), "new")
         _command = ["vigiconf-local", "validate-app", self.name] #, files_dir]
         _command = iServer.createCommand(_command)
         try:
@@ -320,10 +317,9 @@ class Application(object):
                                     })
             error.cause = e
             raise error
-        LOGGER.info(_("%(app)s : Qualification successful on server : %(server)s"), {
-            'app': self.name,
-            'server': iServer.name,
-        })
+        LOGGER.info(_("%(app)s : Qualification successful on server : "
+                      "%(server)s"),
+                    {'app': self.name, 'server': iServer.name})
 
 
     def startThread(self):

@@ -333,7 +333,8 @@ class HostTemplateFactory(object):
                         cur_tpl.add_nagios_directive(dname, dvalue)
                     else:
                         # directive de service nagios
-                        cur_tpl.add_nagios_service_directive(test_name, dname, dvalue)
+                        cur_tpl.add_nagios_service_directive(test_name, dname,
+                                                             dvalue)
 
                 elif elem.tag == "attribute":
                     value = get_text(elem)
@@ -491,12 +492,14 @@ class HostTemplateFactory(object):
         # tests
         if tpl.has_key("tests"):
             for testdict in tpl["tests"]:
-                test_list = self.testfactory.get_test(testdict["name"], host.classes)
+                test_list = self.testfactory.get_test(testdict["name"],
+                                                      host.classes)
                 test_args = {}
                 if testdict.has_key("args"):
                     test_args = testdict["args"]
                 test_weight = None
-                if "weight" in testdict and testdict["weight"] is not None and testdict["weight"] != 1:
+                if "weight" in testdict and testdict["weight"] is not None \
+                            and testdict["weight"] != 1:
                     test_weight = testdict["weight"]
                 host.add_tests(test_list, args=test_args,
                                weight=test_weight)

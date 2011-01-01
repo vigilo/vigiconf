@@ -26,7 +26,6 @@ Generators for the Vigilo Config Manager
 
 from __future__ import absolute_import
 
-import glob
 import os
 import os.path
 import shutil

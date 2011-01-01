@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ################################################################################
 #
-# Copyright (C) 2007-2009 CS-SI
+# Copyright (C) 2007-2011 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -18,15 +17,6 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-import os
-
-from vigilo.common.conf import settings
-from vigilo.common.logging import get_logger
-LOGGER = get_logger(__name__)
-
-from vigilo.common.gettext import translate
-_ = translate(__name__)
-
 from vigilo.models.session import DBSession
 from vigilo.models.tables import GraphGroup
 
@@ -41,7 +31,7 @@ class GraphGroupLoader(DBLoader):
     """
     Charge les groupes de graphes en base depuis le modèle mémoire.
     """
-    
+
     def __init__(self):
         super(GraphGroupLoader, self).__init__(GraphGroup, "name")
 

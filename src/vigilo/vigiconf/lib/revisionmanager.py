@@ -25,9 +25,6 @@ from __future__ import absolute_import
 
 import os
 import re
-import locale
-
-from vigilo.common.conf import settings
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -35,7 +32,6 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-from .. import conf
 from . import VigiConfError
 
 

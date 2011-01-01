@@ -96,7 +96,8 @@ class XMLLoader(DBLoader):
         """
         xsd = self.get_xsd_file()
         if not xsd:
-            raise ValueError(_("An XSD schema should be provided for validation."))
+            raise ValueError(_("An XSD schema should be provided for "
+                               "validation."))
         if not os.path.exists(xsd):
             raise OSError(_("XSD file does not exist: %s") % xsd)
 

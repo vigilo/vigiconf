@@ -27,11 +27,7 @@ This is the module to call as a main end-user command line (see --help)
 
 from __future__ import absolute_import
 
-import locale
-import fcntl
-import traceback
 import os
-import sys
 import Queue # Requires: python >= 2.5
 #from optparse import OptionParser
 from threading import Thread
@@ -51,13 +47,10 @@ _ = translate(__name__)
 
 
 from vigilo.vigiconf import conf
-from .generators import GeneratorManager
-from .application import Application, ApplicationError
+from .generators import GeneratorManager, GenerationError
 from .systemcommand import SystemCommand, SystemCommandError
 from . import VigiConfError
-from .server import ServerFactory, ServerError
-from .exceptions import GenerationError
-from . import dispatchmodes
+from .server import ServerFactory
 
 
 class DispatchatorError(VigiConfError):
@@ -237,8 +230,9 @@ class Dispatchator(object):
             gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
             shutil.rmtree(gendir, ignore_errors=True)
             generator = GeneratorManager(self.applications, self)
-            generator.generate(commit_db=(self.mode_db == 'commit'), nosyncdb=nosyncdb)
-        except GenerationError, e:
+            generator.generate(commit_db=(self.mode_db == 'commit'),
+                               nosyncdb=nosyncdb)
+        except GenerationError:
             LOGGER.error(_("Generation failed!"))
             raise
         else:
@@ -272,7 +266,7 @@ class Dispatchator(object):
         _cmd.append(settings["vigiconf"].get("confdir"))
         _command = self.createCommand(_cmd)
         try:
-            result = _command.execute()
+            _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
                     _("Can't get the SVN status for the configuration dir: %s")
@@ -305,7 +299,8 @@ class Dispatchator(object):
         self._svn_update()
 
     def _svn_add(self, path):
-        LOGGER.debug(_("Adding a new configuration file to the repository: %s"), path)
+        LOGGER.debug("Adding a new configuration file to the "
+                     "repository: %s", path)
         _cmd = ["svn", "add"]
         _cmd.append(path)
         _command = self.createCommand(_cmd)
@@ -320,7 +315,8 @@ class Dispatchator(object):
         return result
 
     def _svn_remove(self, path):
-        LOGGER.debug(_("Removing an old configuration file from the repository: %s"), path)
+        LOGGER.debug("Removing an old configuration file from the "
+                     "repository: %s", path)
         _cmd = self._get_auth_svn_cmd_prefix('remove')
         _cmd.append(path)
         _command = self.createCommand(_cmd)
@@ -729,7 +725,8 @@ class Dispatchator(object):
                     _deploymentStr = _("(should be deployed)")
                 if _srv.needsRestart():
                     _restartStr = _("(should restart)")
-                print _("Revisions for server %(server)s : %(rev)s%(dep)s%(restart)s") % \
+                print _("Revisions for server %(server)s : "
+                        "%(rev)s%(dep)s%(restart)s") % \
                         {"server": _srv.getName(),
                          "rev": str(_srv.getRevisionManager()),
                          "dep": _deploymentStr, "restart": _restartStr}
