@@ -27,14 +27,5 @@ from __future__ import absolute_import
 from .base import Generator
 from .file import FileGenerator
 from .map import MapGenerator
-from .manager import GeneratorManager
-
-from vigilo.vigiconf.lib import VigiConfError
-
-
-class GenerationError(VigiConfError):
-    """
-    Exception remontée quand il y a eu une erreur à la génération
-    """
-    pass
+from .manager import GeneratorManager, GenerationError
 

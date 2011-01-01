@@ -42,11 +42,18 @@ _ = translate(__name__)
 from vigilo.models.tables import LowLevelService
 
 from vigilo.vigiconf import conf
+from vigilo.vigiconf.lib import VigiConfError
 from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.ventilation import get_ventilator
-from . import GenerationError
 from .base import Generator
+
+
+class GenerationError(VigiConfError):
+    """
+    Exception remontée quand il y a eu une erreur à la génération
+    """
+    pass
 
 
 class GeneratorManager(object):
