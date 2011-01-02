@@ -40,6 +40,9 @@ from vigilo.models.configure import configure_db
 configure_db(settings['database'], 'sqlalchemy_',
     settings['database']['db_basename'])
 
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+
 from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
 N_ = translate_narrow(__name__)
@@ -55,11 +58,6 @@ from vigilo.vigiconf.lib.ventilation.local import VentilatorLocal
 from vigilo.vigiconf.lib import dispatchmodes
 
 from xml.etree import ElementTree as ET # Python 2.5
-
-# Doit être fait à la fin des imports, sinon ça ne marche pas sur py2.6
-# (raison inconnue)
-from vigilo.common.logging import get_logger
-LOGGER = get_logger(__name__)
 
 
 def get_dispatchator(args, restrict=True):
@@ -345,6 +343,10 @@ def main():
     # définir les traductions pour les textes de argparse dans VigiConf.
     gettext.textdomain('vigilo-vigiconf')
     args = parse_args()
+
+    if args.debug:
+        import logging
+        LOGGER.setLevel(logging.DEBUG)
 
     if not args.nochuid:
         change_user()

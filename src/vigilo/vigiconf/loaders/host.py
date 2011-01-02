@@ -310,10 +310,8 @@ class CollectorLoader(ServiceLoader):
     def load_conf(self):
         hostdata = conf.hostsConf[self.host.name]
         if "SNMPJobs" in hostdata and hostdata['SNMPJobs']:
-            LOGGER.info(
-                _('Adding "Collector" service on host %s'),
-                self.host.name
-            )
+            LOGGER.debug('Adding "Collector" service on host %s',
+                         self.host.name)
             lls = dict(host=self.host, servicename=u"Collector", weight=1)
             lls = self.add(lls)
 
