@@ -63,9 +63,6 @@ class ConnectorMetroGen(FileGenerator):
                 'dsName': k2,
                 'label': v2["label"],
             }
-            rrdname = urllib.quote_plus(k2).strip()
-            tplvars["host"] = hostname
-            tplvars["dsName"] = rrdname
             if not k2 in netflow_keys:
                 self.templateAppend(fileName, self.templates["ds"], tplvars)
             else:
