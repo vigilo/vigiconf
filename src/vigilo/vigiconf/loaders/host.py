@@ -175,11 +175,11 @@ class HostLoader(DBLoader):
 
         # Suppression des fichiers de configuration retirés du SVN
         # ainsi que de leurs hôtes (par CASCADE).
-        LOGGER.debug("Cleaning up old hosts")
+        LOGGER.info(_("Cleaning up old hosts"))
         for filename in svn_status['remove']:
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
             DBSession.query(ConfFile).filter(
-                ConfFile.name == relfilename).delete()
+                ConfFile.name == unicode(relfilename)).delete()
 
         # Suppression des instances d'hôtes qui n'ont pas de
         # fichier de configuration associé (résidus après migrations).

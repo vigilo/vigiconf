@@ -277,11 +277,11 @@ class Dispatchator(object):
         output = ET.fromstring(_command.getResult(stderr=False))
         for entry in output.findall(".//entry"):
             state = entry.find("wc-status").get("item")
-            if state == "unversioned":
+            if state == "unversioned" or state == "added":
                 status["add"].append(entry.get("path"))
-            elif state == "missing":
+            elif state == "missing" or state == "deleted":
                 status["remove"].append(entry.get("path"))
-            elif state == "modified" or state == "added":
+            elif state == "modified":
                 status["modified"].append(entry.get("path"))
         return status
 
