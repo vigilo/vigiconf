@@ -47,8 +47,9 @@ from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
 N_ = translate_narrow(__name__)
 
-from vigilo.vigiconf.lib import setup_plugins_path
-setup_plugins_path()
+from vigilo.common.conf import setup_plugins_path
+setup_plugins_path(settings["vigiconf"].get("pluginsdir",
+                   "/etc/vigilo/vigiconf/plugins"))
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib import VigiConfError, EditionError
@@ -374,6 +375,7 @@ def main():
             LOGGER.exception(_("VigiConf error: %s"), e.value)
         else:
             LOGGER.error(_("VigiConf error: %s"), e.value)
+        sys.exit(1)
         #for l in traceback.format_exc().split("\n"):
         #    LOGGER.error(l)
     LOGGER.debug("VigiConf is done.")

@@ -166,5 +166,5 @@ class DBLoader(object):
         return instance
 
     def delete(self, instance):
-        LOGGER.info(_("Deleting: %s"), instance)
+        LOGGER.debug("Deleting: %s", instance)
         DBSession.delete(instance)
