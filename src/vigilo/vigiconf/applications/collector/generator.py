@@ -65,7 +65,7 @@ class CollectorGen(FileGenerator):
                        'params': str(jobdata['params']),
                        'vars': str(jobdata['vars']),
                        'name': jobname,
-                       'encodedname': "",
+                       'dsname': "",
                        'reRouteFor': 'undef',
                       }
             # We collect data for another host, analyse the
@@ -82,7 +82,7 @@ class CollectorGen(FileGenerator):
             else:
                 forHost = hostname
                 service = jobname
-            tplvars["encodedname"] = urllib.quote_plus(service).strip()
+            tplvars["dsname"] = service.strip()
             if jobtype == 'perfData':
                 self.templateAppend(fileName, self.templates["metro"], tplvars)
             else:
