@@ -246,30 +246,26 @@ class XMLLoader(DBLoader):
     def get_text(self, elem=None):
         """ Obtient le bloc texte entre deux tags XML.
 
-        Les blancs début et fin sont retirés.
-
         @param elem: élément (élément courant par défaut)
         @type  elem: C{object}
         """
         if elem == None: elem = self._elem
-        return elem.text.strip()
+        return elem.text
 
     def get_attrib(self, name, elem=None):
         """ Obtient la valeur d'un attribut XML.
 
-        Les blancs début et fin sont retirés.
         @param name: nom de l'attribut
         @type  name: C{str}
         @param elem: élément (élément courant par défaut)
         @type  elem: C{object}
         """
         if elem == None: elem = self._elem
-        return elem.attrib[name].strip()
+        return elem.attrib[name]
 
     def get_utext(self, elem=None):
         """ Obtient le bloc texte unicode entre deux tags XML.
 
-        Les blancs début et fin sont retirés.
         @param elem: élément (élément courant par défaut)
         @type  elem: C{object}
         """
@@ -278,7 +274,6 @@ class XMLLoader(DBLoader):
     def get_uattrib(self, name, elem=None):
         """ Obtient la valeur d'un attribut XML en unicode.
 
-        Les blancs début et fin sont retirés.
         @param name: nom de l'attribut
         @type  name: C{str}
         @param elem: élément (élément courant par défaut)

@@ -136,6 +136,7 @@ class Interface(Test):
             # label: start with ifname and sanitize
             label = ifname
             label = re.sub("; .*", "", label)
+            label = label.strip()
             label = label.replace("GigabitEthernet", "GE")
             label = label.replace("FastEthernet", "FE")
             tests.append({"label": label, "ifname": ifname})

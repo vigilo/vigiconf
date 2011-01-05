@@ -11,7 +11,6 @@ __all__ = [
 def get_text(elem):
     """
     Renvoie le texte contenu dans une balise.
-    Cette fonction élimine les caractères blancs autour du texte.
 
     @param elem: Élément dont on souhaite retourner le texte.
     @type elem: C{etree.ElementTree}
@@ -19,12 +18,13 @@ def get_text(elem):
         ou si l'élément ne contient que des caractères blancs.
     @rtype: C{unicode} ou C{None}
     """
-    return elem.text and elem.text.strip() or None
+    if not elem.text or not elem.text.strip():
+        return None
+    return elem.text
 
 def get_attrib(elem, attr):
     """
     Renvoie la valeur d'un attribut de l'élément.
-    Cette fonction élimine les caractères blancs autour de la valeur.
 
     @param elem: Élément dont on souhaite retourner un attribut.
     @type elem: C{etree.ElementTree}
@@ -39,8 +39,7 @@ def get_attrib(elem, attr):
     except KeyError:
         return None
     else:
-        attrib = attrib.strip()
-        if not attrib:
+        if not attrib or not attrib.strip():
             return None
         return attrib
 

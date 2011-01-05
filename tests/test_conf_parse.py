@@ -93,17 +93,6 @@ class ParseHost(unittest.TestCase):
         assert conf.hostsConf["testserver1"]["serverGroup"] == "Servers", \
                 "host main group is not properly parsed"
 
-    def test_host_whitespace(self):
-        """Test the handling of whitespaces in a basic host declaration"""
-        self.host.write("""<?xml version="1.0"?>
-        <host name=" testserver1 " address=" 192.168.1.1 " ventilation=" Servers ">
-            <group>/Servers</group>
-        </host>""")
-        self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        self.assert_(conf.hostsConf.has_key("testserver1"),
-                     "host parsing does not handle whitespaces properly")
-
     def test_template(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
@@ -111,19 +100,6 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
-                     "The \"template\" tag is not properly parsed")
-
-    def test_template_whitespace(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <template> linux </template>
-        </host>""")
-        self.host.close()
-        try:
-            conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        except KeyError:
-            self.fail("The \"template\" tag does not strip whitespaces")
         self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
                      "The \"template\" tag is not properly parsed")
 
@@ -138,18 +114,6 @@ class ParseHost(unittest.TestCase):
         self.assert_(conf.hostsConf["testserver1"].has_key("cpulist") and
                      conf.hostsConf["testserver1"]["cpulist"] == "2",
                      "The \"attribute\" tag is not properly parsed")
-
-    def test_attribute_whitespace(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <attribute name=" cpulist "> 2 </attribute>
-            <group>/Servers</group>
-        </host>""")
-        self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert conf.hostsConf["testserver1"].has_key("cpulist") and \
-                conf.hostsConf["testserver1"]["cpulist"] == "2", \
-                "The \"attribute\" tag parsing does not strip whitespaces"
 
     def test_tag_host(self):
         self.host.write("""<?xml version="1.0"?>
@@ -177,22 +141,6 @@ class ParseHost(unittest.TestCase):
                conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"]["important"] == "2", \
                "The \"tag\" tag for services is not properly parsed"
 
-    def test_tag_whitespace(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <tag service=" Host " name=" important "> 2 </tag>
-            <group>/Servers</group>
-        </host>""")
-        self.host.close()
-        try:
-            conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        except KeyError:
-            self.fail("The \"tag\" tag parsing does not strip whitespaces")
-        assert "tags" in conf.hostsConf["testserver1"] and \
-               "important" in conf.hostsConf["testserver1"]["tags"] and \
-               conf.hostsConf["testserver1"]["tags"]["important"] == "2", \
-               "The \"tag\" tag parsing does not strip whitespaces"
-
     def test_trap(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
@@ -213,29 +161,6 @@ class ParseHost(unittest.TestCase):
                 conf.hostsConf["testserver1"]["snmpTrap"][srv][OID]["label"] == "test.label", \
                 "The \"trap\" tag is not properly parsed"
 
-    def test_trap_whitespace(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <test name="Trap">
-                <arg name="command">echo</arg>
-                <arg name="service">service_name</arg>
-                <arg name="label">test.label</arg>
-                <arg name="OID">1.2.3.4.5.6.7.8.9</arg>
-            </test>
-            <group>/Servers</group>
-        </host>""")
-        self.host.close()
-        srv = "service_name"
-        OID="1.2.3.4.5.6.7.8.9"
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        print conf.hostsConf["testserver1"]["snmpTrap"]
-        assert "snmpTrap" in conf.hostsConf["testserver1"] and \
-               "service_name" in conf.hostsConf["testserver1"]["snmpTrap"] and \
-               OID in conf.hostsConf["testserver1"]["snmpTrap"][srv] and \
-               "label" in conf.hostsConf["testserver1"]["snmpTrap"][srv][OID] and \
-               conf.hostsConf["testserver1"]["snmpTrap"][srv][OID]["label"] == "test.label", \
-               "The \"trap\" tag parsing does not strip whitespaces"
-
     def test_group(self):
         GroupLoader(DummyDispatchator()).load()
         self.host.write("""<?xml version="1.0"?>
@@ -246,17 +171,6 @@ class ParseHost(unittest.TestCase):
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
                      "The \"group\" tag is not properly parsed")
-
-    def test_group_whitespace(self):
-        GroupLoader(DummyDispatchator()).load()
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <group> Linux servers </group>
-        </host>""")
-        self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
-                     "The \"group\" tag parsing does not strip whitespaces")
 
     def test_group_multiple(self):
         GroupLoader(DummyDispatchator()).load()
@@ -284,20 +198,6 @@ class ParseHost(unittest.TestCase):
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         assert ('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"], \
                 "The \"test\" tag is not properly parsed"
-
-    def test_test_whitespace(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <test name=" Interface ">
-            <arg name=" label "> eth0 </arg>
-            <arg name=" ifname "> eth0 </arg>
-            <group>/Servers</group>
-        </test>
-        </host>""")
-        self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert ('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"], \
-                "The \"test\" tag parsing does not strip whitespaces"
 
     def test_test_weight(self):
         self.host.write("""<?xml version="1.0"?>
@@ -490,16 +390,6 @@ class ParseHostTemplate(unittest.TestCase):
         assert "test" in conf.hosttemplatefactory.templates, \
                "template is not properly parsed"
 
-    def test_template_whitespace(self):
-        self.ht.write("""<?xml version="1.0"?>\n<templates><template name=" test "></template></templates>""")
-        self.ht.close()
-        try:
-            conf.hosttemplatefactory.load_templates()
-        except KeyError:
-            self.fail("template parsing does not strip whitespaces")
-        assert "test" in conf.hosttemplatefactory.templates, \
-               "template parsing does not strip whitespaces"
-
     def test_attribute(self):
         self.ht.write("""<?xml version="1.0"?>
                 <templates>
@@ -512,20 +402,6 @@ class ParseHostTemplate(unittest.TestCase):
         assert "testattr" in conf.hosttemplatefactory.templates["test"]["attributes"] and \
                conf.hosttemplatefactory.templates["test"]["attributes"]["testattr"] == "testattrvalue", \
                "The \"attribute\" tag is not properly parsed"
-
-    def test_attribute_whitespace(self):
-        self.ht.write("""<?xml version="1.0"?>
-                <templates>
-                    <template name="test">
-                        <attribute name=" testattr "> testattrvalue </attribute>
-                    </template>
-                </templates>
-                """)
-        self.ht.close()
-        conf.hosttemplatefactory.load_templates()
-        assert "testattr" in conf.hosttemplatefactory.templates["test"]["attributes"] and \
-               conf.hosttemplatefactory.templates["test"]["attributes"]["testattr"] == "testattrvalue", \
-               "The \"attribute\" tag parsing does not strip whitespaces"
 
     def test_test(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -565,29 +441,6 @@ class ParseHostTemplate(unittest.TestCase):
                conf.hosttemplatefactory.templates["test"]["tests"][0]["args"]["TestArg1"] == "TestValue1" and \
                conf.hosttemplatefactory.templates["test"]["tests"][0]["args"]["TestArg2"] == "TestValue2", \
                "The \"test\" tag with arguments is not properly parsed"
-
-    def test_test_whitespace(self):
-        self.ht.write("""<?xml version="1.0"?>
-                <templates>
-                <template name="test">
-                    <test name=" TestTest ">
-                        <arg name=" TestArg1 "> TestValue1 </arg>
-                        <arg name=" TestArg2 "> TestValue2 </arg>
-                    </test>
-                </template>
-                </templates>""")
-        self.ht.close()
-        try:
-            conf.hosttemplatefactory.load_templates()
-        except KeyError:
-            self.fail("The \"test\" tag parsing does not strip whitespaces")
-        assert len(conf.hosttemplatefactory.templates["test"]["tests"]) == 1 and \
-               conf.hosttemplatefactory.templates["test"]["tests"][0]["name"] == "TestTest" and \
-               "TestArg1" in conf.hosttemplatefactory.templates["test"]["tests"][0]["args"] and \
-               "TestArg2" in conf.hosttemplatefactory.templates["test"]["tests"][0]["args"] and \
-               conf.hosttemplatefactory.templates["test"]["tests"][0]["args"]["TestArg1"] == "TestValue1" and \
-               conf.hosttemplatefactory.templates["test"]["tests"][0]["args"]["TestArg2"] == "TestValue2", \
-               "The \"test\" tag parsing does not strip whitespaces"
 
     def test_test_weight(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -648,18 +501,6 @@ class ParseHostTemplate(unittest.TestCase):
         assert "/Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
                "The \"group\" tag is not properly parsed"
 
-    def test_group_whitespace(self):
-        self.ht.write("""<?xml version="1.0"?>
-                <templates>
-                <template name="test">
-                    <group> /Test group </group>
-                </template>
-                </templates>""")
-        self.ht.close()
-        conf.hosttemplatefactory.load_templates()
-        assert "/Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
-               "The \"group\" tag parsing does not strip whitespaces"
-
     def test_parent(self):
         self.ht.write("""<?xml version="1.0"?>
             <templates>
@@ -673,23 +514,6 @@ class ParseHostTemplate(unittest.TestCase):
         conf.hosttemplatefactory.load_templates()
         assert "test1" in conf.hosttemplatefactory.templates["test2"]["parent"], \
                "The \"parent\" tag is not properly parsed"
-
-    def test_parent_whitespace(self):
-        self.ht.write("""<?xml version="1.0"?>
-            <templates>
-                <template name="test1">
-                </template>
-                <template name="test2">
-                    <parent> test1 </parent>
-                </template>
-            </templates>""")
-        self.ht.close()
-        try:
-            conf.hosttemplatefactory.load_templates()
-        except KeyError:
-            self.fail("The \"parent\" tag parsing does not strip whitespaces")
-        assert "test1" in conf.hosttemplatefactory.templates["test2"]["parent"], \
-               "The \"parent\" tag parsing does not strip whitespaces"
 
     def test_template_weight(self):
         self.ht.write("""<?xml version="1.0"?>
