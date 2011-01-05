@@ -96,7 +96,6 @@ class Host(object):
                 "snmpOIDsPerPDU" : 10,
                 "nagiosDirectives": {},
                 "nagiosSrvDirs"  : {},
-                "telnetJobs"     : {},
                 "weight"         : 1,
             }
         self.attr_types = {"snmpPort": int,
