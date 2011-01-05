@@ -46,7 +46,7 @@ class PerfDataGen(FileGenerator):
                 else:
                     forHost = hostname
                     reRouteFor = "undef"
-                rrdname = urllib.quote_plus(perfitem["name"].strip())
+                rrdname = perfitem["name"].strip()
                 tplvars = {'service':servicename,
                            'host': forHost, 
                            'ds': rrdname,
