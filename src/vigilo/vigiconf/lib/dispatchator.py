@@ -323,6 +323,8 @@ class Dispatchator(object):
         try:
             result = _command.execute()
         except SystemCommandError, e:
+            if e.returncode == 1 and not os.path.exists(path):
+                return # déjà supprimé (probablement un ctrl-c précédent)
             raise DispatchatorError(
                     _("Can't remove %(path)s from repository: %(error)s") % {
                         'path': path,

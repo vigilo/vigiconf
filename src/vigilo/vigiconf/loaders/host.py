@@ -73,6 +73,7 @@ class HostLoader(DBLoader):
         DBSession.flush()
 
     def load_conf(self):
+        LOGGER.info(_("Loading hosts"))
         # On récupère d'abord la liste de tous les hôtes
         # précédemment définis en base et le fichier XML
         # auquels ils appartiennent.
@@ -123,7 +124,7 @@ class HostLoader(DBLoader):
         hostnames = sorted(list(set(hostnames)))
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
-            LOGGER.info(_("Loading host %s"), hostname)
+            LOGGER.debug(_("Loading host %s"), hostname)
             hostname = unicode(hostname)
             host = dict(name=hostname,
                         checkhostcmd=unicode(hostdata['checkHostCMD']),
