@@ -3,7 +3,7 @@
 class Ping(Test):
     """Check if a host is up with a ping"""
 
-    def add_test(self, host, warn=(1,5), crit=(5,20)):
+    def add_test(self, host, warn=(3000,20), crit=(5000,100)):
         """Arguments:
             host: the Host object to add the test to
             warn: the WARNING threshold as a tuple: (round_trip_average, packet_loss_percent)

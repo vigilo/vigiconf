@@ -140,8 +140,8 @@ class Validator(object):
             self.addError("DBLoader", "hosts",
                 _("The number of host entries in the database does not match "
                   "the number of hosts in the configuration. "
-                  "Found: %(found)d, expected: %(expected)d")
-                % {"found": hosts_db, "expected": self._stats["nbHosts"]})
+                  "Database: %(db)d, configuration: %(conf)d")
+                % {"db": hosts_db, "conf": self._stats["nbHosts"]})
             hosts_db = set([h.name for h in DBSession.query(tables.Host).all()])
             hosts_conf = set([ unicode(h) for h in conf.hostsConf.keys() ])
             LOGGER.debug("Hosts: difference between conf and DB: %s",
@@ -168,8 +168,8 @@ class Validator(object):
             self.addError("DBLoader", "services",
                 _("The number of services entries in the database does not "
                   "match the number of services in the configuration. "
-                  "Found: %(found)d, expected: %(expected)d")
-                % {"found": svc_db, "expected": svc_conf})
+                  "Database: %(db)d, configuration: %(conf)d")
+                % {"db": svc_db, "conf": svc_conf})
             svc_db_detail = ["%s::%s" % (s.host.name, s.servicename)
                     for s in DBSession.query(tables.LowLevelService).all()]
             svc_conf_detail = [ unicode(s) for s in svc_conf_detail ]
@@ -182,8 +182,8 @@ class Validator(object):
             self.addError("DBLoader", "applications",
                 _("The number of apps entries in the database does not match "
                   "the number of apps in the configuration. "
-                  "Found: %(found)d, expected: %(expected)d")
-                % {"found": apps_db, "expected": self._stats["nbApps"]})
+                  "Database: %(db)d, configuration: %(conf)d")
+                % {"db": apps_db, "conf": self._stats["nbApps"]})
             apps_db = set([a.name for a in
                            DBSession.query(tables.Application).all()])
             apps_conf = set()
@@ -199,9 +199,9 @@ class Validator(object):
             self.addError("DBLoader", "ventilation",
                 _("The number of ventilation entries in the database does "
                   "not match the number of host and apps. "
-                  "Found: %(found)d, expected: %(expected)d")
-                % {"found": ventilation_db,
-                   "expected": self._stats["nbHosts"] * self._stats["nbApps"]})
+                  "Database: %(db)d, configuration: %(conf)d")
+                % {"db": ventilation_db,
+                   "conf": self._stats["nbHosts"] * self._stats["nbApps"]})
             returnCode = False
         return returnCode
 
