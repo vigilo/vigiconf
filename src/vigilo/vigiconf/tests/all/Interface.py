@@ -8,7 +8,8 @@ class Interface(Test):
     oids = [".1.3.6.1.2.1.25.1.6.0"]
 
     def add_test(self, host, label, ifname, max=None,
-                errors=True, staticindex=False, warn=None, crit=None):
+                 errors=True, staticindex=False, warn=None, crit=None,
+                 counter32=False, teststate=True ):
         """Arguments:
             host: the Host object to add the test to
             label: Label to display
@@ -21,6 +22,9 @@ class Interface(Test):
                          assign the same name to different interfaces.
             warn: WARNING threshold. See below for the format
             crit: CRITICAL threshold. See below for the format
+            counter32: to use Counter32bits specifically for this interface.
+            teststate: Used to deactivate the interface state control. (When
+                       you only need statistics.)
 
             warn and crit must be tuples in the form of strings separated by
             commas, for example: max_in,max_out (in bits/s).
@@ -39,9 +43,9 @@ class Interface(Test):
                 }
 
         HCIf = host.get_attribute("DisableHighCapacityInterface", True)
-        if HCIf is not True:
+        if HCIf is not True or counter32 is not False:
             # using Low Capacity (32Bits) COUNTER for in and out
-            snmp_oids["in"] = ".1.3.6.1.2.1.2.2.1.10"
+            snmp_oids["in"]  = ".1.3.6.1.2.1.2.2.1.10"
             snmp_oids["out"] = ".1.3.6.1.2.1.2.2.1.16"
 
         if "nokia" in host.classes:
@@ -67,7 +71,8 @@ class Interface(Test):
                                          [ "WALK/%s" % snmpoid,
                                            "WALK/.1.3.6.1.2.1.2.2.1.2"], "COUNTER")
 
-        host.add_collector_service("Interface %s" % label, collector_function,
+        if teststate is True:
+            host.add_collector_service("Interface %s" % label, collector_function,
                 [ifname, label, "i"],
                 ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
                  "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
