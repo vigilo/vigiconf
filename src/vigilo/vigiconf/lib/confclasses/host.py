@@ -24,7 +24,6 @@ This module contains the Host class
 from __future__ import absolute_import
 
 import os
-import urllib
 import subprocess
 import inspect
 from xml.etree import ElementTree as ET # Python 2.5
@@ -586,7 +585,7 @@ class Host(object):
         Add a Nagios test on the values stored in a RRD file
         @param servicename: the name of the Nagios service
         @type  servicename: C{str}
-        @param metroname: the name of the metrology datasource (rrd file)
+        @param metroname: the name of the metrology datasource
         @type  metroname: C{str}
         @param warn: the WARNING threshold.
         @type  warn: C{str}
@@ -599,7 +598,7 @@ class Host(object):
         for char in self.name:
             oid.append(str(ord(char)))
         oid.append(str(ord("/")))
-        for char in urllib.quote_plus(metroname):
+        for char in metroname:
             oid.append(str(ord(char)))
         # Ajout du service Nagios
         self.add(self.name, "services", servicename,
