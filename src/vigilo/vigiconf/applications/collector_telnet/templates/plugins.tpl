@@ -4,4 +4,4 @@ host_conf["plugins"].append({
     "crystals": %(crystals)r,
     "labels": %(labels)r,
     "crit": %(crit)r,
-}
+})

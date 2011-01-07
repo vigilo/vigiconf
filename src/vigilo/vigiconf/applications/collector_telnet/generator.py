@@ -42,6 +42,7 @@ class CollectorTelnetGen(FileGenerator):
 
     def generate_host(self, hostname, vserver):
         h = conf.hostsConf[hostname]
+        _ip = h["address"]
         _fileName = os.path.join(
                 self.baseDir,
                 vserver,
@@ -56,6 +57,7 @@ class CollectorTelnetGen(FileGenerator):
                         self.templates["host"],
                         {
                             "host": hostname,
+                            "ip": _ip,
                             "login": _conf["login"],
                             "pass": _conf["pass"],
                             "timeout": _conf["timeout"],
