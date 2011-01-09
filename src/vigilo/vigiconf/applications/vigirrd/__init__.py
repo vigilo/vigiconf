@@ -12,7 +12,7 @@ class VigiRRD(Application):
     name = "vigirrd"
     priority = -1
     validation = "validate.sh"
-    start_command = "sudo /etc/init.d/httpd reload"
+    start_command = "vigirrd-import-vigiconf"
     stop_command = None
     generator = generator.VigiRRDGen
     group = "metrology"
