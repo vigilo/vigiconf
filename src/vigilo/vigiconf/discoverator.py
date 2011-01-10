@@ -83,7 +83,7 @@ class Discoverator(object):
             lineparts = line.strip().split(" = ")
             if len(lineparts) == 1:
                 lineparts.append("")
-            self.oids[ lineparts[0] ] = lineparts[1]
+            self.oids[ lineparts[0] ] = lineparts[1].strip("\n\r")
         # Find the hostname using SNMPv2-MIB::sysName.0
         self.hostname = self.oids[".1.3.6.1.2.1.1.5.0"]
 
@@ -137,7 +137,7 @@ class Discoverator(object):
             if len(linetuple) != 2:
                 continue
             oid, value = linetuple
-            self.oids[oid] = value
+            self.oids[oid] = value.strip("\n\r")
 
     def detect(self):
         """Start the detection on this host"""
