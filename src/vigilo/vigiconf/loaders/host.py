@@ -110,7 +110,7 @@ class HostLoader(DBLoader):
             conffiles.setdefault(filename, ConfFile.get_or_create(relfilename))
 
         # Utile pendant la migration des données :
-        # les hôtes pour lesquels on ne possèdait pas d'informations
+        # les hôtes pour lesquels on ne possédait pas d'informations
         # quant au fichier de définition doivent être mis à jour.
         for hostname, conffile in previous_hosts.iteritems():
             if conffile is None:
@@ -189,6 +189,18 @@ class HostLoader(DBLoader):
         for host in ghost_hosts:
             LOGGER.debug("Removing ghost host '%s'", host.name)
             DBSession.delete(host)
+
+        # Suppression des hôtes qui ont été supprimés dans les fichiers modifiés
+        for filename in svn_status['modified']:
+            relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
+            contained_hosts = DBSession.query(Host).join(
+                        (ConfFile, Host.idconffile == ConfFile.idconffile)
+                    ).filter(ConfFile.name == unicode(relfilename)
+                    ).all()
+            for host in contained_hosts:
+                if host.name not in hostnames:
+                    LOGGER.debug("Deleting '%s'", host.name)
+                    DBSession.delete(host)
 
         # Nettoyage des graphes et les groupes de graphes vides
         LOGGER.debug("Cleaning up old graphs and graphgroups")
