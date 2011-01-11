@@ -191,15 +191,17 @@ class HostLoader(DBLoader):
             DBSession.delete(host)
 
         # Suppression des hôtes qui ont été supprimés dans les fichiers modifiés
-        for filename in svn_status['modified']:
-            relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
-            contained_hosts = DBSession.query(Host).join(
-                        (ConfFile, Host.idconffile == ConfFile.idconffile)
-                    ).filter(ConfFile.name == unicode(relfilename)
-                    ).all()
-            for host in contained_hosts:
+        deleted_hosts = []
+        for conffile in DBSession.query(ConfFile).all():
+            filename = os.path.join(settings["vigiconf"].get("confdir"),
+                                    conffile.name)
+            if not self.dispatchator.getModeForce() and \
+                    filename not in svn_status['modified']:
+                continue # ce fichier n'a pas bougé
+            for host in conffile.hosts:
                 if host.name not in hostnames:
                     LOGGER.debug("Deleting '%s'", host.name)
+                    deleted_hosts.append(host)
                     DBSession.delete(host)
 
         # Nettoyage des graphes et les groupes de graphes vides
@@ -212,7 +214,8 @@ class HostLoader(DBLoader):
         DBSession.flush()
 
         # Si on a changé quelquechose, on le note en base
-        if hostnames or svn_status['remove'] or ghost_hosts or empty_graphs:
+        if hostnames or svn_status['remove'] or ghost_hosts or deleted_hosts \
+                or empty_graphs:
             Change.mark_as_modified(u"Host")
             Change.mark_as_modified(u"Service")
             Change.mark_as_modified(u"Graph")
