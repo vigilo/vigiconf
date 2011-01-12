@@ -106,14 +106,6 @@ class NagiosGen(FileGenerator):
                                 newhash)
         self.__fillservices(hostname, newhash)
 
-        if "telnetJobs" in h and h['telnetJobs']:
-            if "NagiosTimePeriod" in h['telnetJobs']:
-                for _timeperiod in h["telnetJobs"]["NagiosTimePeriod"]:
-                    self.templateAppend(self.fileName,
-                            self.templates["nagios_time"],
-                            h["telnetJobs"]["NagiosTimePeriod"][_timeperiod]
-                            )
-
         ## WARNING: ugly hack to handle routes (GCE based, must disappear)!!
         ## unused unless your host has a '-RT-DC' in its name
         ## TODO: use tags
