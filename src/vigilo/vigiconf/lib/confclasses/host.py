@@ -37,7 +37,7 @@ _ = translate(__name__)
 
 from . import get_text, get_attrib, parse_path
 from .graph import Graph
-from vigilo.vigiconf.lib import ParsingError
+from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.lib import SNMP_ENTERPRISE_OID
 
 from vigilo.models.session import DBSession
@@ -160,14 +160,18 @@ class Host(object):
             except TypeError:
                 spec = inspect.getargspec(inst.add_test)
                 # On récupère la liste des arguments obligatoires.
-                args = spec[0][2:-len(spec[3])]
-                LOGGER.error(_('Test "%(test_name)s" on "%(host)s" needs the '
-                            'following arguments: %(args)s (and only those)'), {
-                                'test_name': str(test_class.__name__),
-                                'host': self.name,
-                                'args': ', '.join(args),
-                            })
-                raise
+                defaults = spec[3]
+                if defaults is None:
+                    args = spec[0][2:]
+                else:
+                    args = spec[0][2:-len(defaults)]
+                message = _('Test "%(test_name)s" on "%(host)s" needs the '
+                            'following arguments: %(args)s (and only those)') \
+                          % {'test_name': str(test_class.__name__),
+                             'host': self.name,
+                             'args': ', '.join(args),
+                            }
+                raise VigiConfError(message)
 
 #    def apply_template(self, tpl):
 #        """
