@@ -24,6 +24,9 @@ from __future__ import absolute_import
 
 import os.path
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.generators import FileGenerator
 
@@ -65,14 +68,16 @@ class VigiRRDGen(FileGenerator):
             return
         missing_ds = self._all_ds_metro - self._all_ds_graph
         # Convert to human-readable
-        missing_ds_human = []
+        missing_ds_report = []
         for ds in missing_ds:
             for host in conf.hostsConf.keys():
                 h = conf.hostsConf[host]
-                if h["dataSources"].has_key(ds):
-                    missing_ds_human.append(h["dataSources"][ds]["label"])
-        self.addWarning("RRDGraph", "All the defined DSs are not graphed: "
-                                   +"%s" % ", ".join(missing_ds_human))
+                if "dataSources" not in h:
+                    continue
+                if ds in h["dataSources"]:
+                    missing_ds_report.append( (host, ds) )
+        self.addWarning("VigiRRD", _("All the defined DSes are not graphed: %s")
+                    % ", ".join([ "%s/%s" % dsr for dsr in missing_ds_report]))
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

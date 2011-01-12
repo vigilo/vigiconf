@@ -518,7 +518,7 @@ class Host(object):
             self.add(self.name, "reports", title, {"reportName": reportname,
                                                    "dateSetting": datesetting})
 
-    def add_external_sup_service(self, name, command, cti=1,
+    def add_external_sup_service(self, name, command=None, cti=1,
                                 weight=1, directives=None):
         """
         Add a standard Nagios service
@@ -536,14 +536,19 @@ class Host(object):
         for (dname, dvalue) in directives.iteritems():
             self.add_nagios_service_directive(name, dname, dvalue)
 
-        self.add(self.name, 'services', name, {
-            'type': 'active',
-            'command': command,
-            'cti': cti,
-            'weight': weight,
-            'directives': directives,
-            'reRoutedBy': None,
-        })
+        definition =  {'type': type,
+                       'command': command,
+                       'cti': cti,
+                       'weight': weight,
+                       'directives': directives,
+                       'reRoutedBy': None,
+                      }
+        if command is None:
+            definition["type"] = "passive"
+        else:
+            definition["type"] = "active"
+            definition["command"] = command
+        self.add(self.name, 'services', name, definition)
 
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
                               dstype="GAUGE", reroutefor=None):

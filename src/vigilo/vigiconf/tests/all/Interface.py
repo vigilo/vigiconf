@@ -41,6 +41,14 @@ class Interface(Test):
                 "inErrs": ".1.3.6.1.2.1.2.2.1.14",
                 "outErrs": ".1.3.6.1.2.1.2.2.1.20",
                 }
+        snmp_labels = {
+                "in": "Input",
+                "out": "Output",
+                "inDisc": "Input discards",
+                "outDisc": "Output discards",
+                "inErrs": "Input errors",
+                "outErrs": "Output errors",
+                }
 
         HCIf = host.get_attribute("DisableHighCapacityInterface", True)
         if HCIf is not True or counter32 is not False:
@@ -62,14 +70,15 @@ class Interface(Test):
                 host.add_collector_metro("%s%s" % (snmpname, label),
                                          "directValue", [],
                                          [ "GET/%s.%s" % (snmpoid, ifname) ],
-                                         "COUNTER")
+                                         "COUNTER", snmp_labels[snmpname])
         else:
             collector_function = "ifOperStatus"
             for snmpname, snmpoid in snmp_oids.iteritems():
                 host.add_collector_metro("%s%s" % (snmpname, label),
                                          "m_table", [ifname],
                                          [ "WALK/%s" % snmpoid,
-                                           "WALK/.1.3.6.1.2.1.2.2.1.2"], "COUNTER")
+                                           "WALK/.1.3.6.1.2.1.2.2.1.2"],
+                                         "COUNTER", snmp_labels[snmpname])
 
         if teststate is True:
             host.add_collector_service("Interface %s" % label, collector_function,
