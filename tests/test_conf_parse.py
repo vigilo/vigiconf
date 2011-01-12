@@ -7,7 +7,7 @@ settings.load_module(__name__)
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
-from vigilo.vigiconf.lib import ParsingError
+from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.loaders.group import GroupLoader
 
 from confutil import reload_conf, setup_tmpdir, setup_path
@@ -285,7 +285,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         # Une exception TypeError indiquant qu'il n'y pas assez d'arguments
         # doit être levée.
-        self.assertRaises(TypeError,
+        self.assertRaises(VigiConfError,
             conf.hostfactory._loadhosts,
             os.path.join(self.tmpdir, "hosts", "host.xml")
         )
@@ -304,7 +304,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         # Une exception TypeError indiquant qu'un paramètre inconnu
         # a été passé doit être levée.
-        self.assertRaises(TypeError,
+        self.assertRaises(VigiConfError,
             conf.hostfactory._loadhosts,
             os.path.join(self.tmpdir, "hosts", "host.xml")
         )
