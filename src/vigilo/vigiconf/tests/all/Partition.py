@@ -28,9 +28,9 @@ class Partition(Test):
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.6",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.3"],
-                    'GAUGE', label=label)
+                    'GAUGE', label=label, max_value=max)
         host.add_graph("%s partition usage"%label, [ "%s part"%label ],
-            "lines", "bytes", "Storage", max_values={"%s part" % label: max})
+                       "lines", "bytes", "Storage")
 
 
 

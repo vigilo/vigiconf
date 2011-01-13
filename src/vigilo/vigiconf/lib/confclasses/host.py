@@ -376,7 +376,7 @@ class Host(object):
                                          } )
 
     def add_collector_metro(self, name, function, params, variables, dstype,
-                                  label=None, reroutefor=None):
+                            label=None, reroutefor=None, max_value=None):
         """
         Add a metrology datasource to the Collector
         @param name: the datasource name
@@ -393,6 +393,8 @@ class Host(object):
         @type  label: C{str}
         @param reroutefor: service routing information
         @type  reroutefor: C{dict} with "host" and "service" as keys
+        @param max_value: the maximum values for the datasource, if any
+        @type  max_value: C{int}
         """
         if not label:
             label = name
@@ -408,6 +410,7 @@ class Host(object):
         self.add(target, "dataSources", service, {
             'dsType': dstype,
             'label': label,
+            "max": max_value,
         })
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (name, 'perfData'),
@@ -481,9 +484,8 @@ class Host(object):
                       unicode(template), unicode(vlabel), group=unicode(group))
         graph.add_to_host(target)
 
-    def add_graph(self, title, dslist, template, vlabel,
-                        group="General", factors=None,
-                        max_values=None, last_is_max=False):
+    def add_graph(self, title, dslist, template, vlabel, group="General",
+                  factors=None, last_is_max=False):
         """
         Add a graph to the host
         @param title: The graph title
@@ -498,13 +500,10 @@ class Host(object):
         @type  group: C{str}
         @param factors: the factors to use, if any
         @type  factors: C{dict}
-        @param max_values: the maximum values for each datasource, if any
-        @type  max_values: C{dict}
         """
         graph = Graph(self.hosts, unicode(title), map(unicode, dslist),
-                      unicode(template), unicode(vlabel),
-                      group=unicode(group), factors=factors,
-                      max_values=max_values, last_is_max=last_is_max)
+                      unicode(template), unicode(vlabel), group=unicode(group),
+                      factors=factors, last_is_max=last_is_max)
         graph.add_to_host(self.name)
 
     def add_report(self, title, reportname, datesetting=0):
@@ -555,7 +554,7 @@ class Host(object):
         self.add(self.name, 'services', name, definition)
 
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
-                              dstype="GAUGE", reroutefor=None):
+                             dstype="GAUGE", reroutefor=None, max_value=None):
         """
         Add a perfdata handler: send the performance data from the nagios
         plugins to the RRDs
@@ -571,6 +570,8 @@ class Host(object):
         @type  dstype: "GAUGE" or "COUNTER", see RRDtool documentation
         @param reroutefor: service routing information
         @type  reroutefor: C{dict} with "host" and "service" as keys
+        @param max_value: the maximum values for the datasource, if any
+        @type  max_value: C{int}
         """
         if reroutefor == None:
             target = self.name
@@ -578,7 +579,7 @@ class Host(object):
             target = reroutefor['host']
         # Add the RRD
         self.add(target, "dataSources", name,
-                 {'dsType': dstype, 'label': label})
+                 {'dsType': dstype, 'label': label, "max": max_value})
         # Add the perfdata handler in Nagios
         if not self.get('PDHandlers').has_key(service):
             self.add(self.name, "PDHandlers", service, [])

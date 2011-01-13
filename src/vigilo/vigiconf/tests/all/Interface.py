@@ -14,7 +14,7 @@ class Interface(Test):
             host: the Host object to add the test to
             label: Label to display
             ifname: SNMP name for the interface
-            max: the maximum bandwidth available through this interface.
+            max: the maximum bandwidth available through this interface, in bits/s
             errors: create a graph for interface errors
             staticindex: consider the ifname as the static SNMP index instead
                          of the interface name. It's not recommanded, but it
@@ -70,7 +70,8 @@ class Interface(Test):
                 host.add_collector_metro("%s%s" % (snmpname, label),
                                          "directValue", [],
                                          [ "GET/%s.%s" % (snmpoid, ifname) ],
-                                         "COUNTER", snmp_labels[snmpname])
+                                         "COUNTER", snmp_labels[snmpname],
+                                         max_value=max)
         else:
             collector_function = "ifOperStatus"
             for snmpname, snmpoid in snmp_oids.iteritems():
@@ -78,7 +79,8 @@ class Interface(Test):
                                          "m_table", [ifname],
                                          [ "WALK/%s" % snmpoid,
                                            "WALK/.1.3.6.1.2.1.2.2.1.2"],
-                                         "COUNTER", snmp_labels[snmpname])
+                                         "COUNTER", snmp_labels[snmpname],
+                                         max_value=max)
 
         if teststate is True:
             host.add_collector_service("Interface %s" % label, collector_function,
@@ -89,8 +91,7 @@ class Interface(Test):
 
         host.add_graph("Traffic %s" % label, ["in%s" % label, "out%s" % label],
                     "area-line", "b/s", group="Network interfaces",
-                    factors={"in%s" % label: 8, "out%s" % label: 8, },
-                    max_values={"in%s" % label: max, "out%s" % label: max, },)
+                    factors={"in%s" % label: 8, "out%s" % label: 8, },)
         if errors:
             host.add_graph("Errors %s" % label,
                     [ "inErrs%s"%label, "outErrs%s"%label,

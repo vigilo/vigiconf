@@ -37,7 +37,7 @@ class ConnectorMetroGen(FileGenerator):
     def generate_host(self, hostname, vserver):
         """Generate files"""
         h = conf.hostsConf[hostname]
-        if not h.has_key("dataSources") or len(h['dataSources']) == 0:
+        if "dataSources" not in h or not h['dataSources']:
             return
         fileName = os.path.join(self.baseDir, vserver, "connector-metro.conf.py")
         if not os.path.exists(fileName):
@@ -63,6 +63,11 @@ class ConnectorMetroGen(FileGenerator):
                 'dsName': k2,
                 'label': v2["label"],
             }
+            if "max" in v2 and v2["max"] is not None:
+                # toute valeur supérieure collectée sera ignorée
+                tplvars["max"] = float(v2["max"]) * 100 # marge de sécurité
+            else:
+                tplvars["max"] = "U"
             if not k2 in netflow_keys:
                 self.templateAppend(fileName, self.templates["ds"], tplvars)
             else:

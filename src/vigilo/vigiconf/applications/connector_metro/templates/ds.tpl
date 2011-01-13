@@ -5,7 +5,7 @@ HOSTS["%(host)s"]["%(dsName)s"] = {
         "type": "%(dsType)s",
         "heartbeat": 600,
         "min": "U",
-        "max": "U" },
+        "max": "%(max)s" },
     "RRA": [
         { "type": "AVERAGE", "xff": 0.5, "step": 1, "rows": 600 },
         { "type": "AVERAGE", "xff": 0.5, "step": 6, "rows": 700 },

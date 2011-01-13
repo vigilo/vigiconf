@@ -381,12 +381,12 @@ class PDSLoader(DBLoader):
             pds = dict(idhost=self.host.idhost, name=unicode(dsname),
                        type=unicode(dsdata["dsType"]),
                        label=unicode(dsdata['label']))
+            if "max" in dsdata and dsdata["max"] is not None:
+                pds["max"] = float(dsdata["max"])
             for graphdata in conf.hostsConf[self.host.name]\
                                                 ['graphItems'].values():
                 if graphdata['factors'].get(dsname, None) is not None:
                     pds["factor"] = float(graphdata['factors'][dsname])
-                if graphdata['max_values'].get(dsname, None) is not None:
-                    pds["max"] = float(graphdata['max_values'][dsname])
             self.add(pds)
 
 
