@@ -90,7 +90,11 @@ class ChangeManagementTest(unittest.TestCase):
         """
         topologyloader = TopologyLoader(DummyDispatchator())
         topologyloader.load()
-        dep_group = DependencyGroup(dependent=self.testhost1, operator=u'&')
+        dep_group = DependencyGroup(
+            dependent=self.testhost1,
+            operator=u'&',
+            role=u'topology'
+        )
         DBSession.add(dep_group)
         DBSession.flush()
         dep = Dependency(group=dep_group, supitem=self.testhost2)
