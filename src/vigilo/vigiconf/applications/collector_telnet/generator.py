@@ -78,6 +78,7 @@ class CollectorTelnetGen(FileGenerator):
                             "plugin": _conf["name"],
                             "srv_name": _conf["srv_name"],
                             "crystals": _conf["crystals"],
+                            "domain": _conf["domain"],
                             "labels": _conf["labels"],
                             "crit": _crit,
                         }
