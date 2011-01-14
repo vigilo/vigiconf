@@ -286,7 +286,6 @@ class ServiceLoader(DBLoader):
             ).filter(self._class.servicename != u'Collector').all()
 
     def load_conf(self):
-        # TODO: implémenter les détails: weight, command
         for service in conf.hostsConf[self.host.name]['services']:
             idcollector = None
 

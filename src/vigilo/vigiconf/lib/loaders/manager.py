@@ -80,7 +80,7 @@ class LoaderManager(object):
 
         # services de haut niveau
         from vigilo.vigiconf.loaders.hlservice import HLServiceLoader
-        hlserviceloader = HLServiceLoader(self.dispatchator)
+        hlserviceloader = HLServiceLoader(grouploader, self.dispatchator)
         hlserviceloader.load()
 
         # dépendances topologiques
