@@ -137,7 +137,7 @@ class HostMethods(unittest.TestCase):
                             "GAUGE", label="TestAddCSLabel")
         self.assertEqual(
             conf.hostsConf["testserver1"]["dataSources"]["TestAddCS"],
-            {'dsType':"GAUGE", 'label': "TestAddCSLabel", "max": None},
+            {'dsType':"GAUGE", 'label': "TestAddCSLabel", "max": None, "min": None},
             "add_collector_metro does not fill the dataSources sub-hashmap")
         self.assertEqual(
             conf.hostsConf["testserver1"]["SNMPJobs"][("TestAddCS","perfData")],
@@ -154,12 +154,12 @@ class HostMethods(unittest.TestCase):
                 reroutefor={'host': "testserver1", "service": "TestAddCSReRoute"} )
         self.assertEqual(
             conf.hostsConf["testserver1"]["dataSources"]["TestAddCSReRoute"],
-            {'dsType':"GAUGE", 'label': "TestAddCSReRouteLabel", "max": None},
+            {'dsType':"GAUGE", 'label': "TestAddCSReRouteLabel", "max": None, "min": None},
             "add_collector_metro rerouting does not work with the dataSources sub-hashmap")
         self.assertEqual(
             conf.hostsConf["testserver2"]["SNMPJobs"][("TestAddCSReRoute","perfData")],
             {'function': "TestAddCSRRMFunction", 'params': ["fake arg 1"],
-             'vars': ["GET/.1.3.6.1.2.1.1.3.0"], 'reRouteFor': 
+             'vars': ["GET/.1.3.6.1.2.1.1.3.0"], 'reRouteFor':
              {'host':"testserver1", "service" : "TestAddCSReRoute"}},
             "add_collector_service ReRouting does not work with the SNMPJobs sub-hashmap")
 
