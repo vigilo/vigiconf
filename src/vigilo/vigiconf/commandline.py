@@ -347,7 +347,7 @@ def main():
 
     if args.debug:
         import logging
-        LOGGER.setLevel(logging.DEBUG)
+        LOGGER.parent.setLevel(logging.DEBUG)
 
     if not args.nochuid:
         change_user()
