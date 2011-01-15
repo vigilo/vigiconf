@@ -376,7 +376,8 @@ class Host(object):
                                          } )
 
     def add_collector_metro(self, name, function, params, variables, dstype,
-                            label=None, reroutefor=None, max_value=None):
+                            label=None, reroutefor=None, max_value=None,
+                            min_value=None):
         """
         Add a metrology datasource to the Collector
         @param name: the datasource name
@@ -411,6 +412,7 @@ class Host(object):
             'dsType': dstype,
             'label': label,
             "max": max_value,
+            "min": min_value,
         })
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (name, 'perfData'),
@@ -554,7 +556,8 @@ class Host(object):
         self.add(self.name, 'services', name, definition)
 
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
-                             dstype="GAUGE", reroutefor=None, max_value=None):
+                             dstype="GAUGE", reroutefor=None, max_value=None,
+                             min_value=None):
         """
         Add a perfdata handler: send the performance data from the nagios
         plugins to the RRDs
@@ -579,7 +582,8 @@ class Host(object):
             target = reroutefor['host']
         # Add the RRD
         self.add(target, "dataSources", name,
-                 {'dsType': dstype, 'label': label, "max": max_value})
+                 {'dsType': dstype, 'label': label,
+                  "max": max_value, "min": min_value})
         # Add the perfdata handler in Nagios
         if not self.get('PDHandlers').has_key(service):
             self.add(self.name, "PDHandlers", service, [])

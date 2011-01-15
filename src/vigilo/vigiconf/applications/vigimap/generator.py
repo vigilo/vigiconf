@@ -63,9 +63,6 @@ class VigiMapGen(MapGenerator):
     ... 'parent_topgroup': None,
     ... }
 
-
-    @ivar rootgroup_name: nom du groupe à positionner comme parent pour\
-          les groupes de premier niveau à générer.
     """
 
     def __init__(self, application, ventilation, validator):

@@ -68,6 +68,11 @@ class ConnectorMetroGen(FileGenerator):
                 tplvars["max"] = float(v2["max"]) * 100 # marge de sécurité
             else:
                 tplvars["max"] = "U"
+            if "min" in v2 and v2["min"] is not None:
+                # toute valeur inférieure collectée sera ignorée
+                tplvars["min"] = float(v2["min"])
+            else:
+                tplvars["min"] = "U"
             if not k2 in netflow_keys:
                 self.templateAppend(fileName, self.templates["ds"], tplvars)
             else:
