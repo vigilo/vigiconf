@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from vigilo.vigiconf.lib.application import Application
 
 from . import generator
+from . import config
 
 class ConnectorMetro(Application):
 
@@ -16,5 +17,6 @@ class ConnectorMetro(Application):
     stop_command = None
     generator = generator.ConnectorMetroGen
     group = "metrology"
+    defaults = config.DEFAULTS
 
 

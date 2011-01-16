@@ -89,6 +89,7 @@ class Application(object):
     stop_command = None
     generator = None
     group = None
+    defaults = {}
 
     def __init__(self):
         if self.name is None:
@@ -136,6 +137,13 @@ class Application(object):
         @type  index: C{int}
         """
         return self.servers[index]
+
+    def getConfig(self):
+        config = self.defaults.copy()
+        from vigilo.vigiconf import conf
+        if self.name in conf.apps_conf:
+            config.update(conf.apps_conf[self.name])
+        return config
 
     # mutators
     def setName(self, name):

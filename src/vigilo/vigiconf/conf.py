@@ -309,8 +309,7 @@ CODEDIR = os.path.dirname(__file__)
 
 # Initialize global conf variables
 apps = []
-
-param_maps_auto = {}
+apps_conf = {}
 
 # TODO: en base, plus de python
 hostsGroups     = {}

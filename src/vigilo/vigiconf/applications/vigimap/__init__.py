@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from vigilo.vigiconf.lib.application import Application
 
 from . import generator
+from . import config
 
 class VigiMap(Application):
 
@@ -16,4 +17,5 @@ class VigiMap(Application):
     stop_command = None
     generator = generator.VigiMapGen
     group = "interface"
+    defaults = config.DEFAULTS
 

@@ -48,31 +48,20 @@ class MapGenerator(Generator):
     * process_mid_group
     * process_leaf_group
 
-    La génération est paramétrable au moyen du fichier en conf
-    general/automaps.py; ce fichier contient des données de fond de carte
-    comme ceci:
-
-    >>> 'map_defaults': {
-    ...    'background_color': u'white',
-    ...    'background_image': u'bg',
-    ...    'background_position': u'top right',
-    ...    'background_repeat': u'no-repeat',
-    ...    'host_icon':u'server',
-    ...    'hls_icon':u'switch',
-    ...    'lls_icon':u'serviceicon'
-    ... }
+    @cvar map_defaults: les réglages par défaut pour les cartes à créer. Les
+        instructions "background_*" sont du CSS, voir la doc du W3C:
+        U{http://w3schools.com/css/css_reference.asp}
+    @type map_defaults: C{dict}
     """
 
-    # voir conf.d/general/automaps.py :
-    #   param_maps_auto['AutoMap']['map_defaults']
-    map_defaults = {'background_color': u'white',
-                   'background_image': u'bg',
-                   'background_position': u'top right',
-                   'background_repeat': u'no-repeat',
-                   'host_icon':u'server',
-                   'hls_icon':u'switch',
-                   'lls_icon':u'serviceicon'
-                   }
+    map_defaults = {'background_color': '',
+                    'background_image': '',
+                    'background_position': '',
+                    'background_repeat': '',
+                    'host_icon': 'server',
+                    'hls_icon': 'network-workgroup',
+                    'lls_icon': 'applications-system',
+                    }
 
     # dossier "virtuel" de plus haut niveau
     # Hardcodé pour l'instant
@@ -80,7 +69,7 @@ class MapGenerator(Generator):
 
     def __init__(self, application, ventilation, validator):
         super(MapGenerator, self).__init__(application, ventilation, validator)
-        self.map_defaults = conf.param_maps_auto['AutoMap']['map_defaults']
+        self.map_defaults.update(self.application.getConfig())
 
     def get_root_group(self):
         root = MapGroup.by_parent_and_name(None, unicode(self.rootgroup_name))
@@ -173,7 +162,7 @@ class MapGenerator(Generator):
             DBSession.add(gmap)
         return gmap
 
-    def create_map(self, title, groups, data):
+    def create_map(self, title, groups, data={}):
         """ création d'une carte.
 
         @param title: titre de la carte
@@ -186,12 +175,14 @@ class MapGenerator(Generator):
         @return: une carte
         @rtype: C{Map}
         """
+        full_data = self.map_defaults.copy()
+        full_data.update(data)
         map = Map(title=unicode(title), generated=True,
                   mtime=datetime.now(),
-                  background_color=unicode(data['background_color']),
-                  background_image=unicode(data['background_image']),
-                  background_position=unicode(data['background_position']),
-                  background_repeat=unicode(data['background_repeat']),
+                  background_color=unicode(full_data['background_color']),
+                  background_image=unicode(full_data['background_image']),
+                  background_position=unicode(full_data['background_position']),
+                  background_repeat=unicode(full_data['background_repeat']),
                   )
         map.groups = groups
         DBSession.add(map)

@@ -42,27 +42,6 @@ class VigiMapGen(MapGenerator):
     des entités n'existant plus sont supprimés.
     * Les modifications d'un élément affiché dans une carte générée
     automatiquement ne sont pas prises en compte.
-
-    La génération est paramétrable au moyen du fichier en conf
-    general/automaps.py; ce fichier contient des données de fond de carte
-    comme ceci:
-
-    >>> 'map_defaults': {
-    ... 'background_color': u'white',
-    ... 'background_image': u'bg',
-    ... 'background_position': u'top right',
-    ... 'background_repeat': u'no-repeat',
-    ... 'host_icon':u'server',
-    ... 'hls_icon':u'switch',
-    ... 'lls_icon':u'serviceicon'
-    ... }
-
-    Le paramétrage de la génération est effectué comme dans l'exemple suivant:
-
-    >>> 'BasicAutoMap': {
-    ... 'parent_topgroup': None,
-    ... }
-
     """
 
     def __init__(self, application, ventilation, validator):
@@ -71,13 +50,13 @@ class VigiMapGen(MapGenerator):
         self.new_hierarchy = {}
 
     def get_root_group(self):
-        group_name = conf.param_maps_auto['BasicAutoMap']['parent_topgroup']
+        group_name = self.map_defaults['parent_topgroup']
         if not group_name:
             return super(VigiMapGen, self).get_root_group()
         top_group = super(VigiMapGen, self).get_root_group()
         return self.get_or_create_mapgroup(group_name, top_group)
 
-    def populate_map(self, map, group, data, created=True):
+    def populate_map(self, map, group, data={}, created=True):
         """ ajout de contenu dans une carte.
 
         @param map: carte
@@ -87,9 +66,11 @@ class VigiMapGen(MapGenerator):
         @param data: dictionnaire de données fond de carte
         @type data: C{dict}
         """
-        self._populate_hosts(map, group, data)
-        self._populate_lls(map, group, data)
-        self._populate_hls(map, group, data)
+        full_data = self.map_defaults.copy()
+        full_data.update(data)
+        self._populate_hosts(map, group, full_data)
+        self._populate_lls(map, group, full_data)
+        self._populate_hls(map, group, full_data)
 
     def _populate_hosts(self, map, group, data):
         """ajout des nodes Host"""
@@ -195,7 +176,7 @@ class VigiMapGen(MapGenerator):
         LOGGER.debug("Creating Map for SupItemGroup %(group)s in MapGroup "
                      "%(mapgroup)s", {"group": supitemgroup.name,
                                       "mapgroup": parent_mapgroup.name})
-        newmap = self.create_map(supitemgroup.name, [parent_mapgroup,], self.map_defaults)
+        newmap = self.create_map(supitemgroup.name, [parent_mapgroup,])
         return newmap
 
     def _remove_mapgroup(self, mapgroup):
@@ -282,7 +263,7 @@ class VigiMapGen(MapGenerator):
         if supitemgroup.supitems:
             newmap = self._make_map(supitemgroup, parent_mapgroup)
             results.append(newmap)
-            self.populate_map(newmap, supitemgroup, self.map_defaults)
+            self.populate_map(newmap, supitemgroup)
         return results
 
     def generate(self):

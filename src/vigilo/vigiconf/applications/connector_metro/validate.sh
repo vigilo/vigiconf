@@ -25,10 +25,12 @@ if [ "$2" == "local" ] ; then
     ls /etc/init.d/vigilo-connector-metro >/dev/null || exit 1
 fi
 
-if [ ! -r $BASE/connector-metro.conf.py ]
+if [ ! -r $BASE/connector-metro.db ]
 then
     exit 0
 fi
 
-python -c "execfile('$BASE/connector-metro.conf.py')"
+sqlite3 $BASE/connector-metro.db "SELECT COUNT(*) FROM perfdatasource" && \
+sqlite3 $BASE/connector-metro.db "SELECT COUNT(*) FROM rra" && \
+sqlite3 $BASE/connector-metro.db "SELECT COUNT(*) FROM pdsrra"
 exit $?
