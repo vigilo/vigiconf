@@ -33,6 +33,7 @@ Requires:   python26-argparse
 Requires:   vigilo-models
 Requires:   vigilo-common
 Requires:   net-snmp-utils
+Requires:   sqlite >= 3
 
 Requires(pre): shadow-utils
 Requires(post): openssh
