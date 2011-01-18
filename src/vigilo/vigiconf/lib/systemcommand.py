@@ -36,14 +36,30 @@ _ = translate(__name__)
 class SystemCommandError(VigiConfError):
     """Exceptions involving L{SystemCommand} instances"""
 
-    def __init__(self, returncode, message):
+    def __init__(self, command, returncode, message):
         super(SystemCommandError, self).__init__(message)
+        self.command = command
         self.returncode = returncode
         self.message = self.value
 
     def __str__(self):
+        return str(unicode(self))
+
+    def __unicode__(self):
+        cmd = self.command
+        if isinstance(cmd, list):
+            cmd = " ".join(cmd)
+        return _("Command \"%(cmd)s\" failed with code %(code)s "
+                 "and message: %(msg)s") % {
+                   'cmd': cmd,
+                   'code': self.returncode,
+                   'msg': self.message.decode("utf8", "replace"),
+                 }
+        #TODO: L'encodage UTF-8 est hardcodé ci-dessus, détecter celui du système
+
+    def __repr__(self):
         return "<%s: code %d and message %s>" \
-                % (self.__class__, self.returncode, self.value)
+               % (type(self).__name__, self.returncode, self.message)
 
 
 class SystemCommand(object):
@@ -104,14 +120,8 @@ class SystemCommand(object):
                                         env=newenv)
         self.mResult = self.process.communicate()
         if self.process.returncode != 0: # command failed
-            raise SystemCommandError(self.process.returncode,
-                        _("Command %(cmd)s failed with code %(code)s "
-                            "and message: %(msg)s") % {
-                            'cmd': self.getCommand(),
-                            'code': self.process.returncode,
-                            'msg': self.getResult().decode("utf8", "replace"),
-                        })
-        #TODO: L'encodage UTF-8 est hardcodé ci-dessus, détecter celui du système
+            raise SystemCommandError(self.getCommand(), self.process.returncode,
+                                     self.getResult())
         return self.mResult
 
     def integerReturnCode(self):
