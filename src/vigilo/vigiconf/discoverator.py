@@ -80,7 +80,7 @@ class Discoverator(object):
         for line in walk:
             if line.count("=") != 1:
                 continue
-            lineparts = line.strip().split(" = ")
+            lineparts = line.split(" = ")
             if len(lineparts) == 1:
                 lineparts.append("")
             self.oids[ lineparts[0] ] = lineparts[1].strip("\n\r")
