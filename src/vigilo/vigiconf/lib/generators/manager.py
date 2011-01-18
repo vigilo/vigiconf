@@ -120,7 +120,7 @@ class GeneratorManager(object):
 
         LOGGER.debug("Moving metro services")
         self.move_metro_services(ventilation, validator)
-        LOGGER.debug("Running all generators")
+        LOGGER.info(_("Running generators"))
         self.run_all_generators(ventilation, validator)
 
         if validator.hasErrors():

@@ -76,7 +76,7 @@ class VigiRRDGen(FileGenerator):
                     continue
                 if ds in h["dataSources"]:
                     missing_ds_report.append( (host, ds) )
-        self.addWarning("VigiRRD", _("All the defined DSes are not graphed: %s")
+        self.addWarning("VigiRRD", _("Some datasources are not on a graph: %s")
                     % ", ".join([ "%s/%s" % dsr for dsr in missing_ds_report]))
 
 

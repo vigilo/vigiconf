@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2011-01-15 09:11+0100\n"
+"POT-Creation-Date: 2011-01-18 08:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -285,72 +285,72 @@ msgstr ""
 
 #: src/vigilo/vigiconf/applications/vigirrd/generator.py:79
 #, python-format
-msgid "All the defined DSes are not graphed: %s"
+msgid "Some datasources are not on a graph: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:223
+#: src/vigilo/vigiconf/lib/application.py:231
 #, python-format
 msgid "Can't find the validation script for app %(app)s: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:261
+#: src/vigilo/vigiconf/lib/application.py:269
 #, python-format
 msgid "%(app)s: validation failed for server '%(server)s': %(reason)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:268
+#: src/vigilo/vigiconf/lib/application.py:276
 #, python-format
 msgid "%(app)s : Validation successful for server: %(server)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:312
+#: src/vigilo/vigiconf/lib/application.py:320
 #, python-format
 msgid "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:320
+#: src/vigilo/vigiconf/lib/application.py:328
 #, python-format
 msgid "%(app)s : Qualification successful on server : %(server)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:363
-#: src/vigilo/vigiconf/lib/application.py:387
+#: src/vigilo/vigiconf/lib/application.py:371
+#: src/vigilo/vigiconf/lib/application.py:395
 #, python-format
 msgid "%s : Start process failed."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:399
+#: src/vigilo/vigiconf/lib/application.py:407
 #, python-format
 msgid "Starting %(app)s on %(server)s ..."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:408
+#: src/vigilo/vigiconf/lib/application.py:416
 #, python-format
 msgid "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:416
+#: src/vigilo/vigiconf/lib/application.py:424
 #, python-format
 msgid "%(app)s started on %(server)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:456
-#: src/vigilo/vigiconf/lib/application.py:480
+#: src/vigilo/vigiconf/lib/application.py:464
+#: src/vigilo/vigiconf/lib/application.py:488
 #, python-format
 msgid "%s : Stop process failed."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:492
+#: src/vigilo/vigiconf/lib/application.py:500
 #, python-format
 msgid "Stopping %(app)s on %(server)s ..."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:501
+#: src/vigilo/vigiconf/lib/application.py:509
 #, python-format
 msgid "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:509
+#: src/vigilo/vigiconf/lib/application.py:517
 #, python-format
 msgid "%(app)s stopped on %(server)s"
 msgstr ""
@@ -734,6 +734,10 @@ msgstr ""
 msgid "No such template: %s"
 msgstr ""
 
+#: src/vigilo/vigiconf/lib/generators/manager.py:123
+msgid "Running generators"
+msgstr ""
+
 #: src/vigilo/vigiconf/lib/generators/manager.py:163
 msgid "Can't find the metro server for the RRD-based services"
 msgstr ""
@@ -743,7 +747,7 @@ msgstr ""
 msgid "The metrology server %s must be supervised for the RRD-based services to work"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/map.py:89
+#: src/vigilo/vigiconf/lib/generators/map.py:78
 #, python-format
 msgid "The map group %s has not been added by the install procedure"
 msgstr ""
