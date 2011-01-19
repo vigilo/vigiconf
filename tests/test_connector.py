@@ -81,7 +81,8 @@ class XMPPToVigiConfTest(unittest.TestCase):
                '<arg>arg1</arg><arg>arg2</arg>'
                '</command>' % NS_COMMAND)
         #self.stub.send(msg)
-        d = self.conn.processMessage( (parseXml(msg), {"from": "dummy"}) )
+        d = self.conn.processMessage( (parseXml(msg), {"from": "dummy",
+                                                       "to": "dummy"}) )
         def check_output(p):
             self.assertEqual(p.exit_code, 0)
             self.assertEqual(p.stdout, "dummy arg1 arg2\n")
@@ -97,7 +98,8 @@ class XMPPToVigiConfTest(unittest.TestCase):
         msg = ('<command xmlns="%s">'
                '<cmdname>--help</cmdname>'
                '</command>' % NS_COMMAND)
-        d = self.conn.processMessage( (parseXml(msg), {"from": "dummy"}) )
+        d = self.conn.processMessage( (parseXml(msg), {"from": "dummy",
+                                                       "to": "dummy"}) )
         def check_result(p):
             self.assertEqual(p.exit_code, 0)
             self.failUnless(p.stdout.count("usage") >= 1)
@@ -125,6 +127,6 @@ class XMPPToVigiConfTest(unittest.TestCase):
                              "<message to='dummy_from' from='dummy_to' type='chat'>"
                              "<body>OK</body><thread>dummy_thread</thread></message>")
         d.addCallback(check_output)
-        reactor.callLater(1, d.callback, None) # attendre un peu
+        reactor.callLater(3, d.callback, None) # attendre un peu
         return d
 
