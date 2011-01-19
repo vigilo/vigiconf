@@ -45,6 +45,41 @@ external_auth=False
 #sqlalchemy_pool_recycle = 3600
 
 
+[bus]
+# Nom ou adresse IP du serveur XMPP à utiliser.
+host = localhost
+# Nom du service de publication pour les messages.
+service = pubsub.localhost
+# Nom d'utilisateur à utiliser pour se connecter au bus.
+jid = vigiconf@localhost
+# Mot de passe associé au jid donné.
+password = vigiconf
+# Indique si un chiffrement de la connexion est obligatoire (True)
+# ou simplement préféré (False). Dans tous les cas, une connexion
+# TLS sera créée lorsque c'est possible.
+require_tls = False
+# Liste des noms des topics auxquels le connecteur est abonné,
+# séparés par des virgules.
+# Si la liste est vide, mettre uniquement une virgule.
+subscriptions = ,
+# Le trafic lié au bus XMPP doit-il être enregistré dans les logs ?
+log_traffic = False
+
+[connector]
+# Nom d'hôte utilisé pour signaler à Vigilo que ce connecteur fonctionne
+# correctement. Cela doit correspondre au nom d'hôte configuré dans VigiConf
+# pour cette machine. Par défaut, on utilise le nom d'hôte court (sans le
+# domaine DNS)
+#hostname = hostname
+
+[publications]
+# Noms des messages XML traités avec pour chaque type de message
+# le nom du nœud XMPP sur lesquel les messages de ce type sont envoyés.
+perf = /vigilo/perf
+command = /vigilo/command
+# Dans vigiconf, la publication est utilisée pour diffuser l'état du connecteur
+# à Nagios
+
 #
 # LOGGING
 #

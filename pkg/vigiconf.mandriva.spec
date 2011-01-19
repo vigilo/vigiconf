@@ -12,6 +12,7 @@ URL:        http://www.projet-vigilo.org
 Group:      System/Servers
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
 License:    GPLv2
+Buildarch:  noarch
 
 Requires(pre): rpm-helper
 
@@ -44,7 +45,6 @@ Requires:   vigilo-vigiconf
 Requires:   python-zope-interface
 Requires:   python-zope.sqlalchemy
 #Buildrequires: graphviz # Documentation generation
-Buildarch:  noarch
 
 # Renamed from vigilo-confmgr
 Obsoletes:  vigilo-confmgr < 1.36-2
@@ -91,6 +91,12 @@ if [ ! -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key ]; then
     ssh-keygen -t rsa -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key -N "" > /dev/null 2>&1 || :
 fi
 chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
+# Connector
+%_post_service vigilo-connector-vigiconf
+
+%preun
+# Connector
+%_preun_service vigilo-connector-vigiconf
 
 
 %clean
@@ -113,6 +119,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
 %attr(-,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
+# Connector
+%attr(744,root,root) %{_initrddir}/vigilo-connector-vigiconf
+%config(noreplace) %{_sysconfdir}/sysconfig/*
+%attr(-,%{module},%{module}) %{_localstatedir}/run/vigilo-connector-vigiconf
 
 
 %changelog

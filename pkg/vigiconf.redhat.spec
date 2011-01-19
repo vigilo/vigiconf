@@ -82,6 +82,19 @@ if [ ! -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key ]; then
     ssh-keygen -t rsa -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key -N "" > /dev/null 2>&1 || :
 fi
 chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
+# Connector
+/sbin/chkconfig --add vigilo-connector-vigiconf || :
+
+%preun
+if [ $1 = 0 ]; then
+    /sbin/service vigilo-connector-vigiconf stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del vigilo-connector-vigiconf || :
+fi
+
+%postun
+if [ "$1" -ge "1" ] ; then
+    /sbin/service vigilo-connector-vigiconf condrestart > /dev/null 2>&1 || :
+fi
 
 
 %clean
@@ -104,6 +117,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
 %attr(-,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
+# Connector
+%attr(744,root,root) %{_initrddir}/vigilo-connector-vigiconf
+%config(noreplace) %{_sysconfdir}/sysconfig/*
+%attr(-,%{module},%{module}) %{_localstatedir}/run/vigilo-connector-vigiconf
 
 
 %changelog

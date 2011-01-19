@@ -10,6 +10,7 @@ localstatedir = os.getenv("LOCALSTATEDIR", "/var")
 tests_require = [
     'nose',
     'coverage',
+    'pylint',
 ]
 
 def install_i18n(i18ndir, destdir):
@@ -58,6 +59,8 @@ def get_data_files():
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/revisions"), []))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/tmp"), []))
     files.append((os.path.join(localstatedir, "lock/vigilo-vigiconf"), []))
+    # connector
+    files.append((os.path.join(localstatedir, "run/vigilo-connector-vigiconf"), []))
     return files
 
 
@@ -78,6 +81,7 @@ setup(name='vigilo-vigiconf',
             "argparse",
             "vigilo-common",
             "vigilo-models",
+            'vigilo-connector',
             ],
         extras_require={
             'tests': tests_require,
@@ -96,6 +100,7 @@ setup(name='vigilo-vigiconf',
             'console_scripts': [
                 'vigiconf = vigilo.vigiconf.commandline:main',
                 'vigiconf-debug = vigilo.vigiconf.debug:main',
+                'vigilo-connector-vigiconf = vigilo.vigiconf.connector.main:main',
                 ],
             'vigilo.vigiconf.applications': [
                 'collector = vigilo.vigiconf.applications.collector:Collector',

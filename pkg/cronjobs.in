@@ -1,5 +1,4 @@
+# Lance vigiconf a intervalles reguliers pour prendre en compte toute
+# modification dans la configuration.
 #
-# Regular cron jobs for the vigiconf package
-#
-#55 * * * *	vigiconf		@BINDIR@/vigiconf -d > /dev/null 2>&1
-#00 * * * *	vigiconf		@BINDIR@/vigiconf -r > /dev/null 2>&1
+#42 * * * *	vigiconf	@BINDIR@/vigiconf deploy > /dev/null 2>&1
