@@ -129,7 +129,7 @@ class HostLoader(DBLoader):
             host = dict(name=hostname,
                         checkhostcmd=unicode(hostdata['checkHostCMD']),
                         hosttpl=unicode(hostdata['hostTPL']),
-                        snmpcommunity=unicode(hostdata['community']),
+                        snmpcommunity=unicode(hostdata['snmpCommunity']),
                         address=unicode(hostdata['address']),
                         snmpport=hostdata['snmpPort'],
                         snmpoidsperpdu=hostdata['snmpOIDsPerPDU'],

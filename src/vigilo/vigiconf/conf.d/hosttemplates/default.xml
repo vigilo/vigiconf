@@ -8,10 +8,9 @@
     <attribute name="checkHostCMD">check-host-alive</attribute>
     <!-- Default SNMP values -->
     <attribute name="snmpVersion">2</attribute>
-    <attribute name="community">public</attribute>
+    <attribute name="snmpCommunity">public</attribute>
     <attribute name="snmpPort">161</attribute>
     <attribute name="snmpOIDsPerPDU">10</attribute>
     <test name="UpTime"/>
 </template>
 </templates>
-

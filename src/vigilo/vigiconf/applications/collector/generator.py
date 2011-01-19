@@ -36,7 +36,7 @@ class CollectorGen(FileGenerator):
         h = conf.hostsConf[hostname]
         newhash = h.copy()
         if newhash['snmpVersion'] == '2' or newhash['snmpVersion'] == '1':
-            newhash['snmpAuth'] = "communityString => '%(community)s'" \
+            newhash['snmpAuth'] = "communityString => '%(snmpCommunity)s'" \
                                   % newhash
         else:
             if newhash['snmpVersion'] == '3':

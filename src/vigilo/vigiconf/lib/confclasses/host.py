@@ -90,7 +90,7 @@ class Host(object):
                 "hostTPL"        : "generic-active-host",
                 "checkHostCMD"   : "check-host-alive",
                 "snmpVersion"    : "2",
-                "community"      : "public",
+                "snmpCommunity"  : "public",
                 "snmpPort"       : 161,
                 "snmpOIDsPerPDU" : 10,
                 "nagiosDirectives": {},
@@ -101,6 +101,8 @@ class Host(object):
                            "snmpOIDsPerPDU": int,
                            "weight": int,
                           }
+        self.deprecated_attr = {"community": "snmpCommunity",
+                               }
 
     def get_attribute(self, attribute, default=False):
         """
@@ -121,6 +123,13 @@ class Host(object):
         @param attribute: the attribute to set
         @param value: the value to set the attribute to
         """
+        if attribute in self.deprecated_attr:
+            import warnings
+            warnings.warn(DeprecationWarning(_(
+                'The "%s" attribute has been deprecated. '
+                'Please use "%s" instead.'
+            ) % (attribute, self.deprecated_attr[attribute])))
+            attribute = self.deprecated_attr[attribute]
         if attribute in self.attr_types \
                 and not isinstance(value, self.attr_types[attribute]):
             value = self.attr_types[attribute](value)

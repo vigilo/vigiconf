@@ -63,6 +63,8 @@ class HostTemplate(object):
                            "snmpOIDsPerPDU": int,
                            "weight": int,
                           }
+        self.deprecated_attr = {"community": "snmpCommunity",
+                               }
         if name != "default":
             self.add_parent("default")
 
@@ -133,6 +135,14 @@ class HostTemplate(object):
         @param value: the attribute value
         @type  value: anything
         """
+        if attrname in self.deprecated_attr:
+            import warnings
+            warnings.warn(DeprecationWarning(_(
+                'The "%s" attribute has been deprecated. '
+                'Please use "%s" instead.'
+            ) % (attrname, self.deprecated_attr[attrname])))
+            attrname = self.deprecated_attr[attrname]
+
         if not self.data.has_key("attributes"):
             self.data["attributes"] = {}
         if attrname in self.attr_types \

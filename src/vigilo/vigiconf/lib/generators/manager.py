@@ -198,7 +198,7 @@ class GeneratorManager(object):
                             "SNMPJobs": {},
                             }
                     for attr in ["address", "serverGroup", "hostTPL",
-                                 "snmpVersion", "community", "snmpPort",
+                                 "snmpVersion", "snmpCommunity", "snmpPort",
                                  "snmpOIDsPerPDU"]:
                         conf.hostsConf[perf_host][attr] = \
                                 conf.hostsConf[metro_server][attr]
@@ -243,4 +243,3 @@ class GeneratorManager(object):
             if metro_server in nagios_servers:
                 return metro_server
         return vba[hostname]["connector-metro"][0]
-
