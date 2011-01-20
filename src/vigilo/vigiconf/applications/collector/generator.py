@@ -40,11 +40,11 @@ class CollectorGen(FileGenerator):
                                   % newhash
         else:
             if newhash['snmpVersion'] == '3':
-                newhash['snmpAuth'] = "'seclevel'=> '%(seclevel)s', " \
-                                  +"'authproto' => '%(authproto)s', " \
-                                  +"'secname' => '%(secname)s', " \
-                                  +"'authpass' => '%(authpass)s'" \
-                                  % newhash
+                newhash['snmpAuth'] = "'seclevel' => '%(seclevel)s', " \
+                                      "'authproto' => '%(authproto)s', " \
+                                      "'secname' => '%(secname)s', " \
+                                      "'authpass' => '%(authpass)s'" \
+                                      % newhash
         newhash['confid'] = conf.confid
         self.templateCreate(fileName, self.templates["header"], newhash)
         if len(h['SNMPJobs']):
