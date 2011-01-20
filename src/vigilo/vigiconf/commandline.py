@@ -114,7 +114,10 @@ def apps(args):
 
 def info(args):
     dispatchator = get_dispatchator(args)
-    dispatchator.printState()
+    state = dispatchator.getState()
+    encoding = sys.getfilesystemencoding() or "ISO-8859-1"
+    encoding = encoding.lower()
+    print "\n".join([s.encode(encoding) for s in state])
 
 def discover(args):
     from .discoverator import Discoverator, indent

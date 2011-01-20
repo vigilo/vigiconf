@@ -73,7 +73,7 @@ class RevisionManager(object):
         self.mPrevious = 0
         #self.readPickle()
 
-    def __str__(self):
+    def __repr__(self):
         _str = "Revision<"
         #_str += "Pickle : %s\n"%(self.mFilename)
         #_str += "SVN : %d\n"%(self.getSubversion())
@@ -81,6 +81,13 @@ class RevisionManager(object):
         _str += "INS : %d, " % (self.getInstalled())
         _str += "PRE : %d>" % (self.getPrevious())
         return _str
+
+    def getSummary(self):
+        summary = []
+        summary.append(_("Deployed: %d") % self.getDeployed())
+        summary.append(_("Installed: %d") % self.getInstalled())
+        summary.append(_("Previous: %d") % self.getPrevious())
+        return ", ".join(summary)
 
     def getRepository(self):
         """@return: L{mRepository}"""

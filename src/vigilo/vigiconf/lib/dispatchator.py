@@ -705,10 +705,11 @@ class Dispatchator(object):
             self.startOrStopApplications(self.startThread, [_servers],
                                         _("Start applications failed"))
 
-    def printState(self):
-        """Prints a summary"""
+    def getState(self):
+        """Returns a summary"""
+        state = []
         _revision = self.getLastRevision()
-        print _("Current revision in the repository : %d") % _revision
+        state.append(_("Current revision in the repository : %d") % _revision)
         for _srv in self.getServers():
             try:
                 _srv.updateRevisionManager()
@@ -719,16 +720,17 @@ class Dispatchator(object):
                     _deploymentStr = _("(should be deployed)")
                 if _srv.needsRestart():
                     _restartStr = _("(should restart)")
-                print _("Revisions for server %(server)s : "
-                        "%(rev)s%(dep)s%(restart)s") % \
-                        {"server": _srv.getName(),
-                         "rev": str(_srv.getRevisionManager()),
-                         "dep": _deploymentStr, "restart": _restartStr}
+                state.append(_("Revisions for server %(server)s : "
+                               "%(rev)s%(dep)s%(restart)s") % \
+                             {"server": _srv.getName(),
+                              "rev": _srv.getRevisionManager().getSummary(),
+                              "dep": _deploymentStr, "restart": _restartStr})
             except Exception, e:
                 LOGGER.warning(_("Cannot get revision for server: %(server)s. "
                                  "REASON : %(reason)s"),
                                  {"server": _srv.getName(),
                                   "reason": str(e)})
+        return state
 
     def run(self, stop_after=None):
         self.prepare_svn()

@@ -51,7 +51,7 @@ host = localhost
 # Nom du service de publication pour les messages.
 service = pubsub.localhost
 # Nom d'utilisateur à utiliser pour se connecter au bus.
-jid = vigiconf@localhost
+jid = vigiconf@localhost/vigiconf
 # Mot de passe associé au jid donné.
 password = vigiconf
 # Indique si un chiffrement de la connexion est obligatoire (True)

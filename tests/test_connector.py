@@ -18,7 +18,8 @@ from wokkel.test.helpers import XmlStreamStub
 from wokkel.generic import parseXml
 
 from vigilo.pubsub.xml import NS_COMMAND
-from vigilo.vigiconf.connector.xmpptovigiconf import XMPPToVigiConf
+from vigilo.vigiconf.connector.xmpptovigiconf import XMPPToVigiConf, \
+        VigiConfMessageProtocol
 from vigilo.vigiconf.connector.command import Command, CommandNotFound, \
         AlreadyCalledError
 
@@ -68,6 +69,9 @@ class XMPPToVigiConfTest(unittest.TestCase):
         self.conn.xmlstream = self.stub.xmlstream
         self.conn.send = self.stub.xmlstream.send
         self.conn.connectionInitialized()
+        message_protocol = VigiConfMessageProtocol(self.conn)
+        message_protocol.xmlstream = self.stub.xmlstream
+        message_protocol.connectionInitialized()
 
     def tearDown(self):
         self.conn.stop()
@@ -101,15 +105,46 @@ class XMPPToVigiConfTest(unittest.TestCase):
         self.stub.send(parseXml(msg))
         d = defer.Deferred()
         def check_output(r):
-            self.failIf(len(self.stub.output) < 2)
-            self.assertEqual(self.stub.output[-2].toXml(), 
-                             "<message to='dummy_from' from='dummy_to' type='chat'>"
-                             "<body>Running command: echo dummy_command arg1 arg2</body>"
-                             "<thread>dummy_thread</thread></message>")
-            self.assertEqual(self.stub.output[-1].toXml(),
-                             "<message to='dummy_from' from='dummy_to' type='chat'>"
-                             "<body>OK</body><thread>dummy_thread</thread></message>")
+            #print [e.toXml() for e in self.stub.output]
+            self.failIf(len(self.stub.output) < 3)
+            msg_exec = self.stub.output[-3]
+            msg_summary = self.stub.output[-2]
+            msg_output = self.stub.output[-1]
+            for msg in self.stub.output[-3:-1]:
+                self.assertEqual(str(msg["to"]), "dummy_from")
+                self.assertEqual(str(msg["from"]), "dummy_to")
+                self.assertEqual(str(msg["type"]), "chat")
+                self.assertEqual(str(msg.thread), "dummy_thread")
+            self.failIf("echo dummy_command arg1 arg2" not in
+                        unicode(msg_exec.body))
+            self.failUnless(unicode(msg_summary.body).startswith("OK."))
+            self.assertEqual(str(msg_output.body), "dummy_command arg1 arg2\n")
         d.addCallback(check_output)
         reactor.callLater(3, d.callback, None) # attendre un peu
+        return d
+
+    @deferred(10)
+    def test_cmd_failed(self):
+        """Test de l'envoi d'une commande qui échoue"""
+        self.conn.vigiconf_cmd = "false"
+        msg = ('<message type="chat" from="dummy_from" to="dummy_to">'
+               '<body>dummy</body></message>')
+        self.stub.send(parseXml(msg))
+        d = defer.Deferred()
+        def check_output(r):
+            #print [e.toXml() for e in self.stub.output]
+            self.failIf(len(self.stub.output) < 3)
+            msg_exec = self.stub.output[-3]
+            msg_summary = self.stub.output[-2]
+            msg_output = self.stub.output[-1]
+            for msg in self.stub.output[-3:-1]:
+                self.assertEqual(str(msg["to"]), "dummy_from")
+                self.assertEqual(str(msg["from"]), "dummy_to")
+                self.assertEqual(str(msg["type"]), "chat")
+            self.failIf("false dummy" not in unicode(msg_exec.body))
+            self.failIf("!" not in unicode(msg_summary.body))
+            self.assertEqual(str(msg_output.body), "")
+        d.addCallback(check_output)
+        reactor.callLater(1, d.callback, None) # attendre un peu
         return d
 

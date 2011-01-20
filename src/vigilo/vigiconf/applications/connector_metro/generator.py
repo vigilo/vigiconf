@@ -43,6 +43,9 @@ class ConnectorMetroGen(Generator):
         db_path = os.path.join(self.baseDir, vserver, "connector-metro.db") 
         if not os.path.exists(db_path):
             self.init_db(db_path)
+            os.chmod(db_path, # chmod 644
+                     stat.S_IRUSR | stat.S_IWUSR | \
+                     stat.S_IRGRP | stat.S_IROTH )
         db = sqlite3.connect(db_path)
         cursor = db.cursor()
         datasources = h['dataSources'].keys()
