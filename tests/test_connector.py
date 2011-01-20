@@ -91,23 +91,6 @@ class XMPPToVigiConfTest(unittest.TestCase):
         return d
 
     @deferred(10)
-    def test_vigiconf_help(self):
-        """Test avec 'vigiconf --help'"""
-        buildout_bin_dir = os.path.join(os.path.dirname(__file__), "..", "bin")
-        os.environ["PATH"] = buildout_bin_dir + ":" + os.environ["PATH"]
-        msg = ('<command xmlns="%s">'
-               '<cmdname>--help</cmdname>'
-               '</command>' % NS_COMMAND)
-        d = self.conn.processMessage( (parseXml(msg), {"from": "dummy",
-                                                       "to": "dummy"}) )
-        def check_result(p):
-            self.assertEqual(p.exit_code, 0)
-            self.failUnless(p.stdout.count("usage") >= 1)
-            self.assertEqual(p.stderr, "")
-        d.addCallback(check_result)
-        return d
-
-    @deferred(10)
     def test_text_msg(self):
         """Test de l'envoi d'une commande en mode texte"""
         self.conn.vigiconf_cmd = "echo"
