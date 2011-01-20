@@ -25,6 +25,7 @@ Generator for connector-metro, the RRD db generator
 
 
 import os.path
+import stat
 import urllib
 import sqlite3
 
