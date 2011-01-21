@@ -54,10 +54,10 @@ def setup_tmpdir(dirpath=None):
     #if not dirpath:
     #    dirpath = tempfile.mkdtemp(dir="/dev/shm", prefix="tests-vigiconf")
     #tmpdir = dirpath
-    tmpdir = settings["vigiconf"].get("libdir")
+    #tmpdir = settings["vigiconf"].get("libdir")
+    tmpdir = tempfile.mkdtemp(prefix="tests-vigiconf-")
+    settings["vigiconf"]["libdir"] = tmpdir
     conf.LIBDIR = tmpdir
-    if not os.path.exists(tmpdir):
-        os.makedirs(tmpdir)
     return tmpdir
 
 #Create an empty database before we start our tests for this module
