@@ -30,7 +30,7 @@ from vigilo.models.session import DBSession
 
 from vigilo.models.tables import Host, SupItemGroup, LowLevelService
 from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
-from vigilo.models.tables import ConfFile, ConfItem, Change
+from vigilo.models.tables import ConfFile, ConfItem, Change, Tag
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE
 
 from vigilo.vigiconf.lib.loaders import DBLoader
@@ -144,6 +144,10 @@ class HostLoader(DBLoader):
             # en fonction des besoins.
             collector_loader = CollectorLoader(host)
             collector_loader.load()
+
+            # Synchronisation des tags de l'hôte.
+            tag_loader = TagLoader(host, hostdata.get('tags', {}))
+            tag_loader.load()
 
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
@@ -317,6 +321,12 @@ class ServiceLoader(DBLoader):
                                         nagios_directives[service])
                 nagiosconf_loader.load()
 
+            # tags
+            if service in conf.hostsConf[self.host.name]['services']:
+                tag_loader = TagLoader(lls, conf.hostsConf[self.host.name] \
+                    ['services'][service].get('tags', {}))
+                tag_loader.load_conf()
+
 class CollectorLoader(ServiceLoader):
     def _list_db(self):
         return DBSession.query(self._class).filter_by(host=self.host
@@ -329,6 +339,36 @@ class CollectorLoader(ServiceLoader):
                          self.host.name)
             lls = dict(host=self.host, servicename=u"Collector", weight=1)
             lls = self.add(lls)
+
+            # tags
+            if 'Collector' in hostdata['services']:
+                tag_loader = TagLoader(lls, hostdata['services'] \
+                    ['Collector'].get('tags', {}))
+                tag_loader.load_conf()
+
+class TagLoader(DBLoader):
+    def __init__(self, supitem, tags):
+        super(TagLoader, self).__init__(Tag, "name")
+        self.supitem = supitem
+        self.tags = tags
+
+    def cleanup(self):
+        pass
+
+    def load_conf(self):
+        supitem_tags = self.supitem.tags
+        for name, value in self.tags.iteritems():
+            name = unicode(name)
+            value = value and unicode(value) or None
+            tag = self.add({
+                'name': name,
+                'value': value,
+            })
+            if tag not in supitem_tags:
+                self.supitem.tags.append(tag)
+        for tag in supitem_tags:
+            if tag.name not in self.tags:
+                supitem_tags.remove(tag)
 
 class NagiosConfLoader(DBLoader):
     """

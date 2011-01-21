@@ -370,12 +370,19 @@ class Host(object):
             self.add_sub(target, "nagiosSrvDirs", service, dname, str(dvalue))
 
         # Add the Nagios service (rerouting-dependant)
-        self.add(target, "services", service, {'type': 'passive',
-                                               'cti': cti,
-                                               "weight": weight,
-                                               "directives": directives,
-                                               "reRoutedBy": reroutedby,
-                                              })
+        # On utilise add_sub() car sinon on risque d'écraser complètement
+        # une configuration déjà en place, par exemple lorsque des tags
+        # ont été définis pour ce service.
+        definition = {
+            'type': 'passive',
+            'cti': cti,
+            'weight': weight,
+            'directives': directives,
+            'reRoutedBy': reroutedby,
+        }
+        for (key, value) in definition.iteritems():
+            self.add_sub(target, "services", service, key, value)
+
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (label, 'service'),
                                         {'function': function,
@@ -562,7 +569,8 @@ class Host(object):
         else:
             definition["type"] = "active"
             definition["command"] = command
-        self.add(self.name, 'services', name, definition)
+        for (key, value) in definition.iteritems():
+            self.add_sub(self.name, 'services', name, key, value)
 
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
                              dstype="GAUGE", reroutefor=None, max_value=None,
@@ -623,20 +631,24 @@ class Host(object):
         oid.append(str(ord("/")))
         for char in metroname:
             oid.append(str(ord(char)))
+
         # Ajout du service Nagios
-        self.add(self.name, "services", servicename,
-                 {'type': 'passive',
-                  "weight": weight,
-                  "directives": {},
-                  "reRoutedBy": None,
-                  })
+        definition = {
+            'type': 'passive',
+            'weight': weight,
+            'directives': {},
+            'reRoutedBy': None,
+        }
+        for (key, value) in definition.iteritems():
+            self.add_sub(self.name, "services", servicename, key, value)
+
         # Ajout du service Collector sur le serveur de métro
         self.add(self.name, "metro_services", (servicename, 'service'),
                  {'function': "simple_factor",
                   'params': [warn, crit, factor],
                   'vars': [ "GET/%s" % ".".join(oid) ],
                   'reRouteFor': None,
-                  } )
+                  })
 
     def add_tag(self, service, name, value):
         """
@@ -649,7 +661,7 @@ class Host(object):
         @param value: the tag value
         @type  value: C{int}
         """
-        if service is None or service.lower() == "host":
+        if not service or service.lower() == "host":
             target = self.hosts[self.name]
         else:
             target = self.hosts[self.name]["services"][service]
@@ -870,7 +882,10 @@ class HostFactory(object):
                     cur_host.set_attribute(get_attrib(elem, 'name'), value)
 
                 elif elem.tag == "tag":
-                    cur_host.add_tag(get_attrib(elem, 'service'),
+                    service = None
+                    if 'service' in elem.attrib:
+                        service = get_attrib(elem, 'service')
+                    cur_host.add_tag(service,
                                      get_attrib(elem, 'name'),
                                      get_text(elem))
 

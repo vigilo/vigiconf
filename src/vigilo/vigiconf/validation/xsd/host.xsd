@@ -87,19 +87,8 @@ hosts element contains one ore more host elements
             <xs:complexType>
                 <xs:simpleContent>
                     <xs:extension base="xs:string">
-                        <xs:attribute name="service" type="xs:string"/>
+                        <xs:attribute name="service" type="xs:string" use="optional"/>
                         <xs:attribute name="name" type="xs:string"/>
-                    </xs:extension>
-                </xs:simpleContent>
-            </xs:complexType>
-        </xs:element>
-
-        <xs:element name="trap">
-            <xs:complexType>
-                <xs:simpleContent>
-                    <xs:extension base="xs:string">
-                        <xs:attribute name="service" type="xs:string"/>
-                        <xs:attribute name="key" type="xs:string"/>
                     </xs:extension>
                 </xs:simpleContent>
             </xs:complexType>
