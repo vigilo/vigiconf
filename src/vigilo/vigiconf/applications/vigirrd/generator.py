@@ -130,13 +130,13 @@ class VigiRRDGen(Generator):
     def db_add_graphs(self, cursor, hostname, graphs):
         idhost = self.db_add_host(cursor, hostname)
         for graphname, graphdata in graphs.iteritems():
-            idgraph = self.db_add_graph(cursor, idhost, graphname, graphdata)
+            self.db_add_graph(cursor, idhost, graphname, graphdata)
 
     def db_add_host(self, cursor, hostname):
         cursor.execute("SELECT idhost FROM host WHERE name = ?", (hostname, ))
         idhost = cursor.fetchone()
         if idhost is not None:
-            return idhost
+            return idhost[0]
         config = self.application.getConfig()
         cursor.execute("INSERT INTO host VALUES (NULL, ?, ?, ?, ?, ?)",
                        (hostname, config["grid"], config["height"],
@@ -151,15 +151,18 @@ class VigiRRDGen(Generator):
         for dsname in graphdata["ds"]:
             factor = graphdata["factors"].get(dsname, 1)
             idpds = self.db_add_pds(cursor, dsname, factor)
+            cursor.execute("INSERT INTO graphperfdatasource VALUES "
+                           "(?, ?)", (idpds, idgraph))
 
     def db_add_pds(self, cursor, name, factor):
-        cursor.execute("SELECT idperfdatasource FROM perfdatasource WHERE name = ?", (name, ))
+        cursor.execute("SELECT idperfdatasource FROM perfdatasource "
+                       "WHERE name = ?", (name, ))
         idpds = cursor.fetchone()
         if idpds is not None:
-            return idpds
+            return idpds[0]
         #config = self.application.getConfig()
-        cursor.execute("INSERT INTO perfdatasource VALUES (NULL, ?, NULL, ?, NULL)",
-                       (name, factor))
+        cursor.execute("INSERT INTO perfdatasource VALUES "
+                       "(NULL, ?, NULL, ?, NULL)", (name, factor))
         return cursor.lastrowid
 
     def finalize_databases(self):
