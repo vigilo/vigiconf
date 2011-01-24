@@ -36,19 +36,24 @@ from vigilo.vigiconf.lib.generators import Generator
 class ConnectorMetroGen(Generator):
     """Generator for connector-metro, the RRD db generator"""
 
+    def generate(self):
+        self.connections = {}
+        super(ConnectorMetroGen, self).generate()
+        self.finalize_databases()
+
     def generate_host(self, hostname, vserver):
         """Generate files"""
         h = conf.hostsConf[hostname]
         if "dataSources" not in h or not h['dataSources']:
             return
         db_path = os.path.join(self.baseDir, vserver, "connector-metro.db") 
-        if not os.path.exists(db_path):
-            self.init_db(db_path)
+        if vserver not in self.connections:
+            self.init_db(db_path, vserver)
             os.chmod(db_path, # chmod 644
                      stat.S_IRUSR | stat.S_IWUSR | \
                      stat.S_IRGRP | stat.S_IROTH )
-        db = sqlite3.connect(db_path)
-        cursor = db.cursor()
+        db = self.connections[vserver]["db"]
+        cursor = self.connections[vserver]["cursor"]
         datasources = h['dataSources'].keys()
         datasources.sort()
         netflow_datasources = []
@@ -80,13 +85,14 @@ class ConnectorMetroGen(Generator):
                 self.db_add_ds(cursor, tplvars, is_netflow=False)
             else:
                 self.db_add_ds(cursor, tplvars, is_netflow=True)
-        db.commit()
-        cursor.close()
-        db.close()
+        #db.commit()
+        #cursor.close()
+        #db.close()
 
-    def init_db(self, db_path):
+    def init_db(self, db_path, vserver):
         db = sqlite3.connect(db_path)
         c = db.cursor()
+        self.connections[vserver] = {"db": db, "cursor": c}
         # perfdatasource
         c.execute("""CREATE TABLE perfdatasource (
                          idperfdatasource INTEGER NOT NULL, 
@@ -99,10 +105,10 @@ class ConnectorMetroGen(Generator):
                          max FLOAT, 
                          PRIMARY KEY (idperfdatasource)
                      )""")
-        c.execute("CREATE INDEX ix_perfdatasource_name "
-                  "ON perfdatasource (name)")
-        c.execute("CREATE INDEX ix_perfdatasource_hostname "
-                  "ON perfdatasource (hostname)")
+        #c.execute("CREATE INDEX ix_perfdatasource_name "
+        #          "ON perfdatasource (name)")
+        #c.execute("CREATE INDEX ix_perfdatasource_hostname "
+        #          "ON perfdatasource (hostname)")
         # rra
         c.execute("""CREATE TABLE rra (
                          idrra INTEGER NOT NULL, 
@@ -124,9 +130,9 @@ class ConnectorMetroGen(Generator):
                              REFERENCES rra (idrra)
                              ON DELETE CASCADE ON UPDATE CASCADE
                      )""")
-        db.commit()
-        c.close()
-        db.close()
+        #db.commit()
+        #c.close()
+        #db.close()
 
     def db_add_ds(self, cursor, data, is_netflow=False):
         config = self.application.getConfig()
@@ -152,5 +158,17 @@ class ConnectorMetroGen(Generator):
             else:
                 rra_id = rra_id[0]
             cursor.execute("INSERT INTO pdsrra VALUES (?, ?)", (ds_id, rra_id))
+
+    def finalize_databases(self):
+        for vserver in self.connections:
+            db = self.connections[vserver]["db"]
+            cursor = self.connections[vserver]["cursor"]
+            cursor.execute("CREATE INDEX ix_perfdatasource_name "
+                           "ON perfdatasource (name)")
+            cursor.execute("CREATE INDEX ix_perfdatasource_hostname "
+                           "ON perfdatasource (hostname)")
+            db.commit()
+            cursor.close()
+            db.close()
 
 

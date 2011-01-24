@@ -24,10 +24,13 @@ fi
 
 export BASE=$1
 
-if [ ! -r $BASE/vigirrd.conf.py ]
+if [ ! -r $BASE/vigirrd.db ]
 then
     exit 0
 fi
 
-python -c "execfile('$BASE/vigirrd.conf.py')"
+sqlite3 $BASE/vigirrd.db "SELECT COUNT(*) FROM perfdatasource" && \
+sqlite3 $BASE/vigirrd.db "SELECT COUNT(*) FROM host" && \
+sqlite3 $BASE/vigirrd.db "SELECT COUNT(*) FROM graph" && \
+sqlite3 $BASE/vigirrd.db "SELECT COUNT(*) FROM graphperfdatasource"
 exit $?

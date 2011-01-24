@@ -85,7 +85,7 @@ class GeneratorManager(object):
         for app in self.apps:
             if not app.generator:
                 continue
-            LOGGER.debug("Generating configuration for %s" % app.name)
+            LOGGER.info("Generating configuration for %s" % app.name)
             generator = app.generator(app, vba, validator)
             generator.generate()
             generator.write_scripts()
