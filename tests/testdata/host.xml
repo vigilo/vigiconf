@@ -23,6 +23,5 @@
     <tag service="Host" name="important" value="2"/>
     <test name="UpTime"/>
     <tag service="UpTime" name="security" value="1"/>
-    <trap service="test.add_trap" key="test.name" value="test.label"/>
     <group name="Linux servers"/>
 </host>

@@ -36,7 +36,6 @@
 
     <tag service="UpTime" name="security">1</tag>
     <tag service="Host" name="important">2</tag>
-    <trap service="test.add_trap" key="test.name">test.label</trap>
     <group>Linux servers</group>
 </host>
 </hosts>

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # VigiConf
@@ -40,11 +41,24 @@ class CollectorGen(FileGenerator):
                                   % newhash
         else:
             if newhash['snmpVersion'] == '3':
-                newhash['snmpAuth'] = "'seclevel' => '%(seclevel)s', " \
-                                      "'authproto' => '%(authproto)s', " \
-                                      "'secname' => '%(secname)s', " \
-                                      "'authpass' => '%(authpass)s'" \
-                                      % newhash
+                # Récupère les paramètres de l'authentification en v3.
+                # (snmpSeclevel, snmpSecname, etc.)
+                snmpAuth = []
+                for snmpV3Param in (
+                    'Context',
+                    'Seclevel',
+                    'Secname',
+                    'Authproto',
+                    'Authpass',
+                    'Privproto',
+                    'Privpass'):
+                    if newhash.get('snmp' + snmpV3Param):
+                        snmpAuth.append("'%s' => '%s'" % (
+                            snmpV3Param.lower(),
+                            newhash['snmp' + snmpV3Param]
+                        ))
+                newhash['snmpAuth'] = u', '.join(snmpAuth)
+
         newhash['confid'] = conf.confid
         self.templateCreate(fileName, self.templates["header"], newhash)
         if len(h['SNMPJobs']):

@@ -101,8 +101,16 @@ class Host(object):
                            "snmpOIDsPerPDU": int,
                            "weight": int,
                           }
-        self.deprecated_attr = {"community": "snmpCommunity",
-                               }
+        self.deprecated_attr = {
+            "community": "snmpCommunity",
+            "context": "snmpContext",
+            "seclevel": "snmpSeclevel",
+            "secname": "snmpSecname",
+            "authproto": "snmpAuthproto",
+            "authpass": "snmpAuthpass",
+            "privproto": "snmpPrivproto",
+            "privpass": "snmpPrivpass",
+       }
 
     def get_attribute(self, attribute, default=False):
         """

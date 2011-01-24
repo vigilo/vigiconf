@@ -63,8 +63,16 @@ class HostTemplate(object):
                            "snmpOIDsPerPDU": int,
                            "weight": int,
                           }
-        self.deprecated_attr = {"community": "snmpCommunity",
-                               }
+        self.deprecated_attr = {
+            "community": "snmpCommunity",
+            "context": "snmpContext",
+            "seclevel": "snmpSeclevel",
+            "secname": "snmpSecname",
+            "authproto": "snmpAuthproto",
+            "authpass": "snmpAuthpass",
+            "privproto": "snmpPrivproto",
+            "privpass": "snmpPrivpass",
+       }
         if name != "default":
             self.add_parent("default")
 
