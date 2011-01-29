@@ -107,33 +107,27 @@ class Validator(object):
         @rtype: C{boolean}
         """
         self._stats["nbHosts"] = len(conf.hostsConf)
-        apps = set()
+        self.apps = set()
         servers = set()
         for hostVentilation in self._mapping.values():
             for (app, vservers) in hostVentilation.iteritems():
-                apps.add(app)
+                self.apps.add(app)
                 servers.update(set(vservers))
         self._stats["nbServers"] = len(servers)
-        self._stats["nbApps"] = len(apps)
-        returnCode = True
-        if not self.preValidateDB():
-            returnCode = False
+        self._stats["nbApps"] = len(self.apps)
+        self.preValidateDB()
         if len(servers) == 0:
             self.addError("Base Config", "servers",
                           _("No server configuration to be generated"))
-            returnCode = False
-        if len(apps) == 0:
+        if len(self.apps) == 0:
             self.addError("Base Config", "apps",
                           _("No application configuration to be generated"))
-            returnCode = False
         if len(conf.hostsConf) == 0:
             self.addError("Base Config", "hosts",
                           _("No host configuration to be generated"))
-            returnCode = False
-        return returnCode
+        return not self.hasErrors()
 
     def preValidateDB(self):
-        returnCode = True
         # Hosts
         hosts_db = DBSession.query(tables.Host).count()
         if hosts_db != self._stats["nbHosts"]:
@@ -146,7 +140,6 @@ class Validator(object):
             hosts_conf = set([ unicode(h) for h in conf.hostsConf.keys() ])
             LOGGER.debug("Hosts: difference between conf and DB: %s",
                          " ".join(hosts_db ^ hosts_conf))
-            returnCode = False
         # Services
         svc_db = DBSession.query(tables.LowLevelService).count()
         svc_conf = 0
@@ -175,35 +168,41 @@ class Validator(object):
             svc_conf_detail = [ unicode(s) for s in svc_conf_detail ]
             LOGGER.debug("Services: difference between conf and DB: %s",
                          ", ".join(set(svc_db_detail) ^ set(svc_conf_detail)))
-            returnCode = False
         # Applications
         apps_db = DBSession.query(tables.Application).count()
         if apps_db != self._stats["nbApps"]:
-            self.addError("DBLoader", "applications",
-                _("The number of apps entries in the database does not match "
-                  "the number of apps in the configuration. "
-                  "Database: %(db)d, configuration: %(conf)d")
-                % {"db": apps_db, "conf": self._stats["nbApps"]})
+            self.addWarning("DBLoader", "applications",
+                _("The number of apps loaded in the database does not match "
+                  "the number of apps to deploy. Database: %(db)d, "
+                  "to deploy: %(deploy)d. Possible cause: one or more app "
+                  "have no Vigilo server to be deployed on.")
+                % {"db": apps_db, "deploy": self._stats["nbApps"]})
             apps_db = set([a.name for a in
                            DBSession.query(tables.Application).all()])
             apps_conf = set()
-            for hostVentilation in self._mapping.values():
+            for host, hostVentilation in self._mapping.iteritems():
                 for app in hostVentilation:
                     apps_conf.add(app.name)
             LOGGER.debug("Applications: difference between conf and DB: %s",
                          " ".join(apps_db ^ apps_conf))
-            returnCode = False
         # Ventilation
         ventilation_db = DBSession.query(tables.Ventilation).count()
         if ventilation_db != self._stats["nbHosts"] * self._stats["nbApps"]:
-            self.addError("DBLoader", "ventilation",
+            self.addWarning("DBLoader", "ventilation",
                 _("The number of ventilation entries in the database does "
-                  "not match the number of host and apps. "
-                  "Database: %(db)d, configuration: %(conf)d")
+                  "not match the number of host and apps. Database: %(db)d, "
+                  "should be: %(conf)d. Possible cause: one or more "
+                  "application have no Vigilo server to be deployed on.")
                 % {"db": ventilation_db,
                    "conf": self._stats["nbHosts"] * self._stats["nbApps"]})
-            returnCode = False
-        return returnCode
+            ventilation_db = set([ "%s:%s" % (v.host.name, v.application.name)
+                         for v in DBSession.query(tables.Ventilation).all() ])
+            ventilation_conf = set()
+            for a in self.apps:
+                for h in conf.hostsConf.keys():
+                    ventilation_conf.add("%s:%s" % (h, a))
+            LOGGER.debug("Ventilation: difference between conf and DB: %s",
+                         " ".join(ventilation_db ^ ventilation_conf))
 
     def hasErrors(self):
         """
