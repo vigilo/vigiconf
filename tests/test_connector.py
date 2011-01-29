@@ -113,10 +113,10 @@ class XMPPToVigiConfTest(unittest.TestCase):
         self.stub.send(parseXml(msg))
         d = defer.Deferred()
         def check_output(r):
-            #print [e.toXml() for e in self.stub.output]
-            self.failIf(len(self.stub.output) < 2)
-            msg = self.stub.output[-1]
-            print msg.toXml()
+            print [e.toXml() for e in self.stub.output]
+            self.failIf(len(self.stub.output) != 1)
+            msg = self.stub.output[0]
+            #print msg.toXml()
             self.assertEqual(str(msg["to"]), "dummy_from")
             self.assertEqual(str(msg["from"]), "dummy_to")
             self.assertEqual(str(msg["type"]), "normal")
