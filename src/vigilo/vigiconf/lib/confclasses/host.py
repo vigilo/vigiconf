@@ -210,6 +210,15 @@ class Host(object):
         group_name = unicode(group_name)
         self.hosts[self.name]['otherGroups'].add(group_name)
 
+    def add_class(self, class_name):
+        """
+        Add a class to the host
+        @param class_name: the class name to be added to
+        @type  class_name: C{str}
+        """
+        if self.classes.count(class_name) == 0:
+            self.classes.append(class_name)
+
     def add_dependency(self, service="Host", deps=None, options=None, cti=1):
         """
         Add a topological dependency, from "origin" to "target".

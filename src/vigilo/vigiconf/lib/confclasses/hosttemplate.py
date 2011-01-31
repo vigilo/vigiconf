@@ -53,6 +53,7 @@ class HostTemplate(object):
         self.data = {
                 "parent": [],
                 "tests": [],
+                "classes": [],
                 "groups": [],
                 "attributes": {},
                 "weight": 1,
@@ -117,6 +118,16 @@ class HostTemplate(object):
             if not parse_path(group):
                 raise ParsingError(_('Invalid group name (%s)') % group)
             self.data["groups"].append(group)
+
+    def add_class(self, classname):
+        """
+        Add a group to this host template
+        @param args: the groups to add
+        @type  args: C{str} or C{list} of C{str}
+        """
+        if not self.data.has_key("classes"):
+            self.data["classes"] = []
+        self.data["classes"].append(classname)
 
     def add_weight(self, weight):
         self.data["weight"] = weight
@@ -336,7 +347,7 @@ class HostTemplateFactory(object):
                     cur_tpl.add_parent(get_text(elem))
 
                 elif elem.tag == "class":
-                    cur_tpl.classes.append(get_text(elem))
+                    cur_tpl.add_class(get_text(elem))
 
                 elif elem.tag == "directive":
                     if not process_nagios: continue
@@ -456,6 +467,8 @@ class HostTemplateFactory(object):
             for p in parent[1:]:
                 self.templates[tplname]["groups"].extend(
                                     self.templates[p]["groups"])
+                self.templates[tplname]["classes"].extend(
+                                    self.templates[p]["classes"])
                 self.templates[tplname]["tests"].extend(
                                     self.templates[p]["tests"])
                 self.templates[tplname]["attributes"].update(
@@ -468,6 +481,8 @@ class HostTemplateFactory(object):
             # Finally, re-add the template-specific data
             self.templates[tplname]["groups"].extend(
                             templates_save[tplname]["groups"])
+            self.templates[tplname]["classes"].extend(
+                            templates_save[tplname]["classes"])
             self.templates[tplname]["tests"].extend(
                             templates_save[tplname]["tests"])
             self.templates[tplname]["attributes"].update(
@@ -506,6 +521,10 @@ class HostTemplateFactory(object):
             for srv, data in tpl["nagiosSrvDirs"].iteritems():
                 for name, value in data.iteritems():
                     host.add_nagios_service_directive(srv, name, value)
+        # class
+        if tpl.has_key("classes"):
+            for class_ in tpl["classes"]:
+                host.add_class(class_)
 
         # tests
         if tpl.has_key("tests"):
