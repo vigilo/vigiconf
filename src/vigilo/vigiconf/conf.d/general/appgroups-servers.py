@@ -26,16 +26,6 @@ appsGroupsByServer = {
     },
 }
 
-# Permet de mettre les groupes d'hotes en mode copie pour les applications
-# desirees. Consequence : tous les serveurs Vigilo de ce groupe seront
-# equivalents (utile pour de la haute disponibilite)
-#appsGroupsMode = {
-#    'metrology' : {
-#        'Servers'         : "duplicate",
-#        'Telecom'         : "duplicate",
-#    },
-#}
-
 # Configuration des serveurs de backup, dans le cas ou tous les serveurs du
 # groupe seraient desactives
 #appsGroupsBackup = {
@@ -60,6 +50,5 @@ appsGroupsByServer = {
 #        'Telecom'         : ['vigilo2.example.com'],
 #    },
 #}
-
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

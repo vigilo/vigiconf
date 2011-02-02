@@ -30,6 +30,7 @@ This file is part of the Enterprise Edition
 from __future__ import absolute_import
 
 import transaction
+import zlib
 
 from vigilo.models.session import DBSession
 from vigilo.models import tables
@@ -84,71 +85,34 @@ class VentilatorRemote(Ventilator):
                           ))
         DBSession.flush()
 
-
-    def getNextServerToUse(self, servers):
+    def get_previous_servers(self, host, appgroup):
         """
-        @param servers: the list of server names
-        @type servers: list of C{str}
-        @return: the less busy server's name
-        """
-        loads = {}
-        for server in servers:
-            # TODO: optimisation : préparer la requête
-            loads[server] = DBSession.query(tables.Ventilation).join(
-                                    tables.Ventilation.vigiloserver
-                                ).filter(
-                                    tables.VigiloServer.name == unicode(server)
-                                ).count()
-        servers.sort(key=lambda s: loads[s])
-        return servers[0]
+        Retourne le nom des précédents serveurs Vigilo
+        sur lequel l'hôte a été ventilé pour une
+        application précise.
 
-    def get_previous_server(self, host, appgroup):
-        for app in self.apps_by_appgroup[appgroup]:
-            prev_srv = DBSession.query(tables.VigiloServer.name
-                            ).join(tables.Ventilation.vigiloserver
-                            ).join(tables.Ventilation.application
-                            ).filter(
-                                tables.Application.name == unicode(app.name)
-                            ).join(tables.Ventilation.host
-                            ).filter(
-                                tables.Host.name == unicode(host)
-                            ).filter(
-                                tables.VigiloServer.disabled == False
-                            ).first()
-            if prev_srv is not None:
-                return prev_srv.name
-        return None
-
-    def getServerToUse(self, servers, host, appgroup):
+        @param  host: Nom de l'hôte dont on veut connaître
+            la ventilation précédente.
+        @type   host: C{str}
+        @param  appgroup: Nom de l'application dont la ventilation
+            nous intéresse.
+        @type   appgroup: C{str}
+        @return: Nom des serveurs Vigilo sur lequels l'hôte L{host}
+            a été ventilé pour l'application L{appgroup}.
+        @rtype: C{list} of C{str}
         """
-        Find the server to use for a given host.
-        If the host is already handled by a server, return it.
-        Choose the less busy otherwise.
-        @param servers: the list of server names
-        @type  servers: list of C{str}
-        @param host: the host name to handle
-        @type  host: C{str}
-        @param appgroup: the application group to ventilate
-        @type  appgroup: C{str}
-        @return: the server to use
-        @rtype:  C{str}
-        """
-        previous_server = self.get_previous_server(host, appgroup)
-        if previous_server and previous_server in servers:
-            return previous_server
-        # not found yet, choose next server
-        vserver = self.getNextServerToUse(servers)
-        self.appendHost(vserver, host, appgroup)
-        return vserver
-
-    def is_mode_duplicate(self, appgroup, hostgroup):
-        if getattr(conf, "appsGroupsMode", None) is None:
-            return False
-        if appgroup not in conf.appsGroupsMode:
-            return False
-        if hostgroup not in conf.appsGroupsMode[appgroup]:
-            return False
-        return conf.appsGroupsMode[appgroup][hostgroup] == "duplicate"
+        apps = [unicode(app.name) for app in self.apps_by_appgroup[appgroup]]
+        prev_servers = DBSession.query(
+                tables.VigiloServer.name
+            ).join(
+                tables.Ventilation.vigiloserver,
+                tables.Ventilation.application,
+                tables.Ventilation.host,
+            ).filter(tables.Application.name.in_(apps)
+            ).filter(tables.Host.name == unicode(host)
+            ).filter(tables.VigiloServer.disabled == False
+            ).all()
+        return [server.name for server in prev_servers]
 
     def get_host_ventilation_group(self, hostname, hostdata):
         if "serverGroup" in hostdata and hostdata["serverGroup"]:
@@ -243,6 +207,7 @@ class VentilatorRemote(Ventilator):
 
         """
         LOGGER.debug("Ventilation begin")
+
         # On collecte tous les groupes d'hôtes
         hostgroups = {}
         for (host, v) in conf.hostsConf.iteritems():
@@ -250,62 +215,78 @@ class VentilatorRemote(Ventilator):
             if hostgroup not in hostgroups:
                 hostgroups[hostgroup] = []
             hostgroups[hostgroup].append(host)
+
         # On calcule les pools de ventilation pour chaque groupe d'application,
         # en prenant en compte les serveurs désactivés et le backup
-        appgroup_servers = {}
         errors = set()
-        for hostgroup in hostgroups:
-            for appgroup in conf.appsGroupsByServer:
-                try:
-                    servers = self._ventilate_appgroup(appgroup, hostgroup)
-                except NoServerAvailable, e:
-                    errors.add(e.value)
-                    continue
-                if servers is None:
-                    continue
-                if appgroup not in appgroup_servers:
-                    appgroup_servers[appgroup] = {}
-                appgroup_servers[appgroup][hostgroup] = servers
-        for error in errors:
-            LOGGER.warning(_("No server available for the appgroup %(appgroup)s"
-                             " and the hostgroup %(hostgroup)s, skipping it"),
-                           {"appgroup": error[0], "hostgroup": error[1]})
         r = {}
         for hostgroup, hosts in hostgroups.iteritems():
             for host in hosts:
                 app_to_vservers = {}
-                for appgroup, hg_servers in appgroup_servers.iteritems():
-                    if hostgroup not in hg_servers:
+                for appgroup in conf.appsGroupsByServer:
+                    # On essaye de récupérer les serveurs Vigilo
+                    # sur lesquels on peut ventiler. Il peut y en
+                    # avoir 2 (un nominal et un backup) ou un seul
+                    # (un backup) si tous les nominaux sont tombés.
+                    try:
+                        servers = self._ventilate_appgroup(appgroup, hostgroup, host)
+                    except NoServerAvailable, e:
+                        errors.add(e.value)
                         continue
-                    servers = hg_servers[hostgroup]
-                    if len(servers) > 1 and \
-                                not self.is_mode_duplicate(appgroup, hostgroup):
-                        # choose wisely
-                        server = self.getServerToUse(servers, host, appgroup)
-                        servers = [server, ]
+                    if servers is None:
+                        continue
                     for app in self.apps_by_appgroup[appgroup]:
                         app_to_vservers[app] = servers
                 r[host] = app_to_vservers
+
+        for error in errors:
+            LOGGER.warning(_("No server available for the appgroup %(appgroup)s"
+                             " and the hostgroup %(hostgroup)s, skipping it"),
+                           {"appgroup": error[0], "hostgroup": error[1]})
+
         #from pprint import pprint; pprint(r)
         LOGGER.debug("Ventilation end")
         return r
 
-    def _ventilate_appgroup(self, appGroup, hostGroup):
+    def _ventilate_appgroup(self, appGroup, hostGroup, host):
         if appGroup not in self.apps_by_appgroup or \
                 not self.apps_by_appgroup[appGroup]:
             return None # pas d'appli dans ce groupe
-        vservers = conf.appsGroupsByServer[appGroup][hostGroup]
-        vservers = self.filter_vservers(vservers) # ne garde que les actifs
+
+        vservers = []
+        checksum = zlib.adler32(host)
+
+        # On regarde quels sont les serveurs nominaux disponibles.
+        nominal = conf.appsGroupsByServer[appGroup][hostGroup]
+        nominal = self.filter_vservers(nominal) # ne garde que les actifs
+        previous_servers = set(self.get_previous_servers(host, appGroup))
+
+        # Parmi tous les serveurs Vigilo nominaux disponibles,
+        # on en choisit un.
+        if nominal:
+            intersect = previous_servers & set(nominal)
+            if intersect:
+                vservers.append(intersect.pop())
+            else:
+                vservers.append(nominal[checksum % len(nominal)])
+
+        # On regarde les serveurs de backup utilisables.
+        backup_mapping = getattr(conf, "appsGroupsBackup", {})
+        if appGroup in backup_mapping and \
+                hostGroup in backup_mapping[appGroup]:
+            backup = backup_mapping[appGroup][hostGroup]
+            backup = self.filter_vservers(backup)
+
+            if backup:
+                intersect = previous_servers & set(backup)
+                if intersect:
+                    vservers.append(intersect.pop())
+                else:
+                    vservers.append(backup[checksum % len(backup)])
+
         if not vservers:
-            # pas de serveurs affectés à ce groupe, ou alors ils sont tous
-            # désactivés
-            backup_mapping = getattr(conf, "appsGroupsBackup", {})
-            if appGroup in backup_mapping and \
-                    hostGroup in backup_mapping[appGroup]:
-                vservers = backup_mapping[appGroup][hostGroup]
-                vservers = self.filter_vservers(vservers)
-        if not vservers:
-            # pas de serveur dispo, même dans le backup. On abandonne.
+            # Aucun serveur disponible, même dans le backup.
+            # On abandonne.
             raise NoServerAvailable((appGroup, hostGroup))
         return vservers
 

@@ -35,6 +35,9 @@ from vigilo.vigiconf.lib.generators import Generator
 
 class ConnectorMetroGen(Generator):
     """Generator for connector-metro, the RRD db generator"""
+    # On doit déployer sur tous les serveurs retournés
+    # par la ventilation (nominal + backup).
+    deploy_only_on_first = False
 
     def generate(self):
         self.connections = {}
@@ -46,7 +49,7 @@ class ConnectorMetroGen(Generator):
         h = conf.hostsConf[hostname]
         if "dataSources" not in h or not h['dataSources']:
             return
-        db_path = os.path.join(self.baseDir, vserver, "connector-metro.db") 
+        db_path = os.path.join(self.baseDir, vserver, "connector-metro.db")
         if vserver not in self.connections:
             self.init_db(db_path, vserver)
             os.chmod(db_path, # chmod 644
@@ -95,14 +98,14 @@ class ConnectorMetroGen(Generator):
         self.connections[vserver] = {"db": db, "cursor": c}
         # perfdatasource
         c.execute("""CREATE TABLE perfdatasource (
-                         idperfdatasource INTEGER NOT NULL, 
-                         name TEXT NOT NULL, 
-                         hostname VARCHAR(255) NOT NULL, 
-                         type VARCHAR(255) NOT NULL, 
-                         step INTEGER NOT NULL, 
-                         heartbeat INTEGER NOT NULL, 
-                         min FLOAT, 
-                         max FLOAT, 
+                         idperfdatasource INTEGER NOT NULL,
+                         name TEXT NOT NULL,
+                         hostname VARCHAR(255) NOT NULL,
+                         type VARCHAR(255) NOT NULL,
+                         step INTEGER NOT NULL,
+                         heartbeat INTEGER NOT NULL,
+                         min FLOAT,
+                         max FLOAT,
                          PRIMARY KEY (idperfdatasource)
                      )""")
         #c.execute("CREATE INDEX ix_perfdatasource_name "
@@ -111,21 +114,21 @@ class ConnectorMetroGen(Generator):
         #          "ON perfdatasource (hostname)")
         # rra
         c.execute("""CREATE TABLE rra (
-                         idrra INTEGER NOT NULL, 
-                         type VARCHAR(255) NOT NULL, 
-                         xff FLOAT, 
-                         step INTEGER NOT NULL, 
-                         rows INTEGER NOT NULL, 
+                         idrra INTEGER NOT NULL,
+                         type VARCHAR(255) NOT NULL,
+                         xff FLOAT,
+                         step INTEGER NOT NULL,
+                         rows INTEGER NOT NULL,
                          PRIMARY KEY (idrra)
                      )""")
         # liaison
         c.execute("""CREATE TABLE pdsrra (
-                         idperfdatasource INTEGER NOT NULL, 
-                         idrra INTEGER NOT NULL, 
-                         PRIMARY KEY (idperfdatasource, idrra), 
+                         idperfdatasource INTEGER NOT NULL,
+                         idrra INTEGER NOT NULL,
+                         PRIMARY KEY (idperfdatasource, idrra),
                          FOREIGN KEY(idperfdatasource)
                              REFERENCES perfdatasource (idperfdatasource)
-                             ON DELETE CASCADE ON UPDATE CASCADE, 
+                             ON DELETE CASCADE ON UPDATE CASCADE,
                          FOREIGN KEY(idrra)
                              REFERENCES rra (idrra)
                              ON DELETE CASCADE ON UPDATE CASCADE
@@ -170,5 +173,3 @@ class ConnectorMetroGen(Generator):
             db.commit()
             cursor.close()
             db.close()
-
-

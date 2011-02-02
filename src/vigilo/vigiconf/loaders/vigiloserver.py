@@ -36,7 +36,8 @@ __docformat__ = "epytext"
 
 class VigiloServerLoader(DBLoader):
     """
-    Charge les applications en base depuis le modèle mémoire.
+    Charge les serveurs de supervision depuis le fichier de configuration
+    `appgroups-servers.py`.
 
     Exemple:
     >>> appsGroupsByServer = {
@@ -62,6 +63,8 @@ class VigiloServerLoader(DBLoader):
             configured_servers = conf.appsGroupsByServer.values()
         else:
             configured_servers = [{"hostgroup": ["localhost"]},]
+        if hasattr(conf, "appsGroupsBackup"):
+            configured_servers.extend(conf.appsGroupsBackup.values())
         for appgroup in configured_servers:
             for vservers in appgroup.values():
                 for vserver in vservers:

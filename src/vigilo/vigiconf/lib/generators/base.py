@@ -38,7 +38,11 @@ class Generator(object):
         L{vigilo.vigiconf.lib.ventilation.Ventilator.ventilate}()
     @ivar validator: validator instance for warnings and errors
     @type validator: L{Validator<lib.validator.Validator>}
+    @cvar deploy_only_on_first: Drapeau indiquant si l'on doit déployer
+        uniquement sur le premier serveur Vigilo disponible (C{True})
+        ou bien sur l'ensemble des serveurs disponibles (C{False}).
     """
+    deploy_only_on_first = True
 
     def __init__(self, application, ventilation, validator):
         self.application = application
@@ -64,6 +68,11 @@ class Generator(object):
                 vservers = [vservers, ]
             for vserver in vservers:
                 self.generate_host(hostname, vserver)
+
+                # On ne doit déployer que sur
+                # le premier élément de la liste.
+                if self.deploy_only_on_first:
+                    break
 
     def generate_host(self, hostname, vserver):
         """
@@ -103,4 +112,3 @@ class Generator(object):
     def write_scripts(self):
         self.application.write_startup_scripts(self.baseDir)
         self.application.write_validation_script(self.baseDir)
-
