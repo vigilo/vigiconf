@@ -44,11 +44,20 @@ class SnmpTTGen(FileGenerator):
 
         fileName = os.path.join(self.baseDir, vserver,
                                      "snmptt", "snmptt.conf")
+        fileName_nagios = os.path.join(self.baseDir, vserver,
+                                     "nagios", "nagios_trap.cfg")
 
         # we received something like
         # {servicename1: {OID:{label:<>,command:<>, address:<>, etc.}, OID: {..}},
         #  servicename2: etc.
         for srvname in h["snmpTrap"].keys():
+            if srvname not in h["services"].keys():
+                self.templateCreate(fileName_nagios, self.templates["nagios_trap"],
+                    {
+                        "hostname": hostname,
+                        "servicename": srvname,
+                    }
+                )
             for oid in h["snmpTrap"][srvname].keys():
                 vals = h["snmpTrap"][srvname][oid]
                 if not os.path.exists(fileName):
