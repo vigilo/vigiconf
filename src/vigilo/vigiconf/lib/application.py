@@ -418,7 +418,7 @@ class Application(object):
                                         "- REASON %(reason)s") % {
                 'app': self.name,
                 'server': iServer.name,
-                'reason': e.value,
+                'reason': e.value.decode('utf-8', 'replace'),
             })
             error.cause = e
             raise error
