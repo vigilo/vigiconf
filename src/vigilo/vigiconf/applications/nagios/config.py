@@ -1,0 +1,3 @@
+DEFAULTS = {
+    "initname": "nagios",
+}

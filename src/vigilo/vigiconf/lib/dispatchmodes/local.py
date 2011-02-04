@@ -25,17 +25,11 @@ The multi-server implementation is part of the Enterprise Edition.
 from __future__ import absolute_import
 
 from vigilo.vigiconf.lib.dispatchator import Dispatchator
-from vigilo.vigiconf.lib.server import ServerFactory
+from vigilo.vigiconf.lib.server import serverfactory
 
 class DispatchatorLocal(Dispatchator):
     """A localhost-only implementation of the Dispatchator."""
 
-    def __init__(self):
-        Dispatchator.__init__(self)
-        # initialize server
-        serverfactory = ServerFactory()
-        _localhost = serverfactory.makeServer("localhost")
-        self.setServers( [_localhost, ] )
 
     def listServerNames(self):
         """

@@ -56,11 +56,6 @@ class DispatchatorRemote(Dispatchator):
     def __init__(self):
         Dispatchator.__init__(self)
         self.mUser = None
-        # initialize servers
-        self.setServers(
-                self.buildServersFrom(
-                    self.listServerNames()
-            ))
 
     def setUser(self, iUser):
         """
@@ -80,7 +75,7 @@ class DispatchatorRemote(Dispatchator):
             for hostGroup in conf.appsGroupsByServer[appGroup]:
                 for server in conf.appsGroupsByServer[appGroup][hostGroup]:
                     _serversList.add(server)
-        return _serversList
+        return list(_serversList)
 
     def getServersForApp(self, app):
         """
@@ -102,7 +97,7 @@ class DispatchatorRemote(Dispatchator):
         for hostgroup in conf.appsGroupsByServer[app.group]:
             for server in conf.appsGroupsByServer[app.group][hostgroup]:
                 servers.add(server)
-        return servers
+        return list(servers)
 
     def restrict(self, servernames):
         """
@@ -113,11 +108,11 @@ class DispatchatorRemote(Dispatchator):
         if not servernames:
             return
         for servername in servernames:
-            if servername not in self.getServersList():
+            if servername not in self.servers:
                 message = _("Invalid server name: %(servername)s. "
                             "Available servers: %(servers)s") \
                             % {"servername": servername,
-                               "servers": ", ".join(self.getServersList())}
+                               "servers": ", ".join(self.servers)}
                 raise KeyError(message)
         self.restrictServersList(servernames)
         self.restrictApplicationsListToServers(servernames)
@@ -131,11 +126,9 @@ class DispatchatorRemote(Dispatchator):
         """
         if not servernames:
             return
-        newservers = []
-        for server in self.getServers():
-            if server.getName() in servernames:
-                newservers.append(server)
-        self.setServers(newservers)
+        for servername in self.servers[:]:
+            if servername not in servernames:
+                self.servers.remove(servername)
 
     def restrictApplicationsListToServers(self, servernames):
         """
@@ -145,10 +138,10 @@ class DispatchatorRemote(Dispatchator):
         """
         newapplications = []
         for _app in self.applications:
-            serversforapp = []
+            serversforapp = {}
             for _srv in _app.servers:
-                if _srv.getName() in servernames: # keep it
-                    serversforapp.append(_srv)
+                if _srv in servernames: # keep it
+                    serversforapp[_srv] = _app.servers[_srv]
             if serversforapp: # if there a no server left, just drop the app
                 _app.servers = serversforapp
                 newapplications.append(_app)
@@ -156,8 +149,8 @@ class DispatchatorRemote(Dispatchator):
 
     def filter_disabled(self):
         """@see: L{lib.dispatchator.Dispatchator.filter_disabled}"""
-        servers = self.getServersList()
-        for server in servers[:]:
+        servers = self.servers[:]
+        for server in self.servers:
             server_db = tables.VigiloServer.by_vigiloserver_name(
                             unicode(server))
             if server_db is None:

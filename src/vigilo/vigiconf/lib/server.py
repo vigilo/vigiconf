@@ -296,4 +296,6 @@ class Server(object):
         self.getRevisionManager().update(self)
 
 
+serverfactory = ServerFactory()
+
 # vim:set expandtab tabstop=4 shiftwidth=4:

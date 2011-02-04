@@ -76,7 +76,7 @@ class VentilatorTest(unittest.TestCase):
                 "There should be %d apps in DB" % num_apps)
 
         loader.load_vigilo_servers_db()
-        loader.load_ventilation_db(ventilation)
+        loader.load_ventilation_db(ventilation, self.generator.apps)
 
         # check that for each app, localhost is supervised by itself
         for app in conf.apps:
@@ -132,7 +132,7 @@ class VentilatorTest(unittest.TestCase):
             conf.hostsConf[hostname]["name"] = hostname
             add_host(hostname)
         ventilation = self.ventilator.ventilate()
-        loader.load_ventilation_db(ventilation)
+        loader.load_ventilation_db(ventilation, self.generator.apps)
         # On vérifie que des hôtes ont quand même été affectés à supserver3.example.com
         ss3_hosts = []
         for host in ventilation:
@@ -146,7 +146,7 @@ class VentilatorTest(unittest.TestCase):
                 conf.appsGroupsByServer[appGroup][hostGroup].remove(u'supserver3.example.com')
         # On reventile
         ventilation = self.ventilator.ventilate()
-        loader.load_ventilation_db(ventilation)
+        loader.load_ventilation_db(ventilation, self.generator.apps)
 
         # Tout doit avoir été reventilé sur les autres serveurs
         for host in ventilation:
@@ -213,8 +213,8 @@ class VentilatorTest(unittest.TestCase):
             ['localhost', 'localhost2']
         )
 
-        # En base, on doit retrouver les 2 serveurs de supervision.
-        loader.load_ventilation_db(ventilation)
+        # En base, on ne doit retrouver qu'un serveur de supervision (pour le proxy)
+        loader.load_ventilation_db(ventilation, self.generator.apps)
         ventilations = DBSession.query(
                     VigiloServer.name
                 ).join(
@@ -228,7 +228,7 @@ class VentilatorTest(unittest.TestCase):
         ventilations = sorted([vs.name for vs in ventilations])
         self.assertEquals(
             ventilations,
-            [u'localhost', u'localhost2']
+            [u'localhost', ]
         )
 
     def test_ventilator_repartition(self):

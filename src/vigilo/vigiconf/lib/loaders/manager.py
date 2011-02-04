@@ -114,10 +114,10 @@ class LoaderManager(object):
         vserver_loader.load()
         DBSession.flush()
 
-    def load_ventilation_db(self, ventilation):
+    def load_ventilation_db(self, ventilation, apps):
         """Export de la ventilation en base"""
         # ventilation
         from vigilo.vigiconf.loaders.ventilation import VentilationLoader
-        ventilationloader = VentilationLoader(ventilation)
+        ventilationloader = VentilationLoader(ventilation, apps)
         ventilationloader.load()
         DBSession.flush()

@@ -35,6 +35,7 @@ import shutil
 from xml.etree import ElementTree as ET
 
 from pkg_resources import working_set
+import transaction
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -50,7 +51,7 @@ from vigilo.vigiconf import conf
 from .generators import GeneratorManager, GenerationError
 from .systemcommand import SystemCommand, SystemCommandError
 from . import VigiConfError
-from .server import ServerFactory
+from .server import serverfactory
 
 
 class DispatchatorError(VigiConfError):
@@ -77,51 +78,30 @@ class Dispatchator(object):
     """
 
     def __init__(self):
-        self.mServers = []
         self.applications = []
         self.mModeForce = False
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
         self.deploy_revision = "HEAD"
-
-        self.mode_db = 'commit'
         # mode simulation: on recopie simplement la commande svn pour
         # verification
         try:
             self.simulate = settings["vigiconf"].as_bool("simulate")
         except KeyError:
             self.simulate = False
-
+        self.application_actions = {}
         # initialize applications
         self.listApps()
         self.applications.sort(reverse=True, key=lambda a: a.priority)
+        # list servers
+        self.servers = self.listServerNames()
 
-
-    def getServersList(self):
-        """
-        @returns: The names of the servers
-        @rtype:   C{list} of C{str}
-        """
-        return [ s.getName() for s in self.getServers() ]
-
-    def getServers(self):
-        """
-        @returns: L{mServers}
-        """
-        return self.mServers
 
     def getModeForce(self):
         """
         @returns: L{mModeForce}
         """
         return self.mModeForce
-
-    def setServers(self, iServers):
-        """
-        Mutator on L{mServers}
-        @type iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        self.mServers = iServers
 
     def setModeForce(self, iBool):
         """
@@ -184,7 +164,8 @@ class Dispatchator(object):
                         % ", ".join(list(working_set.iter_entry_points(
                                 "vigilo.vigiconf.applications", entry.name)))
                 raise DispatchatorError(msg)
-            app.servers = self.buildServersFrom(self.getServersForApp(app))
+            for server in self.getServersForApp(app):
+                app.servers[server] = "restart"
             self.applications.append(app)
         # Vérification : a-t-on déclaré une application non installée ?
         for listed_app in conf.apps:
@@ -212,7 +193,6 @@ class Dispatchator(object):
         @rtype: C{list} of L{Server<lib.server.Server>}
         """
         _servers = []
-        serverfactory = ServerFactory()
         for _srv in iServers:
             _srvobj = serverfactory.makeServer(_srv)
             _servers.append(_srvobj)
@@ -222,16 +202,12 @@ class Dispatchator(object):
         """
         Génère la configuration des différents composants, en utilisant le
         L{GeneratorManager}.
-
-        Après génération, la configuration est validée, et en cas de succès les
-        fichiers de configuration de VigiConf sont comittés en SVN
         """
         try:
             gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
             shutil.rmtree(gendir, ignore_errors=True)
             generator = GeneratorManager(self.applications, self)
-            generator.generate(commit_db=(self.mode_db == 'commit'),
-                               nosyncdb=nosyncdb)
+            generator.generate(nosyncdb=nosyncdb)
         except GenerationError:
             LOGGER.error(_("Generation failed!"))
             raise
@@ -242,11 +218,11 @@ class Dispatchator(object):
             _App.validate(os.path.join(settings["vigiconf"].get("libdir"),
                                        "deploy"))
         LOGGER.info(_("Validation Successful"))
-        # Commit de la configuration
+        # Commit de la configuration dans SVN
         last_rev = self._svn_commit()
         if self.deploy_revision == "HEAD":
             self.deploy_revision = last_rev
-        LOGGER.info(_("Commit Successful"))
+        LOGGER.info(_("SVN commit successful"))
 
     def prepare_svn(self):
         """
@@ -486,9 +462,10 @@ class Dispatchator(object):
         @param iRevision: SVN revision number
         @type  iRevision: C{int}
         """
-        _srv = self.commandsQueue.get()
+        servername = self.commandsQueue.get()
+        server = serverfactory.makeServer(servername)
         try:
-            _srv.deploy(iRevision)
+            server.deploy(iRevision)
         except VigiConfError, e: # if it fails
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
@@ -509,27 +486,37 @@ class Dispatchator(object):
         self.filter_disabled()
         if self.getModeForce():
             return
-        servers = self.getServers()
-        for _srv in servers:
-            _srv.updateRevisionManager()
-            _srv.getRevisionManager().setSubversion(self.deploy_revision)
+        for servername in self.servers:
+            server_obj = serverfactory.makeServer(servername)
+            server_obj.updateRevisionManager()
+            server_obj.getRevisionManager().setSubversion(self.deploy_revision)
 
     def deploy(self):
         """
         Déploie et qualifie la configuration sur les serveurs concernés.
         """
-        servers = self.getServers()
+        servers = self.servers[:]
         if not self.getModeForce():
-            for server in servers[:]:
-                if server.needsDeployment():
-                    LOGGER.debug("Server %s should be deployed.",
-                                 server.getName())
+            for server in self.servers:
+                server_obj = serverfactory.makeServer(server)
+                if server_obj.needsDeployment():
+                    LOGGER.debug("Server %s should be deployed.", server)
                 else:
                     servers.remove(server)
         if not servers:
             LOGGER.info(_("All servers are up-to-date, no deployment needed."))
         self.deploysOnServers(servers, self.deploy_revision)
         self.qualifyOnServers(servers)
+
+    def commit(self):
+        """Enregistre la configuration en base de données"""
+        try:
+            transaction.commit()
+            LOGGER.info(_("Commit Successful"))
+        except Exception, e:
+            transaction.abort()
+            LOGGER.debug("Transaction rollbacked: %s", e)
+            raise DispatchatorError(_("Database commit failed"))
 
     def startOrStopApplications(self, fAction, fArgs, iErrorMessage):
         """
@@ -549,12 +536,12 @@ class Dispatchator(object):
             return
 
         _application = _Apps[0]
-        _CurrentLevel = _application.getPriority()
+        _CurrentLevel = _application.priority
 
         self.commandsQueue = Queue.Queue()
         self.returnsQueue = Queue.Queue()
         for _application in _Apps:
-            if (_application.getPriority() == _CurrentLevel):
+            if (_application.priority == _CurrentLevel):
                 # fill the application queue
                 self.commandsQueue.put(_application)
                 _thread = Thread(target=fAction, args=fArgs)
@@ -563,7 +550,7 @@ class Dispatchator(object):
             else:
                 # wait until the queue is empty
                 self.commandsQueue.join()
-                _CurrentLevel = _application.getPriority()
+                _CurrentLevel = _application.priority
 
                 # fill the application queue
                 self.commandsQueue.put(_application)
@@ -646,9 +633,10 @@ class Dispatchator(object):
         """
         Calls switchDirectories() on the first server in the commandsQueue
         """
-        _srv = self.commandsQueue.get()
+        servername = self.commandsQueue.get()
+        server = serverfactory.makeServer(servername)
         try:
-            _srv.switchDirectories()
+            server.switchDirectories()
         except VigiConfError, e: # if it fails
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
@@ -657,12 +645,12 @@ class Dispatchator(object):
         """
         Redémarre les applications sur les serveurs concernés.
         """
-        servers = self.getServers()
+        servers = self.servers[:]
         if not self.getModeForce():
-            for server in servers[:]:
-                if server.needsRestart():
-                    LOGGER.debug("Server %s should be restarted.",
-                                 server.getName())
+            for server in self.servers:
+                server_obj = serverfactory.makeServer(server)
+                if server_obj.needsRestart():
+                    LOGGER.debug("Server %s should be restarted.", server)
                 else:
                     servers.remove(server)
         if not servers:
@@ -673,7 +661,7 @@ class Dispatchator(object):
 
     def stopApplications(self):
         """Stops all the applications on all the servers"""
-        self.stopApplicationsOn(self.getServers())
+        self.stopApplicationsOn(self.servers)
 
     def stopApplicationsOn(self, iServers):
         """
@@ -690,7 +678,7 @@ class Dispatchator(object):
 
     def startApplications(self):
         """Starts all the applications on all the servers"""
-        self.startApplicationsOn(self.getServers())
+        self.startApplicationsOn(self.servers)
 
     def startApplicationsOn(self, iServers):
         """
@@ -710,25 +698,26 @@ class Dispatchator(object):
         state = []
         _revision = self.getLastRevision()
         state.append(_("Current revision in the repository : %d") % _revision)
-        for _srv in self.getServers():
+        for servername in self.servers:
+            server = serverfactory.makeServer(servername)
             try:
-                _srv.updateRevisionManager()
-                _srv.getRevisionManager().setSubversion(_revision)
+                server.updateRevisionManager()
+                server.getRevisionManager().setSubversion(_revision)
                 _deploymentStr = ""
                 _restartStr = ""
-                if _srv.needsDeployment():
+                if server.needsDeployment():
                     _deploymentStr = _("(should be deployed)")
-                if _srv.needsRestart():
+                if server.needsRestart():
                     _restartStr = _("(should restart)")
                 state.append(_("Revisions for server %(server)s : "
                                "%(rev)s%(dep)s%(restart)s") % \
-                             {"server": _srv.getName(),
-                              "rev": _srv.getRevisionManager().getSummary(),
+                             {"server": servername,
+                              "rev": server.getRevisionManager().getSummary(),
                               "dep": _deploymentStr, "restart": _restartStr})
             except Exception, e:
                 LOGGER.warning(_("Cannot get revision for server: %(server)s. "
                                  "REASON : %(reason)s"),
-                                 {"server": _srv.getName(),
+                                 {"server": servername,
                                   "reason": str(e)})
         return state
 
@@ -741,6 +730,7 @@ class Dispatchator(object):
         self.deploy()
         if stop_after == "deployment":
             return
+        self.commit()
         self.restart()
 
 

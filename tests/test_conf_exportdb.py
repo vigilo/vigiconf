@@ -131,7 +131,7 @@ class ExportDBTest(unittest.TestCase):
         self.assertEquals(nb_vigiloservers, 2)
 
         ventilation = ventilator.ventilate()
-        self.loader.load_ventilation_db(ventilation)
+        self.loader.load_ventilation_db(ventilation, dispatchator.applications)
         print DBSession.query(Ventilation).all()
         #
         del conf.appsGroupsByServer["trap"]
@@ -142,7 +142,7 @@ class ExportDBTest(unittest.TestCase):
         self.assertEquals(nb_vigiloservers, 2)
 
         ventilation = ventilator.ventilate()
-        self.loader.load_ventilation_db(ventilation)
+        self.loader.load_ventilation_db(ventilation, dispatchator.applications)
         print DBSession.query(Ventilation).all()
         trap_app = DBSession.query(Application).filter_by(name=u"snmptt").first()
         trap_ventil = DBSession.query(Ventilation).filter_by(application=trap_app).count()

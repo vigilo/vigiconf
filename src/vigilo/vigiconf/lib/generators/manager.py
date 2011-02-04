@@ -28,8 +28,6 @@ import os, sys
 import os.path
 import types
 
-import transaction
-
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
@@ -91,13 +89,13 @@ class GeneratorManager(object):
             generator.write_scripts()
         LOGGER.debug("Configuration generated")
 
-    def generate(self, commit_db=False, nosyncdb=False):
+    def generate(self, nosyncdb=False):
         """
-        Main method of this class, produces the configuration files.
-
-        @param commit_db: True means that data is commited in the database
-               after generation; if False, a rollback is done.
-        @type commit_db: C{boolean}
+        Méthode principale de la classe, qui charge les données en base et
+        génère les fichiers de configuration.
+        @param nosyncdb: si cet argument est vrai, on essaye pas de
+            synchroniser la configuration du disque avec la base de données
+        @type nosyncdb: C{boolean}
         @raise L{GenerationError}
         """
 
@@ -109,7 +107,7 @@ class GeneratorManager(object):
             loader.load_vigilo_servers_db()
         ventilation = self.ventilator.ventilate()
         LOGGER.debug("Loading ventilation in DB")
-        loader.load_ventilation_db(ventilation)
+        loader.load_ventilation_db(ventilation, self.apps)
 
         LOGGER.debug("Validating ventilation")
         validator = Validator(ventilation)
@@ -126,25 +124,9 @@ class GeneratorManager(object):
         if validator.hasErrors():
             for errmsg in validator.getSummary(details=True, stats=True):
                 LOGGER.error(errmsg)
-            if commit_db:
-                transaction.abort()
-                LOGGER.debug("Transaction rollbacked")
             raise GenerationError("validation")
-        else:
-            try:
-                if commit_db:
-                    transaction.commit()
-                    LOGGER.debug("Transaction commited")
-                else:
-                    transaction.abort()
-                    LOGGER.debug("Transaction rollbacked")
-            except Exception, v:
-                transaction.abort()
-                LOGGER.debug("Transaction rollbacked")
-                raise GenerationError("db commit")
-
-            for msg in validator.getSummary(details=True, stats=True):
-                LOGGER.info(msg)
+        for msg in validator.getSummary(details=True, stats=True):
+            LOGGER.info(msg)
 
     def move_metro_services(self, ventilation, validator):
         """

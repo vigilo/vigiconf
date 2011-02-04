@@ -42,6 +42,7 @@ _ = translate(__name__)
 
 from .systemcommand import SystemCommand, SystemCommandError
 from . import VigiConfError
+from .server import serverfactory
 
 
 class ApplicationError(VigiConfError):
@@ -79,7 +80,7 @@ class Application(object):
     @cvar group: groupe logique pour la ventilation
     @type group: C{str}
     @ivar servers: liste des serveurs où l'application est déployée
-    @type servers: C{list} de L{Server<vigilo.vigiconf.lib.server.Server>}
+    @type servers: C{list} de C{str}
     """
 
     name = None
@@ -94,7 +95,7 @@ class Application(object):
     def __init__(self):
         if self.name is None:
             raise NotImplementedError
-        self.servers = None
+        self.servers = {}
         self.serversQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
 
@@ -109,35 +110,6 @@ class Application(object):
     def __repr__(self):
         return "<Application %s>" % self.name
 
-    # accessors
-    def getName(self):
-        """@return: L{name}"""
-        return self.name
-
-    def getPriority(self):
-        """@return: L{priority}"""
-        return self.priority
-
-    def getStartMethod(self):
-        """@return: L{start_command}"""
-        return self.start_command
-
-    def getStopMethod(self):
-        """@return: L{stop_command}"""
-        return self.stop_command
-
-    def getServers(self):
-        """@return: L{servers}"""
-        return self.servers
-
-    def getServerAt(self, index):
-        """
-        @return: an element of L{servers}
-        @param index: index of the element to return
-        @type  index: C{int}
-        """
-        return self.servers[index]
-
     def getConfig(self):
         config = self.defaults.copy()
         from vigilo.vigiconf import conf
@@ -145,42 +117,13 @@ class Application(object):
             config.update(conf.apps_conf[self.name])
         return config
 
-    # mutators
-    def setName(self, name):
-        """Sets L{name}"""
-        self.name = name
-
-    def setPriority(self, priority):
-        """Sets L{priority}"""
-        self.priority = priority
-
-    def setStartMethod(self, start_command):
-        """Sets L{start_command}"""
-        self.start_command = start_command
-
-    def setStopMethod(self, stop_command):
-        """Sets L{stop_command}"""
-        self.stop_command = stop_command
-
-    def setServers(self, servers):
-        """Sets L{servers}"""
-        self.servers = servers
-
-    # methods
-
-    def filterServers(self, iServers):
+    def filterServers(self, servers):
         """
-        @param iServers: the list of servers to filter on
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        @returns: The intersection between iServers and our own servers list.
+        @param servers: the list of servers to filter on
+        @type  servers: C{list} of C{str}
+        @returns: The intersection between servers and our own servers list.
         """
-        servernames = [ s.name for s in self.servers ]
-        returnvalue = []
-        for server in iServers:
-            # Compare on the name
-            if server.name in servernames:
-                returnvalue.append(server)
-        return returnvalue
+        return set(servers) & set(self.servers) # intersection
 
     def manageReturnQueue(self):
         """
@@ -208,21 +151,29 @@ class Application(object):
                 raise
 
     def write_startup_scripts(self, basedir):
+        config = self.getConfig()
         for vserver in self.servers:
-            scripts_dir = os.path.join(basedir, vserver.name,
-                                       "apps", self.name)
+            scripts_dir = os.path.join(basedir, vserver, "apps", self.name)
             if not os.path.exists(scripts_dir):
                 os.makedirs(scripts_dir)
             for action in ["start", "stop"]:
                 script_path = os.path.join(scripts_dir, "%s.sh" % action)
                 if os.path.exists(script_path):
                     return
-                command = getattr(self, "%s_command" % action, None)
-                if not command: # non déclaré ou vide ou None
-                    command = "return true"
+                command = self._get_startup_command(action)
                 script = open(script_path, "w")
-                script.write("#!/bin/sh\n%s\n" % command)
+                script.write(command % config)
                 script.close()
+
+    def _get_startup_command(self, action):
+        command = getattr(self, "%s_command" % action, None)
+        if not command: # non déclaré ou vide ou None
+            return "#!/bin/sh\nreturn true\n"
+        if resource_exists(self.__module__, command):
+            # C'est le chemin d'un fichier à utiliser
+            return resource_string(self.__module__, command)
+        # c'est une commande shell
+        return "#!/bin/sh\n%s\n" % command
 
     def write_validation_script(self, basedir):
         if not self.validation:
@@ -234,8 +185,7 @@ class Application(object):
                                         'error': self.validation,
                                     })
         for vserver in self.servers:
-            scripts_dir = os.path.join(basedir, vserver.name,
-                                       "apps", self.name)
+            scripts_dir = os.path.join(basedir, vserver, "apps", self.name)
             if not os.path.exists(scripts_dir):
                 os.makedirs(scripts_dir)
             dest_script = os.path.join(scripts_dir, "validation.sh")
@@ -253,12 +203,12 @@ class Application(object):
         @param iBaseDir: The directory where the validation scripts are
         @type  iBaseDir: C{str}
         @param iServer: The server to validate on
-        @type  iServer: L{Server<lib.server.Server>}
+        @type  iServer: C{str}
         """
         # iterate through the servers
         if not self.validation:
             return
-        files_dir = os.path.join(iBaseDir, iServer.name)
+        files_dir = os.path.join(iBaseDir, iServer)
         _command = ["vigiconf-local", "validate-app", self.name, files_dir]
         _command = SystemCommand(_command)
         _command.simulate = settings["vigiconf"].as_bool("simulate")
@@ -269,13 +219,13 @@ class Application(object):
                         _("%(app)s: validation failed for server "
                           "'%(server)s': %(reason)s")
                         % {"app": self.name,
-                           "server": iServer.name,
+                           "server": iServer,
                            "reason": e})
             error.cause = e
             raise error
         LOGGER.info(_("%(app)s : Validation successful for server: "
                       "%(server)s"),
-                    {'app': self.name, 'server': iServer.name})
+                    {'app': self.name, 'server': iServer})
 
 
     def qualify(self):
@@ -294,7 +244,7 @@ class Application(object):
         """
         Qualifies the configuration files on the provided servers.
         @param iServers: The servers to qualify on
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        @type  iServers: C{list} of C{str}
         """
         for _srv in self.filterServers(iServers):
             # can be threaded 1 thread per server
@@ -307,20 +257,21 @@ class Application(object):
         qualifies all the configuration files (starts the qualification
         command) on a given server
         @param iServer: The server to qualify on
-        @type  iServer: L{Server<lib.server.Server>}
+        @type  iServer: C{str}
         """
         if not self.validation:
             return
+        server_obj = serverfactory.makeServer(iServer)
         # A priori pas necessaire, valeur par défaut
         _command = ["vigiconf-local", "validate-app", self.name] #, files_dir]
-        _command = iServer.createCommand(_command)
+        _command = server_obj.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
             error = ApplicationError(_("%(app)s : Qualification failed on "
                                         "'%(server)s' - REASON: %(reason)s") % {
                                         'app': self.name,
-                                        'server': iServer.name,
+                                        'server': iServer,
                                         'reason':
                                             e.value.decode('utf-8', 'replace'),
                                     })
@@ -328,7 +279,7 @@ class Application(object):
             raise error
         LOGGER.info(_("%(app)s : Qualification successful on server : "
                       "%(server)s"),
-                    {'app': self.name, 'server': iServer.name})
+                    {'app': self.name, 'server': iServer})
 
 
     def startThread(self):
@@ -338,7 +289,6 @@ class Application(object):
             self.startServer(_server)
         except ApplicationError, e:
             self.returnsQueue.put(e.value)
-
         self.serversQueue.task_done()
 
     def startOn(self, iServers):
@@ -346,7 +296,7 @@ class Application(object):
         Start the application on the intersection between iServers and our own
         servers list.
         @param iServers: The servers to start the application on
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        @type  iServers: C{list} of C{str}
         """
         result = True
 
@@ -357,10 +307,14 @@ class Application(object):
         _servers = self.filterServers(iServers)
         for _server in _servers:
             # fill the application queue
+            if self.servers[_server] == "stop":
+                continue
             self.serversQueue.put(_server)
 
         # start the threads
         for _server in _servers:
+            if self.servers[_server] == "stop":
+                continue
             _thread = threading.Thread(target = self.startThread)
             _thread.start()
 
@@ -401,30 +355,31 @@ class Application(object):
         """
         Starts the application on the specified server
         @param iServer: The server to start the application on
-        @type  iServer: L{Server<lib.server.Server>}
+        @type  iServer: C{str}
         """
         if not self.start_command:
             return
         LOGGER.info(_("Starting %(app)s on %(server)s ..."), {
             'app': self.name,
-            'server': iServer.name,
+            'server': iServer,
         })
+        server_obj = serverfactory.makeServer(iServer)
         _command = ["vigiconf-local", "start-app", self.name]
-        _command = iServer.createCommand(_command)
+        _command = server_obj.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
             error = ApplicationError(_("Can't Start %(app)s on %(server)s "
                                         "- REASON %(reason)s") % {
                 'app': self.name,
-                'server': iServer.name,
+                'server': iServer,
                 'reason': e.value.decode('utf-8', 'replace'),
             })
             error.cause = e
             raise error
         LOGGER.info(_("%(app)s started on %(server)s"), {
             'app': self.name,
-            'server': iServer.name,
+            'server': iServer,
         })
 
     def stopThread(self):
@@ -441,7 +396,7 @@ class Application(object):
         Stop the application on the intersection between iServers and our own
         servers list.
         @param iServers: The servers to stop the application on
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        @type  iServers: C{list} of C{str}
         """
         result = True
 
@@ -494,30 +449,31 @@ class Application(object):
         """
         Stops the application on a given server
         @param iServer: The server to stop the application on
-        @type  iServer: L{Server<lib.server.Server>}
+        @type  iServer: C{str}
         """
         if not self.stop_command:
             return
         LOGGER.info(_("Stopping %(app)s on %(server)s ..."), {
             'app': self.name,
-            'server': iServer.name,
+            'server': iServer,
         })
+        server_obj = serverfactory.makeServer(iServer)
         _command = ["vigiconf-local", "stop-app", self.name]
-        _command = iServer.createCommand(_command)
+        _command = server_obj.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
             error = ApplicationError(_("Can't Stop %(app)s on %(server)s "
                                         "- REASON %(reason)s") % {
                 'app': self.name,
-                'server': iServer.name,
+                'server': iServer,
                 'reason': e.value,
             })
             error.cause = e
             raise error
         LOGGER.info(_("%(app)s stopped on %(server)s"), {
             'app': self.name,
-            'server': iServer.name,
+            'server': iServer,
         })
 
 

@@ -73,7 +73,7 @@ def get_dispatchator(args, restrict=True):
             # dès le début même si on s'en sert pas
             LOGGER.error(_("ERROR: %s"), e.message)
             sys.exit(1)
-    if not dispatchator.getServers():
+    if not dispatchator.servers:
         LOGGER.warning(_("No server to manage."))
     return dispatchator
 

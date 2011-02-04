@@ -6,15 +6,17 @@ from __future__ import absolute_import
 from vigilo.vigiconf.lib.application import Application
 
 from . import generator
+from . import config
 
 class Nagios(Application):
 
     name = "nagios"
     priority = 3
     validation = "validate.sh"
-    start_command = "sudo /etc/init.d/nagios start"
-    stop_command = "sudo /etc/init.d/nagios stop ; (while i in `seq 30` ; do pgrep nagios >/dev/null || break; sleep 1;done)"
+    start_command = "start.sh"
+    stop_command = "stop.sh"
     generator = generator.NagiosGen
     group = "collect"
+    defaults = config.DEFAULTS
 
 

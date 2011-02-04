@@ -23,9 +23,8 @@ BASEDIR=$1
 LOCATION=$2
 
 if [ "$LOCATION" == "local" ] ; then
-    ls /etc/init.d/nagios >/dev/null || exit 1
-    if [ ! -d $BASEDIR/nagios ]; then
-        echo "Nagios configuration is not available"
+    if ! ls /etc/init.d/nagios >/dev/null 2>&1; then
+        echo "Nagios is not installed"
         exit 1
     fi
 fi
