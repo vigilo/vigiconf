@@ -296,5 +296,31 @@ class VentilatorTest(unittest.TestCase):
                 "Delta (%f) is > %f10%%" % (delta, diff_threshold)
             )
 
+
+    def test_orphan_servers(self):
+        """
+        Si une app n'est plus déployée sur un serveur, il faut l'arrêter
+        """
+        apps = dict([(app.name, app) for app in self.generator.apps])
+        # besoin de localhost en base
+        host = add_host("localhost")
+        # chargement des apps
+        dispatchator = dispatchmodes.getinstance()
+        loader = LoaderManager(dispatchator)
+        loader.load_apps_db(self.generator.apps)
+        loader.load_vigilo_servers_db()
+        ventilation = self.ventilator.ventilate()
+        assert ventilation["localhost"][apps["nagios"]] == ["localhost", ]
+        loader.load_ventilation_db(ventilation, self.generator.apps)
+        DBSession.flush()
+        # on supprime les serveurs Nagios pour le groupe P-F
+        conf.appsGroupsByServer["collect"]["P-F"] = []
+        ventilation = self.ventilator.ventilate()
+        assert apps["nagios"] not in ventilation["localhost"]
+        #from pprint import pprint; pprint(ventilation)
+        loader.load_ventilation_db(ventilation, self.generator.apps)
+        self.assertEqual(apps["nagios"].servers["localhost"], "stop")
+
+
 if __name__ == '__main__':
     unittest.main()
