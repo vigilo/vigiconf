@@ -169,7 +169,7 @@ class GeneratorManager(object):
                 perf_host = metro_server
             else:
                 # on doit créer un pseudo-hôte sur ce serveur Nagios
-                perf_host = "_perfservices_"
+                perf_host = "_perfservices_%s_" % metro_server
                 if perf_host not in conf.hostsConf:
                     conf.hostsConf[perf_host] = {
                             "name": perf_host,
