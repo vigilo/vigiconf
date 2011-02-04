@@ -37,7 +37,7 @@ class DispatchatorRemote(unittest.TestCase):
             app.start_command = None
             app.stop_command = None
         # Don't check the installed revisions
-        self.dispatchator.setModeForce(True)
+        self.dispatchator.force = True
 
     def tearDown(self):
         """Call after every test case."""

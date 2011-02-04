@@ -85,7 +85,7 @@ def deploy(args):
         dispatchator.mode_db = 'no_commit'
 
     if (args.force):
-        dispatchator.setModeForce(True)
+        dispatchator.force = True
 
     if (args.revision):
         dispatchator.deploy_revision = args.revision
@@ -148,7 +148,7 @@ def server(args):
             ventilator.enable_server(s) # pylint:disable-msg=E1103
     if args.no_deploy:
         return
-    dispatchator.setModeForce(True)
+    dispatchator.force = True
     dispatchator.generate(nosyncdb=True)
     dispatchator.filter_disabled()
     dispatchator.deploy()

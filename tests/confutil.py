@@ -114,10 +114,10 @@ def teardown_deploy_dir():
 
 class DummyDispatchator(Dispatchator):
     def __init__(self):
-        self.mModeForce = True
+        self.force = True
 
     def get_svn_status(self):
         # On indique qu'aucun changement n'a eu lieu,
-        # car le fait de positionner le flag "mModeForce"
+        # car le fait de positionner le flag "force"
         # force de toutes façons les opérations.
         return {'add': [], 'remove': [], 'modified': []}

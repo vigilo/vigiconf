@@ -100,7 +100,7 @@ class HostLoader(DBLoader):
 
             # On ajoute systématiquement le nom du fichier dans la liste
             # de ceux à traiter si l'option "--force" a été utilisée.
-            if self.dispatchator.getModeForce() or \
+            if self.dispatchator.force or \
                 filename in svn_status['add'] or \
                 filename in svn_status['modified']:
                 hostnames.append(hostname)
@@ -199,7 +199,7 @@ class HostLoader(DBLoader):
         for conffile in DBSession.query(ConfFile).all():
             filename = os.path.join(settings["vigiconf"].get("confdir"),
                                     conffile.name)
-            if not self.dispatchator.getModeForce() and \
+            if not self.dispatchator.force and \
                     filename not in svn_status['modified']:
                 continue # ce fichier n'a pas bougé
             for host in conffile.hosts:

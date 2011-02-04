@@ -42,15 +42,8 @@ from vigilo.vigiconf.lib.dispatchator import Dispatchator
 
 class DispatchatorRemote(Dispatchator):
     """
-    Dispatch the configurations files for all the applications.
-    @ivar mServers: servers that will be used for operations
-    @type mServers: list of L{Server<lib.server.Server>} objects
-    @ivar mApplications: application deployed on mServers
-    @type mApplications: list of L{Application<lib.application.Application>}
-        objects
-    @ivar mModeForce: defines if the --force option is set
-    @type mModeForce: C{boolean}
-    @ivar mUser: username to do remote operations
+    Version du Dispatchator qui gère les serveurs distants
+    @ivar mUser: utilisateur pour les opérations distantes
     @type mUser: L{CommandUser<lib.remotecommand.CommandUser>}
     """
     def __init__(self):

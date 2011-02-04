@@ -67,8 +67,8 @@ class Dispatchator(object):
     @type mServers: C{list} of L{Server<lib.server.Server>}
     @ivar applications: applications deployed on L{mServers}
     @type applications: C{list} of L{Application<lib.application.Application>}
-    @ivar mModeForce: defines if the --force option is set
-    @type mModeForce: C{boolean}
+    @ivar force: defines if the --force option is set
+    @type force: C{boolean}
     @ivar commandsQueue: commands queue
     @type commandsQueue: L{Queue}
     @ivar returnsQueue: commands queue
@@ -79,7 +79,7 @@ class Dispatchator(object):
 
     def __init__(self):
         self.applications = []
-        self.mModeForce = False
+        self.force = False
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
         self.deploy_revision = "HEAD"
@@ -89,28 +89,12 @@ class Dispatchator(object):
             self.simulate = settings["vigiconf"].as_bool("simulate")
         except KeyError:
             self.simulate = False
-        self.application_actions = {}
         # initialize applications
         self.listApps()
         self.applications.sort(reverse=True, key=lambda a: a.priority)
         # list servers
         self.servers = self.listServerNames()
 
-
-    def getModeForce(self):
-        """
-        @returns: L{mModeForce}
-        """
-        return self.mModeForce
-
-    def setModeForce(self, iBool):
-        """
-        Mutator on L{mModeForce}
-        @type iBool: C{boolean}
-        """
-        self.mModeForce = iBool
-
-    # methods
     def restrict(self, servers):
         """
         Restrict applications and servers to the ones given as arguments.
@@ -484,7 +468,7 @@ class Dispatchator(object):
     def prepareServers(self):
         """prépare la liste des serveurs sur lesquels travailler"""
         self.filter_disabled()
-        if self.getModeForce():
+        if self.force:
             return
         for servername in self.servers:
             server_obj = serverfactory.makeServer(servername)
@@ -496,7 +480,7 @@ class Dispatchator(object):
         Déploie et qualifie la configuration sur les serveurs concernés.
         """
         servers = self.servers[:]
-        if not self.getModeForce():
+        if not self.force:
             for server in self.servers:
                 server_obj = serverfactory.makeServer(server)
                 if server_obj.needsDeployment():
@@ -646,7 +630,7 @@ class Dispatchator(object):
         Redémarre les applications sur les serveurs concernés.
         """
         servers = self.servers[:]
-        if not self.getModeForce():
+        if not self.force:
             for server in self.servers:
                 server_obj = serverfactory.makeServer(server)
                 if server_obj.needsRestart():
