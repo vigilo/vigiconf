@@ -72,6 +72,11 @@ log_traffic = False
 # domaine DNS)
 #hostname = hostname
 
+# Le noeud de publication à utiliser pour les messages d'état du connecteur.
+# Par défaut, les noeuds définis dans la section [publications] sont utilisés.
+#status_node = /vigilo/connectors-status
+
+
 [publications]
 # Noms des messages XML traités avec pour chaque type de message
 # le nom du nœud XMPP sur lesquel les messages de ce type sont envoyés.
