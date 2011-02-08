@@ -1,0 +1,150 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+    <start>
+        <!--
+            Chaque fichier peut contenir la configuration d'un seul hôte
+            ou de plusieurs hôtes (listés dans une balise "hosts").
+        -->
+        <choice>
+            <ref name="hosts"/>
+            <ref name="host"/>
+        </choice>
+    </start>
+
+    <define name="hosts">
+        <element name="hosts">
+            <zeroOrMore>
+                <ref name="host"/>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="host">
+        <element name="host">
+            <!-- Libellé de l'hôte. -->
+            <attribute name="name"><text/></attribute>
+
+            <!--
+                Adresse de l'hôte (IP ou FQDN).
+                Si cet attribut est omis, la valeur de l'attribut "name" est utilisée.
+                Utilisez de préférence une adresse IP pour éviter une dégradation
+                des performances due aux résolutions DNS.
+            -->
+            <optional><attribute name="address"><text/></attribute></optional>
+
+            <!--
+                Groupe utilisé pour ventiler l'hôte.
+                Si cet attribut est omis, le groupe à utiliser pour ventiler
+                sera déduit à partir des groupes rattachés à l'hôte, sauf s'il
+                y a un conflit (cet attribut permet de résoudre le conflit).
+            -->
+            <optional><attribute name="ventilation"><text/></attribute></optional>
+
+            <interleave>
+                <!--
+                    Modèles d'hôtes dont hérite cet hôte.
+                    Les modèles en question doivent avoir été définis dans
+                    le dossier "hosttemplates/". Le template "default" est
+                    toujours hérité implicitement.
+                -->
+                <zeroOrMore>
+                    <element name="template"><text/></element>
+                </zeroOrMore>
+
+                <zeroOrMore>
+                    <ref name="nagios"/>
+                </zeroOrMore>
+
+                <!--
+                    Classes d'équipements auxquelles cet hôte appartient.
+                    Les classes d'équipements permettent de sélectionner les
+                    variantes de tests de supervision les plus pertinentes
+                    pour un type d'équipement.
+                -->
+                <zeroOrMore>
+                    <element name="class"><text/></element>
+                </zeroOrMore>
+
+                <!--
+                    Attributs de l'hôte, généralement déterminés à l'aide de
+                    la commande de découverte de VigiConf (vigiconf discover).
+                -->
+                <zeroOrMore>
+                    <element name="attribute">
+                        <attribute name="name"><text/></attribute>
+                        <mixed>
+                            <zeroOrMore>
+                                <element name="item"><text/></element>
+                            </zeroOrMore>
+                        </mixed>
+                    </element>
+                </zeroOrMore>
+
+                <!-- Tests de supervision qui seront activés sur cet hôte. -->
+                <zeroOrMore>
+                    <element name="test">
+                        <attribute name="name"><text/></attribute>
+                        <optional>
+                            <attribute name="weight">
+                                <data type="xs:positiveInteger"/>
+                            </attribute>
+                        </optional>
+
+                        <interleave>
+                            <zeroOrMore>
+                                <element name="arg">
+                                    <attribute name="name"><text/></attribute>
+                                    <text/>
+                                </element>
+                            </zeroOrMore>
+                            <ref name="nagios"/>
+                        </interleave>
+                    </element>
+                </zeroOrMore>
+
+                <!--
+                    Étiquettes attachées à l'hôte ou à l'un de ses services.
+                    Ces étiquettes sont visibles dans VigiMap sous la forme
+                    d'icônes placées au-dessus des éléments.
+                -->
+                <zeroOrMore>
+                    <element name="tag">
+                        <optional><attribute name="service"><text/></attribute></optional>
+                        <attribute name="name"><text/></attribute>
+                        <text/>
+                    </element>
+                </zeroOrMore>
+
+                <!--
+                    Groupes auxquels l'hôte appartient.
+                    Ces groupes doivent appartenir aux hiérarchies définies
+                    dans le dossier "groups/".
+                -->
+                <zeroOrMore>
+                    <element name="group"><text/></element>
+                </zeroOrMore>
+
+                <!-- Poids accordé à l'hôte (entier strictement positif). -->
+                <optional>
+                    <element name="weight">
+                        <data type="xs:positiveInteger"/>
+                    </element>
+                </optional>
+            </interleave>
+        </element>
+    </define>
+
+    <define name="nagios">
+        <!-- Une liste de directives qui seront passées à Nagios. -->
+        <zeroOrMore>
+            <element name="directive">
+                <attribute name="name"><text/></attribute>
+                <text/>
+            </element>
+        </zeroOrMore>
+    </define>
+</grammar>
+<!--
+vim: ts=4 et
+-->

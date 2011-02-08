@@ -1,0 +1,37 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+    <start>
+        <!--
+            Chaque fichier peut contenir la configuration d'un seul groupe
+            ou de plusieurs groupes (listés dans une balise "groups").
+        -->
+        <choice>
+            <ref name="groups"/>
+            <ref name="group"/>
+        </choice>
+    </start>
+
+    <define name="groups">
+        <element name="groups">
+            <zeroOrMore>
+                <ref name="group"/>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="group">
+        <element name="group">
+            <!-- Nom du groupe. -->
+            <attribute name="name"><text/></attribute>
+
+            <!-- Sous-groupes éventuels. -->
+            <zeroOrMore>
+                <ref name="group"/>
+            </zeroOrMore>
+        </element>
+    </define>
+</grammar>
+<!--
+vim: ts=4 et
+-->
