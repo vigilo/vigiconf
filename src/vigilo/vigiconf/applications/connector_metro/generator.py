@@ -49,6 +49,10 @@ class ConnectorMetroGen(Generator):
         h = conf.hostsConf[hostname]
         if "dataSources" not in h or not h['dataSources']:
             return
+        # Ajout des serveurs de backup
+        if vserver not in self.application.servers:
+            self.application.servers[vserver] = "restart"
+        # Initialisation de la base
         db_path = os.path.join(self.baseDir, vserver, "connector-metro.db")
         if vserver not in self.connections:
             self.init_db(db_path, vserver)
@@ -93,6 +97,8 @@ class ConnectorMetroGen(Generator):
         #db.close()
 
     def init_db(self, db_path, vserver):
+        if not os.path.exists(os.path.dirname(db_path)):
+            os.makedirs(os.path.dirname(db_path))
         db = sqlite3.connect(db_path)
         c = db.cursor()
         self.connections[vserver] = {"db": db, "cursor": c}
