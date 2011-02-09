@@ -27,8 +27,8 @@ from vigilo.vigiconf.lib import dispatchmodes
 from vigilo.models.session import DBSession
 from vigilo.models.tables import MapGroup, VigiloServer
 
-from confutil import setup_tmpdir, reload_conf
-from confutil import setup_db, teardown_db, DummyDispatchator
+from helpers import setup_tmpdir, reload_conf
+from helpers import setup_db, teardown_db, DummyDispatchator
 
 
 class EnterpriseEdition(unittest.TestCase):

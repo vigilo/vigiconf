@@ -11,7 +11,7 @@ import unittest
 from vigilo.vigiconf.loaders.topology import TopologyLoader
 
 import vigilo.vigiconf.conf as conf
-from confutil import reload_conf, setup_db, teardown_db, DummyDispatchator
+from helpers import reload_conf, setup_db, teardown_db, DummyDispatchator
 
 from vigilo.models.tables import Host
 from vigilo.models.tables import LowLevelService, HighLevelService, \

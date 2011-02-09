@@ -10,8 +10,8 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.loaders.group import GroupLoader
 
-from confutil import reload_conf, setup_tmpdir, setup_path
-from confutil import setup_db, teardown_db, DummyDispatchator
+from helpers import reload_conf, setup_tmpdir, setup_path
+from helpers import setup_db, teardown_db, DummyDispatchator
 
 class ValidateXSD(unittest.TestCase):
 

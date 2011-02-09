@@ -2,7 +2,7 @@
 
 import unittest
 
-from confutil import setup_db, teardown_db, setup_path, DummyDispatchator
+from helpers import setup_db, teardown_db, setup_path, DummyDispatchator
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.models.session import DBSession
 from vigilo.models.tables import SupItemGroup

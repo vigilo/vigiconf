@@ -12,9 +12,9 @@ import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import dispatchmodes
 
-from confutil import reload_conf, setup_tmpdir
-from confutil import setup_deploy_dir, teardown_deploy_dir
-from confutil import setup_db, teardown_db
+from helpers import reload_conf, setup_tmpdir
+from helpers import setup_deploy_dir, teardown_deploy_dir
+from helpers import setup_db, teardown_db
 
 
 class Dispatchator(unittest.TestCase):

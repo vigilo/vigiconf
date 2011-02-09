@@ -16,8 +16,8 @@ from vigilo.models.tables import MapGroup, ConfFile
 from vigilo.models.demo.functions import add_host
 from vigilo.models.session import DBSession
 
-from confutil import reload_conf, setup_tmpdir
-from confutil import setup_db, teardown_db, DummyDispatchator
+from helpers import reload_conf, setup_tmpdir
+from helpers import setup_db, teardown_db, DummyDispatchator
 
 from vigilo.vigiconf.applications.nagios.generator import NagiosGen
 

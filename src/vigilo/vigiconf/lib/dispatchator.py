@@ -51,7 +51,6 @@ from vigilo.vigiconf import conf
 from .generators import GeneratorManager, GenerationError
 from .systemcommand import SystemCommand, SystemCommandError
 from . import VigiConfError
-from .server import serverfactory
 
 
 class DispatchatorError(VigiConfError):
@@ -93,7 +92,7 @@ class Dispatchator(object):
         self.listApps()
         self.applications.sort(reverse=True, key=lambda a: a.priority)
         # list servers
-        self.servers = self.listServerNames()
+        self.servers = self.listServers()
 
     def restrict(self, servers):
         """
@@ -168,19 +167,6 @@ class Dispatchator(object):
         @rtype: C{list} of C{str}
         """
         pass
-
-    def buildServersFrom(self, iServers):
-        """
-        Builds and returns a list of servers objects.
-        @param iServers: List of server names to build from
-        @type  iServers: C{list} of C{str}
-        @rtype: C{list} of L{Server<lib.server.Server>}
-        """
-        _servers = []
-        for _srv in iServers:
-            _srvobj = serverfactory.makeServer(_srv)
-            _servers.append(_srvobj)
-        return _servers
 
     def generate(self, nosyncdb=False):
         """
@@ -447,7 +433,7 @@ class Dispatchator(object):
         @type  iRevision: C{int}
         """
         servername = self.commandsQueue.get()
-        server = serverfactory.makeServer(servername)
+        server = self.servers[servername]
         try:
             server.deploy(iRevision)
         except VigiConfError, e: # if it fails
@@ -470,8 +456,7 @@ class Dispatchator(object):
         self.filter_disabled()
         if self.force:
             return
-        for servername in self.servers:
-            server_obj = serverfactory.makeServer(servername)
+        for server_obj in self.servers.values():
             server_obj.updateRevisionManager()
             server_obj.getRevisionManager().setSubversion(self.deploy_revision)
 
@@ -479,10 +464,9 @@ class Dispatchator(object):
         """
         Déploie et qualifie la configuration sur les serveurs concernés.
         """
-        servers = self.servers[:]
+        servers = self.servers.keys()
         if not self.force:
-            for server in self.servers:
-                server_obj = serverfactory.makeServer(server)
+            for server, server_obj in self.servers.items():
                 if server_obj.needsDeployment():
                     LOGGER.debug("Server %s should be deployed.", server)
                 else:
@@ -618,7 +602,7 @@ class Dispatchator(object):
         Calls switchDirectories() on the first server in the commandsQueue
         """
         servername = self.commandsQueue.get()
-        server = serverfactory.makeServer(servername)
+        server = self.servers[servername]
         try:
             server.switchDirectories()
         except VigiConfError, e: # if it fails
@@ -629,10 +613,9 @@ class Dispatchator(object):
         """
         Redémarre les applications sur les serveurs concernés.
         """
-        servers = self.servers[:]
+        servers = self.servers.keys()
         if not self.force:
-            for server in self.servers:
-                server_obj = serverfactory.makeServer(server)
+            for server, server_obj in self.servers.items():
                 if server_obj.needsRestart():
                     LOGGER.debug("Server %s should be restarted.", server)
                 else:
@@ -645,7 +628,7 @@ class Dispatchator(object):
 
     def stopApplications(self):
         """Stops all the applications on all the servers"""
-        self.stopApplicationsOn(self.servers)
+        self.stopApplicationsOn(self.servers.keys())
 
     def stopApplicationsOn(self, iServers):
         """
@@ -662,7 +645,7 @@ class Dispatchator(object):
 
     def startApplications(self):
         """Starts all the applications on all the servers"""
-        self.startApplicationsOn(self.servers)
+        self.startApplicationsOn(self.servers.keys())
 
     def startApplicationsOn(self, iServers):
         """
@@ -682,8 +665,7 @@ class Dispatchator(object):
         state = []
         _revision = self.getLastRevision()
         state.append(_("Current revision in the repository : %d") % _revision)
-        for servername in self.servers:
-            server = serverfactory.makeServer(servername)
+        for servername, server in self.servers.items():
             try:
                 server.updateRevisionManager()
                 server.getRevisionManager().setSubversion(_revision)

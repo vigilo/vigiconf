@@ -13,7 +13,7 @@ settings.load_module(__name__)
 
 from vigilo.vigiconf.lib.loaders import LoaderManager
 
-from confutil import setup_db, teardown_db, reload_conf, DummyDispatchator
+from helpers import setup_db, teardown_db, reload_conf, DummyDispatchator
 
 from vigilo.models.tables import Host, SupItemGroup, Ventilation, Application
 from vigilo.models.session import DBSession

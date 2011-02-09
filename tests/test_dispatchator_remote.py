@@ -12,9 +12,9 @@ import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import dispatchmodes
 
-from confutil import reload_conf, setup_tmpdir
-from confutil import setup_deploy_dir, teardown_deploy_dir
-from confutil import setup_db, teardown_db
+from helpers import reload_conf, setup_tmpdir
+from helpers import setup_deploy_dir, teardown_deploy_dir
+from helpers import setup_db, teardown_db
 
 
 class DispatchatorRemote(unittest.TestCase):
@@ -45,7 +45,7 @@ class DispatchatorRemote(unittest.TestCase):
         teardown_deploy_dir()
 
     def test_list_servers(self):
-        servers = self.dispatchator.listServerNames()
+        servers = self.dispatchator.listServers()
         self.assertEquals([u"localhost", u"localhost2"], sorted(list(servers)))
 
     def test_app_servers(self):

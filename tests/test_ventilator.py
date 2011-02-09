@@ -10,8 +10,8 @@ from pprint import pprint
 
 import vigilo.vigiconf.conf as conf
 
-from confutil import reload_conf, setup_tmpdir
-from confutil import setup_db, teardown_db
+from helpers import reload_conf, setup_tmpdir
+from helpers import setup_db, teardown_db
 
 from sqlalchemy.sql.functions import count
 

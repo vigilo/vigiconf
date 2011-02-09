@@ -63,6 +63,7 @@ def setup_tmpdir(dirpath=None):
 #Create an empty database before we start our tests for this module
 def setup_db():
     """Crée toutes les tables du modèle dans la BDD."""
+    transaction.abort()
     metadata.create_all()
     DBSession.add(StateName(statename=u'OK', order=1))
     DBSession.add(StateName(statename=u'UNKNOWN', order=2))

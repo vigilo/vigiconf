@@ -5,7 +5,7 @@ import sys, os, unittest, tempfile, shutil, glob
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from confutil import reload_conf, setup_db, teardown_db
+from helpers import reload_conf, setup_db, teardown_db
 
 class HostMethods(unittest.TestCase):
 

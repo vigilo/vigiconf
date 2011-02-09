@@ -38,6 +38,7 @@ _ = translate(__name__)
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.dispatchator import Dispatchator
+from vigilo.vigiconf.lib.server import serverfactory
 
 
 class DispatchatorRemote(Dispatchator):
@@ -57,7 +58,7 @@ class DispatchatorRemote(Dispatchator):
         """
         self.mUser = iUser
 
-    def listServerNames(self):
+    def listServers(self):
         """
         Get all server names from configuration
         @return: the servers names from the configuration.
@@ -68,11 +69,12 @@ class DispatchatorRemote(Dispatchator):
             for hostGroup in conf.appsGroupsByServer[appGroup]:
                 for server in conf.appsGroupsByServer[appGroup][hostGroup]:
                     _serversList.add(server)
-        for appGroup in conf.appsGroupsBackup:
+        for appGroup in getattr(conf, "appsGroupsBackup", {}):
             for hostGroup in conf.appsGroupsBackup[appGroup]:
                 for server in conf.appsGroupsBackup[appGroup][hostGroup]:
                     _serversList.add(server)
-        return list(_serversList)
+        return dict([ (s, serverfactory.makeServer(s))
+                      for s in _serversList ])
 
     def getServersForApp(self, app):
         """
@@ -123,9 +125,9 @@ class DispatchatorRemote(Dispatchator):
         """
         if not servernames:
             return
-        for servername in self.servers[:]:
+        for servername in self.servers.keys():
             if servername not in servernames:
-                self.servers.remove(servername)
+                del self.servers[servername]
 
     def restrictApplicationsListToServers(self, servernames):
         """
@@ -146,7 +148,7 @@ class DispatchatorRemote(Dispatchator):
 
     def filter_disabled(self):
         """@see: L{lib.dispatchator.Dispatchator.filter_disabled}"""
-        servers = self.servers[:]
+        servers = self.servers.keys()
         for server in self.servers:
             server_db = tables.VigiloServer.by_vigiloserver_name(
                             unicode(server))

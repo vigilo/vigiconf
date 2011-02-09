@@ -31,14 +31,14 @@ class DispatchatorLocal(Dispatchator):
     """A localhost-only implementation of the Dispatchator."""
 
 
-    def listServerNames(self):
+    def listServers(self):
         """
         Get all server names from configuration
         @return: the servers names from the configuration. In our case, a list
             with only the localhost is returned
         @rtype: C{list} of C{str}
         """
-        return ["localhost"]
+        return {"localhost": serverfactory.makeServer("localhost")}
 
 
     def getServersForApp(self, app):

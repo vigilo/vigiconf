@@ -14,7 +14,7 @@ from vigilo.vigiconf.lib.systemcommand import SystemCommandError
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
-from confutil import reload_conf
+from helpers import reload_conf
 
 
 #class AppsValidationTest(unittest.TestCase):
