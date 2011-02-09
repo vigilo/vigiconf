@@ -95,7 +95,7 @@ setup(name='vigilo-vigiconf',
                 ('**.py', 'python', None),
             ],
         },
-        packages=find_packages("src"),
+        packages=find_packages("src")+["twisted"],
         entry_points={
             'console_scripts': [
                 'vigiconf = vigilo.vigiconf.commandline:main',
@@ -126,6 +126,7 @@ setup(name='vigilo-vigiconf',
             "vigilo.vigiconf": ["applications/*/*.sh", "applications/*/templates/*",
                                 "validation/dtd/*.dtd", "validation/xsd/*.xsd",
                                 "tests/*/*.py"],
+            "twisted": ["plugins/vigilo_vigiconf.py"],
             },
         data_files=get_data_files() +
             install_i18n("i18n", os.path.join(sys.prefix, 'share', 'locale')),
