@@ -68,6 +68,10 @@ class DispatchatorRemote(Dispatchator):
             for hostGroup in conf.appsGroupsByServer[appGroup]:
                 for server in conf.appsGroupsByServer[appGroup][hostGroup]:
                     _serversList.add(server)
+        for appGroup in conf.appsGroupsBackup:
+            for hostGroup in conf.appsGroupsBackup[appGroup]:
+                for server in conf.appsGroupsBackup[appGroup][hostGroup]:
+                    _serversList.add(server)
         return list(_serversList)
 
     def getServersForApp(self, app):
