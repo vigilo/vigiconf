@@ -199,22 +199,27 @@ def parse_args():
                     help=N_("Supervision servers to query, all of them if "
                             "not specified."))
 
-    # APPS
-    parser_apps = subparsers.add_parser("apps",
-                    add_help=False,
-                    parents=[common_args_parser],
-                    help=N_("Application status management."))
-    parser_apps.set_defaults(func=apps)
-    group = parser_apps.add_mutually_exclusive_group(required=True)
-    group.add_argument("--stop", action="store_true",
-                       help=N_("Stop the applications."))
-    group.add_argument("--start", action="store_true",
-                       help=N_("Start the applications."))
-    group.add_argument("--restart", action="store_true",
-                       help=N_("Restart the applications."))
-    parser_apps.add_argument("applications", nargs="*",
-                             help=N_("Applications to manage, all of them "
-                                    "if not specified."))
+    # @deprecated: la commande 'apps' n'est pas utilisée en v2
+    # et correspond surtout à du debugging (reste de la v1).
+    # Le code derrière est probablement obsolète à présent.
+
+#    # APPS
+#    parser_apps = subparsers.add_parser("apps",
+#                    add_help=False,
+#                    parents=[common_args_parser],
+#                    help=N_("Application status management."))
+#    parser_apps.set_defaults(func=apps)
+#    group = parser_apps.add_mutually_exclusive_group(required=True)
+#    group.add_argument("--stop", action="store_true",
+#                       help=N_("Stop the applications."))
+#    group.add_argument("--start", action="store_true",
+#                       help=N_("Start the applications."))
+#    group.add_argument("--restart", action="store_true",
+#                       help=N_("Restart the applications."))
+#    parser_apps.add_argument("applications", nargs="*",
+#                             help=N_("Applications to manage, all of them "
+#                                    "if not specified."))
+
     ## UNDO
     #parser_undo = subparsers.add_parser("undo",
     #                add_help=False,
