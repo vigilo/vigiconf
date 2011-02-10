@@ -53,10 +53,13 @@ class VigiConfConnectorServiceMaker(object):
 
         # Statistiques
         from vigilo.connector.status import StatusPublisher
-        servicename = options.get("name", "vigilo-connector-vigiconf")
+        servicename = options["name"]
+        if servicename is None:
+            servicename = "vigilo-connector-vigiconf"
         stats_publisher = StatusPublisher(forwarder,
-                            settings["connector"].get("hostname", None),
-                            servicename=servicename)
+                        settings["connector"].get("hostname", None),
+                        servicename=servicename,
+                        node=settings["connector"].get("status_node", None))
         stats_publisher.setHandlerParent(xmpp_client)
 
         root_service = service.MultiService()
