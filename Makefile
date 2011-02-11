@@ -32,9 +32,9 @@ install: settings.ini $(PYTHON)
 	chmod a+rX -R $(DESTDIR)$(PREFIX)/lib*/python*/*
 	chmod 750 $(DESTDIR)$(VARDIR)
 	# Connector
-	install -p -m 755 -D pkg/init.$(DISTRO) $(DESTDIR)/etc/rc.d/init.d/vigilo-connector-vigiconf
+	install -p -m 755 -D pkg/init $(DESTDIR)/etc/rc.d/init.d/vigilo-connector-vigiconf
 	echo /etc/rc.d/init.d/vigilo-connector-vigiconf >> INSTALLED_FILES
-	install -p -m 644 -D pkg/initconf.$(DISTRO) $(DESTDIR)$(INITCONFDIR)/vigilo-connector-vigiconf
+	install -p -m 644 -D pkg/initconf $(DESTDIR)$(INITCONFDIR)/vigilo-connector-vigiconf
 	echo $(INITCONFDIR)/vigilo-connector-vigiconf >> INSTALLED_FILES
 
 install_permissions:

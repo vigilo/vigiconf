@@ -37,7 +37,11 @@ Requires:   sqlite >= 3
 
 Requires(pre): shadow-utils
 Requires(post): openssh
-
+# Init
+Requires(post): chkconfig
+Requires(preun): chkconfig
+Requires(preun): initscripts
+Requires(postun): initscripts
 
 %description
 This program generates and pushes the configuration for the
@@ -49,24 +53,24 @@ This application is part of the Vigilo Project <http://vigilo-project.org>
 
 %build
 make \
-	PREFIX=%{_prefix} \
-	SYSCONFDIR=%{_sysconfdir} \
-	LOCALSTATEDIR=%{_localstatedir} \
-	PYTHON=%{__python}
+    PREFIX=%{_prefix} \
+    SYSCONFDIR=%{_sysconfdir} \
+    LOCALSTATEDIR=%{_localstatedir} \
+    PYTHON=%{__python}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make install \
-	DESTDIR=$RPM_BUILD_ROOT \
-	PREFIX=%{_prefix} \
-	SYSCONFDIR=%{_sysconfdir} \
-	LOCALSTATEDIR=%{_localstatedir} \
-	PYTHON=%{__python}
+    DESTDIR=$RPM_BUILD_ROOT \
+    PREFIX=%{_prefix} \
+    SYSCONFDIR=%{_sysconfdir} \
+    LOCALSTATEDIR=%{_localstatedir} \
+    PYTHON=%{__python}
 
 # Listed explicitely in %%files as %%config:
 grep -v '^%{_sysconfdir}' INSTALLED_FILES \
-	| grep -v '^%{_localstatedir}/lib/vigilo/%{module}' \
-	> INSTALLED_FILES.filtered
+    | grep -v '^%{_localstatedir}/lib/vigilo/%{module}' \
+    > INSTALLED_FILES.filtered
 mv -f INSTALLED_FILES.filtered INSTALLED_FILES
 
 %find_lang %{name}
@@ -74,7 +78,7 @@ mv -f INSTALLED_FILES.filtered INSTALLED_FILES
 %pre
 getent group %{module} >/dev/null || groupadd -r %{module}
 getent passwd %{module} >/dev/null || \
-	useradd -r -g %{module} -d %{_localstatedir}/lib/vigilo/%{module} -s /bin/bash %{module}
+    useradd -r -g %{module} -d %{_localstatedir}/lib/vigilo/%{module} -s /bin/bash %{module}
 exit 0
 
 %post
@@ -120,7 +124,6 @@ rm -rf $RPM_BUILD_ROOT
 # Connector
 %attr(744,root,root) %{_initrddir}/vigilo-connector-vigiconf
 %config(noreplace) %{_sysconfdir}/sysconfig/*
-%attr(-,%{module},%{module}) %{_localstatedir}/run/vigilo-connector-vigiconf
 
 
 %changelog

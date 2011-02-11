@@ -31,7 +31,11 @@ Requires:   sqlite >= 3
 
 Requires(pre): shadow-utils
 Requires(post): openssh
-
+# Init
+Requires(post): chkconfig
+Requires(preun): chkconfig
+Requires(preun): initscripts
+Requires(postun): initscripts
 
 %description
 This program generates and pushes the configuration for the
@@ -114,7 +118,6 @@ rm -rf $RPM_BUILD_ROOT
 # Connector
 %attr(744,root,root) %{_initrddir}/vigilo-connector-vigiconf
 %config(noreplace) %{_sysconfdir}/sysconfig/*
-%attr(-,%{module},%{module}) %{_localstatedir}/run/vigilo-connector-vigiconf
 
 
 %changelog

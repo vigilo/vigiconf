@@ -8,8 +8,8 @@ sysconfdir = os.getenv("SYSCONFDIR", "/etc")
 localstatedir = os.getenv("LOCALSTATEDIR", "/var")
 
 tests_require = [
-    'nose',
     'coverage',
+    'nose',
     'pylint',
 ]
 
@@ -59,8 +59,6 @@ def get_data_files():
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/revisions"), []))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/tmp"), []))
     files.append((os.path.join(localstatedir, "lock/vigilo-vigiconf"), []))
-    # connector
-    files.append((os.path.join(localstatedir, "run/vigilo-connector-vigiconf"), []))
     return files
 
 
@@ -75,7 +73,6 @@ setup(name='vigilo-vigiconf',
         +'configuration for every other component in Vigilo, distributes\n'
         +'it and restarts the services.\n',
         install_requires=[
-            # dashes become underscores
             # order is important
             "setuptools",
             "argparse",
@@ -83,24 +80,23 @@ setup(name='vigilo-vigiconf',
             "vigilo-models",
             'vigilo-connector',
             ],
-        extras_require={
-            'tests': tests_require,
-        },
         namespace_packages = [
             'vigilo',
-        #    'vigilo.common',
             ],
+        packages=find_packages("src")+["twisted"],
         message_extractors={
             'src': [
                 ('**.py', 'python', None),
             ],
         },
-        packages=find_packages("src")+["twisted"],
+        extras_require={
+            'tests': tests_require,
+        },
         entry_points={
             'console_scripts': [
                 'vigiconf = vigilo.vigiconf.commandline:main',
                 'vigiconf-debug = vigilo.vigiconf.debug:main',
-                'vigilo-connector-vigiconf = vigilo.vigiconf.connector.main:main',
+                'vigilo-connector-vigiconf = twisted.scripts.twistd:run',
                 ],
             'vigilo.vigiconf.applications': [
                 'collector = vigilo.vigiconf.applications.collector:Collector',
@@ -119,7 +115,7 @@ setup(name='vigilo-vigiconf',
                 'server_remote = vigilo.vigiconf.lib.servertypes.remote:ServerRemote',
                 'dispatchator_remote = vigilo.vigiconf.lib.dispatchmodes.remote:DispatchatorRemote',
                 ],
-            },
+        },
         package_dir={'': 'src'},
         #include_package_data = True,
         package_data={

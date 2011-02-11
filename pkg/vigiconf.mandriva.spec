@@ -14,8 +14,6 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
 License:    GPLv2
 Buildarch:  noarch
 
-Requires(pre): rpm-helper
-
 Requires:   python >= 2.5
 Requires:   python-setuptools
 Requires:   perl
@@ -50,6 +48,8 @@ Requires:   python-zope.sqlalchemy
 Obsoletes:  vigilo-confmgr < 1.36-2
 Provides:   vigilo-confmgr = %{version}-%{release}
 
+Requires(pre): rpm-helper
+
 
 %description
 This program generates and pushes the configuration for the
@@ -61,24 +61,24 @@ This application is part of the Vigilo Project <http://vigilo-project.org>
 
 %build
 make \
-	PREFIX=%{_prefix} \
-	SYSCONFDIR=%{_sysconfdir} \
-	LOCALSTATEDIR=%{_localstatedir} \
-	PYTHON=%{_bindir}/python
+    PREFIX=%{_prefix} \
+    SYSCONFDIR=%{_sysconfdir} \
+    LOCALSTATEDIR=%{_localstatedir} \
+    PYTHON=%{_bindir}/python
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make install \
-	DESTDIR=$RPM_BUILD_ROOT \
-	PREFIX=%{_prefix} \
-	SYSCONFDIR=%{_sysconfdir} \
-	LOCALSTATEDIR=%{_localstatedir} \
-	PYTHON=%{_bindir}/python
+    DESTDIR=$RPM_BUILD_ROOT \
+    PREFIX=%{_prefix} \
+    SYSCONFDIR=%{_sysconfdir} \
+    LOCALSTATEDIR=%{_localstatedir} \
+    PYTHON=%{_bindir}/python
 
 # Listed explicitely in %%files as %%config:
 grep -v '^%{_sysconfdir}' INSTALLED_FILES \
-	| grep -v '^%{_localstatedir}/lib/vigilo/%{module}' \
-	> INSTALLED_FILES.filtered
+    | grep -v '^%{_localstatedir}/lib/vigilo/%{module}' \
+    > INSTALLED_FILES.filtered
 mv -f INSTALLED_FILES.filtered INSTALLED_FILES
 
 %find_lang %{name}
@@ -122,7 +122,6 @@ rm -rf $RPM_BUILD_ROOT
 # Connector
 %attr(744,root,root) %{_initrddir}/vigilo-connector-vigiconf
 %config(noreplace) %{_sysconfdir}/sysconfig/*
-%attr(-,%{module},%{module}) %{_localstatedir}/run/vigilo-connector-vigiconf
 
 
 %changelog
