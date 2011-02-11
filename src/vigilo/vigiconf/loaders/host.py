@@ -183,8 +183,12 @@ class HostLoader(DBLoader):
         LOGGER.info(_("Cleaning up old hosts"))
         for filename in svn_status['remove']:
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
-            DBSession.query(ConfFile).filter(
-                ConfFile.name == unicode(relfilename)).delete()
+            # On serait tenté de supprimer l'instance sans la récupérer
+            # au préalable, mais ça casserait les "cascades" gérées par
+            # l'ORM (MapperExtension) et donc les cartes ensuite. (#440)
+            ghost_conffile = DBSession.query(ConfFile).filter(
+                ConfFile.name == unicode(relfilename)).one()
+            DBSession.delete(ghost_conffile)
 
         # Suppression des instances d'hôtes qui n'ont pas de
         # fichier de configuration associé (résidus après migrations).
