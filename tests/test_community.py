@@ -26,6 +26,7 @@ from vigilo.vigiconf.lib import dispatchmodes
 
 from vigilo.models.session import DBSession
 from vigilo.models.tables import MapGroup, VigiloServer
+from vigilo.models.demo.functions import add_host
 
 from helpers import setup_tmpdir, reload_conf
 from helpers import setup_db, teardown_db, DummyDispatchator
@@ -71,6 +72,8 @@ class EnterpriseEdition(unittest.TestCase):
                 }
         vs = VigiloServer(name=u"sup.example.com")
         DBSession.add(vs)
+        add_host("localhost")
+        add_host("testserver1")
         DBSession.flush()
         self.dispatchator = dispatchmodes.getinstance()
         self.genmanager = GeneratorManager(

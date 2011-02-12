@@ -49,10 +49,6 @@ from vigilo.vigiconf.lib.ventilation import Ventilator
 __docformat__ = "epytext"
 __all__ = ("VentilatorRemote", "NoServerAvailable")
 
-_CACHE = {
-    "host": {},
-    "active_vservers": [],
-    }
 
 class NoServerAvailable(VigiConfError):
     """
@@ -66,6 +62,9 @@ class VentilatorRemote(Ventilator):
     def __init__(self, apps):
         super(VentilatorRemote, self).__init__(apps)
         self.apps_by_appgroup = self.get_app_by_appgroup()
+        self._cache = {"host": {},
+                       "active_vservers": [],
+                       }
 
     def appendHost(self, vservername, hostname, appgroup):
         """
@@ -106,9 +105,9 @@ class VentilatorRemote(Ventilator):
         @rtype: C{list} of C{str}
         """
         apps = [unicode(app.name) for app in self.apps_by_appgroup[appgroup]]
-        if host not in _CACHE["host"]:
+        if host not in self._cache["host"]:
             host_db = tables.Host.by_host_name(unicode(host))
-            _CACHE["host"][host] = host_db.idhost
+            self._cache["host"][host] = host_db.idhost
         prev_servers = DBSession.query(
                 tables.VigiloServer.name
             ).join(
@@ -116,7 +115,7 @@ class VentilatorRemote(Ventilator):
                 (tables.Application,
                     tables.Ventilation.idapp == tables.Application.idapp),
             ).filter(tables.Application.name.in_(apps)
-            ).filter(tables.Ventilation.idhost == _CACHE["host"][host]
+            ).filter(tables.Ventilation.idhost == self._cache["host"][host]
             ).filter(tables.VigiloServer.disabled == False
             ).all()
         return [server.name for server in prev_servers]
@@ -166,12 +165,13 @@ class VentilatorRemote(Ventilator):
         @param vserverlist: list de noms de serveurs Vigilo
         @type  vserverlist: C{list} de C{str}
         """
-        if not _CACHE["active_vservers"]:
+        if not self._cache["active_vservers"]:
             # on construit le cache
             for vserver in DBSession.query(tables.VigiloServer).all():
                 if not vserver.disabled:
-                    _CACHE["active_vservers"].append(vserver.name)
-        return [ v for v in vserverlist if v in _CACHE["active_vservers"] ]
+                    self._cache["active_vservers"].append(vserver.name)
+        return [ v for v in vserverlist
+                 if v in self._cache["active_vservers"] ]
 
     def ventilate(self):
         """
