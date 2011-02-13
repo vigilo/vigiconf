@@ -536,6 +536,10 @@ class Host(object):
         @param factors: the factors to use, if any
         @type  factors: C{dict}
         """
+        for ds in dslist:
+            if ds not in self.hosts[self.name]["dataSources"]:
+                raise VigiConfError(_("Wrong datasource in graph "
+                    "'%(graph)s': %(ds)s") % {"graph": title, "ds": ds})
         graph = Graph(self.hosts, unicode(title), map(unicode, dslist),
                       unicode(template), unicode(vlabel), group=unicode(group),
                       factors=factors, last_is_max=last_is_max)
