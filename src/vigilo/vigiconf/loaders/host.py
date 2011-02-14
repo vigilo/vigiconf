@@ -70,7 +70,7 @@ class HostLoader(DBLoader):
                 LOGGER.warning(_("Deleting leftover config file from "
                                  "database: %s"), conffile.name)
                 DBSession.delete(conffile)
-        DBSession.flush()
+        #DBSession.flush()
 
     def load_conf(self):
         LOGGER.info(_("Loading hosts"))
@@ -219,7 +219,7 @@ class HostLoader(DBLoader):
         for graph in empty_graphs:
             DBSession.delete(graph)
 
-        DBSession.flush()
+        #DBSession.flush()
 
         # Si on a changé quelquechose, on le note en base
         if hostnames or svn_status['remove'] or ghost_hosts or deleted_hosts \
@@ -350,29 +350,48 @@ class CollectorLoader(ServiceLoader):
                     ['Collector'].get('tags', {}))
                 tag_loader.load_conf()
 
+
 class TagLoader(DBLoader):
+    """Chargeur de tags. Attention les valeurs des tags sont ignorées"""
+
+    all_tags = {}
+
     def __init__(self, supitem, tags):
         super(TagLoader, self).__init__(Tag, "name")
         self.supitem = supitem
         self.tags = tags
+        if not self.all_tags:
+            self._load_tags()
+
+    def _load_tags(self):
+        tags = {}
+        for tag in DBSession.query(Tag).all():
+            tags[tag.name] = [ s.idsupitem for s in tag.supitems ]
+        for tag, idsupitem in tags.iteritems():
+            if idsupitem not in self.all_tags:
+                self.all_tags[idsupitem] = set()
+            self.all_tags[idsupitem].add(tag)
 
     def cleanup(self):
         pass
 
     def load_conf(self):
-        supitem_tags = self.supitem.tags
         for name, value in self.tags.iteritems():
             name = unicode(name)
-            value = value and unicode(value) or None
-            tag = self.add({
-                'name': name,
-                'value': value,
-            })
-            if tag not in supitem_tags:
+            tag = self.add({'name': name})
+            if (self.supitem.idsupitem not in self.all_tags or
+                    name not in self.all_tags[self.supitem.idsupitem]):
                 self.supitem.tags.append(tag)
-        for tag in supitem_tags:
-            if tag.name not in self.tags:
-                supitem_tags.remove(tag)
+                self.all_tags.setdefault(self.supitem.idsupitem,
+                                         set()).add(name)
+        if self.supitem.idsupitem not in self.all_tags:
+            return
+        for tagname in self.all_tags[self.supitem.idsupitem]:
+            if tagname not in self.tags:
+                for tag in self.supitem.tags:
+                    if tag.name == tagname:
+                        self.supitem.tags.remove(tag)
+                self.all_tags[self.supitem.idsupitem].remove(tagname)
 
 class NagiosConfLoader(DBLoader):
     """

@@ -59,7 +59,7 @@ class LoaderManager(object):
         from vigilo.vigiconf.loaders.application import ApplicationLoader
         apploader = ApplicationLoader(apps)
         apploader.load()
-        DBSession.flush()
+        #DBSession.flush()
 
     def load_conf_db(self):
         """mise à jour de la base de données"""
@@ -104,7 +104,7 @@ class LoaderManager(object):
                 loadclass = loader_entry.load()
                 loader_instance = loadclass()
                 loader_instance.load()
-                DBSession.flush()
+        DBSession.flush()
 
     def load_vigilo_servers_db(self):
         """Export des serveurs de la supervision en base"""
@@ -112,7 +112,7 @@ class LoaderManager(object):
         from vigilo.vigiconf.loaders.vigiloserver import VigiloServerLoader
         vserver_loader = VigiloServerLoader()
         vserver_loader.load()
-        DBSession.flush()
+        #DBSession.flush()
 
     def load_ventilation_db(self, ventilation, apps):
         """Export de la ventilation en base"""
@@ -120,4 +120,4 @@ class LoaderManager(object):
         from vigilo.vigiconf.loaders.ventilation import VentilationLoader
         ventilationloader = VentilationLoader(ventilation, apps)
         ventilationloader.load()
-        DBSession.flush()
+        #DBSession.flush()

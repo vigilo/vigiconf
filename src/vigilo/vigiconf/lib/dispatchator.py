@@ -28,7 +28,7 @@ This is the module to call as a main end-user command line (see --help)
 from __future__ import absolute_import
 
 import os
-import Queue # Requires: python >= 2.5
+import Queue
 #from optparse import OptionParser
 from threading import Thread
 import shutil

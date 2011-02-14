@@ -27,6 +27,8 @@ import glob
 import os, sys
 import os.path
 import types
+import Queue
+from threading import Thread
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -72,6 +74,7 @@ class GeneratorManager(object):
                                     'enable_genshi_generation')
         except KeyError:
             self.genshi_enabled = False
+        self._generators_queue = Queue.Queue()
 
     def run_all_generators(self, ventilation, validator):
         """
@@ -83,11 +86,24 @@ class GeneratorManager(object):
         for app in self.apps:
             if not app.generator:
                 continue
-            LOGGER.info("Generating configuration for %s" % app.name)
+            self._generators_queue.put( (app, vba, validator) )
+            t = Thread(target=self._run_generator)
+            t.daemon = True
+            t.start()
+        self._generators_queue.join()
+        LOGGER.debug("Configuration generated")
+
+    def _run_generator(self):
+        app, vba, validator = self._generators_queue.get()
+        try:
             generator = app.generator(app, vba, validator)
             generator.generate()
             generator.write_scripts()
-        LOGGER.debug("Configuration generated")
+        except:
+            raise
+        finally:
+            LOGGER.info(_("Generated configuration for %s"), app.name)
+            self._generators_queue.task_done()
 
     def generate(self, nosyncdb=False):
         """

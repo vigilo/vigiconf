@@ -97,8 +97,10 @@ class ConnectorMetroGen(Generator):
         #db.close()
 
     def init_db(self, db_path, vserver):
-        if not os.path.exists(os.path.dirname(db_path)):
+        try:
             os.makedirs(os.path.dirname(db_path))
+        except OSError:
+            pass
         db = sqlite3.connect(db_path)
         c = db.cursor()
         self.connections[vserver] = {"db": db, "cursor": c}

@@ -125,7 +125,7 @@ class VentilationLoader(DBLoader):
                     DBSession.add(v)
                 new_apps_location.setdefault(application.idapp, set()
                                         ).add(vigiloserver.idvigiloserver)
-        DBSession.flush()
+        #DBSession.flush()
         # et maintenant on supprime ce qui reste
         LOGGER.debug("Obsolete ventilation entries: %d" % len(current))
         for v in current.values():

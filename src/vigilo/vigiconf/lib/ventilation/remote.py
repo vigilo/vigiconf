@@ -64,6 +64,7 @@ class VentilatorRemote(Ventilator):
         self.apps_by_appgroup = self.get_app_by_appgroup()
         self._cache = {"host": {},
                        "active_vservers": [],
+                       "apps": {},
                        }
 
     def appendHost(self, vservername, hostname, appgroup):
@@ -86,7 +87,7 @@ class VentilatorRemote(Ventilator):
                                 host=host,
                                 application=application,
                           ))
-        DBSession.flush()
+        #DBSession.flush()
 
     def get_previous_servers(self, host, appgroup):
         """
@@ -104,21 +105,25 @@ class VentilatorRemote(Ventilator):
             a été ventilé pour l'application L{appgroup}.
         @rtype: C{list} of C{str}
         """
-        apps = [unicode(app.name) for app in self.apps_by_appgroup[appgroup]]
+        # Construction d'un cache des ids des applications
+        if not self._cache["apps"]:
+            for app in DBSession.query(tables.Application).all():
+                self._cache["apps"][app.name] = app.idapp
+        apps = [ self._cache["apps"][unicode(app.name)]
+                 for app in self.apps_by_appgroup[appgroup] ]
+        # Construction d'un cache des ids des hôtes
         if host not in self._cache["host"]:
-            host_db = tables.Host.by_host_name(unicode(host))
-            self._cache["host"][host] = host_db.idhost
+            self._cache["host"][host] = DBSession.query(tables.Host.idhost
+                        ).filter_by(name=unicode(host)).scalar()
+        # Requête
         prev_servers = DBSession.query(
                 tables.VigiloServer.name
-            ).join(
-                tables.Ventilation,
-                (tables.Application,
-                    tables.Ventilation.idapp == tables.Application.idapp),
-            ).filter(tables.Application.name.in_(apps)
+            ).join(tables.Ventilation,
+            ).filter(tables.Ventilation.idapp.in_(apps)
             ).filter(tables.Ventilation.idhost == self._cache["host"][host]
             ).filter(tables.VigiloServer.disabled == False
             ).all()
-        return [server.name for server in prev_servers]
+        return [ server.name for server in prev_servers ]
 
     def get_host_ventilation_group(self, hostname, hostdata):
         if "serverGroup" in hostdata and hostdata["serverGroup"]:

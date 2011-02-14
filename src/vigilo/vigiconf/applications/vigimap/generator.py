@@ -99,7 +99,7 @@ class VigiMapGen(MapGenerator):
             allowed_ids = [ h.idhost for h in group.hosts ]
             if node.idhost not in allowed_ids:
                 DBSession.delete(node)
-        DBSession.flush()
+        #DBSession.flush()
 
     def _populate_lls(self, map, group, data):
         """ajout des nodes LowLevelService"""
@@ -127,7 +127,7 @@ class VigiMapGen(MapGenerator):
             allowed_ids = [ s.idservice for s in group.lls ]
             if node.service not in allowed_ids:
                 DBSession.delete(node)
-        DBSession.flush()
+        #DBSession.flush()
 
     def _populate_hls(self, map, group, data):
         """ajout des nodes HighLevelService"""
@@ -155,7 +155,7 @@ class VigiMapGen(MapGenerator):
             allowed_ids = [ s.idservice for s in group.hls ]
             if node.service not in allowed_ids:
                 DBSession.delete(node)
-        DBSession.flush()
+        #DBSession.flush()
 
     def _make_mapgroup(self, supitemgroup, parent_mapgroup):
         existing = tables.MapGroup.by_parent_and_name(parent_mapgroup,
@@ -269,3 +269,4 @@ class VigiMapGen(MapGenerator):
     def generate(self):
         LOGGER.debug("Generating maps for the host groups")
         self._walk_hierarchy()
+        DBSession.flush()

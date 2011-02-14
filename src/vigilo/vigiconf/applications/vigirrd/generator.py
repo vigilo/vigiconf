@@ -84,6 +84,10 @@ class VigiRRDGen(Generator):
                     % ", ".join([ "%s/%s" % dsr for dsr in missing_ds_report]))
 
     def init_db(self, db_path, vserver):
+        try:
+            os.makedirs(os.path.dirname(db_path))
+        except OSError:
+            pass
         db = sqlite3.connect(db_path)
         c = db.cursor()
         self.connections[vserver] = {"db": db, "cursor": c}
