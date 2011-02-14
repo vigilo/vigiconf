@@ -37,8 +37,7 @@ from vigilo.common.conf import settings
 settings.load_module(__name__)
 
 from vigilo.models.configure import configure_db
-configure_db(settings['database'], 'sqlalchemy_',
-    settings['database']['db_basename'])
+configure_db(settings['database'], 'sqlalchemy_')
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
