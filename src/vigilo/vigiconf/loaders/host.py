@@ -47,7 +47,8 @@ __docformat__ = "epytext"
 #    loader.load()
 
 def _run_first_host_loaders(data):
-    hostname, hosts = data
+    hostname, hosts, hostsConf = data
+    hostdata = hostsConf[hostname]
     host = hosts[hostname]
     # Synchronise le service "Collector" en fonction des besoins.
     collector_loader = CollectorLoader(host)
@@ -208,7 +209,8 @@ class HostLoader(DBLoader):
 
         # Chargement du service Collector et des tags
         results = [ pool.apply_async(_run_first_host_loaders,
-                    (hostname, hosts_proxy)) for hostname in hosts ]
+                    (hostname, hosts_proxy, hostsconf_proxy))
+                    for hostname in hosts ]
         for result in results:
             result.wait()
 
