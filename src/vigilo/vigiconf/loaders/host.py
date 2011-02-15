@@ -18,6 +18,7 @@
 ################################################################################
 
 import os
+import multiprocessing
 
 from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
@@ -40,6 +41,47 @@ from vigilo.vigiconf import conf
 
 __docformat__ = "epytext"
 
+
+#def _run_loader(klass, args):
+#    loader = klass(*args)
+#    loader.load()
+
+def _run_first_host_loaders(data):
+    hostname, hosts = data
+    host = hosts[hostname]
+    # Synchronise le service "Collector" en fonction des besoins.
+    collector_loader = CollectorLoader(host)
+    collector_loader.load()
+    # Synchronisation des tags de l'hôte.
+    tag_loader = TagLoader(host, hostdata.get('tags', {}))
+    tag_loader.load()
+
+def _run_all_host_loaders(data):
+    hostname, hosts, hostsConf = data
+    hostdata = hostsConf[hostname]
+    host = hosts[hostname]
+
+    # groupes
+    LOGGER.debug("Loading groups for host %s", hostname)
+    self._load_groups(host, hostdata)
+
+    # services
+    service_loader = ServiceLoader(host)
+    service_loader.load()
+
+    # directives Nagios de l'hôte
+    nagiosconf_loader = NagiosConfLoader(host,
+                            hostdata['nagiosDirectives'])
+    nagiosconf_loader.load()
+
+    # données de performance
+    pds_loader = PDSLoader(host)
+    pds_loader.load()
+
+    # graphes
+    graph_loader = GraphLoader(host)
+    graph_loader.load()
+    #print "Done %d hosts" % len(hostnames)
 
 class HostLoader(DBLoader):
     """
@@ -72,6 +114,8 @@ class HostLoader(DBLoader):
                 DBSession.delete(conffile)
         #DBSession.flush()
 
+    from vigilo.common.profiling import profile
+    #@profile
     def load_conf(self):
         LOGGER.info(_("Loading hosts"))
         # On récupère d'abord la liste de tous les hôtes
@@ -122,6 +166,8 @@ class HostLoader(DBLoader):
         hosts = {}
 
         hostnames = sorted(list(set(hostnames)))
+        pool = multiprocessing.Pool()
+        results = []
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
             LOGGER.debug(_("Loading host %s"), hostname)
@@ -140,43 +186,73 @@ class HostLoader(DBLoader):
             host = self.add(host)
             hosts[hostname] = host
 
+            continue
             # Synchronise le service "Collector"
             # en fonction des besoins.
+            #result = pool.apply_async(_run_loader(CollectorLoader, (host, )))
+            #results.append(result)
             collector_loader = CollectorLoader(host)
             collector_loader.load()
 
             # Synchronisation des tags de l'hôte.
+            #result = pool.apply_async(_run_loader(TagLoader,
+            #                          (host, hostdata.get('tags', {}))))
+            #results.append(result)
             tag_loader = TagLoader(host, hostdata.get('tags', {}))
             tag_loader.load()
 
-        for hostname in hostnames:
-            hostdata = conf.hostsConf[hostname]
-            host = hosts[hostname]
 
-            # groupes
-            LOGGER.debug("Loading groups for host %s", hostname)
-            self._load_groups(host, hostdata)
+        proxy_manager = multiprocessing.Manager()
+        hosts_proxy = proxy_manager.dict(hosts)
+        hostsconf_proxy = proxy_manager.dict(conf.hostsConf)
 
-            # services
-            LOGGER.debug("Loading services for host %s", hostname)
-            service_loader = ServiceLoader(host)
-            service_loader.load()
+        # Chargement du service Collector et des tags
+        results = [ pool.apply_async(_run_first_host_loaders,
+                    (hostname, hosts_proxy)) for hostname in hosts ]
+        for result in results:
+            result.wait()
 
-            # directives Nagios de l'hôte
-            LOGGER.debug("Loading nagios conf for host %s", hostname)
-            nagiosconf_loader = NagiosConfLoader(host,
-                                    hostdata['nagiosDirectives'])
-            nagiosconf_loader.load()
+        # Chargement du reste
+        results = [ pool.apply_async(_run_all_host_loaders,
+                    (hostname, hosts_proxy, hostsconf_proxy))
+                    for hostname in hostnames ]
 
-            # données de performance
-            LOGGER.debug("Loading perfdatasources for host %s", hostname)
-            pds_loader = PDSLoader(host)
-            pds_loader.load()
 
-            # graphes
-            LOGGER.debug("Loading graphs for host %s", hostname)
-            graph_loader = GraphLoader(host)
-            graph_loader.load()
+        #for hostname in hostnames:
+        #    hostdata = conf.hostsConf[hostname]
+        #    host = hosts[hostname]
+
+        #    # groupes
+        #    LOGGER.debug("Loading groups for host %s", hostname)
+        #    self._load_groups(host, hostdata)
+
+        #    # services
+        #    result = pool.apply_async(_run_loader(ServiceLoader, (host, )))
+        #    results.append(result)
+        #    #service_loader = ServiceLoader(host)
+        #    #service_loader.load()
+
+        #    # directives Nagios de l'hôte
+        #    result = pool.apply_async(_run_loader(NagiosConfLoader,
+        #                              (host, hostdata['nagiosDirectives'])))
+        #    results.append(result)
+        #    #nagiosconf_loader = NagiosConfLoader(host,
+        #    #                        hostdata['nagiosDirectives'])
+        #    #nagiosconf_loader.load()
+
+        #    # données de performance
+        #    result = pool.apply_async(_run_loader(PDSLoader, (host, )))
+        #    results.append(result)
+        #    #pds_loader = PDSLoader(host)
+        #    #pds_loader.load()
+
+        #    # graphes
+        #    result = pool.apply_async(_run_loader(GraphLoader, (host, )))
+        #    results.append(result)
+        #    #graph_loader = GraphLoader(host)
+        #    #graph_loader.load()
+        for result in results:
+            result.wait()
 
         # Suppression des fichiers de configuration retirés du SVN
         # ainsi que de leurs hôtes (par CASCADE).
@@ -220,6 +296,8 @@ class HostLoader(DBLoader):
             DBSession.delete(graph)
 
         #DBSession.flush()
+        pool.close()
+        pool.join()
 
         # Si on a changé quelquechose, on le note en base
         if hostnames or svn_status['remove'] or ghost_hosts or deleted_hosts \
@@ -292,6 +370,10 @@ class ServiceLoader(DBLoader):
     def _list_db(self):
         return DBSession.query(self._class).filter_by(host=self.host
             ).filter(self._class.servicename != u'Collector').all()
+
+    def load(self):
+        LOGGER.debug("Loading services for host %s", self.host.name)
+        return DBLoader.load(self)
 
     def load_conf(self):
         for service in conf.hostsConf[self.host.name]['services']:
@@ -408,6 +490,10 @@ class NagiosConfLoader(DBLoader):
         self.supitem = supitem
         self.directives = directives
 
+    def load(self):
+        LOGGER.debug("Loading nagios conf for %s", str(self.supitem))
+        return DBLoader.load(self)
+
     def _list_db(self):
         return DBSession.query(self._class).filter_by(
                     supitem=self.supitem).all()
@@ -433,6 +519,10 @@ class PDSLoader(DBLoader):
         # la clé "name" est donc unique
         super(PDSLoader, self).__init__(PerfDataSource, "name")
         self.host = host
+
+    def load(self):
+        LOGGER.debug("Loading perfdatasources for host %s", self.host.name)
+        return DBLoader.load(self)
 
     def _list_db(self):
         return DBSession.query(self._class).filter_by(host=self.host).all()
@@ -462,6 +552,10 @@ class GraphLoader(DBLoader):
     def __init__(self, host):
         super(GraphLoader, self).__init__(Graph, "name")
         self.host = host
+
+    def load(self):
+        LOGGER.debug("Loading graphs for host %s", self.host.name)
+        return DBLoader.load(self)
 
     def _list_db(self):
         """Charge toutes les instances depuis la base de données"""

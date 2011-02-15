@@ -22,6 +22,7 @@ from vigilo.vigiconf.lib.servertypes.local import ServerLocal
 from vigilo.vigiconf.lib.servertypes.remote import ServerRemote
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.ventilation import get_ventilator
+from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib import dispatchmodes
 
 from vigilo.models.session import DBSession
@@ -76,6 +77,8 @@ class EnterpriseEdition(unittest.TestCase):
         add_host("testserver1")
         DBSession.flush()
         self.dispatchator = dispatchmodes.getinstance()
+        loader = LoaderManager(self.dispatchator)
+        loader.load_apps_db(self.dispatchator.applications)
         self.genmanager = GeneratorManager(
             self.dispatchator.applications,
             DummyDispatchator()

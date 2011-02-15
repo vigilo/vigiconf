@@ -44,8 +44,8 @@ class VigiMapGen(MapGenerator):
     automatiquement ne sont pas prises en compte.
     """
 
-    def __init__(self, application, ventilation, validator):
-        super(VigiMapGen, self).__init__(application, ventilation, validator)
+    def __init__(self, application, ventilation):
+        super(VigiMapGen, self).__init__(application, ventilation)
         self.current_hierarchy = {}
         self.new_hierarchy = {}
 

@@ -160,9 +160,8 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
     def test_nagios_generator(self):
-        v = Validator(self.mapping)
         vba = self.ventilator.ventilation_by_appname(self.mapping)
-        tpl = NagiosGeneratorForTest(self.nagios_app, vba, v)
+        tpl = NagiosGeneratorForTest(self.nagios_app, vba)
         tpl.generate()
         # recuperation de la generation pour host
         nagdirs = tpl.test_host_data['generic_directives']

@@ -62,13 +62,15 @@ class FileGenerator(Generator):
 
     COMMON_PERL_LIB_FOOTER = "1;\n"
 
-    def __init__(self, application, ventilation, validator):
-        super(FileGenerator, self).__init__(application, ventilation, validator)
+    def __init__(self, application, ventilation):
+        super(FileGenerator, self).__init__(application, ventilation)
         self.override_path = os.path.join(
                                 settings["vigiconf"].get("confdir"),
                                 "filetemplates", self.application.name)
         self.openFiles = {}
         self.templates = self.loadTemplates()
+        self.results["files"] = 0
+        self.results["dirs"] = 0
 
     def copy(self, tplsrc, dst):
         """
@@ -79,8 +81,10 @@ class FileGenerator(Generator):
         @type  dst: C{str}
         """
         dstdir = os.path.dirname(dst)
-        if not os.path.exists(dstdir):
+        try:
             os.makedirs(dstdir)
+        except OSError:
+            pass
         if os.path.exists(os.path.join(self.override_path, tplsrc)):
             LOGGER.debug("Using overridden template from %s"
                          % os.path.join(self.override_path, tplsrc))
@@ -88,7 +92,7 @@ class FileGenerator(Generator):
             return
         if not resource_exists(self.application.__module__,
                     "templates/%s" % tplsrc):
-            self.validator.addError(self.application.name,
+            self.addError(self.application.name,
                                     _("No such template: %s") % tplsrc)
             return
         src = resource_stream(self.application.__module__,
@@ -105,9 +109,11 @@ class FileGenerator(Generator):
         @type  filename: C{str}
         """
         destdir = os.path.dirname(filename)
-        if not os.path.exists(destdir):
+        try:
             os.makedirs(destdir)
-            self.validator.addADir()
+            self.results["dirs"] += 1
+        except OSError:
+            pass
 
     def templateAppend(self, filename, template, args):
         """
@@ -140,7 +146,7 @@ class FileGenerator(Generator):
         @param args: the formatting elements, if needed
         @type  args: C{dict}
         """
-        self.validator.addAFile()
+        self.results["files"] += 1
         self.createDirIfMissing(filename)
         self.openFiles[filename] = open(filename,"w")
         self.templateAppend(filename, template, args)

@@ -92,7 +92,7 @@ class VentilationLoader(DBLoader):
         for v in DBSession.query(Ventilation).all():
             current[(v.idhost, v.idvigiloserver, v.idapp)] = v
             apps_location.setdefault(v.idapp, set()).add(v.idvigiloserver)
-        LOGGER.debug("Current ventlation entries: %d" % len(current))
+        LOGGER.debug("Current ventilation entries: %d" % len(current))
 
         vigiloservers = {}
         for vigiloserver in DBSession.query(VigiloServer).all():

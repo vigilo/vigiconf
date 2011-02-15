@@ -86,13 +86,13 @@ class Validator(object):
         self._warnings.append({"source":source, "object":element,
                                "msg":message})
 
-    def addAFile(self):
+    def addFiles(self, num):
         """Increase the number of written files (for statistical purpose)"""
-        self._stats["filesWritten"] += 1
+        self._stats["filesWritten"] += num
 
-    def addADir(self):
+    def addDirs(self, num):
         """Increase the number of created dirs (for statistical purpose)"""
-        self._stats["dirsCreated"] += 1
+        self._stats["dirsCreated"] += num
 
     def addAGenerator(self):
         """

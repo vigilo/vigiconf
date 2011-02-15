@@ -27,11 +27,14 @@ import glob
 import os, sys
 import os.path
 import types
-import Queue
-from threading import Thread
+
+import multiprocessing
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
+
+from vigilo.models.configure import configure_db
+configure_db(settings['database'], 'sqlalchemy_')
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -47,6 +50,14 @@ from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from .base import Generator
+
+
+def _run_generator(app, vba):
+    generator = app.generator(app, vba)
+    generator.generate()
+    generator.write_scripts()
+    LOGGER.info(_("Generated configuration for %s"), app.name)
+    return generator.results
 
 
 class GenerationError(VigiConfError):
@@ -74,7 +85,6 @@ class GeneratorManager(object):
                                     'enable_genshi_generation')
         except KeyError:
             self.genshi_enabled = False
-        self._generators_queue = Queue.Queue()
 
     def run_all_generators(self, ventilation, validator):
         """
@@ -82,28 +92,33 @@ class GeneratorManager(object):
         I{generate} de chaque application
         """
         vba = self.ventilator.ventilation_by_appname(ventilation)
+        proxy_manager = multiprocessing.Manager()
+        vba_proxy = proxy_manager.dict(vba)
         LOGGER.debug("Generating configuration")
+        pool = multiprocessing.Pool()
+        results = {}
         for app in self.apps:
             if not app.generator:
                 continue
-            self._generators_queue.put( (app, vba, validator) )
-            t = Thread(target=self._run_generator)
-            t.daemon = True
-            t.start()
-        self._generators_queue.join()
+            result = pool.apply_async(_run_generator, (app, vba_proxy))
+            #from Queue import Queue
+            #result = Queue()
+            #result.put(_run_generator(app, vba_proxy))
+            results[app.name] = result
+            validator.addAGenerator()
+        for appname, result in results.items():
+            result_data = result.get()
+            for element, msg in result_data.get("errors", []):
+                validator.addError(appname, element, msg)
+            for element, msg in result_data.get("warnings", []):
+                validator.addWarning(appname, element, msg)
+            if "files" in result_data:
+                validator.addFiles(result_data["files"])
+            if "dirs" in result_data:
+                validator.addDirs(result_data["dirs"])
+        pool.close()
+        pool.join()
         LOGGER.debug("Configuration generated")
-
-    def _run_generator(self):
-        app, vba, validator = self._generators_queue.get()
-        try:
-            generator = app.generator(app, vba, validator)
-            generator.generate()
-            generator.write_scripts()
-        except:
-            raise
-        finally:
-            LOGGER.info(_("Generated configuration for %s"), app.name)
-            self._generators_queue.task_done()
 
     def generate(self, nosyncdb=False):
         """

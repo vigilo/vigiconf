@@ -36,21 +36,18 @@ class Generator(object):
         serveurs Vigilo
     @type ventilation: C{dict}, voir la méthode
         L{vigilo.vigiconf.lib.ventilation.Ventilator.ventilate}()
-    @ivar validator: validator instance for warnings and errors
-    @type validator: L{Validator<lib.validator.Validator>}
     @cvar deploy_only_on_first: Drapeau indiquant si l'on doit déployer
         uniquement sur le premier serveur Vigilo disponible (C{True})
         ou bien sur l'ensemble des serveurs disponibles (C{False}).
     """
     deploy_only_on_first = True
 
-    def __init__(self, application, ventilation, validator):
+    def __init__(self, application, ventilation):
         self.application = application
         self.ventilation = ventilation
-        self.validator = validator
-        validator.addAGenerator()
         self.baseDir = os.path.join(settings["vigiconf"].get("libdir"),
                                     "deploy")
+        self.results = {"errors": [], "warnings": []}
 
     def __str__(self):
         return "<Generator for %s>" % (self.application.name)
@@ -60,7 +57,7 @@ class Generator(object):
         La méthode principale de génération. Peut-être réimplémentée par des
         sous-classes si besoin.
         """
-        for hostname in self.ventilation:
+        for hostname in self.ventilation.keys():
             if self.application.name not in self.ventilation[hostname]:
                 continue
             vservers = self.ventilation[hostname][self.application.name]
@@ -83,23 +80,23 @@ class Generator(object):
 
     def addWarning(self, element, msg):
         """
-        Add a warning in the validator
+        Add a warning
         @param element: the element emitting the warning (usually a host)
         @type  element: C{str}
         @param msg: the warning message
         @type  msg: C{str}
         """
-        self.validator.addWarning(self.application.name, element, msg)
+        self.results["warnings"].append( (element, msg) )
 
     def addError(self, element, msg):
         """
-        Add a error in the validator
+        Add a error
         @param element: the element emitting the error (usually a host)
         @type  element: C{str}
         @param msg: the error message
         @type  msg: C{str}
         """
-        self.validator.addError(self.application.name, element, msg)
+        self.results["errors"].append( (element, msg) )
 
     def get_vigilo_servers(self):
         vservers = set()

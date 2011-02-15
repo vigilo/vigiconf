@@ -62,6 +62,8 @@ def setup_tmpdir(dirpath=None):
 #Create an empty database before we start our tests for this module
 def setup_db():
     """Crée toutes les tables du modèle dans la BDD."""
+    #tmpdir = tempfile.mkdtemp(prefix="tests-vigiconf-")
+    #settings["database"]["sqlalchemy_url"] = "sqlite:///%s/vigilo.db" % tmpdir
     transaction.abort()
     metadata.create_all()
     DBSession.add(StateName(statename=u'OK', order=1))
@@ -78,8 +80,9 @@ def teardown_db():
     """Supprime toutes les tables du modèle de la BDD."""
     # pour postgres, sinon ça bloque
     transaction.abort()
-
     metadata.drop_all()
+    #tmpdir = settings["database"]["sqlalchemy_url"].split("/")[3:-1]
+    #shutil.rmtree("/".join(tmpdir))
 
 
 def setup_deploy_dir():
