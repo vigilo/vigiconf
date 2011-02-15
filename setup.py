@@ -79,6 +79,7 @@ setup(name='vigilo-vigiconf',
             "vigilo-common",
             "vigilo-models",
             'vigilo-connector',
+            "multiprocessing",
             ],
         namespace_packages = [
             'vigilo',
