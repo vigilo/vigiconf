@@ -62,10 +62,6 @@ def _run_all_host_loaders(data):
     hostdata = hostsConf[hostname]
     host = hosts[hostname]
 
-    # groupes
-    LOGGER.debug("Loading groups for host %s", hostname)
-    self._load_groups(host, hostdata)
-
     # services
     service_loader = ServiceLoader(host)
     service_loader.load()
@@ -213,6 +209,11 @@ class HostLoader(DBLoader):
                     for hostname in hosts ]
         for result in results:
             result.wait()
+
+        # Chargement des groupes
+        for hostname in hostnames:
+            LOGGER.debug("Loading groups for host %s", hostname)
+            self._load_groups(hosts[hostname], conf.hostsConf[hostname])
 
         # Chargement du reste
         results = [ pool.apply_async(_run_all_host_loaders,
