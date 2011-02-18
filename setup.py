@@ -1,11 +1,23 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 sw=4 ts=4 et :
 import os, sys
+from platform import python_version_tuple
 from glob import glob
 from setuptools import setup, find_packages
 
 sysconfdir = os.getenv("SYSCONFDIR", "/etc")
 localstatedir = os.getenv("LOCALSTATEDIR", "/var")
+
+install_requires=[
+    # order is important
+    "setuptools",
+    "argparse",
+    "vigilo-common",
+    "vigilo-models",
+    'vigilo-connector',
+    ]
+if tuple(python_version_tuple()) < ('2', '6'):
+    install_requires.append("multiprocessing")
 
 tests_require = [
     'coverage',
@@ -73,15 +85,7 @@ setup(name='vigilo-vigiconf',
         long_description='The Vigilo configuration system generates\n'
         +'configuration for every other component in Vigilo, distributes\n'
         +'it and restarts the services.\n',
-        install_requires=[
-            # order is important
-            "setuptools",
-            "argparse",
-            "vigilo-common",
-            "vigilo-models",
-            'vigilo-connector',
-            "multiprocessing",
-            ],
+        install_requires=install_requires,
         namespace_packages = [
             'vigilo',
             ],
