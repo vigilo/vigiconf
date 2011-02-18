@@ -127,7 +127,6 @@ class GeneratorManager(object):
             loader.load_vigilo_servers_db()
         LOGGER.info(_("Computing ventilation"))
         self.ventilator = get_ventilator(self.apps)
-        self.ventilator.make_cache()
         self._ventilation = self.ventilator.ventilate()
         LOGGER.debug("Loading ventilation in DB")
         loader.load_ventilation_db(self._ventilation, self.apps)
@@ -201,7 +200,13 @@ class GeneratorManager(object):
             nagios_server = vba[hostname]["nagios"]
             if isinstance(nagios_server, list):
                 nagios_server = nagios_server[0]
-            metro_nagios_server = vba[metro_server]["nagios"]
+            try:
+                metro_nagios_server = vba[metro_server]["nagios"]
+            except KeyError:
+                validator.addWarning(hostname, "metro services",
+                        _("The metrology server %s must be supervised for "
+                          "the RRD-based services to work") % metro_server)
+                continue
             if isinstance(metro_nagios_server, list):
                 metro_nagios_server = metro_nagios_server[0]
             if metro_nagios_server == nagios_server:

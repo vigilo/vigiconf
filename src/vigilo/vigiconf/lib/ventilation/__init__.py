@@ -36,9 +36,6 @@ class Ventilator(object):
     def __init__(self, apps):
         self.apps = apps
 
-    def make_cache(self):
-        pass
-
     def ventilate(self):
         raise NotImplementedError
 

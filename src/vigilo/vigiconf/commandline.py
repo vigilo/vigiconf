@@ -62,7 +62,7 @@ from xml.etree import ElementTree as ET # Python 2.5
 
 
 def get_dispatchator(args, restrict=True):
-    conf.loadConf()
+    conf.load_general_conf()
     dispatchator = dispatchmodes.getinstance()
     if restrict and args.server:
         try:
@@ -79,6 +79,7 @@ def get_dispatchator(args, restrict=True):
 
 def deploy(args):
     dispatchator = get_dispatchator(args)
+    conf.load_xml_conf()
     if (args.simulate):
         settings["vigiconf"]["simulate"] = True
         # pas de commit sur la base de données
@@ -147,12 +148,15 @@ def server(args):
         elif args.status == "enable":
             ventilator.enable_server(s) # pylint:disable-msg=E1103
     if args.no_deploy:
+        dispatchator.commit()
         return
+    conf.load_xml_conf() # les générateurs (nagios) en ont besoin
     dispatchator.force = True
     generator = GeneratorManager(dispatchator.applications, dispatchator)
     dispatchator.generate(generator, nosyncdb=True)
     dispatchator.filter_disabled()
     dispatchator.deploy()
+    dispatchator.commit()
     dispatchator.restart()
 
 

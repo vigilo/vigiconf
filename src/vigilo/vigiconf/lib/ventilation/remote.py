@@ -125,7 +125,7 @@ class VentilatorRemote(Ventilator):
         """
         return self._cache["prev_ventilation"].get( (host, appgroup), [] )
 
-    def get_host_ventilation_group(self, hostname, hostdata):
+    def get_host_ventilation_group(self, hostname, hostdata={}):
         if "serverGroup" in hostdata and hostdata["serverGroup"]:
             if hostdata["serverGroup"].count("/") == 1:
                 hostdata["serverGroup"] = hostdata["serverGroup"].lstrip("/")
@@ -178,7 +178,7 @@ class VentilatorRemote(Ventilator):
         return [ v for v in vserverlist
                  if v in self._cache["active_vservers"] ]
 
-    def ventilate(self):
+    def ventilate(self, fromdb=False):
         """
         Try to find the best server where to monitor the hosts contained in the
         I{conf}.
@@ -189,8 +189,8 @@ class VentilatorRemote(Ventilator):
             - B{Key}: the name of an application for which we have to deploy a
               configuration for this host
               (Nagios, CorrSup, Collector...)
-            - B{Value}: the hostname of the server where to deploy the conf for
-              this host and this application
+            - B{Value}: a list of vigilo server hostnames where the
+              configuration for this host and application should be deployed
 
         I{Example}:
 
@@ -199,27 +199,30 @@ class VentilatorRemote(Ventilator):
           ...
           "my_host_name":
             {
-              'apacheRP': 'presentation_server.domain.name',
-              'collector': 'collect_server_pool1.domain.name',
-              'corrsup': 'correlation_server.domain.name',
-              'corrtrap': 'correlation_server.domain.name',
-              'dns': 'infra_server.domain.name',
-              'nagios': 'collect_server_pool1.domain.name',
-              'nagvis': 'presentation_server.domain.name',
-              'perfdata': 'collect_server_pool1.domain.name',
-              'rrdgraph': 'store_server_pool2.domain.name',
-              'storeme': 'store_server_pool2.domain.name',
-              'supnav': 'presentation_server.domain.name'
+              'collector': ['collect_server_pool1.domain.name'],
+              'nagios': ['collect_server_pool1.domain.name'],
+              'perfdata': ['collect_server_pool1.domain.name'],
             }
           ...
           }
 
         """
         LOGGER.debug("Ventilation begin")
+        self.make_cache()
+
+        # deux façons de récupérer les hôtes
+        if not fromdb:
+            # cas classique
+            iter_hosts = conf.hostsConf.iteritems
+        else:
+            # désactivation d'un serveur : on reventile depuis la base
+            def iter_hosts():
+                for host in DBSession.query(tables.Host.name).all():
+                    yield host.name, {}
 
         # On collecte tous les groupes d'hôtes
         hostgroups = {}
-        for (host, v) in conf.hostsConf.iteritems():
+        for host, v in iter_hosts():
             hostgroup = self.get_host_ventilation_group(host, v)
             if hostgroup not in hostgroups:
                 hostgroups[hostgroup] = []
@@ -320,7 +323,6 @@ class VentilatorRemote(Ventilator):
                                 % vservername)
         vserver.disabled = True
         DBSession.flush()
-        transaction.commit()
 
     def enable_server(self, vservername):
         """
@@ -354,7 +356,6 @@ class VentilatorRemote(Ventilator):
                 DBSession.delete(temp_ventil)
         vserver.disabled = False
         DBSession.flush()
-        transaction.commit()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
