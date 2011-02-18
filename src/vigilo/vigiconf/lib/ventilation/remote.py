@@ -82,6 +82,7 @@ class VentilatorRemote(Ventilator):
             ).filter(tables.VigiloServer.disabled == False
             ).all():
             self._cache["active_vservers"].append(vserver.name)
+
         # 3- Le cache des applications.
         for app in DBSession.query(
                 tables.Application.idapp,
@@ -92,7 +93,8 @@ class VentilatorRemote(Ventilator):
         # 4- La ventilation précédente.
         for appgroup in self.apps_by_appgroup:
             apps = [ self._cache["apps"][unicode(app.name)]
-                     for app in self.apps_by_appgroup[appgroup] ]
+                     for app in self.apps_by_appgroup[appgroup]
+                     if unicode(app.name) in self._cache["apps"] ]
             for ventilation in DBSession.query(
                     tables.VigiloServer.name,
                     tables.Ventilation.idhost
