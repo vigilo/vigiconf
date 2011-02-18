@@ -91,6 +91,7 @@ class Application(object):
     generator = None
     group = None
     defaults = {}
+    dbonly = False # permet de décaler la génération à la fin du déploiement
 
     def __init__(self):
         if self.name is None:

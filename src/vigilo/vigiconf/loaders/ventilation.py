@@ -97,10 +97,12 @@ class VentilationLoader(DBLoader):
         vigiloservers = {}
         for vigiloserver in DBSession.query(VigiloServer).all():
             vigiloservers[vigiloserver.name] = vigiloserver
+            vigiloservers[vigiloserver.idvigiloserver] = vigiloserver
 
         applications = {}
         for application in DBSession.query(Application).all():
             applications[application.name] = application
+            applications[application.idapp] = application
 
         new_apps_location = {}
         for hostname, serversbyapp in self.ventilation.iteritems():
@@ -136,7 +138,7 @@ class VentilationLoader(DBLoader):
             orphan_servers = app_servers - new_app_servers
             if not orphan_servers:
                 continue
-            dbapp = DBSession.query(Application.name).get(idapp)
+            dbapp = applications[idapp]
             if dbapp.name not in [ a.name for a in self.applications ]:
                 LOGGER.warning(_("The application %s has been removed from "
                                  "the configuration, it needs to be stopped "
@@ -146,6 +148,6 @@ class VentilationLoader(DBLoader):
                 if app.name == dbapp.name:
                     break
             for idvserver in orphan_servers:
-                vserver = DBSession.query(VigiloServer.name).get(idvserver)
+                vserver = vigiloservers[idvserver]
                 app.servers[vserver.name] = "stop"
 

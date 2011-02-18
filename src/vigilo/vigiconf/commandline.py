@@ -55,6 +55,7 @@ from vigilo.vigiconf.lib import VigiConfError, EditionError
 from vigilo.vigiconf.lib.dispatchator import DispatchatorError
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib.ventilation.local import VentilatorLocal
+from vigilo.vigiconf.lib.generators import GeneratorManager
 from vigilo.vigiconf.lib import dispatchmodes
 
 from xml.etree import ElementTree as ET # Python 2.5
@@ -148,7 +149,8 @@ def server(args):
     if args.no_deploy:
         return
     dispatchator.force = True
-    dispatchator.generate(nosyncdb=True)
+    generator = GeneratorManager(dispatchator.applications, dispatchator)
+    dispatchator.generate(generator, nosyncdb=True)
     dispatchator.filter_disabled()
     dispatchator.deploy()
     dispatchator.restart()
@@ -385,7 +387,7 @@ def main():
         sys.exit(1)
         #for l in traceback.format_exc().split("\n"):
         #    LOGGER.error(l)
-    LOGGER.debug("VigiConf is done.")
+    LOGGER.info(_("VigiConf is done."))
 
 
 if __name__ == "__main__":

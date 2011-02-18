@@ -340,8 +340,12 @@ class XMLLoader(DBLoader):
                 if f == self._unit_filename:
                     final = True
                 else:
-                    self.load_file(path)
-                    LOGGER.debug("Successfully parsed %s", path)
+                    try:
+                        self.load_file(path)
+                    except ParsingError, e:
+                        LOGGER.error(e)
+                    else:
+                        LOGGER.debug("Successfully parsed %s", path)
 
             # parsing du dernier fichier à traiter pour des mises
             # à jour unitaires

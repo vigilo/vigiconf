@@ -28,7 +28,7 @@ import os, sys
 import os.path
 import types
 
-import multiprocessing
+import transaction
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -52,14 +52,6 @@ from vigilo.vigiconf.lib.ventilation import get_ventilator
 from .base import Generator
 
 
-def _run_generator(app, vba):
-    generator = app.generator(app, vba)
-    generator.generate()
-    generator.write_scripts()
-    LOGGER.info(_("Generated configuration for %s"), app.name)
-    return generator.results
-
-
 class GenerationError(VigiConfError):
     """
     Exception remontée quand il y a eu une erreur à la génération
@@ -79,35 +71,34 @@ class GeneratorManager(object):
     def __init__(self, apps, dispatchator):
         self.apps = apps
         self.dispatchator = dispatchator
-        self.ventilator = get_ventilator(self.apps)
+        self.ventilator = None
         try:
             self.genshi_enabled = settings['vigiconf'].as_bool(
                                     'enable_genshi_generation')
         except KeyError:
             self.genshi_enabled = False
+        self._ventilation = None
 
-    def run_all_generators(self, ventilation, validator):
+    def run_all_generators(self, validator):
         """
         Execute la méthode I{generate()} de la classe pointée par l'attribut
         I{generate} de chaque application
         """
-        vba = self.ventilator.ventilation_by_appname(ventilation)
-        proxy_manager = multiprocessing.Manager()
-        vba_proxy = proxy_manager.dict(vba)
+        vba = self.ventilator.ventilation_by_appname(self._ventilation)
         LOGGER.debug("Generating configuration")
-        pool = multiprocessing.Pool()
         results = {}
         for app in self.apps:
             if not app.generator:
                 continue
-            result = pool.apply_async(_run_generator, (app, vba_proxy))
-            #from Queue import Queue
-            #result = Queue()
-            #result.put(_run_generator(app, vba_proxy))
-            results[app.name] = result
             validator.addAGenerator()
-        for appname, result in results.items():
-            result_data = result.get()
+            if app.dbonly:
+                continue # sera fait après le déploiement
+            generator = app.generator(app, vba)
+            generator.generate()
+            generator.write_scripts()
+            LOGGER.info(_("Generated configuration for %s"), app.name)
+            results[app.name] = generator.results
+        for appname, result_data in results.items():
             for element, msg in result_data.get("errors", []):
                 validator.addError(appname, element, msg)
             for element, msg in result_data.get("warnings", []):
@@ -116,8 +107,6 @@ class GeneratorManager(object):
                 validator.addFiles(result_data["files"])
             if "dirs" in result_data:
                 validator.addDirs(result_data["dirs"])
-        pool.close()
-        pool.join()
         LOGGER.debug("Configuration generated")
 
     def generate(self, nosyncdb=False):
@@ -136,21 +125,24 @@ class GeneratorManager(object):
             loader.load_apps_db(self.apps)
             loader.load_conf_db()
             loader.load_vigilo_servers_db()
-        ventilation = self.ventilator.ventilate()
+        LOGGER.info(_("Computing ventilation"))
+        self.ventilator = get_ventilator(self.apps)
+        self.ventilator.make_cache()
+        self._ventilation = self.ventilator.ventilate()
         LOGGER.debug("Loading ventilation in DB")
-        loader.load_ventilation_db(ventilation, self.apps)
+        loader.load_ventilation_db(self._ventilation, self.apps)
 
         LOGGER.debug("Validating ventilation")
-        validator = Validator(ventilation)
+        validator = Validator(self._ventilation)
         if not validator.preValidate():
             for errmsg in validator.getSummary(details=True, stats=True):
                 LOGGER.error(errmsg)
             raise GenerationError("prevalidation")
 
         LOGGER.debug("Moving metro services")
-        self.move_metro_services(ventilation, validator)
+        self.move_metro_services(validator)
         LOGGER.info(_("Running generators"))
-        self.run_all_generators(ventilation, validator)
+        self.run_all_generators(validator)
 
         if validator.hasErrors():
             for errmsg in validator.getSummary(details=True, stats=True):
@@ -159,14 +151,32 @@ class GeneratorManager(object):
         for msg in validator.getSummary(details=True, stats=True):
             LOGGER.info(msg)
 
-    def move_metro_services(self, ventilation, validator):
+    def generate_dbonly(self):
+        """
+        Execute la méthode I{generate()} de la classe pointée par l'attribut
+        I{generate} de chaque application à condition qu'elle ait C{dbonly} à True
+        """
+        vba = self.ventilator.ventilation_by_appname(self._ventilation)
+        LOGGER.info(_("Generating configuration for database generators"))
+        for app in self.apps:
+            if not app.dbonly:
+                continue # déjà fait
+            if not app.generator:
+                continue
+            generator = app.generator(app, vba)
+            generator.generate()
+            transaction.commit()
+            LOGGER.info(_("Generated configuration for %s"), app.name)
+        LOGGER.debug("Database configuration generated")
+
+    def move_metro_services(self, validator):
         """
         On transforme les services sur la métrologie en services reroutés sur
         le serveur de métro. On ne peut pas le faire plus tôt parce qu'on a pas
         accès à la ventilation.
         On règle au passage le reRoutedBy sur le service d'origine.
         """
-        vba = self.ventilator.ventilation_by_appname(ventilation)
+        vba = self.ventilator.ventilation_by_appname(self._ventilation)
         for hostname in conf.hostsConf.copy():
             if not conf.hostsConf[hostname]["metro_services"]:
                 continue
@@ -239,13 +249,13 @@ class GeneratorManager(object):
                     vba[perf_host] = {}
                 vba[perf_host]["nagios"] = nagios_server
                 vba[perf_host]["collector"] = nagios_server
-                if perf_host not in ventilation:
-                    ventilation[perf_host] = {}
-                for app, vserver in ventilation[hostname].iteritems():
+                if perf_host not in self._ventilation:
+                    self._ventilation[perf_host] = {}
+                for app, vserver in self._ventilation[hostname].iteritems():
                     if app.name == "nagios":
-                        ventilation[perf_host][app] = vserver
+                        self._ventilation[perf_host][app] = vserver
                     if app.name == "collector":
-                        ventilation[perf_host][app] = vserver
+                        self._ventilation[perf_host][app] = vserver
 
     def _choose_metro_server(self, hostname, vba):
         """On choisit le même serveur que nagios si possible"""

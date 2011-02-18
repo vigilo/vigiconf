@@ -34,6 +34,7 @@ import zlib
 
 from vigilo.models.session import DBSession
 from vigilo.models import tables
+from vigilo.models.tables.secondary_tables import SUPITEM_GROUP_TABLE
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -65,29 +66,44 @@ class VentilatorRemote(Ventilator):
         self._cache = {"host": {},
                        "active_vservers": [],
                        "apps": {},
+                       "prev_ventilation": {}
                        }
 
-    def appendHost(self, vservername, hostname, appgroup):
-        """
-        Append a host to the database
-        @param vservername: Vigilo server name
-        @type  vservername: C{str}
-        @param hostname: the host to append
-        @type  hostname: C{str}
-        """
-        vserver = tables.VigiloServer.by_vigiloserver_name(unicode(vservername))
-        host = tables.Host.by_host_name(unicode(hostname))
-        for app in self.apps_by_appgroup[appgroup]:
-            application = tables.Application.by_app_name(unicode(app.name))
-            if not application:
-                raise VigiConfError(_("Can't find application %s in database")
-                                    % app.name)
-            DBSession.add(tables.Ventilation(
-                                vigiloserver=vserver,
-                                host=host,
-                                application=application,
-                          ))
-        #DBSession.flush()
+    def make_cache(self):
+        """On peuple les caches."""
+        # 1- Le cache des hôtes.
+        for host in DBSession.query(tables.Host.idhost, tables.Host.name).all():
+            self._cache["host"][host.name] = host.idhost
+            self._cache["host"][host.idhost] = host.name
+
+        # 2- Le cache des serveurs de supervision actifs.
+        for vserver in DBSession.query(
+                tables.VigiloServer
+            ).filter(tables.VigiloServer.disabled == False
+            ).all():
+            self._cache["active_vservers"].append(vserver.name)
+        # 3- Le cache des applications.
+        for app in DBSession.query(
+                tables.Application.idapp,
+                tables.Application.name
+            ).all():
+            self._cache["apps"][app.name] = app.idapp
+
+        # 4- La ventilation précédente.
+        for appgroup in self.apps_by_appgroup:
+            apps = [ self._cache["apps"][unicode(app.name)]
+                     for app in self.apps_by_appgroup[appgroup] ]
+            for ventilation in DBSession.query(
+                    tables.VigiloServer.name,
+                    tables.Ventilation.idhost
+                ).distinct(
+                ).join(tables.Ventilation,
+                ).filter(tables.Ventilation.idapp.in_(apps)
+                ).filter(tables.VigiloServer.disabled == False
+                ).all():
+                key = (self._cache["host"][ventilation.idhost], appgroup)
+                self._cache["prev_ventilation"].setdefault(key, [])
+                self._cache["prev_ventilation"][key].append(ventilation.name)
 
     def get_previous_servers(self, host, appgroup):
         """
@@ -105,25 +121,7 @@ class VentilatorRemote(Ventilator):
             a été ventilé pour l'application L{appgroup}.
         @rtype: C{list} of C{str}
         """
-        # Construction d'un cache des ids des applications
-        if not self._cache["apps"]:
-            for app in DBSession.query(tables.Application).all():
-                self._cache["apps"][app.name] = app.idapp
-        apps = [ self._cache["apps"][unicode(app.name)]
-                 for app in self.apps_by_appgroup[appgroup] ]
-        # Construction d'un cache des ids des hôtes
-        if host not in self._cache["host"]:
-            self._cache["host"][host] = DBSession.query(tables.Host.idhost
-                        ).filter_by(name=unicode(host)).scalar()
-        # Requête
-        prev_servers = DBSession.query(
-                tables.VigiloServer.name
-            ).join(tables.Ventilation,
-            ).filter(tables.Ventilation.idapp.in_(apps)
-            ).filter(tables.Ventilation.idhost == self._cache["host"][host]
-            ).filter(tables.VigiloServer.disabled == False
-            ).all()
-        return [ server.name for server in prev_servers ]
+        return self._cache["prev_ventilation"].get( (host, appgroup), [] )
 
     def get_host_ventilation_group(self, hostname, hostdata):
         if "serverGroup" in hostdata and hostdata["serverGroup"]:
@@ -131,11 +129,16 @@ class VentilatorRemote(Ventilator):
                 hostdata["serverGroup"] = hostdata["serverGroup"].lstrip("/")
             return hostdata["serverGroup"]
         groups = set()
-        host = tables.Host.by_host_name(unicode(hostname))
-        if not host:
+        idhost = self._cache["host"].get(unicode(hostname))
+        if not idhost:
             raise KeyError("Trying to ventilate host %s, but it's not in the "
                            "database yet" % hostname)
-        for group in host.groups:
+        hostgroups = DBSession.query(tables.SupItemGroup
+                ).join(
+                    (SUPITEM_GROUP_TABLE, SUPITEM_GROUP_TABLE.c.idgroup
+                                          == tables.SupItemGroup.idgroup),
+                ).filter(SUPITEM_GROUP_TABLE.c.idsupitem == idhost).all()
+        for group in hostgroups:
             groups.add(group.get_top_parent().name)
 
         if not groups:
@@ -170,11 +173,6 @@ class VentilatorRemote(Ventilator):
         @param vserverlist: list de noms de serveurs Vigilo
         @type  vserverlist: C{list} de C{str}
         """
-        if not self._cache["active_vservers"]:
-            # on construit le cache
-            for vserver in DBSession.query(tables.VigiloServer).all():
-                if not vserver.disabled:
-                    self._cache["active_vservers"].append(vserver.name)
         return [ v for v in vserverlist
                  if v in self._cache["active_vservers"] ]
 
@@ -240,6 +238,9 @@ class VentilatorRemote(Ventilator):
                     try:
                         servers = self._ventilate_appgroup(appgroup, hostgroup, host)
                     except NoServerAvailable, e:
+                        errors.add(e.value)
+                        continue
+                    except VigiConfError, e:
                         errors.add(e.value)
                         continue
                     if servers is None:

@@ -82,6 +82,7 @@ class Dispatchator(object):
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
         self.deploy_revision = "HEAD"
+        self._svn_status = None # cache
         # mode simulation: on recopie simplement la commande svn pour
         # verification
         try:
@@ -168,7 +169,7 @@ class Dispatchator(object):
         """
         pass
 
-    def generate(self, nosyncdb=False):
+    def generate(self, generator, nosyncdb=False):
         """
         Génère la configuration des différents composants, en utilisant le
         L{GeneratorManager}.
@@ -176,7 +177,6 @@ class Dispatchator(object):
         try:
             gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
             shutil.rmtree(gendir, ignore_errors=True)
-            generator = GeneratorManager(self.applications, self)
             generator.generate(nosyncdb=nosyncdb)
         except GenerationError:
             LOGGER.error(_("Generation failed!"))
@@ -207,6 +207,8 @@ class Dispatchator(object):
         self._svn_sync(status)
 
     def get_svn_status(self):
+        if self._svn_status is not None:
+            return self._svn_status
         _cmd = self._get_auth_svn_cmd_prefix('status')
         _cmd.append("--xml")
         _cmd.append(settings["vigiconf"].get("confdir"))
@@ -217,18 +219,30 @@ class Dispatchator(object):
             raise DispatchatorError(
                     _("Can't get the SVN status for the configuration dir: %s")
                       % e.value)
-        status = {"add": [], "remove": [], 'modified': []}
+        status = {"add": [], "remove": [], 'modified': [], "removed": []}
         if not _command.getResult():
             return status
         output = ET.fromstring(_command.getResult(stderr=False))
         for entry in output.findall(".//entry"):
             state = entry.find("wc-status").get("item")
             if state == "unversioned" or state == "added":
+                path = entry.get("path")
+                confdir = settings["vigiconf"].get("confdir")
+                if path.startswith(os.path.join(confdir, "general")):
+                    if not path.endswith(".py"):
+                        continue
+                else:
+                    if not path.endswith(".xml"):
+                        continue
                 status["add"].append(entry.get("path"))
-            elif state == "missing" or state == "deleted":
+            elif state == "missing":
                 status["remove"].append(entry.get("path"))
+            elif state == "deleted":
+                status["remove"].append(entry.get("path"))
+                status["removed"].append(entry.get("path"))
             elif state == "modified":
                 status["modified"].append(entry.get("path"))
+        self._svn_status = status
         return status
 
     def _svn_sync(self, status=None):
@@ -241,6 +255,8 @@ class Dispatchator(object):
         for item in status["add"]:
             self._svn_add(item)
         for item in status["remove"]:
+            if item in status["removed"]:
+                continue
             self._svn_remove(item)
         self._svn_update()
 
@@ -689,7 +705,8 @@ class Dispatchator(object):
 
     def run(self, stop_after=None):
         self.prepare_svn()
-        self.generate()
+        generator = GeneratorManager(self.applications, self)
+        self.generate(generator)
         if stop_after == "generation":
             return
         self.prepareServers()
@@ -698,6 +715,7 @@ class Dispatchator(object):
             return
         self.commit()
         self.restart()
+        generator.generate_dbonly()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

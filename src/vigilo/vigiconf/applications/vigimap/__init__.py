@@ -18,4 +18,5 @@ class VigiMap(Application):
     generator = generator.VigiMapGen
     group = "interface"
     defaults = config.DEFAULTS
+    dbonly = True
 

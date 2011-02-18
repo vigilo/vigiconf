@@ -41,6 +41,7 @@ install_permissions:
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(VARDIR)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/lock/$(PKGNAME)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
+	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/run/vigilo-connector-vigiconf
 
 lint: lint_pylint
 tests: tests_nose

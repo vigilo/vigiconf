@@ -279,6 +279,7 @@ def loadConf():
     @returns: None, but sets global variables as described above.
     """
     global hostsConf, groupsHierarchy
+    LOGGER.info(_("Loading XML configuration"))
     # General configuration
     for confsubdir in [ "general", ]:
         try:
