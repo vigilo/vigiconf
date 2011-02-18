@@ -7,5 +7,5 @@ if [ -z "$conffiles" ]; then
     echo "No Nagios configuration file, not starting Nagios"
     exit 0
 fi
-sudo /etc/init.d/%(initname)s start
+sudo -n /etc/init.d/%(initname)s start
 

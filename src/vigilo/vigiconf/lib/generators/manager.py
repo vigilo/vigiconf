@@ -157,7 +157,7 @@ class GeneratorManager(object):
         I{generate} de chaque application à condition qu'elle ait C{dbonly} à True
         """
         vba = self.ventilator.ventilation_by_appname(self._ventilation)
-        LOGGER.info(_("Generating configuration for database generators"))
+        LOGGER.info(_("Running database generators"))
         for app in self.apps:
             if not app.dbonly:
                 continue # déjà fait

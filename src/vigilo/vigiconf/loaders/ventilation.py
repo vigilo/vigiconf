@@ -149,5 +149,5 @@ class VentilationLoader(DBLoader):
                     break
             for idvserver in orphan_servers:
                 vserver = vigiloservers[idvserver]
-                app.servers[vserver.name] = "stop"
+                app.servers[vserver.name] = ["stop", ]
 

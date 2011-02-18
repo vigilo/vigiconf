@@ -13,7 +13,7 @@ class ConnectorMetro(Application):
     name = "connector-metro"
     priority = -1
     validation = "validate.sh"
-    start_command = "sudo /etc/init.d/vigilo-connector-metro reload"
+    start_command = "sudo -n /etc/init.d/vigilo-connector-metro reload"
     stop_command = None
     generator = generator.ConnectorMetroGen
     group = "metrology"

@@ -51,7 +51,7 @@ class ConnectorMetroGen(Generator):
             return
         # Ajout des serveurs de backup
         if vserver not in self.application.servers:
-            self.application.servers[vserver] = "restart"
+            self.application.servers[vserver] = ["stop", "start"]
         # Initialisation de la base
         db_path = os.path.join(self.baseDir, vserver, "connector-metro.db")
         if vserver not in self.connections:

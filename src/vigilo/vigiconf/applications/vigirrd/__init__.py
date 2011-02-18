@@ -13,7 +13,7 @@ class VigiRRD(Application):
     name = "vigirrd"
     priority = -1
     validation = "validate.sh"
-    start_command = "sudo /etc/init.d/httpd reload"
+    start_command = "sudo -n /etc/init.d/httpd reload"
     stop_command = None
     generator = generator.VigiRRDGen
     group = "metrology"

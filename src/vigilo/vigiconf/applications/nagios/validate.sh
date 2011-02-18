@@ -57,5 +57,5 @@ sed -e 's,/etc/vigilo/vigiconf/prod/nagios,'$BASEDIR'/nagios,' \
 
 # Utilisation de sudo pour pouvoir ecrire dans les repertoires specifiques de
 # Nagios (/var/spool/nagios/)
-sudo -u nagios /usr/sbin/nagios${nver} -v $testconffile
+sudo -n -u nagios /usr/sbin/nagios${nver} -v $testconffile
 exit $?

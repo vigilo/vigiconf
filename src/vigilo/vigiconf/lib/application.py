@@ -26,7 +26,7 @@ from __future__ import absolute_import
 
 import os
 import Queue
-import threading
+from threading import Thread
 # Warning, the "threading" module overwrites the built-in function enumerate()
 # if used as import * !!
 
@@ -126,30 +126,6 @@ class Application(object):
         """
         return set(servers) & set(self.servers) # intersection
 
-    def manageReturnQueue(self):
-        """
-        Syslogs all the error strings that are in the return queue
-        """
-        _result = True # we suppose there is no error (empty queue)
-        while not self.returnsQueue.empty(): # syslog each item of the queue
-            _result = False
-            _error = self.returnsQueue.get()
-            LOGGER.warning(_error)
-        return _result
-
-
-    def validate(self, iBaseDir):
-        """
-        Validates all the configuration files (starts the validation command)
-        @param iBaseDir: The directory where the validation scripts are
-        @type  iBaseDir: C{str}
-        """
-        # iterate through the servers
-        for server in self.servers:
-            try:
-                self.validateServer(iBaseDir, server)
-            except ApplicationError:
-                raise
 
     def write_startup_scripts(self, basedir):
         config = self.getConfig()
@@ -197,19 +173,98 @@ class Application(object):
             d.write(s)
             d.close()
 
-    def validateServer(self, iBaseDir, iServer):
+    def validate_servers(self, iServers=None, async=False):
+        """
+        Validates all the configuration files (starts the validation command)
+        @param iBaseDir: The directory where the validation scripts are
+        @type  iBaseDir: C{str}
+        """
+        return self.execute("validate", iServers, async=async)
+
+    def qualify_servers(self, iServers=None, async=False):
+        """
+        Qualifies the configuration files on the provided servers.
+        @param iServers: The servers to qualify on
+        @type  iServers: C{list} of C{str}
+        """
+        return self.execute("qualify", iServers, async=async)
+
+    def start_servers(self, iServers, async=False):
+        """
+        Start the application on the intersection between iServers and our own
+        servers list.
+        @param iServers: The servers to start the application on
+        @type  iServers: C{list} of C{str}
+        """
+        return self.execute("start", iServers, async=async)
+
+    def stop_servers(self, iServers, async=False):
+        """
+        Stop the application on the intersection between iServers and our own
+        servers list.
+        @param iServers: The servers to stop the application on
+        @type  iServers: C{list} of C{str}
+        """
+        return self.execute("stop", iServers, async=async)
+
+    def execute(self, action, servers=None, async=False):
+        """
+        Stop the application on the intersection between iServers and our own
+        servers list.
+        @param servers: The servers to act on
+        @type  servers: C{list} of C{str}
+        """
+        result = True
+
+        self.serversQueue = Queue.Queue()
+        self.returnsQueue = Queue.Queue()
+
+        # intersection of serverslists
+        if servers is None:
+            servers = set(self.servers)
+        else:
+            servers = self.filterServers(servers)
+
+        # il faut que l'action courante soit autorisée
+        if action in ["stop", "start"]:
+            servers = [ s for s in servers if action in self.servers[s] ]
+
+        for server in servers:
+            self.serversQueue.put(server)
+
+        # start the threads
+        for server in servers:
+            _thread = Thread(target=self._threaded_action, args=[action])
+            _thread.start()
+
+        result = ActionResult(self.name, action,
+                              self.serversQueue, self.returnsQueue)
+        if async:
+            return result
+        else:
+            return result.get()
+
+    def _threaded_action(self, action):
+        server = self.serversQueue.get()
+        try:
+            getattr(self, "%sServer" % action)(server)
+        except ApplicationError, e:
+            self.returnsQueue.put(e.value)
+        self.serversQueue.task_done()
+
+
+    def validateServer(self, iServer):
         """
         Validates all the configuration files (starts the validation command)
         on the specified server
-        @param iBaseDir: The directory where the validation scripts are
-        @type  iBaseDir: C{str}
         @param iServer: The server to validate on
         @type  iServer: C{str}
         """
         # iterate through the servers
         if not self.validation:
             return
-        files_dir = os.path.join(iBaseDir, iServer)
+        files_dir = os.path.join(settings["vigiconf"].get("libdir"),
+                                 "deploy", iServer)
         _command = ["vigiconf-local", "validate-app", self.name, files_dir]
         _command = SystemCommand(_command)
         _command.simulate = settings["vigiconf"].as_bool("simulate")
@@ -227,30 +282,6 @@ class Application(object):
         LOGGER.info(_("%(app)s : Validation successful for server: "
                       "%(server)s"),
                     {'app': self.name, 'server': iServer})
-
-
-    def qualify(self):
-        """
-        Qualifies all the configuration files (starts the qualification command
-        on each server)
-        """
-        # iterate through the servers
-        for server in self.servers:
-            try:
-                self.qualifyServer(server)
-            except ApplicationError:
-                raise
-
-    def qualifyServers(self, iServers):
-        """
-        Qualifies the configuration files on the provided servers.
-        @param iServers: The servers to qualify on
-        @type  iServers: C{list} of C{str}
-        """
-        for _srv in self.filterServers(iServers):
-            # can be threaded 1 thread per server
-            self.qualifyServer(_srv)
-
 
 
     def qualifyServer(self, iServer):
@@ -281,75 +312,6 @@ class Application(object):
         LOGGER.info(_("%(app)s : Qualification successful on server : "
                       "%(server)s"),
                     {'app': self.name, 'server': iServer})
-
-
-    def startThread(self):
-        """Starts applications on a server taken from the top of the queue"""
-        _server = self.serversQueue.get()
-        try:
-            self.startServer(_server)
-        except ApplicationError, e:
-            self.returnsQueue.put(e.value)
-        self.serversQueue.task_done()
-
-    def startOn(self, iServers):
-        """
-        Start the application on the intersection between iServers and our own
-        servers list.
-        @param iServers: The servers to start the application on
-        @type  iServers: C{list} of C{str}
-        """
-        result = True
-
-        self.serversQueue = Queue.Queue()
-        self.returnsQueue = Queue.Queue()
-
-        # intersection of serverslists
-        _servers = self.filterServers(iServers)
-        for _server in _servers:
-            # fill the application queue
-            if self.servers[_server] == "stop":
-                continue
-            self.serversQueue.put(_server)
-
-        # start the threads
-        for _server in _servers:
-            if self.servers[_server] == "stop":
-                continue
-            _thread = threading.Thread(target = self.startThread)
-            _thread.start()
-
-        # wait until the queue is empty
-        self.serversQueue.join()
-
-        result = self.manageReturnQueue()
-        if result == False:
-            raise ApplicationError(_("%s : Start process failed.")
-                                   % (self.name))
-
-    def start(self):
-        """Starts the application"""
-        result = True
-
-        self.serversQueue = Queue.Queue()
-        self.returnsQueue = Queue.Queue()
-
-        for _server in self.servers:
-            # fill the application queue
-            self.serversQueue.put(_server)
-
-        # start the threads
-        for _server in self.servers:
-            _thread = threading.Thread(target = self.startThread)
-            _thread.start()
-
-        # wait until the queue is empty
-        self.serversQueue.join()
-
-        result = self.manageReturnQueue()
-        if result == False:
-            raise ApplicationError(_("%s : Start process failed.")
-                                   % (self.name))
 
 
     def startServer(self, iServer):
@@ -383,68 +345,6 @@ class Application(object):
             'server': iServer,
         })
 
-    def stopThread(self):
-        """Stops applications on a server taken from the top of the queue"""
-        _server = self.serversQueue.get()
-        try:
-            self.stopServer(_server)
-        except ApplicationError, e:
-            self.returnsQueue.put(e.value)
-        self.serversQueue.task_done()
-
-    def stopOn(self, iServers):
-        """
-        Stop the application on the intersection between iServers and our own
-        servers list.
-        @param iServers: The servers to stop the application on
-        @type  iServers: C{list} of C{str}
-        """
-        result = True
-
-        self.serversQueue = Queue.Queue()
-        self.returnsQueue = Queue.Queue()
-        _servers = self.filterServers(iServers)
-        for _server in _servers:
-            # fill the application queue
-            self.serversQueue.put(_server)
-
-        # start the threads
-        for _server in _servers:
-            _thread = threading.Thread(target = self.stopThread)
-            _thread.start()
-
-        # wait until the queue is empty
-        self.serversQueue.join()
-
-        result = self.manageReturnQueue()
-        if result == False:
-            raise ApplicationError(_("%s : Stop process failed.")
-                                   % (self.name))
-
-    def stop(self):
-        """Stops the applications"""
-        result = True
-
-        self.serversQueue = Queue.Queue()
-        self.returnsQueue = Queue.Queue()
-
-        for _server in self.servers:
-            # fill the application queue
-            self.serversQueue.put(_server)
-
-        # start the threads
-        for _server in self.servers:
-            _thread = threading.Thread(target = self.stopThread)
-            _thread.start()
-
-        # wait until the queue is empty
-        self.serversQueue.join()
-
-        result = self.manageReturnQueue()
-        if result == False :
-            raise ApplicationError(_("%s : Stop process failed.")
-                                   % (self.name))
-
 
     def stopServer(self, iServer):
         """
@@ -476,6 +376,38 @@ class Application(object):
             'app': self.name,
             'server': iServer,
         })
+
+
+
+class ActionResult(object):
+
+    def __init__(self, app_name, action_name, commands, errors):
+        self.app_name = app_name
+        self.action_name = action_name
+        self._commands = commands
+        self._errors = errors
+
+    def process_errors(self):
+        """
+        Syslogs all the error strings that are in the errors queue
+        """
+        result = True # we suppose there is no error (empty queue)
+        while not self._errors.empty():
+            # syslog each item of the queue
+            result = False
+            error = self._errors.get()
+            LOGGER.warning(error)
+        return result
+
+    def get(self):
+        self._commands.join()
+        result = self.process_errors()
+        return result
+        if not result:
+            raise ApplicationError(_("%(app)s: %(action)s process failed.")
+                                   % {"app": self.app_name,
+                                      "action": self.action_name})
+        return True
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

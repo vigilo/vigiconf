@@ -50,6 +50,7 @@ _ = translate(__name__)
 from vigilo.vigiconf import conf
 from .generators import GeneratorManager, GenerationError
 from .systemcommand import SystemCommand, SystemCommandError
+from .application import ApplicationError
 from . import VigiConfError
 
 
@@ -143,13 +144,13 @@ class Dispatchator(object):
                               "(see conf.d/general/apps.py)") % app.name)
                 continue
             if app.name in [ a.name for a in self.applications ]:
-                msg = _("Application %s is not unique.") % app.name
+                msg = _("application %s is not unique.") % app.name
                 msg += _(" Providing modules: %s") \
                         % ", ".join(list(working_set.iter_entry_points(
                                 "vigilo.vigiconf.applications", entry.name)))
                 raise DispatchatorError(msg)
             for server in self.getServersForApp(app):
-                app.servers[server] = "restart"
+                app.servers[server] = ["stop", "start"]
             self.applications.append(app)
         # Vérification : a-t-on déclaré une application non installée ?
         for listed_app in conf.apps:
@@ -184,15 +185,28 @@ class Dispatchator(object):
         else:
             LOGGER.info(_("Generation successful"))
         # Validation de la génération
-        for _App in self.applications:
-            _App.validate(os.path.join(settings["vigiconf"].get("libdir"),
-                                       "deploy"))
-        LOGGER.info(_("Validation Successful"))
+        self.validate_apps()
         # Commit de la configuration dans SVN
         last_rev = self._svn_commit()
         if self.deploy_revision == "HEAD":
             self.deploy_revision = last_rev
         LOGGER.info(_("SVN commit successful"))
+
+
+    def validate_apps(self):
+        """Validation de la génération"""
+        results = []
+        for app in self.applications:
+            results.append(app.validate_servers(async=True))
+        valid = True
+        for result in results:
+            result_status = result.get()
+            valid = valid and result_status
+        if not valid:
+            raise DispatchatorError(_("validation failed, see above for "
+                                      "more information."))
+        LOGGER.info(_("Validation successful"))
+
 
     def prepare_svn(self):
         """
@@ -201,7 +215,7 @@ class Dispatchator(object):
         status = self.get_svn_status()
         if self.deploy_revision != "HEAD" and \
                 (status["add"] or status["remove"] or status["modified"]):
-            raise DispatchatorError(_("You can't go back to a former "
+            raise DispatchatorError(_("you can't go back to a former "
                 "revision if you have modified your configuration. "
                 "Use 'svn revert' to cancel your modifications"))
         self._svn_sync(status)
@@ -217,7 +231,7 @@ class Dispatchator(object):
             _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
-                    _("Can't get the SVN status for the configuration dir: %s")
+                    _("can't get the SVN status for the configuration dir: %s")
                       % e.value)
         status = {"add": [], "remove": [], 'modified': [], "removed": []}
         if not _command.getResult():
@@ -288,7 +302,7 @@ class Dispatchator(object):
             if e.returncode == 1 and not os.path.exists(path):
                 return # déjà supprimé (probablement un ctrl-c précédent)
             raise DispatchatorError(
-                    _("Can't remove %(path)s from repository: %(error)s") % {
+                    _("can't remove %(path)s from repository: %(error)s") % {
                         'path': path,
                         'error': e.value,
                     })
@@ -308,7 +322,7 @@ class Dispatchator(object):
             _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
-                    _("Can't commit the configuration dir in SVN: %s")
+                    _("can't commit the configuration dir in SVN: %s")
                       % e.value)
         return self.getLastRevision()
 
@@ -323,7 +337,7 @@ class Dispatchator(object):
         try:
             result = _command.execute()
         except SystemCommandError, e:
-            raise DispatchatorError(_("Can't execute the request to update the "
+            raise DispatchatorError(_("can't execute the request to update the "
                                     "local copy. COMMAND %(cmd)s FAILED. "
                                     "REASON: %(reason)s") % {
                                         'cmd': " ".join(_cmd),
@@ -365,7 +379,7 @@ class Dispatchator(object):
         try:
             _command.execute()
         except SystemCommandError, e:
-            raise DispatchatorError(_("Can't execute the request to get the "
+            raise DispatchatorError(_("can't execute the request to get the "
                                       "current revision: %s") % e.value)
 
         if not _command.getResult():
@@ -388,28 +402,10 @@ class Dispatchator(object):
             LOGGER.error(_error)
         return _result
 
-    def actionThread(self, iAction, iServers):
-        """
-        Implementation of a thread
-        @param iAction: Function to execute in the thread
-        @type  iAction: callable
-        @param iServers: List of servers, will be passed to the iAction
-            function as second argument
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        # get the object from Queue
-        _object = self.commandsQueue.get()
-        # does the action on this server
-        try:
-            iAction(_object, iServers)
-        except VigiConfError, e: # if it fails
-            self.returnsQueue.put(e.value)
-        self.commandsQueue.task_done()
-
-
     def deploysOnServers(self, iServers, iRevision):
         """
-        Deploys the config files to the servers belonging to iServers
+        Deploys the config files to the servers belonging to iServers, using
+        one thread per server.
         @param iServers: List of servers
         @type  iServers: C{list} of L{Server<lib.server.Server>}
         @param iRevision: SVN revision number
@@ -417,17 +413,6 @@ class Dispatchator(object):
         """
         if not iServers:
             return
-        self.threadedDeployFiles(iServers, iRevision)
-
-    def threadedDeployFiles(self, iServers, iRevision):
-        """
-        Deploy the files to each server of iServers. One thread is created for
-        each server
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        @param iRevision: SVN revision number
-        @type  iRevision: C{int}
-        """
         self.commandsQueue = Queue.Queue()
         self.returnsQueue = Queue.Queue()
         for _srv in iServers:
@@ -437,13 +422,13 @@ class Dispatchator(object):
         self.commandsQueue.join()
         _result = self.manageReturnQueue()
         if not _result:
-            raise DispatchatorError(_("The configurations files have not been "
-                                        "transfered on every server. See above "
-                                        "for more information."))
+            raise DispatchatorError(_("The configurations files have not "
+                    "been transfered on every server. See above for "
+                    "more information."))
 
     def serverDeployFiles(self, iRevision):
         """
-        Method called by L{threadedDeployFiles} to deploy the files in the
+        Method called by L{deployOnServers} to deploy the files in the
         specified SVN revision
         @param iRevision: SVN revision number
         @type  iRevision: C{int}
@@ -457,15 +442,24 @@ class Dispatchator(object):
         self.commandsQueue.task_done()
 
     #  configuration qualification
-    def qualifyOnServers(self, iServers):
+    def qualify_apps(self, iServers):
         """
-        Qualify applications on the specified servers list
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
+        Valide la configuration des applications sur les serveurs distants
+        @param iServers: Liste de serveurs
+        @type  iServers: C{list} de L{str}
         """
-        # qualify applications on those servers
-        for _app in self.applications:
-            _app.qualifyServers(iServers)
+        results = []
+        for app in self.applications:
+            results.append(app.qualify_servers(async=True))
+        valid = True
+        for result in results:
+            result_status = result.get()
+            valid = valid and result_status
+        if not valid:
+            raise DispatchatorError(_("qualification failed. See above for "
+                                      "more information."))
+        LOGGER.info(_("Qualification successful"))
+
 
     def prepareServers(self):
         """prépare la liste des serveurs sur lesquels travailler"""
@@ -489,129 +483,68 @@ class Dispatchator(object):
                     servers.remove(server)
         if not servers:
             LOGGER.info(_("All servers are up-to-date, no deployment needed."))
-        self.deploysOnServers(servers, self.deploy_revision)
-        self.qualifyOnServers(servers)
+        else:
+            self.deploysOnServers(servers, self.deploy_revision)
+            self.qualify_apps(servers)
 
     def commit(self):
         """Enregistre la configuration en base de données"""
         try:
             transaction.commit()
-            LOGGER.info(_("Commit Successful"))
+            LOGGER.info(_("Database commit successful"))
         except Exception, e:
             transaction.abort()
             LOGGER.debug("Transaction rollbacked: %s", e)
             raise DispatchatorError(_("Database commit failed"))
 
-    def startOrStopApplications(self, fAction, fArgs, iErrorMessage):
+    def startOrStopApplications(self, action, servers=None):
         """
-        Does a start or a stop action depending on the method fAction
-        @param fAction: method to call
-        @type  fAction: callable
-        @param fArgs: list of arguments for the function
-        @type  fArgs: list
-        @param iErrorMessage: message if the function fails
-        @type  iErrorMessage: C{str}
+        Arrête ou démarre les applications sur les serveurs spécifiés.
+        @param action: "start" ou "stop"
+        @type  action: C{str}
         """
-        _result = True
-        _Apps = self.applications
-        _CurrentLevel = 0
-
-        if len(_Apps) == 0:
+        if not self.applications:
             return
+        if servers is None:
+            servers = self.servers.keys()
+        status = True
+        current_level = self.applications[0].priority
+        results = []
+        for app in self.applications:
+            if (app.priority != current_level):
+                # On attend la fin des actions précédentes
+                for result in results:
+                    result_status = result.get()
+                    status = status and result_status
+                results = []
+                current_level = app.priority
+            # exécution de l'action
+            results.append(app.execute(action, servers, async=True))
+        # on attend les dernières actions
+        for result in results:
+            result_status = result.get()
+            status = status and result_status
+        return status
 
-        _application = _Apps[0]
-        _CurrentLevel = _application.priority
-
+    def switchDirectories(self, servers=None):
+        """
+        Switch directories prod->old and new->prod, with one thread per server.
+        @param iServers: List of servers
+        @type  iServers: C{list} of L{str}
+        """
+        if servers is None:
+            servers = self.servers.keys()
         self.commandsQueue = Queue.Queue()
         self.returnsQueue = Queue.Queue()
-        for _application in _Apps:
-            if (_application.priority == _CurrentLevel):
-                # fill the application queue
-                self.commandsQueue.put(_application)
-                _thread = Thread(target=fAction, args=fArgs)
-                _thread.start()
-
-            else:
-                # wait until the queue is empty
-                self.commandsQueue.join()
-                _CurrentLevel = _application.priority
-
-                # fill the application queue
-                self.commandsQueue.put(_application)
-
-                _thread = Thread(target=fAction, args=fArgs)
-                _thread.start()
-        # wait until the queue is empty
-        self.commandsQueue.join()
-
-        _result = self.manageReturnQueue()
-        if (_result == False) :
-            raise DispatchatorError(iErrorMessage)
-
-    def applicationStop(self, iApplication, iServers):
-        """
-        Stops iApplication on each server in iServers
-        @param iApplication: application to stop
-        @type  iApplication: L{Application<lib.application.Application>}
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        iApplication.stopOn(iServers)
-
-    def stopThread(self, iServers):
-        """
-        Thread method to stop an application on a servers list
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        self.actionThread(self.applicationStop, iServers)
-
-    def applicationStart(self, iApplication, iServers):
-        """
-        Starts the given application on each server in iServers
-        @param iApplication: application to start
-        @type  iApplication: L{Application<lib.application.Application>}
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        iApplication.startOn(iServers)
-
-    def startThread(self, iServers):
-        """
-        Starts the next application on each server in iServers
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        self.actionThread(self.applicationStart, iServers)
-
-    def switchDirectoriesOn(self, iServers):
-        """
-        Switch directories prod->old and new->prod, but only on servers that
-        require it (except in force mode)
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        self.threadedSwitchDirectories(iServers)
-
-
-    def threadedSwitchDirectories(self, iServers):
-        """
-        Executes a thread for each server in iServers. Each thread will switch
-        directories on the appropriate server.
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        self.commandsQueue = Queue.Queue()
-        self.returnsQueue = Queue.Queue()
-        for _srv in iServers:
-            self.commandsQueue.put(_srv)
+        for srv in servers:
+            self.commandsQueue.put(srv)
             _thread = Thread(target=self.serverSwitchDirectories)
             _thread.start()
         self.commandsQueue.join()
         _result = self.manageReturnQueue()
         if not _result:
             raise DispatchatorError(_("Switch directories was not successful "
-                                        "on each server."))
+                                      "on each server."))
 
     def serverSwitchDirectories(self):
         """
@@ -624,6 +557,33 @@ class Dispatchator(object):
         except VigiConfError, e: # if it fails
             self.returnsQueue.put(e.value)
         self.commandsQueue.task_done()
+        LOGGER.debug("Switched directories on %s", servername)
+
+    def stopApplications(self, servers=None):
+        """
+        Stop all the application on the specified servers
+        @param servers: List of servers
+        @type  servers: C{list} of L{str}
+        """
+        if servers is None:
+            servers = self.servers.keys()
+        if not servers:
+            return
+        self.startOrStopApplications("stop", servers,
+                                     _("Stop applications failed"))
+
+    def startApplications(self, servers=None):
+        """
+        Starts all the application on the servers in iServers
+        @param servers: List of servers
+        @type  servers: C{list} of L{str}
+        """
+        if servers is None:
+            servers = self.servers.keys()
+        if not servers:
+            return
+        self.startOrStopApplications("start", servers,
+                                     _("Start applications failed"))
 
     def restart(self):
         """
@@ -638,43 +598,10 @@ class Dispatchator(object):
                     servers.remove(server)
         if not servers:
             LOGGER.info(_("All servers are up-to-date. No restart needed."))
-        self.stopApplicationsOn(servers)
-        self.switchDirectoriesOn(servers)
-        self.startApplicationsOn(servers)
+        self.startOrStopApplications("stop", servers)
+        self.switchDirectories(servers)
+        self.startOrStopApplications("start", servers)
 
-    def stopApplications(self):
-        """Stops all the applications on all the servers"""
-        self.stopApplicationsOn(self.servers.keys())
-
-    def stopApplicationsOn(self, iServers):
-        """
-        Stop all the application on the specified servers
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        if len(iServers) > 0:
-            _servers = []
-            for _srv in iServers:
-                _servers.append(_srv)
-            self.startOrStopApplications(self.stopThread, [_servers],
-                                        _("Stop applications failed"))
-
-    def startApplications(self):
-        """Starts all the applications on all the servers"""
-        self.startApplicationsOn(self.servers.keys())
-
-    def startApplicationsOn(self, iServers):
-        """
-        Starts all the application on the servers in iServers
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        """
-        if len(iServers) > 0:
-            _servers = []
-            for _srv in iServers:
-                _servers.append(_srv)
-            self.startOrStopApplications(self.startThread, [_servers],
-                                        _("Start applications failed"))
 
     def getState(self):
         """Returns a summary"""
