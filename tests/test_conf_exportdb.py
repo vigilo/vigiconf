@@ -12,6 +12,11 @@ from vigilo.common.conf import settings
 settings.load_module(__name__)
 
 from vigilo.vigiconf.lib.loaders import LoaderManager
+from vigilo.vigiconf.loaders.group import GroupLoader
+from vigilo.vigiconf.loaders.host import HostLoader
+from vigilo.vigiconf.lib.confclasses.host import Host as ConfHost
+from vigilo.vigiconf.applications.nagios import Nagios
+from vigilo.vigiconf.applications.vigimap import VigiMap
 
 from helpers import setup_db, teardown_db, reload_conf, DummyDispatchator
 
@@ -28,6 +33,8 @@ class ExportDBTest(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
+        self.host = ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
+                             "192.168.1.1", "Servers")
         self.loader = LoaderManager(DummyDispatchator())
 
     def tearDown(self):
@@ -36,102 +43,99 @@ class ExportDBTest(unittest.TestCase):
 
     def test_export_hosts_db(self):
         self.assertEquals(len(conf.hostsConf.items()), 1,
-                          "one host in conf (%d)"%len(conf.hostsConf.items()))
-        self.loader.load_conf_db()
-
-        # check if localhost exists in db
-        h = Host.by_host_name(u'localhost')
-        self.assertEquals(h.name, u'localhost')
+                          "there should be one host in conf")
+        #self.loader.load_conf_db()
+        d = DummyDispatchator()
+        grouploader = GroupLoader(d)
+        hostloader = HostLoader(grouploader, d)
+        hostloader.load()
+        # check if testserver1 exists in db
+        h = Host.by_host_name(u'testserver1')
+        self.assertNotEqual(h, None)
+        self.assertEqual(h.name, u'testserver1')
+        self.assertEqual(h.address, u'192.168.1.1')
 
     def test_export_host_confitem(self):
-        host = conf.hostsConf[u'localhost']
-        host['nagiosDirectives'] = {u"max_check_attempts":u"8",
-                                    u"check_interval":u"2"}
+        host = conf.hostsConf[u'testserver1']
+        host['nagiosDirectives'] = {u"max_check_attempts": u"8",
+                                    u"check_interval": u"2"}
 
-        self.loader.load_conf_db()
+        #self.loader.load_conf_db()
+        d = DummyDispatchator()
+        grouploader = GroupLoader(d)
+        hostloader = HostLoader(grouploader, d)
+        hostloader.load()
 
-        ci = ConfItem.by_host_confitem_name(u'localhost', u"max_check_attempts")
-        self.assertTrue(ci, "confitem max_check_attempts exists")
-        self.assertEquals(ci.value, "8", "max_check_attempts=8")
+        ci = ConfItem.by_host_confitem_name(u"testserver1",
+                                            u"max_check_attempts")
+        self.assertNotEqual(ci, None, "confitem max_check_attempts must exist")
+        self.assertEqual(ci.value, "8", "max_check_attempts=8")
 
-        ci = ConfItem.by_host_confitem_name(u'localhost', u"check_interval")
-        self.assertTrue(ci, "confitem check_interval exists")
+        ci = ConfItem.by_host_confitem_name(u"testserver1", u"check_interval")
+        self.assertNotEqual(ci, None, "confitem check_interval must exist")
         self.assertEquals(ci.value, "2", "check_interval=2")
 
     def test_export_service_confitem(self):
-        host = conf.hostsConf[u'localhost']
-        host['nagiosSrvDirs'][u'Interface eth0'] = {u"max_check_attempts":u"7",
-                                    u"retry_interval":u"3"}
+        self.host.add_external_sup_service("Interface eth0")
+        host = conf.hostsConf[u'testserver1']
+        host['nagiosSrvDirs'][u'Interface eth0'] = {
+                                    u"max_check_attempts": u"7",
+                                    u"retry_interval": u"3"}
 
-        self.loader.load_conf_db()
+        #self.loader.load_conf_db()
+        d = DummyDispatchator()
+        grouploader = GroupLoader(d)
+        hostloader = HostLoader(grouploader, d)
+        hostloader.load()
 
         ci = ConfItem.by_host_service_confitem_name(
-                            u'localhost', u'Interface eth0', u"max_check_attempts")
-        self.assertTrue(ci, "confitem max_check_attempts exists")
+                            u'testserver1', u'Interface eth0',
+                            u"max_check_attempts")
+        self.assertTrue(ci, "confitem max_check_attempts must exist")
         self.assertEquals(ci.value, "7", "max_check_attempts=7")
 
         ci = ConfItem.by_host_service_confitem_name(
-                            u'localhost', u'Interface eth0', u"retry_interval")
-        self.assertTrue(ci, "confitem retry_interval exists")
+                            u'testserver1', u'Interface eth0',
+                            u"retry_interval")
+        self.assertTrue(ci, "confitem retry_interval must exist")
         self.assertEquals(ci.value, "3", "retry_interval=3")
 
-    def test_export_conf_db_rollback(self):
-        """ Test du rollback sur la base après export en base de la conf
-        """
-
-        self.loader.load_conf_db()
-
-        # check if localhost exists in db
-        h = Host.by_host_name(u'localhost')
-        self.assertEquals(h.name, u'localhost')
-        self.assertEquals(h.weight, 42)
-
-        transaction.abort()
-
-        transaction.begin()
-        # check that localhost does not exists anymore in db
-        h = Host.by_host_name(u'localhost')
-        self.assertFalse(h, "no more localhost host in db")
-
-    def test_export_conf_db_commit(self):
-        """ Test du commit sur la base après export en base de la conf.
-
-        Un rollback est effectué juste après le commit.
-        """
-
-        self.loader.load_conf_db()
-
-        # check if localhost exists in db
-        h = Host.by_host_name(u'localhost')
-        self.assertEquals(h.name, u'localhost')
-        self.assertEquals(h.weight, 42)
-
-        transaction.commit()
-
-        transaction.begin()
-        h = Host.by_host_name(u'localhost')
-        self.assertEquals(h.name, u'localhost')
-        self.assertEquals(h.weight, 42)
-
     def test_export_ventilation_db(self):
+        """
+        Export de la ventilation en BdD.
+        On ventile une première fois, puis on supprime une application et on
+        re-ventile. L'application ne doit plus être ventilée en BdD
+        """
         from vigilo.vigiconf.lib import dispatchmodes
         from vigilo.vigiconf.lib.generators import GeneratorManager
         from vigilo.vigiconf.lib.ventilation import get_ventilator
-        dispatchator = dispatchmodes.getinstance()
-        genmgr = GeneratorManager(dispatchator.applications, dispatchator)
-        ventilator = get_ventilator(dispatchator.applications)
+        conf.appsGroupsByServer = {
+                    "interface": {
+                        "Servers": [u"sup.example.com"],
+                    },
+                    "collect": {
+                        "Servers": [u"sup.example.com"],
+                    },
+                    "trap": {
+                        "Servers": [u"sup.example.com"],
+                    },
+                }
+        dispatchator = DummyDispatchator()
+        grouploader = GroupLoader(dispatchator)
+        hostloader = HostLoader(grouploader, dispatchator)
+        nagios = Nagios()
+        vigimap = VigiMap()
+        genmgr = GeneratorManager([nagios, vigimap], DummyDispatchator())
+        ventilator = get_ventilator([nagios, vigimap])
         self.loader.load_apps_db(genmgr.apps)
-        self.loader.load_conf_db()
+        hostloader.load()
         self.loader.load_vigilo_servers_db()
 
-        # On doit avoir 2 serveurs de supervision : localhost & localhost2.
-        # car la collecte dépend de ces deux serveurs
-        # (cf. appgroups-servers.py dans le dossier de config. "general").
         nb_vigiloservers = DBSession.query(VigiloServer).count()
-        self.assertEquals(nb_vigiloservers, 2)
+        self.assertEquals(nb_vigiloservers, 1)
 
         ventilation = ventilator.ventilate()
-        self.loader.load_ventilation_db(ventilation, dispatchator.applications)
+        self.loader.load_ventilation_db(ventilation, [nagios, vigimap])
         print DBSession.query(Ventilation).all()
         #
         del conf.appsGroupsByServer["trap"]
@@ -139,10 +143,10 @@ class ExportDBTest(unittest.TestCase):
         self.loader.load_vigilo_servers_db()
         # Le nombre de serveurs de supervision ne doit pas bouger.
         nb_vigiloservers = DBSession.query(VigiloServer).count()
-        self.assertEquals(nb_vigiloservers, 2)
+        self.assertEquals(nb_vigiloservers, 1)
 
         ventilation = ventilator.ventilate()
-        self.loader.load_ventilation_db(ventilation, dispatchator.applications)
+        self.loader.load_ventilation_db(ventilation, [nagios, vigimap])
         print DBSession.query(Ventilation).all()
         trap_app = DBSession.query(Application).filter_by(name=u"snmptt").first()
         trap_ventil = DBSession.query(Ventilation).filter_by(application=trap_app).count()

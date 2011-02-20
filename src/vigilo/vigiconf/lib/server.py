@@ -231,6 +231,10 @@ class Server(object):
         @todo: reverse arguments order
         """
         try:
+            os.makedirs(os.path.dirname(iDestination))
+        except OSError:
+            pass
+        try:
             shutil.copyfile(iSource, iDestination)
         except Exception, e:
             raise ServerError(_("Cannot copy files (%(from)s to %(to)s): "

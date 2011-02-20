@@ -32,8 +32,11 @@ class HostMethods(unittest.TestCase):
 
     def test_priority_host_hosttemplate(self):
         """Test priorite du parametrage des hosts sur les hosttemplates"""
+        test_list = conf.testfactory.get_test("Interface", self.host.classes)
+        self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"})
+        self.host.add_metro_service("Traffic in eth0", "ineth0", 10, 20)
         self.assertEqual(
-            conf.hostsConf["localhost"]["services"]["Traffic in eth0"]
+            conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]
                 ["type"], "passive")
 
     def test_add_metro_service_INTF(self):

@@ -84,6 +84,8 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         assert conf.hostsConf.has_key("testserver1"), \
                 "host is not properly parsed"
         assert conf.hostsConf["testserver1"]["name"] == "testserver1", \

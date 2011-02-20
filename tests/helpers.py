@@ -43,10 +43,11 @@ def reload_conf(hostsdir=None, dispatchator=None):
             conf.hosttemplatefactory,
             conf.testfactory,
       )
+    conf.hostsConf = conf.hostfactory.hosts
     if dispatchator is None:
         dispatchator = DummyDispatchator()
     GroupLoader(dispatchator).load()
-    conf.loadConf()
+    #conf.loadConf()
 
 def setup_tmpdir(dirpath=None):
     """Prepare the temporary directory"""
@@ -113,7 +114,11 @@ def setup_deploy_dir():
 def teardown_deploy_dir():
     """ teardown des tests dispatchator
     """
-    shutil.rmtree(settings["vigiconf"].get("libdir"))
+    #shutil.rmtree(settings["vigiconf"].get("libdir"))
+    opts = ["libdir", "targetconfdir", "lockfile"]
+    for d in [ settings["vigiconf"][o] for o in opts ]:
+        if os.path.exists(d):
+            shutil.rmtree(d)
 
 class DummyDispatchator(Dispatchator):
     def __init__(self):

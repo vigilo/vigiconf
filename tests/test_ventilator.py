@@ -21,6 +21,10 @@ from vigilo.vigiconf.lib.ventilation.remote import VentilatorRemote
 from vigilo.vigiconf.lib.generators import GeneratorManager
 from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib import ParsingError
+from vigilo.vigiconf.lib.confclasses.host import Host as ConfHost
+from vigilo.vigiconf.applications.nagios import Nagios
+from vigilo.vigiconf.applications.vigimap import VigiMap
+from vigilo.vigiconf.applications.connector_metro import ConnectorMetro
 
 from vigilo.models.session import DBSession
 
@@ -41,10 +45,15 @@ class VentilatorTest(unittest.TestCase):
         conf.hosttemplatefactory.load_templates()
         setup_db()
         reload_conf()
-        dispatchator = dispatchmodes.getinstance()
-        self.generator = GeneratorManager(dispatchator.applications, dispatchator)
-        self.ventilator = VentilatorRemote(dispatchator.applications)
-        self.ventilator_local = VentilatorLocal(dispatchator.applications)
+        #conf.load_general_conf()
+        #dispatchator = dispatchmodes.getinstance()
+        #self.generator = GeneratorManager(dispatchator.applications, dispatchator)
+        host = ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
+                        "192.168.1.1", "Servers")
+        host = add_host("testserver1")
+        self.apps = [Nagios(), VigiMap(), ConnectorMetro()]
+        self.ventilator = VentilatorRemote(self.apps)
+        self.ventilator_local = VentilatorLocal(self.apps)
 
     def tearDown(self):
         """Call after every test case."""
@@ -60,38 +69,43 @@ class VentilatorTest(unittest.TestCase):
         ici.
         """
         ventilation = self.ventilator_local.ventilate()
-        num_apps = len(ventilation['localhost'])
+        num_apps = len(ventilation['testserver1'])
 
-        # need locahost in db
-        host = add_host("localhost")
         # need localhost as VigiloServer
         add_vigiloserver(u'localhost')
 
         #need apps in DB
         dispatchator = dispatchmodes.getinstance()
         loader = LoaderManager(dispatchator)
-        loader.load_apps_db(self.generator.apps)
+        loader.load_apps_db(self.apps)
         DBSession.flush()
         self.assertEquals(DBSession.query(Application).count(), num_apps,
                 "There should be %d apps in DB" % num_apps)
 
         loader.load_vigilo_servers_db()
-        loader.load_ventilation_db(ventilation, self.generator.apps)
+        loader.load_ventilation_db(ventilation, self.apps)
 
         # check that for each app, localhost is supervised by itself
-        for app in conf.apps:
+        print ventilation
+        host = add_host("testserver1")
+        for app in self.apps:
+            print host, app
             links = DBSession.query(Ventilation
                 ).filter(Ventilation.application.has(
                     Application.name == unicode(app))
                 ).filter(Ventilation.host==host)
-            self.assertEquals(links.count(), 1, "One supervision link (%d)" % links.count())
-            self.assertEquals(links.first().vigiloserver.name, u'localhost', "superviser server is localhost")
+            print links.all()
+            self.assertEquals(links.count(), 1,
+                              "There should be one supervision link")
+            self.assertEquals(links.first().vigiloserver.name, u'localhost',
+                              "superviser server must be localhost")
 
     def test_host_ventilation_group(self):
         host = add_host("localhost")
         group1 = add_supitemgroup("Group1")
         group2 = add_supitemgroup("Group2", group1)
         host.groups = [group2,]
+        self.ventilator.make_cache()
         self.assertEquals(self.ventilator.get_host_ventilation_group("localhost", {}), "Group1")
 
     def test_host_ventilation_group_multiple(self):
@@ -100,6 +114,7 @@ class VentilatorTest(unittest.TestCase):
         group2 = add_supitemgroup("Group2", group1)
         group3 = add_supitemgroup("Group3", group1)
         host.groups = [group2, group3]
+        self.ventilator.make_cache()
         self.assertEquals(self.ventilator.get_host_ventilation_group("localhost", {}), "Group1")
 
     def test_host_ventilation_conflicting_groups(self):
@@ -109,22 +124,38 @@ class VentilatorTest(unittest.TestCase):
         group3 = add_supitemgroup("Group3")
         group4 = add_supitemgroup("Group4", group3)
         host.groups = [group2, group4]
+        self.ventilator.make_cache()
         self.assertRaises(ParsingError, self.ventilator.get_host_ventilation_group, "localhost", {})
 
     def test_reventilate(self):
         """Cas où un serveur est supprimé de la conf"""
         # besoin de localhost en base
+        self.host = ConfHost(conf.hostsConf, "hosts/localhost.xml", "localhost",
+                             "127.0.0.1", "Servers")
         host = add_host("localhost")
         # chargement des apps
         dispatchator = dispatchmodes.getinstance()
         loader = LoaderManager(dispatchator)
-        loader.load_apps_db(self.generator.apps)
+        loader.load_apps_db(self.apps)
         DBSession.flush()
-        # On ajoute 2 autres serveurs de supervision
-        for appGroup in conf.appsGroupsByServer:
-            for hostGroup in conf.appsGroupsByServer[appGroup]:
-                conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver2.example.com')
-                conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
+        conf.appsGroupsByServer = {
+                "interface": {
+                    "P-F":     [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                    "Servers": [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                },
+                "collect": {
+                    "P-F":     [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                    "Servers": [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                },
+                "metrology": {
+                    "P-F":     [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                    "Servers": [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                },
+        }
+        #for appGroup in conf.appsGroupsByServer:
+        #    for hostGroup in conf.appsGroupsByServer[appGroup]:
+        #        conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver2.example.com')
+        #        conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
         loader.load_vigilo_servers_db()
         for i in range(9):
             hostname = "localhost%d" % i
@@ -132,7 +163,7 @@ class VentilatorTest(unittest.TestCase):
             conf.hostsConf[hostname]["name"] = hostname
             add_host(hostname)
         ventilation = self.ventilator.ventilate()
-        loader.load_ventilation_db(ventilation, self.generator.apps)
+        loader.load_ventilation_db(ventilation, self.apps)
         # On vérifie que des hôtes ont quand même été affectés à supserver3.example.com
         ss3_hosts = []
         for host in ventilation:
@@ -146,7 +177,7 @@ class VentilatorTest(unittest.TestCase):
                 conf.appsGroupsByServer[appGroup][hostGroup].remove(u'supserver3.example.com')
         # On reventile
         ventilation = self.ventilator.ventilate()
-        loader.load_ventilation_db(ventilation, self.generator.apps)
+        loader.load_ventilation_db(ventilation, self.apps)
 
         # Tout doit avoir été reventilé sur les autres serveurs
         for host in ventilation:
@@ -184,12 +215,14 @@ class VentilatorTest(unittest.TestCase):
             },
         }
 
+        host = ConfHost(conf.hostsConf, "dummy.xml", "localhost",
+                        "127.0.0.1", "Servers")
         host = add_host("localhost")
 
         # Chargement des applications et des serveurs de supervision.
         dispatchator = dispatchmodes.getinstance()
         loader = LoaderManager(dispatchator)
-        loader.load_apps_db(self.generator.apps)
+        loader.load_apps_db(self.apps)
         loader.load_vigilo_servers_db()
         group1 = add_supitemgroup("Group1")
 
@@ -197,8 +230,8 @@ class VentilatorTest(unittest.TestCase):
         # doivent recevoir la métrologie de "localhost", mais seul
         # "localhost" doit recevoir les changements d'états Nagios.
         ventilation = self.ventilator.ventilate()
-        conn_metro = [a for a in self.generator.apps if a.name == "connector-metro"][0]
-        nagios = [a for a in self.generator.apps if a.name == "nagios"][0]
+        conn_metro = [a for a in self.apps if a.name == "connector-metro"][0]
+        nagios = [a for a in self.apps if a.name == "nagios"][0]
         pprint(ventilation)
 
         # Pour la métrologie et la collecte, on a à chaque fois
@@ -214,7 +247,7 @@ class VentilatorTest(unittest.TestCase):
         )
 
         # En base, on ne doit retrouver qu'un serveur de supervision (pour le proxy)
-        loader.load_ventilation_db(ventilation, self.generator.apps)
+        loader.load_ventilation_db(ventilation, self.apps)
         ventilations = DBSession.query(
                     VigiloServer.name
                 ).join(
@@ -267,14 +300,14 @@ class VentilatorTest(unittest.TestCase):
         # Chargement des applications et des serveurs de supervision.
         dispatchator = dispatchmodes.getinstance()
         loader = LoaderManager(dispatchator)
-        loader.load_apps_db(self.generator.apps)
+        loader.load_apps_db(self.apps)
         loader.load_vigilo_servers_db()
 
         # À l'issue de la ventilation, "localhost" et "localhost2"
         # doivent recevoir la métrologie de "localhost", mais seul
         # "localhost" doit recevoir les changements d'états Nagios.
         ventilation = self.ventilator.ventilate()
-        nagios = [a for a in self.generator.apps if a.name == "nagios"][0]
+        nagios = [a for a in self.apps if a.name == "nagios"][0]
 
         # On calcule le nombre d'hôtes supervisé par chaque serveur.
         stats = {}
@@ -301,25 +334,41 @@ class VentilatorTest(unittest.TestCase):
         """
         Si une app n'est plus déployée sur un serveur, il faut l'arrêter
         """
-        apps = dict([(app.name, app) for app in self.generator.apps])
+        conf.appsGroupsByServer = {
+            'collect' : {
+                'P-F'             : ['localhost'],
+                'Servers'         : ['localhost'],
+                'Telecom'         : ['localhost'],
+            },
+            'metrology' : {
+                'P-F'             : ['localhost'],
+                'Servers'         : ['localhost'],
+                'Telecom'         : ['localhost'],
+            },
+        }
         # besoin de localhost en base
+        host = ConfHost(conf.hostsConf, "dummy.xml", "localhost",
+                        "127.0.0.1", "P-F")
         host = add_host("localhost")
+        conf.load_general_conf()
         # chargement des apps
         dispatchator = dispatchmodes.getinstance()
+        apps = dict([(app.name, app) for app in self.apps])
+        apps["nagios"].servers["localhost"] = ["stop", "start"]
         loader = LoaderManager(dispatchator)
-        loader.load_apps_db(self.generator.apps)
+        loader.load_apps_db(self.apps)
         loader.load_vigilo_servers_db()
         ventilation = self.ventilator.ventilate()
         assert ventilation["localhost"][apps["nagios"]] == ["localhost", ]
-        loader.load_ventilation_db(ventilation, self.generator.apps)
+        loader.load_ventilation_db(ventilation, self.apps)
         DBSession.flush()
         # on supprime les serveurs Nagios pour le groupe P-F
         conf.appsGroupsByServer["collect"]["P-F"] = []
         ventilation = self.ventilator.ventilate()
         assert apps["nagios"] not in ventilation["localhost"]
         #from pprint import pprint; pprint(ventilation)
-        loader.load_ventilation_db(ventilation, self.generator.apps)
-        self.assertEqual(apps["nagios"].servers["localhost"], "stop")
+        loader.load_ventilation_db(ventilation, self.apps)
+        self.assertEqual(apps["nagios"].servers["localhost"], ["stop"])
 
 
 if __name__ == '__main__':

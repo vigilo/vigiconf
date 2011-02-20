@@ -170,7 +170,7 @@ class RevisionManager(object):
             os.makedirs(directory)
         try:
             _file = open(self.getFilename(), 'wb')
-            _file.write("Revision: %d"%(self.getSubversion()))
+            _file.write("Revision: %d" % self.getSubversion())
             _file.close()
         except Exception, e:
             LOGGER.exception(_("Cannot write the revision file: %s"), e)

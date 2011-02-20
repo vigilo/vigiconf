@@ -26,7 +26,7 @@ from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib import dispatchmodes
 
 from vigilo.models.session import DBSession
-from vigilo.models.tables import MapGroup, VigiloServer
+from vigilo.models import tables
 from vigilo.models.demo.functions import add_host
 
 from helpers import setup_tmpdir, reload_conf
@@ -39,7 +39,7 @@ class EnterpriseEdition(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        MapGroup(name=u'Root')
+        tables.MapGroup(name=u'Root')
 
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
@@ -71,19 +71,14 @@ class EnterpriseEdition(unittest.TestCase):
                         "Servers": [u"sup.example.com"],
                     },
                 }
-        vs = VigiloServer(name=u"sup.example.com")
+        vs = tables.VigiloServer(name=u"sup.example.com")
         DBSession.add(vs)
-        add_host("localhost")
         add_host("testserver1")
         DBSession.flush()
-        self.dispatchator = dispatchmodes.getinstance()
-        loader = LoaderManager(self.dispatchator)
-        loader.load_apps_db(self.dispatchator.applications)
-        self.genmanager = GeneratorManager(
-            self.dispatchator.applications,
-            DummyDispatchator()
-        )
-        self.ventilator = get_ventilator(self.dispatchator.applications)
+        DBSession.add(tables.Application(name=u"nagios"))
+        nagios = Nagios()
+        self.genmanager = GeneratorManager([nagios], DummyDispatchator())
+        self.ventilator = get_ventilator([nagios])
         self.mapping = self.ventilator.ventilate()
         self.mapping = self.ventilator.ventilation_by_appname(self.mapping)
 
@@ -143,21 +138,18 @@ class CommunityEdition(unittest.TestCase):
         """Call before every test case."""
         # Prepare temporary directory
         setup_db()
-        MapGroup(name=u'Root')
+        tables.MapGroup(name=u'Root')
 
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
         # Load the configuration
         reload_conf()
-        delattr(conf, "appsGroupsByServer") # Become the Community(tm) :)
         self.host = Host(conf.hostsConf, "dummy.xml", "testserver1",
                          "192.168.1.1", "Servers")
-        self.dispatchator = dispatchmodes.getinstance()
-        self.genmanager = GeneratorManager(
-            self.dispatchator.applications,
-            DummyDispatchator(),
-        )
-        self.ventilator = get_ventilator(self.dispatchator.applications)
+        DBSession.add(tables.Application(name=u"nagios"))
+        nagios = Nagios()
+        self.genmanager = GeneratorManager([nagios], DummyDispatchator())
+        self.ventilator = get_ventilator([nagios])
         self.mapping = self.ventilator.ventilate()
         self.mapping = self.ventilator.ventilation_by_appname(self.mapping)
 

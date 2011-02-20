@@ -26,6 +26,14 @@ class DispatchatorRemote(unittest.TestCase):
         # Prepare necessary directories
         # TODO: commenter les divers repertoires
         setup_deploy_dir()
+        conf.appsGroupsByServer = {
+                    'interface' : {
+                        'Servers': ['localhost', 'localhost2'],
+                    },
+                    'collect' : {
+                        'Servers': ['localhost', 'localhost2'],
+                    },
+                }
 
         self.host = Host(conf.hostsConf, "dummy", u"testserver1", u"192.168.1.1", u"Servers")
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)

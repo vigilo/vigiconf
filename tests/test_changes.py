@@ -12,12 +12,13 @@ from vigilo.vigiconf.loaders.topology import TopologyLoader
 
 import vigilo.vigiconf.conf as conf
 from helpers import reload_conf, setup_db, teardown_db, DummyDispatchator
+from vigilo.models.demo import functions as df
 
-from vigilo.models.tables import Host
-from vigilo.models.tables import LowLevelService, HighLevelService, \
-                                    Dependency, DependencyGroup
+from vigilo.models import tables
+from vigilo.models.tables import Dependency, DependencyGroup
 
 from vigilo.models.session import DBSession
+
 
 class ChangeManagementTest(unittest.TestCase):
 
@@ -25,60 +26,13 @@ class ChangeManagementTest(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
-
-        # Présents dans les fichiers XML
-        localhost =  Host(
-            name=u'localhost',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'my localhost',
-            hosttpl=u'template',
-            address=u'127.0.0.1',
-            snmpport=124,
-            weight=44,
-        )
-        DBSession.add(localhost)
-        hlservice1 = HighLevelService(
-            servicename=u'hlservice1',
-            # @TODO: op_dep
-#            op_dep=u'+',
-            message=u'Hello world',
-            warning_threshold=50,
-            critical_threshold=80,
-            priority=1
-        )
-        DBSession.add(hlservice1)
-        interface = LowLevelService(
-            servicename=u'Interface eth0',
-            weight=100,
-            host=localhost
-        )
-        DBSession.add(interface)
-
+    
+        localhost = df.add_host("localhost")
+        hlservice1 = df.add_highlevelservice("hlservice1")
+        interface = df.add_lowlevelservice(localhost, "Interface eth0")
         # Pour les tests
-        self.testhost1 =  Host(
-            name=u'test_change_deps_1',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'my localhost',
-            hosttpl=u'template',
-            address=u'127.0.0.1',
-            snmpport=42,
-            weight=42,
-        )
-        DBSession.add(self.testhost1)
-        self.testhost2 =  Host(
-            name=u'test_change_deps_2',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'my localhost',
-            hosttpl=u'template',
-            address=u'127.0.0.1',
-            snmpport=42,
-            weight=42,
-        )
-        DBSession.add(self.testhost2)
-        DBSession.flush()
+        self.testhost1 = df.add_host("test_change_deps_1")
+        self.testhost2 = df.add_host("test_change_deps_2")
 
     def tearDown(self):
         """Call after every test case."""

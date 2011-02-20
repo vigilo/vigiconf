@@ -71,7 +71,6 @@ def load_xml_conf():
     Load the confdir directory, looking for configuration files.
     @returns: None, but sets global variables as described above.
     """
-    global hostsConf
     LOGGER.info(_("Loading XML configuration"))
     # Parse hosts
     try:
@@ -79,7 +78,6 @@ def load_xml_conf():
     except ParsingError, e:
         LOGGER.error(_("Error loading configuration"))
         raise e
-    hostsConf = hostfactory.hosts
 
 
 
@@ -108,6 +106,7 @@ hostfactory = HostFactory(
                 hosttemplatefactory,
                 testfactory,
               )
+hostsConf = hostfactory.hosts
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

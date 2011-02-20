@@ -34,23 +34,20 @@ class Generator(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         conf.hosttemplatefactory.load_templates()
         reload_conf()
+        conf.load_general_conf()
+        conf.load_xml_conf()
         self.dispatchator = dispatchmodes.getinstance()
-        self.host = Host(conf.hostsConf, "dummy", "testserver1", "192.168.1.1", "Servers")
-        conffile = ConfFile.get_or_create("dummy")
+        self.dispatchator.force = True
+        self.host = Host(conf.hostsConf, "hosts/localhost.xml", "testserver1", "192.168.1.1", "Servers")
+        conffile = ConfFile.get_or_create("hosts/localhost.xml")
         add_host("testserver1", conffile)
         add_host("localhost", conffile)
         add_host("localhost2", conffile)
-        Host(conf.hostsConf, "dummy", "localhost2", "127.0.0.1", "Servers")
-        dummy_dispatchator = DummyDispatchator()
-        loader = LoaderManager(dummy_dispatchator)
-        loader.load_apps_db(self.dispatchator.applications)
-        loader.load_vigilo_servers_db()
+        Host(conf.hostsConf, "hosts/localhost.xml", "localhost2", "127.0.0.1", "Servers")
         self.genmanager = GeneratorManager(
             self.dispatchator.applications,
-            dummy_dispatchator
+            self.dispatchator
         )
-        ventilator = get_ventilator(self.dispatchator.applications)
-        self.mapping = ventilator.ventilate()
 
     def tearDown(self):
         """Call after every test case."""
@@ -60,9 +57,10 @@ class Generator(unittest.TestCase):
 
     def get_supserver(self, host, app):
         """Return the supervision server from the ventilation"""
-        for mapped_app in self.mapping[host.name]:
+        mapping = self.genmanager._ventilation
+        for mapped_app in mapping[host.name]:
             if mapped_app.name == app:
-                return self.mapping[host.name][mapped_app][0]
+                return mapping[host.name][mapped_app][0]
 
     def test_generation(self):
         """Globally test the generation"""
@@ -73,10 +71,11 @@ class Generator(unittest.TestCase):
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                             "GAUGE", label="TestAddCSLabel")
-        host2 = Host(conf.hostsConf, "dummy", u"testserver2", "192.168.1.2", "Servers")
+        host2 = Host(conf.hostsConf, "host/localhost.xml", u"testserver2", "192.168.1.2", "Servers")
         host2.add_collector_service( u"TestAddCSReRoute", "TestAddCSReRouteFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 reroutefor={'host': "testserver1", "service": u"TestAddCSReRoute"} )
+        add_host("testserver2")
         # Try the generation
         self.genmanager.generate()
 
@@ -142,7 +141,9 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         # on charge en conf un host avec directives generiques nagios
         setup_db()
         reload_conf(hostsdir='tests/testdata/generators/nagios/')
+        conf.load_xml_conf()
         self.dispatchator = dispatchmodes.getinstance()
+        self.dispatchator.force = True
         self.nagios_app = [ a for a in self.dispatchator.applications if a.name == "nagios" ][0]
         conffile = ConfFile.get_or_create("dummy")
         add_host("example-nagios-spec.xml", conffile)
@@ -150,8 +151,6 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         loader.load_apps_db(self.dispatchator.applications)
         loader.load_vigilo_servers_db()
         self.genmanager = GeneratorManager(self.dispatchator.applications, self.dispatchator)
-        self.ventilator = get_ventilator(self.dispatchator.applications)
-        self.mapping = self.ventilator.ventilate()
 
     def tearDown(self):
         """Call after every test case."""
@@ -160,7 +159,9 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
     def test_nagios_generator(self):
-        vba = self.ventilator.ventilation_by_appname(self.mapping)
+        ventilator = get_ventilator(self.dispatchator.applications)
+        mapping = ventilator.ventilate()
+        vba = ventilator.ventilation_by_appname(mapping)
         tpl = NagiosGeneratorForTest(self.nagios_app, vba)
         tpl.generate()
         # recuperation de la generation pour host
