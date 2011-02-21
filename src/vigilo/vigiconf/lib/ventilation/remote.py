@@ -268,6 +268,13 @@ class VentilatorRemote(Ventilator):
         if appGroup not in self.apps_by_appgroup or \
                 not self.apps_by_appgroup[appGroup]:
             return None # pas d'appli dans ce groupe
+        if hostGroup not in conf.appsGroupsByServer[appGroup]:
+            LOGGER.warning(_("Trying to ventilate hostgroup %(hostgroup)s "
+                             "for appgroup %(appgroup)s, but the mapping is "
+                             "not in appsGroupsByServer."),
+                           { "hostgroup": hostGroup, "appgroup": appGroup})
+            # Peut-être une erreur de conf. On ignore.
+            return None
 
         vservers = []
         checksum = zlib.adler32(host)
