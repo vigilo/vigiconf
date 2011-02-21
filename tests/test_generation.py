@@ -27,7 +27,6 @@ class Generator(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        MapGroup(name=u'Root')
 
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()

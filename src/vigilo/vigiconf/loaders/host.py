@@ -32,6 +32,8 @@ from vigilo.models.tables import Host, SupItemGroup, LowLevelService
 from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import ConfFile, ConfItem, Change, Tag
 from vigilo.models.tables import SupItem, HighLevelService
+from vigilo.models.tables import MapLink, MapServiceLink, MapSegment
+from vigilo.models.tables import MapNode, MapNodeHost, MapNodeService
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE
 
 from vigilo.vigiconf.lib.loaders import DBLoader
@@ -193,27 +195,52 @@ class HostLoader(DBLoader):
                 ConfFile.name == unicode(relfilename)).delete()
         LOGGER.debug("Done cleaning up old hosts")
 
-        # Ghostbusters !!
+        # Ghostbusters
+        # 1- Hosts qui n'ont plus de fichier de configuration.
+        ghost_hosts = DBSession.query(Host.idhost).filter(
+                        Host.idconffile == None).all()
+        nb_ghosts = DBSession.query(SupItem).filter(
+                            SupItem.idsupitem.in_([ h.idhost for h in ghost_hosts ])
+                        ).delete()
+        LOGGER.debug("Deleted %d ghosts [Host]", nb_ghosts)
+
+        # 2- SupItems qui ne sont ni des hôtes, ni des HLS/LLS.
         ghost_hosts = DBSession.query(Host.idhost.label('idsupitem'))
         ghost_lls = DBSession.query(LowLevelService.idservice.label('idsupitem'))
         ghost_hls = DBSession.query(HighLevelService.idservice.label('idsupitem'))
         union = ghost_hosts.union(ghost_lls).union(ghost_hls).subquery()
         ghost_all = DBSession.query(SupItem.idsupitem).outerjoin(
-                        (union, union.c.idsupitem == SupItem.idsupitem)
-                    ).filter(union.c.idsupitem == None).all()
-        ghost_total = DBSession.query(SupItem).filter(
+                (union, union.c.idsupitem == SupItem.idsupitem)
+            ).filter(union.c.idsupitem == None).all()
+        nb_ghosts = DBSession.query(SupItem).filter(
                             SupItem.idsupitem.in_([ s.idsupitem for s in ghost_all ])
                         ).delete()
-        if ghost_total:
-            LOGGER.debug("Deleted %s ghost supitems", ghost_total)
+        LOGGER.debug("Deleted %d ghosts [SupItem]", nb_ghosts)
 
-        # Suppression des instances d'hôtes qui n'ont pas de
-        # fichier de configuration associé (résidus après migrations).
-        ghost_hosts = DBSession.query(Host).filter(
-                        Host.idconffile == None).all()
-        for host in ghost_hosts:
-            LOGGER.debug("Removing ghost host '%s'", host.name)
-            DBSession.delete(host)
+        # 3- MapLinks qui n'ont pas de type (lien service ou segment).
+        service_link = DBSession.query(MapServiceLink.idmapservicelink.label('idmaplink'))
+        segment = DBSession.query(MapSegment.idmapsegment.label('idmaplink'))
+        union = service_link.union(segment).subquery()
+        ghost_all = DBSession.query(MapLink.idmaplink).outerjoin(
+                (union, union.c.idmaplink == MapLink.idmaplink)
+            ).filter(union.c.idmaplink == None).all()
+        nb_ghosts = DBSession.query(MapLink).filter(
+                            MapLink.idmaplink.in_([ ml.idmaplink for ml in ghost_all ])
+                        ).delete()
+        LOGGER.debug("Deleted %d ghosts [MapLink]", nb_ghosts)
+
+        # 4- MapNodes qui n'ont pas d'entité (hôte/HLS/LLS) associée.
+        node_host = DBSession.query(MapNodeHost.idmapnode.label('idmapnode'))
+        node_service = DBSession.query(MapNodeService.idmapnode.label('idmapnode'))
+        union = node_host.union(node_service).subquery()
+        ghost_all = DBSession.query(MapNode.idmapnode).outerjoin(
+                (union, union.c.idmapnode == MapNode.idmapnode)
+            ).filter(union.c.idmapnode == None
+            ).filter(MapNode.type_node != None).all()
+        nb_ghosts = DBSession.query(MapNode).filter(
+                            MapNode.idmapnode.in_([ mn.idmapnode for mn in ghost_all ])
+                        ).delete()
+        LOGGER.debug("Deleted %d ghosts [MapNode]", nb_ghosts)
 
         # Suppression des hôtes qui ont été supprimés dans les fichiers modifiés
         deleted_hosts = []
@@ -229,7 +256,7 @@ class HostLoader(DBLoader):
                     deleted_hosts.append(host)
                     DBSession.delete(host)
 
-        # Nettoyage des graphes et les groupes de graphes vides
+        # Nettoyage des graphes et des groupes de graphes vides
         LOGGER.debug("Cleaning up old graphs and graphgroups")
         empty_graphs = DBSession.query(Graph).distinct().filter(
                             ~Graph.perfdatasources.any()).all()

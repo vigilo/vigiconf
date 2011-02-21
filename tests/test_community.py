@@ -39,7 +39,6 @@ class EnterpriseEdition(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        tables.MapGroup(name=u'Root')
 
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
@@ -115,8 +114,7 @@ class EnterpriseEdition(unittest.TestCase):
                 "not an instance of DispatchatorRemote")
 
     def test_serverfactory_ent(self):
-        """ServerFactory must return ServerRemote instances for
-           non-local hostnames"""
+        """ServerFactory returns ServerRemote for non-local hostnames"""
         # Declare temp dir
         conf.libDir = self.tmpdir
         # Create a dummy ssh_config file
@@ -138,7 +136,6 @@ class CommunityEdition(unittest.TestCase):
         """Call before every test case."""
         # Prepare temporary directory
         setup_db()
-        tables.MapGroup(name=u'Root')
 
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
@@ -182,7 +179,7 @@ class CommunityEdition(unittest.TestCase):
                 "not an instance of DispatchatorLocal")
 
     def test_serverfactory_localhost(self):
-        """ServerFactory must return ServerLocal instances for localhost"""
+        """ServerFactory returns ServerLocal for localhost"""
         _serverfactory = ServerFactory()
         _server = _serverfactory.makeServer("localhost")
         self.assert_(isinstance(_server, ServerLocal),
@@ -190,8 +187,7 @@ class CommunityEdition(unittest.TestCase):
                 "for localhost")
 
     def test_serverfactory_localname(self):
-        """ServerFactory must return ServerLocal instances for the
-           local hostname"""
+        """ServerFactory returns ServerLocal for the local hostname"""
         _localname = socket.gethostname()
         _serverfactory = ServerFactory()
         _server = _serverfactory.makeServer(_localname)
@@ -200,15 +196,12 @@ class CommunityEdition(unittest.TestCase):
                 "for the local hostname")
 
     def test_serverfactory_localfqdn(self):
-        """ServerFactory must return ServerLocal instances for the
-           local FQDN"""
+        """ServerFactory returns ServerLocal for the local FQDN"""
         _localname = socket.getfqdn()
         _serverfactory = ServerFactory()
         _server = _serverfactory.makeServer(_localname)
         self.assert_(isinstance(_server, ServerLocal),
                 "The ServerFactory does not create ServerLocal instances "
                 "for the local FQDN")
-
-
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -130,6 +130,7 @@ class VentilatorRemote(Ventilator):
             if hostdata["serverGroup"].count("/") == 1:
                 hostdata["serverGroup"] = hostdata["serverGroup"].lstrip("/")
             return hostdata["serverGroup"]
+
         groups = set()
         idhost = self._cache["host"].get(unicode(hostname))
         if not idhost:
@@ -141,7 +142,7 @@ class VentilatorRemote(Ventilator):
                                           == tables.SupItemGroup.idgroup),
                 ).filter(SUPITEM_GROUP_TABLE.c.idsupitem == idhost).all()
         for group in hostgroups:
-            groups.add(group.get_top_parent().name)
+            groups.add(group.get_ventilation_candidate().name)
 
         if not groups:
             raise ParsingError(_('Could not determine how to '

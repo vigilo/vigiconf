@@ -929,7 +929,10 @@ class HostFactory(object):
                     if not parse_path(group_name):
                         raise ParsingError(_('Invalid group name (%s)')
                             % group_name)
-                    cur_host.add_group(group_name)
+                    if group_name.startswith('/'):
+                        cur_host.add_group(u'/Root' + group_name)
+                    else:
+                        cur_host.add_group(group_name)
 
                 elif elem.tag == "weight":
                     host_weight = get_text(elem)

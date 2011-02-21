@@ -231,9 +231,10 @@ class VigiMapGen(MapGenerator):
             ou de C{vigilo.models.tables.MapGroup}s
         """
         if parent_supitemgroup is None:
-            supitemgroups = tables.SupItemGroup.get_top_groups()
-        else:
-            supitemgroups = parent_supitemgroup.children
+            parent_supitemgroup = \
+                tables.SupItemGroup.by_parent_and_name(None, u'Root')
+
+        supitemgroups = parent_supitemgroup.children
         if parent_mapgroup is None:
             parent_mapgroup = self.get_root_group()
         results = []

@@ -20,6 +20,9 @@
 
 import os
 
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql.expression import and_
+
 from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -28,8 +31,6 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.models.tables import SupItemGroup
-from vigilo.models.tables.grouphierarchy import GroupHierarchy
-
 from vigilo.models.session import DBSession
 
 from vigilo.vigiconf.lib.loaders import XMLLoader
@@ -61,6 +62,7 @@ class GroupLoader(XMLLoader):
 
     _tag_group = "group"
     _xsd_filename = "group.xsd"
+    _root = u'/Root'
 
     def __init__(self, dispatchator):
         super(GroupLoader, self).__init__(SupItemGroup)
@@ -70,20 +72,25 @@ class GroupLoader(XMLLoader):
         # On récupère tous les groupes déjà en base et on génère un cache
         # (groupnames) de leurs noms formattés pour ajout dans un chemin.
         groupnames = {}
+        sig_alias = aliased(SupItemGroup)
         instances = DBSession.query(
                 SupItemGroup,
-                GroupHierarchy.idchild
+                sig_alias.idgroup.label('idchild'),
             ).join(
-                (GroupHierarchy, SupItemGroup.idgroup ==
-                                 GroupHierarchy.idparent),
-            ).order_by(GroupHierarchy.hops.desc()
+                (sig_alias, and_(
+                    sig_alias._grouptype == SupItemGroup._grouptype,
+                    SupItemGroup.left <= sig_alias.left,
+                    SupItemGroup.right >= sig_alias.right,
+                ))
+            ).order_by(
+                SupItemGroup.depth.asc(),
+                sig_alias.depth.asc(),
             ).all()
 
         hierarchy = {}
         for grouphierarchy in instances:
             parent = grouphierarchy[0]
-            # TODO: cette variable ne semble pas utilisée ?
-            parent_name = groupnames.setdefault(
+            groupnames.setdefault(
                 parent.idgroup,
                 parent.name
                     .replace('\\', '\\\\')
@@ -102,8 +109,7 @@ class GroupLoader(XMLLoader):
                 'instance': None,
             })
 
-            hierarchy[grouphierarchy.idchild]['ids_path'].append(
-                parent.idgroup)
+            hierarchy[grouphierarchy.idchild]['ids_path'].append(parent.idgroup)
             hierarchy[grouphierarchy.idchild]['path'] += u'/%s' % (
                 groupnames[parent.idgroup],
             )
@@ -136,9 +142,23 @@ class GroupLoader(XMLLoader):
         self.load_dir(os.path.join(confdir, 'groups'))
 
     def cleanup(self):
+        delete = set()
         for data in self._hierarchy.itervalues():
             if data['path'] not in self._in_conf.keys():
-                self.delete(self.__in_db[data['path']])
+                delete.add(data['path'])
+
+        # On ne supprime jamais le groupe racine.
+        delete.discard(self._root)
+
+        ordered = sorted(list(delete), reverse=True)
+        for g in ordered:
+            self.delete(self.__in_db[g])
+
+    def add(self, data):
+        if not data['parent']:
+            data['parent'] = self.__in_db[self._root]
+
+        return super(GroupLoader, self).add(data)
 
     def update(self, data):
         # On ne fait pas appel à la méthode update() de la classe mère
@@ -149,17 +169,16 @@ class GroupLoader(XMLLoader):
         LOGGER.debug("Updating: %(key)s (%(class)s)",
                      {'key': key, 'class': self._class.__name__})
 
-        # On évite les requêtes SQL lorsqu'il n'y a rien à changer.
-        current_idparent = self._current_parent and \
-            self._current_parent.idgroup or None
+        if instance.idgroup is None:
+            DBSession.add(instance)
+            DBSession.flush()
 
-        try:
-            idparent = self._hierarchy[instance.idgroup]['ids_path'][-2]
-        except IndexError:
-            idparent = None
+        # On évite les requêtes SQL lorsqu'il n'y a rien à changer.
+        current_idparent = data['parent'].idgroup
+        idparent = self._hierarchy[instance.idgroup]['ids_path'][-2]
 
         if idparent != current_idparent:
-            instance.parent = self._current_parent
+            instance.parent = data['parent']
             DBSession.flush()
         self._in_conf[key] = instance
         return instance
@@ -172,24 +191,24 @@ class GroupLoader(XMLLoader):
         if key in self._in_conf:
             return self._in_conf[key]
         LOGGER.debug("Inserting: %s", key)
+
         instance = self._class(name=data["name"], parent=data["parent"])
+        DBSession.add(instance)
+        DBSession.flush()
 
         if data["parent"]:
-            parent_ids = self._hierarchy[data["parent"].idgroup]["ids_path"]
+            ids_path = self._hierarchy[data["parent"].idgroup]["ids_path"]
         else:
-            parent_ids = []
+            ids_path = []
+
         self._hierarchy[instance.idgroup] = {
             'path': key,
-            'ids_path': parent_ids + [instance.idgroup],
+            'ids_path': ids_path + [instance.idgroup],
             'instance': instance,
         }
         self._in_conf[key] = instance
         DBSession.flush()
         return instance
-
-    def delete(self, instance):
-        instance.remove_children()
-        super(GroupLoader, self).delete(instance)
 
     def start_element(self, elem):
         if elem.tag == self._tag_group:
@@ -199,6 +218,7 @@ class GroupLoader(XMLLoader):
                 self._current_parent = self._parent_stack[-1]
             else:
                 self._current_parent = None
+
             instance = self.add({"name": name,
                                  "parent": self._current_parent})
             self._parent_stack.append(instance)
@@ -220,8 +240,11 @@ class GroupLoader(XMLLoader):
         @type  path: C{str}
         """
 
-        self._parent_stack = []
         self._current_parent = None
+        self._parent_stack = []
+
+        instance = self.__in_db[self._root]
+        self._in_conf[self._root] = instance
         return super(GroupLoader, self).load_file(path)
 
     def get_key(self, data):
@@ -229,13 +252,12 @@ class GroupLoader(XMLLoader):
             if data.idgroup in self._hierarchy:
                 return self._hierarchy[data.idgroup]['path']
             return data.get_path()
-        if data["parent"]:
-            if data["parent"].idgroup in self._hierarchy:
-                prefix = self._hierarchy[data["parent"].idgroup]['path']
-            else:
-                prefix = data["parent"].get_path()
-        else:
+
+        if not data['parent']:
             prefix = ""
+        else:
+            prefix = data["parent"].get_path()
+
         return "%s/%s" % (
             prefix,
             data["name"]
