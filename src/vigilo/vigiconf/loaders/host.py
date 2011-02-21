@@ -162,6 +162,8 @@ class HostLoader(DBLoader):
                 self._load_groups(host, hostdata)
             except ParsingError, e:
                 LOGGER.error(e)
+                self.delete(host)
+                del conf.hostsConf[hostname]
                 continue
 
             # services

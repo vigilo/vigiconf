@@ -156,12 +156,12 @@ class GeneratorManager(object):
         I{generate} de chaque application à condition qu'elle ait C{dbonly} à True
         """
         vba = self.ventilator.ventilation_by_appname(self._ventilation)
+        db_generators = [ app for app in self.apps
+                          if app.dbonly and app.generator ]
+        if not db_generators:
+            return
         LOGGER.info(_("Running database generators"))
-        for app in self.apps:
-            if not app.dbonly:
-                continue # déjà fait
-            if not app.generator:
-                continue
+        for app in db_generators:
             generator = app.generator(app, vba)
             generator.generate()
             transaction.commit()
