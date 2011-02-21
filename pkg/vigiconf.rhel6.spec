@@ -82,7 +82,7 @@ fi
 chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
 # Connector
 /sbin/chkconfig --add vigilo-connector-vigiconf || :
-%{_libexecdir}/twisted-dropin-cache >/dev/null || :
+%{_libexecdir}/twisted-dropin-cache >/dev/null 2>&1 || :
 
 %preun
 if [ $1 = 0 ]; then
@@ -94,7 +94,7 @@ fi
 if [ "$1" -ge "1" ] ; then
     /sbin/service vigilo-connector-vigiconf condrestart > /dev/null 2>&1 || :
 fi
-%{_libexecdir}/twisted-dropin-cache >/dev/null || :
+%{_libexecdir}/twisted-dropin-cache >/dev/null 2>&1 || :
 
 
 %clean

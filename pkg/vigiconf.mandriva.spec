@@ -94,14 +94,14 @@ fi
 chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
 # Connector
 %_post_service vigilo-connector-vigiconf
-%{_libdir}/twisted-dropin-cache >/dev/null || :
+%{_libdir}/twisted-dropin-cache >/dev/null 2>&1 || :
 
 %preun
 # Connector
 %_preun_service vigilo-connector-vigiconf
 
 %postun
-%{_libdir}/twisted-dropin-cache >/dev/null || :
+%{_libdir}/twisted-dropin-cache >/dev/null 2>&1 || :
 
 %clean
 rm -rf $RPM_BUILD_ROOT
