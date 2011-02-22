@@ -67,7 +67,6 @@ class LoaderManager(object):
         from vigilo.vigiconf.loaders.group import GroupLoader
         grouploader = GroupLoader(self.dispatchator)
         grouploader.load()
-        from vigilo.models import tables
 
         # groupes de graphes
         from vigilo.vigiconf.loaders.graphgroup import GraphGroupLoader

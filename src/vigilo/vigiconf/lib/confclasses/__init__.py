@@ -73,7 +73,7 @@ def parse_path(path):
             # Il s'agit d'une séquence d'échappement.
             if ch == '\\':
                 ch = it.next()
-                # Les seules séquences reconnues sont "\\" et "\/"
+                # Les seules séquences reconnus sont "\\" et "\/"
                 # pour échapper le caractère d'échappement et le
                 # séparateur des composantes du chemin respectivement.
                 if ch == '/' or ch == '\\':

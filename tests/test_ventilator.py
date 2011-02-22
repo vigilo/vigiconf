@@ -30,7 +30,8 @@ from vigilo.models.session import DBSession
 
 from vigilo.models.tables import Host, Ventilation, Application, \
                                     SupItemGroup, VigiloServer
-from vigilo.models.demo.functions import *
+from vigilo.models.demo.functions import add_host, add_vigiloserver, \
+                                            add_supitemgroup
 
 class VentilatorTest(unittest.TestCase):
     """Test VentilatorRemote"""
@@ -272,16 +273,10 @@ class VentilatorTest(unittest.TestCase):
 
         # Différents paramètres du test, complètement arbitraires,
         # mais suffisamment grands je l'espère pour être représentatifs.
-        # 1. Nombre de serveurs de supervision pour le test.
         nb_vigiloservers = random.randint(2, 20)
-        # 2. Nombre d'hôtes à superviser sur le parc fictif du test.
-        nb_hosts = 250
-        # 3. Longueur maximale des noms d'hôtes.
-        max_length = 32
-        # 4. Écart type maximal autorisé par le test.
+        nb_hosts = 1000
+        max_length = 64
         diff_threshold = 5
-
-        print "Creating %d Vigilo servers for the test"
 
         # On génère un certain nombre de serveurs de supervision.
         for i in xrange(nb_vigiloservers):
@@ -330,7 +325,7 @@ class VentilatorTest(unittest.TestCase):
                 (stats['test-%d' % i] - avg) *
                 (stats['test-%d' % i] - avg))
             self.failUnless(
-                delta <= nb_hosts * diff_threshold / 100.,
+                delta < nb_hosts * diff_threshold / 100.,
                 "Delta (%f) is > %f10%%" % (delta, diff_threshold)
             )
 

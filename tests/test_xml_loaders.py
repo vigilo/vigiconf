@@ -8,7 +8,7 @@ loaders test.
  * topology
 """
 
-import os, unittest, shutil, pprint
+import os, unittest, shutil
 
 from vigilo.vigiconf.lib import ParsingError
 from vigilo.vigiconf.loaders.group import GroupLoader
@@ -20,6 +20,7 @@ from helpers import reload_conf, setup_db, teardown_db, DummyDispatchator
 from vigilo.models.tables import SupItemGroup, SupItemGroup, Host, SupItem
 from vigilo.models.tables import LowLevelService, HighLevelService, \
                                     Dependency, DependencyGroup
+from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
 
 
@@ -29,6 +30,9 @@ class XMLLoaderTest(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         reload_conf()
+        DBSession.query(SupItemGroup).delete()
+        DBSession.query(GroupHierarchy).delete()
+        DBSession.flush()
 
     def tearDown(self):
         """Call after every test case."""
@@ -48,7 +52,7 @@ class GroupLoaderTest(XMLLoaderTest):
         self.assertTrue(g, "root_group created.")
         n = len(g.get_children())
         c = SupItemGroup.by_group_name(u'hgroup1')
-        pprint.pprint(g.get_children())
+        print g.get_children()
         self.assertEquals(n, 3, "rootgroup has 3 children (%d)" % n)
 
         g = SupItemGroup.by_group_name(u'root_group3')
@@ -184,6 +188,6 @@ class DepLoaderTest(XMLLoaderTest):
         """
         self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         gh = self.grouploader._in_conf
-        pprint.pprint(gh)
-        self.assertTrue("/Root/root_group3/hgroup31" in gh)
-        self.assertTrue("/Root/root_group3/hgroup33/Linux servers 3" in gh)
+        print gh
+        self.assertTrue("/root_group3/hgroup31" in gh)
+        self.assertTrue("/root_group3/hgroup33/Linux servers 3" in gh)

@@ -72,11 +72,10 @@ class MapGenerator(Generator):
         self.map_defaults.update(self.application.getConfig())
 
     def get_root_group(self):
-        from vigilo.models.tables.group import Group
         root = MapGroup.by_parent_and_name(None, unicode(self.rootgroup_name))
         if root:
             return root
-        raise KeyError(_('The map group "%s" has not been added '
+        raise KeyError(_("The map group %s has not been added "
                         "by the install procedure") % self.rootgroup_name)
 
     def process_top_group(self, group):

@@ -36,7 +36,6 @@ class GraphGroupLoader(DBLoader):
         super(GraphGroupLoader, self).__init__(GraphGroup, "name")
 
     def load_conf(self):
-        self.add({"name": u"Root"})
         groupnames = set()
         for hostname in conf.hostsConf:
             for groupname in conf.hostsConf[hostname]['graphGroups']:
@@ -48,3 +47,4 @@ class GraphGroupLoader(DBLoader):
         instance = super(GraphGroupLoader, self).update(data)
         DBSession.flush()
         return instance
+

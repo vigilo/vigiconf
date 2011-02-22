@@ -10,7 +10,7 @@ from vigilo.models.configure import configure_db
 configure_db(settings['database'], 'sqlalchemy_')
 
 from vigilo.models.session import metadata, DBSession
-from vigilo.models import tables
+from vigilo.models.tables import VigiloServer, StateName
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.lib.dispatchator import Dispatchator
 
@@ -67,16 +67,13 @@ def setup_db():
     #settings["database"]["sqlalchemy_url"] = "sqlite:///%s/vigilo.db" % tmpdir
     transaction.abort()
     metadata.create_all()
-    DBSession.add(tables.StateName(statename=u'OK', order=1))
-    DBSession.add(tables.StateName(statename=u'UNKNOWN', order=2))
-    DBSession.add(tables.StateName(statename=u'WARNING', order=3))
-    DBSession.add(tables.StateName(statename=u'CRITICAL', order=4))
-    DBSession.add(tables.StateName(statename=u'UP', order=1))
-    DBSession.add(tables.StateName(statename=u'UNREACHABLE', order=2))
-    DBSession.add(tables.StateName(statename=u'DOWN', order=4))
-    DBSession.add(tables.MapGroup(name=u'Root'))
-    DBSession.add(tables.GraphGroup(name=u'Root'))
-    DBSession.add(tables.SupItemGroup(name=u'Root'))
+    DBSession.add(StateName(statename=u'OK', order=1))
+    DBSession.add(StateName(statename=u'UNKNOWN', order=2))
+    DBSession.add(StateName(statename=u'WARNING', order=3))
+    DBSession.add(StateName(statename=u'CRITICAL', order=4))
+    DBSession.add(StateName(statename=u'UP', order=1))
+    DBSession.add(StateName(statename=u'UNREACHABLE', order=2))
+    DBSession.add(StateName(statename=u'DOWN', order=4))
     DBSession.flush()
 
 #Teardown that database

@@ -29,8 +29,6 @@ from . import Ventilator
 
 
 class VentilatorLocal(Ventilator):
-    def make_cache(self):
-        pass
 
     def ventilate(self):
         """Map every app to localhost (Community Edition)"""
