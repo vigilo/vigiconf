@@ -27,6 +27,7 @@ import glob
 import os, sys
 import os.path
 import types
+import multiprocessing
 
 import transaction
 
@@ -155,17 +156,37 @@ class GeneratorManager(object):
         Execute la méthode I{generate()} de la classe pointée par l'attribut
         I{generate} de chaque application à condition qu'elle ait C{dbonly} à True
         """
-        vba = self.ventilator.ventilation_by_appname(self._ventilation)
         db_generators = [ app for app in self.apps
                           if app.dbonly and app.generator ]
         if not db_generators:
             return
-        LOGGER.info(_("Running database generators"))
-        for app in db_generators:
-            generator = app.generator(app, vba)
+        if len(db_generators) == 1:
+            # pas besoin de multiprocessing
+            app = db_generators[0]
+            LOGGER.info(_("Generating configuration for %s"), app.name)
+            generator = app.generator(app, {})
             generator.generate()
             transaction.commit()
-            LOGGER.info(_("Generated configuration for %s"), app.name)
+            return
+        # Ici, on a plusieurs générateurs DB, à exécuter en parallèle
+        LOGGER.info(_("Running database generators"))
+        pool = multiprocessing.Pool(len(db_generators))
+        results = {}
+        for app in db_generators:
+            results[app.name] = pool.apply_async(_run_db_generator,
+                                                 (app.__class__, ))
+        errors = {}
+        for appname, result in results.items():
+            try:
+                result.get()
+            except Exception, e:
+                errors[appname] = e
+        for appname, error in errors.items():
+            LOGGER.error(_("%(errtype)s in application %(app)s: %(error)s"),
+                         {"app": appname, "error": str(error),
+                          "errtype": error.__class__.__name__})
+        pool.close()
+        pool.join()
         LOGGER.debug("Database configuration generated")
 
     def move_metro_services(self, validator):
@@ -271,3 +292,23 @@ class GeneratorManager(object):
             if metro_server in nagios_servers:
                 return metro_server
         return vba[hostname]["connector-metro"][0]
+
+
+def _run_db_generator(appclass):
+    from vigilo.models.session import DBSession
+    import transaction
+    # Pour éviter que le pool loggue les déconnexions (SALE)
+    #DBSession.bind.pool._should_log_info = False
+    # On force la reconnection à la base de données
+    DBSession.bind.dispose()
+    transaction.begin()
+
+    app = appclass()
+    generator = app.generator(app, {})
+    generator.generate()
+    transaction.commit()
+    LOGGER.info(_("Generated configuration for %s"), app.name)
+    DBSession.close_all()
+    # fermeture propre des connexions, ce sous-process va être tué
+    DBSession.bind.dispose()
+
