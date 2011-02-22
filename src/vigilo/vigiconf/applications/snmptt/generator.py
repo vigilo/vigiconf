@@ -47,6 +47,7 @@ class SnmpTTGen(FileGenerator):
         fileName_nagios = os.path.join(self.baseDir, vserver,
                                      "nagios", "nagios_trap.cfg")
 
+        match = "MATCH $ar: %s"
         # we received something like
         # {servicename1: {OID:{label:<>,command:<>, address:<>, etc.}, OID: {..}},
         #  servicename2: etc.
@@ -64,13 +65,20 @@ class SnmpTTGen(FileGenerator):
                     templateFunct = self.templateCreate
                 else:
                     templateFunct = self.templateAppend
+                # from snmptt website: If no MATCH MODE= line exists, it defaults to 'or'.
+                if isinstance(vals["address"], list):
+                    all_match = "\n".join(match % i for i in vals["address"])
+                    all_match+= "\nMATCH MODE:%s" % vals["mode"]
+                else:
+                    all_match = match % vals["address"]
+
                 templateFunct(fileName, self.templates["snmptt.conf"],
                     {"event": vals["label"],
                         "oid": oid,
                         "command": vals["command"],
                         "host": hostname,
                         "service": srvname,
-                        "match" : "MATCH $ar: %s" % vals["address"],
+                        "match" : all_match
                         })
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
