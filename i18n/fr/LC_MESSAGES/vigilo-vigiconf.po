@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2011-02-20 22:46+0100\n"
+"PO-Revision-Date: 2011-02-23 08:43+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -883,32 +883,42 @@ msgstr "Les générateurs doivent définir la méthode generate_host()."
 msgid "No such template: %s"
 msgstr "Patron de fichier introuvable : %s"
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:99
-#: src/vigilo/vigiconf/lib/generators/manager.py:168
+#: src/vigilo/vigiconf/lib/generators/manager.py:100
+#: src/vigilo/vigiconf/lib/generators/manager.py:310
 #, python-format
 msgid "Generated configuration for %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:128
+#: src/vigilo/vigiconf/lib/generators/manager.py:129
 msgid "Computing ventilation"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:143
+#: src/vigilo/vigiconf/lib/generators/manager.py:144
 msgid "Running generators"
 msgstr "Lancement des générateurs"
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:159
+#: src/vigilo/vigiconf/lib/generators/manager.py:166
+#, python-format
+msgid "Generating configuration for %s"
+msgstr "Génération de la configuration pour %s"
+
+#: src/vigilo/vigiconf/lib/generators/manager.py:172
 msgid "Running database generators"
 msgstr "Lancement des générateurs en base de données"
 
 #: src/vigilo/vigiconf/lib/generators/manager.py:185
+#, python-format
+msgid "%(errtype)s in application %(app)s: %(error)s"
+msgstr "%(errtype)s dans l'application %(app)s : %(error)s"
+
+#: src/vigilo/vigiconf/lib/generators/manager.py:206
 msgid "Can't find the metro server for the RRD-based services"
 msgstr ""
 "Impossible de trouver le serveur de métrologie pour les services basés "
 "sur les RRD"
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:197
-#: src/vigilo/vigiconf/lib/generators/manager.py:207
+#: src/vigilo/vigiconf/lib/generators/manager.py:218
+#: src/vigilo/vigiconf/lib/generators/manager.py:228
 #, python-format
 msgid ""
 "The metrology server %s must be supervised for the RRD-based services to "
@@ -1012,18 +1022,25 @@ msgstr ""
 "Pas de serveur disponible pour le groupe d'applications %(appgroup)s et "
 "le groupe d'hôtes %(hostgroup)s, ils seront ignorés"
 
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:319
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:335
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:271
+#, python-format
+msgid ""
+"Trying to ventilate hostgroup %(hostgroup)s for appgroup %(appgroup)s, "
+"but the mapping is not in appsGroupsByServer."
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:326
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:342
 #, python-format
 msgid "The Vigilo server %s does not exist"
 msgstr "Le serveur Vigilo %s n'existe pas."
 
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:322
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:329
 #, python-format
 msgid "The Vigilo server %s is already disabled"
 msgstr "Le serveur Vigilo %s est déjà désactivé."
 
-#: src/vigilo/vigiconf/lib/ventilation/remote.py:338
+#: src/vigilo/vigiconf/lib/ventilation/remote.py:345
 #, python-format
 msgid "The Vigilo server %s is already enabled"
 msgstr "Le serveur Vigilo %s est déjà activé."
@@ -1065,16 +1082,16 @@ msgstr "Chargement des hôtes"
 msgid "Loading host %s"
 msgstr "Chargement de l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:239
+#: src/vigilo/vigiconf/loaders/host.py:241
 msgid "Done loading hosts"
 msgstr "Chargement des hôtes terminé"
 
-#: src/vigilo/vigiconf/loaders/host.py:262
+#: src/vigilo/vigiconf/loaders/host.py:264
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Groupe inconnu \"%(group)s\" sur l'hôte \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:289
+#: src/vigilo/vigiconf/loaders/host.py:291
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
