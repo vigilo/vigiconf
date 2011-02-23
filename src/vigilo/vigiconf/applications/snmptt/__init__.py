@@ -12,8 +12,8 @@ class SnmpTT(Application):
     name = "snmptt"
     priority = 3
     validation = "validate.sh"
-    start_command = "sudo -n /etc/init.d/snmptt start"
-    stop_command = "sudo -n /etc/init.d/snmptt stop"
+    start_command = "sudo /etc/init.d/snmptt start"
+    stop_command = "sudo /etc/init.d/snmptt stop"
     generator = generator.SnmpTTGen
     group = "trap"
 
