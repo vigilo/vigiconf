@@ -389,10 +389,11 @@ class TagLoader(DBLoader):
         tags = {}
         for tag in DBSession.query(Tag).all():
             tags[tag.name] = [ s.idsupitem for s in tag.supitems ]
-        for tag, idsupitem in tags.iteritems():
-            if idsupitem not in self.all_tags:
-                self.all_tags[idsupitem] = set()
-            self.all_tags[idsupitem].add(tag)
+        for tag, idsupitems in tags.iteritems():
+            for idsupitem in idsupitems:
+                if idsupitem not in self.all_tags:
+                    self.all_tags[idsupitem] = set()
+                self.all_tags[idsupitem].add(tag)
 
     def cleanup(self):
         pass
