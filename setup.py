@@ -12,6 +12,7 @@ install_requires=[
     # order is important
     "setuptools",
     "argparse",
+    "lxml",
     "vigilo-common",
     "vigilo-models",
     'vigilo-connector',
