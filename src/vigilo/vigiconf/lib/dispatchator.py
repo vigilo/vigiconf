@@ -635,10 +635,12 @@ class Dispatchator(object):
         generator = GeneratorManager(self.applications, self)
         self.generate(generator)
         if stop_after == "generation":
+            generator.generate_dbonly()
             return
         self.prepareServers()
         self.deploy()
         if stop_after == "deployment":
+            generator.generate_dbonly()
             return
         self.commit()
         self.restart()

@@ -66,7 +66,7 @@ def load_general_conf():
             sys.stderr.write("Error while parsing %s: %s\n"%(fileF, str(e)))
             raise e
 
-def load_xml_conf():
+def load_xml_conf(validation=True):
     """
     Load the confdir directory, looking for configuration files.
     @returns: None, but sets global variables as described above.
@@ -74,7 +74,7 @@ def load_xml_conf():
     LOGGER.info(_("Loading XML configuration"))
     # Parse hosts
     try:
-        hostfactory.load()
+        hostfactory.load(validation=validation)
     except ParsingError, e:
         LOGGER.error(_("Error loading configuration"))
         raise e
