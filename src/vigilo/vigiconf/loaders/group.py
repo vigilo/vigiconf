@@ -214,7 +214,7 @@ class GroupLoader(XMLLoader):
             else:
                 self._current_parent = None
 
-    def load_file(self, path):
+    def load_file(self, path, xml=None):
         """ Charge des groupes génériques depuis un fichier xml.
 
         @param path: an XML file
@@ -223,7 +223,7 @@ class GroupLoader(XMLLoader):
 
         self._parent_stack = []
         self._current_parent = None
-        return super(GroupLoader, self).load_file(path)
+        return super(GroupLoader, self).load_file(path, xml)
 
     def get_key(self, data):
         if isinstance(data, SupItemGroup):

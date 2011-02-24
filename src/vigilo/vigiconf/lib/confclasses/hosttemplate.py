@@ -26,7 +26,7 @@ from __future__ import absolute_import
 import os
 import copy
 import subprocess
-from xml.etree import ElementTree as ET # Python 2.5
+from lxml import etree
 
 from vigilo.common.conf import settings
 
@@ -257,60 +257,64 @@ class HostTemplateFactory(object):
         # re-declare global hosttemplatefactory. The keyword "global" does not
         # work because it is only used in files that are execfile'd, and global
         # is a parser instruction
+        xsd = self._get_xsd()
         for pathdir in self.path:
             if not os.path.exists(pathdir):
                 continue
             for tplfile in os.listdir(pathdir):
                 if not tplfile.endswith(".xml") or tplfile.startswith("__"):
                     continue
-                self.__validate(os.path.join(pathdir, tplfile))
-                self.__load(os.path.join(pathdir, tplfile))
+                self._validate(os.path.join(pathdir, tplfile), xsd)
+                self._load(os.path.join(pathdir, tplfile))
         self.apply_inheritance()
 
-    def __validate(self, source):
+    def _get_xsd(self):
+        xsd_path = os.path.join(os.path.dirname(__file__), "..", "..",
+                           "validation", "xsd", "hosttemplate.xsd")
+        try:
+            xsd_doc = etree.parse(xsd_path)
+            xsd = etree.XMLSchema(xsd_doc)
+        except (etree.XMLSyntaxError, etree.XMLSchemaParseError), e:
+            raise ParsingError(_("Invalid XML validation schema %(schema)s: "
+                                "%(error)s") % {
+                                    'schema': xsd_path,
+                                    'error': str(e),
+                                })
+        except IOError, e:
+            raise ParsingError(_("Error reading %(file)s, make sure the "
+                                 "permissions are set correctly."
+                                 "Message: %(error)s.") % {
+                                    'file': xsd_path,
+                                    'error': str(e),
+                                })
+        return xsd
+
+    def _validate(self, source, xsd):
         """
-        Validate the XML against the XSD using xmllint
+        Validate the XML against the XSD using lxml
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}
         """
-        xsd = os.path.join(os.path.dirname(__file__), "..", "..",
-                           "validation", "xsd", "hosttemplate.xsd")
-        devnull = open("/dev/null", "w")
-        result = subprocess.call(["xmllint", "--noout", "--schema", xsd, source],
-                    stdout=devnull, stderr=subprocess.STDOUT)
-        devnull.close()
-        # Lorsque le fichier est valide.
-        if result == 0:
-            return
-        # Plus assez de mémoire.
-        if result == 9:
-            raise ParsingError(_("Not enough memory to validate %(file)s "
-                                 "using schema %(schema)s") % {
-                                    'schame': xsd,
+        try:
+            source_doc = etree.parse(source)
+        except etree.XMLSyntaxError, e:
+            raise ParsingError(_("XML syntax error in %(file)s: %(error)s") %
+                               { 'file': source, 'error': str(e) })
+        except IOError, e:
+            raise ParsingError(_("Error reading %(file)s, make sure the "
+                                 "permissions are set correctly."
+                                 "Message: %(error)s.") % {
                                     'file': source,
+                                    'error': str(e),
                                 })
-        # Schéma de validation ou DTD invalide.
-        if result in (2, 5):
-            raise ParsingError(_("Invalid XML validation schema %(schema)s "
-                                "found while validating %(file)s") % {
-                                    'schema': xsd,
-                                    'file': source,
+        valid = xsd.validate(source_doc)
+        if not valid:
+            raise ParsingError(_("XML validation failed: %(error)s") % {
+                                    'error': xsd.error_log.last_error,
                                 })
-        # Erreur de validation du fichier par rapport au schéma.
-        if result in (3, 4):
-            raise ParsingError(_("XML validation failed (%(file)s with "
-                                "schema %(schema)s)") % {
-                                    'schema': xsd,
-                                    'file': source,
-                                })
-        raise ParsingError(_("XML validation failed for file %(file)s, "
-                            "using schema %(schema)s, due to an error. "
-                            "Make sure the permissions are set correctly.") % {
-                                'schema': xsd,
-                                'file': source,
-                            })
+        return source_doc
 
-    def __load(self, source):
+    def _load(self, source):
         """
         Load a template from XML
         @param source: an XML file (or stream)
@@ -320,7 +324,7 @@ class HostTemplateFactory(object):
         cur_tpl = None
         process_nagios = False
 
-        for event, elem in ET.iterparse(source, events=("start", "end")):
+        for event, elem in etree.iterparse(source, events=("start", "end")):
             if event == "start":
                 if elem.tag == "template":
                     test_name = None

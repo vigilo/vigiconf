@@ -751,8 +751,10 @@ class HostFactory(object):
                     continue
                 hostfile = os.path.join(root, f)
                 if validation:
-                    self._validatehost(hostfile, xsd)
-                self._loadhosts(hostfile)
+                    hostxml = self._validatehost(hostfile, xsd)
+                else:
+                    hostxml = None
+                self._loadhosts(hostfile, hostxml)
             LOGGER.debug("Successfully parsed %s", hostfile)
             for d in dirs: # Don't visit subversion/CVS directories
                 if d.startswith("."):
@@ -770,16 +772,14 @@ class HostFactory(object):
         except (etree.XMLSyntaxError, etree.XMLSchemaParseError), e:
             raise ParsingError(_("Invalid XML validation schema %(schema)s: "
                                 "%(error)s") % {
-                                    'schema': xsd,
+                                    'schema': xsd_path,
                                     'error': str(e),
                                 })
         except IOError, e:
-            raise ParsingError(_("XML validation failed for file %(file)s, "
-                                "using schema %(schema)s, due to an error. "
-                                "Make sure the permissions are set correctly."
-                                "Message: %(error)s.") % {
-                                    'schema': xsd,
-                                    'file': source,
+            raise ParsingError(_("Error reading %(file)s, make sure the "
+                                 "permissions are set correctly."
+                                 "Message: %(error)s.") % {
+                                    'file': xsd_path,
                                     'error': str(e),
                                 })
         return xsd
@@ -807,8 +807,9 @@ class HostFactory(object):
             raise ParsingError(_("XML validation failed: %(error)s") % {
                                     'error': xsd.error_log.last_error,
                                 })
+        return source_doc
 
-    def _loadhosts(self, source):
+    def _loadhosts(self, source, sourcexml=None):
         """
         Load a Host from an XML file
 
@@ -826,7 +827,13 @@ class HostFactory(object):
         tests = []
         weight = None
 
-        for event, elem in etree.iterparse(source, events=("start", "end")):
+        if sourcexml is not None:
+            iterator = etree.iterwalk
+            xml = sourcexml
+        else:
+            iterator = etree.iterparse
+            xml = source
+        for event, elem in iterator(xml, events=("start", "end")):
             if event == "start":
                 if elem.tag == "host":
                     test_name = None

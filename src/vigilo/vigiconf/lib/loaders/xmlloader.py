@@ -29,7 +29,7 @@ from __future__ import absolute_import
 
 import os
 import subprocess
-from xml.etree import ElementTree as ET # Python >= 2.5
+from lxml import etree
 
 from pkg_resources import resource_filename
 
@@ -79,64 +79,55 @@ class XMLLoader(DBLoader):
         self.change = False
 
 
-    def get_xsd_file(self):
+    def get_xsd(self):
         if not self._xsd_filename:
             return None
-        return resource_filename("vigilo.vigiconf",
+        xsd_path = resource_filename("vigilo.vigiconf",
                     "validation/xsd/%s" % self._xsd_filename)
+        if not os.path.exists(xsd_path):
+            raise OSError(_("XSD file does not exist: %s") % xsd_path)
+        try:
+            xsd_doc = etree.parse(xsd_path)
+            xsd = etree.XMLSchema(xsd_doc)
+        except (etree.XMLSyntaxError, etree.XMLSchemaParseError), e:
+            raise ParsingError(_("Invalid XML validation schema %(schema)s: "
+                                "%(error)s") % {
+                                    'schema': xsd_path,
+                                    'error': str(e),
+                                })
+        except IOError, e:
+            raise ParsingError(_("Error reading %(file)s, make sure the "
+                                 "permissions are set correctly."
+                                 "Message: %(error)s.") % {
+                                    'file': xsd_path,
+                                    'error': str(e),
+                                })
+        return xsd
 
-    def validate(self, xmlfile):
+    def validate(self, xmlfile, xsd):
         """
-        Validate the XML against the XSD using xmllint
-
-        @note: this could take time.
-        @todo: use lxml for python-based validation
+        Validate the XML against the XSD using lxml
         @param xmlfile: an XML file
         @type  xmlfile: C{str}
         """
-        xsd = self.get_xsd_file()
-        if not xsd:
-            raise ValueError(_("An XSD schema should be provided for "
-                               "validation."))
-        if not os.path.exists(xsd):
-            raise OSError(_("XSD file does not exist: %s") % xsd)
-
-        devnull = open("/dev/null", "w")
-        # TODO: validation avec lxml plutôt que xmllint ?
-        result = subprocess.call(
-                    ["xmllint", "--noout", "--schema", xsd, xmlfile],
-                    stdout=devnull, stderr=subprocess.STDOUT)
-        devnull.close()
-        # Lorsque le fichier est valide.
-        if result == 0:
-            return
-        # Plus assez de mémoire.
-        if result == 9:
-            raise ParsingError(_("Not enough memory to validate %(file)s "
-                                 "using schema %(schema)s") % {
-                                    'schema': xsd,
+        try:
+            source_doc = etree.parse(xmlfile)
+        except etree.XMLSyntaxError, e:
+            raise ParsingError(_("XML syntax error in %(file)s: %(error)s") %
+                               { 'file': xmlfile, 'error': str(e) })
+        except IOError, e:
+            raise ParsingError(_("Error reading %(file)s, make sure the "
+                                 "permissions are set correctly."
+                                 "Message: %(error)s.") % {
                                     'file': xmlfile,
+                                    'error': str(e),
                                 })
-        # Schéma de validation ou DTD invalide.
-        if result in (2, 5):
-            raise ParsingError(_("Invalid XML validation schema %(schema)s "
-                                "found while validating %(file)s") % {
-                                    'schema': xsd,
-                                    'file': xmlfile,
+        valid = xsd.validate(source_doc)
+        if not valid:
+            raise ParsingError(_("XML validation failed: %(error)s") % {
+                                    'error': xsd.error_log.last_error,
                                 })
-        # Erreur de validation du fichier par rapport au schéma.
-        if result in (3, 4):
-            raise ParsingError(_("XML validation failed (%(file)s with "
-                                "schema %(schema)s)") % {
-                                    'schema': xsd,
-                                    'file': xmlfile,
-                                })
-        raise ParsingError(_("XML validation failed for file %(file)s, "
-                            "using schema %(schema)s, due to an error. "
-                            "Make sure the permissions are set correctly.") % {
-                                'schema': xsd,
-                                'file': xmlfile,
-                            })
+        return source_doc
 
     def visit_dir(self, dirname):
         """ validate the exploration of a directory.
@@ -152,24 +143,7 @@ class XMLLoader(DBLoader):
             return False
         return True
 
-    def get_xml_parser(self, path, events=("start", "end")):
-        """ get an XML parser.
-
-        Usage:
-        >>> for event, elem in self.get_xml_parser(filepath):
-        ...   if event == "start":
-        ...     if elem.tag == "map":
-        ...         # DO SOMETHING
-
-        @param path: an XML file
-        @type  path: C{str}
-        @param events: list of events. default=('start', 'end')
-        @type  events: C{seq}
-        """
-        return ET.iterparse(path, events=("start", "end"))
-
-
-    def load_file(self, path):
+    def load_file(self, path, xml=None):
         """ Default parser.
 
         The XMLLoader subclass should implement  the 2 methods:
@@ -184,7 +158,13 @@ class XMLLoader(DBLoader):
         @type  path: C{str}
         """
         try:
-            for event, elem in self.get_xml_parser(path, ("start", "end")):
+            if xml is not None:
+                iterator = etree.iterwalk
+                source = xml
+            else:
+                iterator = etree.iterparse
+                source = path
+            for event, elem in iterator(source, ("start", "end")):
                 self._elem = elem
                 if event == "start":
                     self._bloclist.append(elem.tag)
@@ -327,6 +307,8 @@ class XMLLoader(DBLoader):
             @type  basedir: C{str}
         """
 
+        if self.do_validation:
+            xsd = self.get_xsd()
         for root, dirs, files in os.walk(basedir):
             final = False
 
@@ -335,13 +317,15 @@ class XMLLoader(DBLoader):
                     continue
                 path = os.path.join(root, f)
                 if self.do_validation:
-                    self.validate(path)
+                    fxml = self.validate(path, xsd)
+                else:
+                    fxml = None
                 # load data
                 if f == self._unit_filename:
                     final = True
                 else:
                     try:
-                        self.load_file(path)
+                        self.load_file(path, fxml)
                     except ParsingError, e:
                         LOGGER.error(e)
                     else:
