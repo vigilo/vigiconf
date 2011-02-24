@@ -336,11 +336,12 @@ class HostTemplateFactory(object):
                     test_name = get_attrib(elem, 'name')
 
                     for arg in elem.getchildren():
-                        if arg.tag == 'arg':
-                            tname = get_attrib(arg, 'name')
-                            if tname == "label":
-                                test_name = "%s %s" % (test_name, get_text(arg))
-                                break
+                        if arg.tag != 'arg':
+                            continue
+                        tname = get_attrib(arg, 'name')
+                        if tname == "label":
+                            test_name = "%s %s" % (test_name, get_text(arg))
+                            break
 
                 elif elem.tag == "nagios":
                     process_nagios = True
@@ -396,6 +397,8 @@ class HostTemplateFactory(object):
                         pass # C'est None, on laisse prendre la valeur par défaut
                     args = {}
                     for arg in elem.getchildren():
+                        if arg.tag != "arg":
+                            continue
                         args[get_attrib(arg, 'name')] = get_text(arg)
                     cur_tpl.add_test(test_name, args, test_weight)
                     test_name = None
