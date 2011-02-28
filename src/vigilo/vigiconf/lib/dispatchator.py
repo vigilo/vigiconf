@@ -233,30 +233,37 @@ class Dispatchator(object):
             raise DispatchatorError(
                     _("can't get the SVN status for the configuration dir: %s")
                       % e.value)
-        status = {"add": [], "remove": [], 'modified': [], "removed": []}
+        status = {"toadd": [], "added": [],
+                  "toremove": [], "removed": [], 'modified': []}
         if not _command.getResult():
             return status
         output = ET.fromstring(_command.getResult(stderr=False))
         for entry in output.findall(".//entry"):
             state = entry.find("wc-status").get("item")
-            if state == "unversioned" or state == "added":
+            if state == "unversioned":
                 path = entry.get("path")
                 confdir = settings["vigiconf"].get("confdir")
                 if path.startswith(os.path.join(confdir, "general")):
                     if not path.endswith(".py"):
                         continue
                 else:
-                    if not path.endswith(".xml"):
+                    if not os.path.isdir(path) and not path.endswith(".xml"):
                         continue
-                status["add"].append(entry.get("path"))
+                status["toadd"].append(entry.get("path"))
+            elif state == "added":
+                status["added"].append(entry.get("path"))
             elif state == "missing":
-                status["remove"].append(entry.get("path"))
+                status["toremove"].append(entry.get("path"))
             elif state == "deleted":
-                status["remove"].append(entry.get("path"))
-                status["removed"].append(entry.get("path"))
+                path = entry.get("path")
+                if path.endswith(".xml"):
+                    status["removed"].append(path)
+                elif os.path.isdir(path):
+                    status["removed"].append(path)
+                else: # probablement un dossier supprimé avec rm -rf
+                    status["toremove"].append(path)
             elif state == "modified":
                 status["modified"].append(entry.get("path"))
-        self._svn_status = status
         return status
 
     def _svn_sync(self, status=None):
@@ -266,13 +273,20 @@ class Dispatchator(object):
             return 0
         if status is None:
             status = self.get_svn_status()
-        for item in status["add"]:
+        for item in status["toadd"]:
             self._svn_add(item)
-        for item in status["remove"]:
-            if item in status["removed"]:
-                continue
-            self._svn_remove(item)
         self._svn_update()
+        # on applique le remove après le up, sinon le up restaure
+        for item in status["toremove"]:
+            self._svn_remove(item)
+        # Et maintenant on refait un stat pour être sûr (récursivité)
+        i = 0
+        while status["toadd"] or status["toremove"]:
+            status = self.get_svn_status()
+            i += 1
+            if i > 10: # sécurité
+                raise VigiConfError(_("Error while syncing the SVN directory"))
+        self._svn_status = status
 
     def _svn_add(self, path):
         LOGGER.debug("Adding a new configuration file to the "

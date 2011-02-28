@@ -102,7 +102,7 @@ class HostLoader(DBLoader):
             # On ajoute systématiquement le nom du fichier dans la liste
             # de ceux à traiter si l'option "--force" a été utilisée.
             if self.dispatchator.force or \
-                filename in svn_status['add'] or \
+                filename in svn_status['added'] or \
                 filename in svn_status['modified']:
                 hostnames.append(hostname)
 
@@ -188,8 +188,8 @@ class HostLoader(DBLoader):
         # Suppression des fichiers de configuration retirés du SVN
         # ainsi que de leurs hôtes (par CASCADE).
         LOGGER.debug("Cleaning up old hosts")
-        LOGGER.debug("Removing: %d old filenames", len(svn_status['remove']))
-        for filename in svn_status['remove']:
+        LOGGER.debug("Removing: %d old filenames", len(svn_status['removed']))
+        for filename in svn_status['removed']:
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
             DBSession.query(ConfFile).filter(
                 ConfFile.name == unicode(relfilename)).delete()
@@ -242,7 +242,7 @@ class HostLoader(DBLoader):
         DBSession.flush()
 
         # Si on a changé quelquechose, on le note en base
-        if hostnames or svn_status['remove'] or ghost_hosts or deleted_hosts \
+        if hostnames or svn_status['removed'] or ghost_hosts or deleted_hosts \
                 or empty_graphs:
             Change.mark_as_modified(u"Host")
             Change.mark_as_modified(u"Service")
