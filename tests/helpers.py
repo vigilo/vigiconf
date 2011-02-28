@@ -128,4 +128,5 @@ class DummyDispatchator(Dispatchator):
         # On indique qu'aucun changement n'a eu lieu,
         # car le fait de positionner le flag "force"
         # force de toutes façons les opérations.
-        return {'add': [], 'remove': [], 'modified': []}
+        return {'toadd': [], 'added': [],
+                'toremove': [], 'removed': [], 'modified': []}
