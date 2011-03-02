@@ -42,7 +42,7 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib import VigiConfError
+from vigilo.vigiconf.lib.exceptions import VigiConfError, DispatchatorError
 
 
 class ServerManager(object):

@@ -32,6 +32,7 @@ from vigilo.models.session import DBSession
 from vigilo.vigiconf import conf
 from .base import Server, ServerError
 from .manager import ServerManager
+from vigilo.vigiconf.lib.exceptions import VigiConfError
 from vigilo.vigiconf.lib.systemcommand import SystemCommandError
 from vigilo.vigiconf.lib.remotecommand import RemoteCommand, CommandUser
 from vigilo.vigiconf.lib.remotecommand import RemoteCommandError

@@ -20,9 +20,9 @@
 
 from __future__ import absolute_import
 
-from .factory import get_server_manager
+from vigilo.vigiconf.lib.server.factory import get_server_manager
 
-__all__ = ("get_server_manager")
+__all__ = ("get_server_manager", )
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

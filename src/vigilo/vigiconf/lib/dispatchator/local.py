@@ -25,6 +25,11 @@ The multi-server implementation is part of the Enterprise Edition.
 from __future__ import absolute_import
 
 from vigilo.vigiconf.lib.dispatchator.base import Dispatchator
+from vigilo.vigiconf.lib.exceptions import EditionError
+
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 
 class DispatchatorLocal(Dispatchator):
     """A localhost-only implementation of the Dispatchator."""

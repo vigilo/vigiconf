@@ -110,7 +110,7 @@ class DispatchatorRemote(Dispatchator):
             elif status == "enable":
                 server.enable()
         if no_deploy:
-            dispatchator.commit()
+            self.commit()
             return
         self.force = True
         self.generate(nosyncdb=True)

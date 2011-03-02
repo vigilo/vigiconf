@@ -42,7 +42,7 @@ _ = translate(__name__)
 
 from vigilo.vigiconf import conf
 from .systemcommand import SystemCommand, SystemCommandError
-from . import VigiConfError
+from vigilo.vigiconf.lib.exceptions import VigiConfError, DispatchatorError
 
 
 class ApplicationError(VigiConfError):
@@ -55,6 +55,12 @@ class ApplicationError(VigiConfError):
     def __str__(self):
         return repr("ApplicationError : "+self.value)
 
+
+class PassGenerator(object):
+    def __init__(self, app, ventilation):
+        pass
+    def generate(self):
+        pass
 
 class Application(object):
     """
@@ -88,7 +94,7 @@ class Application(object):
     validation = None
     start_command = None
     stop_command = None
-    generator = None
+    generator = PassGenerator
     group = None
     defaults = {}
     dbonly = False # permet de décaler la génération à la fin du déploiement

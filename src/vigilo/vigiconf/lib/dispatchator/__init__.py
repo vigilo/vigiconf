@@ -16,12 +16,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
+"""
+Classes concernant le Dispatchator. Seule la factory est directement
+accessibleau niveau du module.
+"""
 
 from __future__ import absolute_import
 
-from .factory import make_dispatchator
+from vigilo.vigiconf.lib.dispatchator.factory import make_dispatchator
 
-__all__ = ("make_dispatchator")
+__all__ = ("make_dispatchator", )
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
