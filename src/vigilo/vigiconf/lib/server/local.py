@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (C) 2007-2011 CS-SI
@@ -27,8 +28,22 @@ from vigilo.common.conf import settings
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-from ..server import Server, ServerError
-from ..systemcommand import SystemCommandError
+from .base import Server, ServerError
+from .manager import ServerManager
+from vigilo.vigiconf.lib.systemcommand import SystemCommandError
+
+
+class ServerManagerLocal(ServerManager):
+
+    def list(self):
+        """
+        Get all server names from configuration
+        @return: the servers names from the configuration. In our case, a list
+            with only the localhost is returned
+        @rtype: C{list} of C{str}
+        """
+        self.servers = {"localhost": ServerLocal("localhost")}
+
 
 class ServerLocal(Server):
     """The local host"""
@@ -49,5 +64,7 @@ class ServerLocal(Server):
                                     'error': e.value,
                                 })
 
+    def is_enabled(self):
+        return True
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

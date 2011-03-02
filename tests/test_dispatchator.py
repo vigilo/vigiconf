@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Test that the dispatchator works properly
 """
@@ -10,9 +11,9 @@ from vigilo.models.tables import MapGroup
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
-from vigilo.vigiconf.lib import dispatchmodes
+from vigilo.vigiconf.lib.dispatchator import make_dispatchator
 
-from helpers import reload_conf, setup_tmpdir
+from helpers import setup_tmpdir, DummyCommand
 from helpers import setup_deploy_dir, teardown_deploy_dir
 from helpers import setup_db, teardown_db
 
@@ -22,7 +23,9 @@ class Dispatchator(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        MapGroup(name=u'Root')
+        self.tmpdir = setup_tmpdir()
+        settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
+        os.mkdir(settings["vigiconf"]["confdir"])
 
         # Prepare necessary directories
         # TODO: commenter les divers repertoires
@@ -30,9 +33,9 @@ class Dispatchator(unittest.TestCase):
         self.host = Host(conf.hostsConf, "dummy", u"testserver1", u"192.168.1.1", u"Servers")
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
-        self.dispatchator = dispatchmodes.getinstance()
+        self.dispatchator = make_dispatchator()
         # Disable qualification, validation, stop and start scripts
-        for app in self.dispatchator.applications:
+        for app in self.dispatchator.apps_mgr.applications:
             app.validation = None
             app.start_command = None
             app.stop_command = None
@@ -41,6 +44,8 @@ class Dispatchator(unittest.TestCase):
 
     def tearDown(self):
         """Call after every test case."""
+        conf.hostfactory.hosts = {}
+        conf.hostsConf = conf.hostfactory.hosts
         teardown_db()
         teardown_deploy_dir()
 
@@ -51,9 +56,28 @@ class Dispatchator(unittest.TestCase):
     def test_restart(self):
         """Globally test the restart"""
         # Create necessary file
-        revs = open( os.path.join(conf.baseConfDir, "new", "revisions.txt"), "w")
+        revs = open(os.path.join(conf.baseConfDir, "new", "revisions.txt"), "w")
         revs.close()
         self.dispatchator.restart()
+
+    def test_conf_reactivation(self):
+        """ Test de réactivation d'une conf versionnée.
+        Chaque configuration doit être mise en version et doit pouvoir être
+        réactivée par passage d'une commande particulière.
+        VIGILO_EXIG_VIGILO_CONFIGURATION_0020
+        """
+        settings["vigiconf"]["svnusername"] = "user1"
+        settings["vigiconf"]["svnpassword"] = "pass1"
+        rev_mgr = self.dispatchator.rev_mgr
+        rev_mgr.deploy_revision = 1234
+        rev_mgr.command_class = DummyCommand
+        svn_cmd = rev_mgr.update()
+
+        self.assertEquals(svn_cmd,
+                    ["svn", "update", "--username", "user1",
+                     "--password", "pass1", "-r", "1234",
+                     settings["vigiconf"]["confdir"]],
+                    "Invalid svn update command")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

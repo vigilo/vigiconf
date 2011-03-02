@@ -51,8 +51,8 @@ __docformat__ = "epytext"
 
 
 class LoaderManager(object):
-    def __init__(self, dispatchator):
-        self.dispatchator = dispatchator
+    def __init__(self, rev_mgr):
+        self.rev_mgr = rev_mgr
 
     def load_apps_db(self, apps):
         """mise à jour de la liste des application en base"""
@@ -65,7 +65,7 @@ class LoaderManager(object):
         """mise à jour de la base de données"""
         # hiérarchie des groupes
         from vigilo.vigiconf.loaders.group import GroupLoader
-        grouploader = GroupLoader(self.dispatchator)
+        grouploader = GroupLoader()
         grouploader.load()
 
         # groupes de graphes
@@ -75,22 +75,24 @@ class LoaderManager(object):
 
         # hôtes
         from vigilo.vigiconf.loaders.host import HostLoader
-        hostloader = HostLoader(grouploader, self.dispatchator)
+        hostloader = HostLoader(grouploader, self.rev_mgr)
         hostloader.load()
 
         # services de haut niveau
         from vigilo.vigiconf.loaders.hlservice import HLServiceLoader
-        hlserviceloader = HLServiceLoader(grouploader, self.dispatchator)
+        hlserviceloader = HLServiceLoader(grouploader, self.rev_mgr)
         hlserviceloader.load()
 
         # dépendances topologiques
         from vigilo.vigiconf.loaders.topology import TopologyLoader
-        topologyloader = TopologyLoader(self.dispatchator)
+        topologyloader = TopologyLoader(self.rev_mgr)
         topologyloader.load()
 
         DBSession.flush()
+        self.load_specific()
 
-        # Loaders spécifiques
+    def load_specific(self):
+        """Loaders spécifiques"""
         # deux boucles parce qu'on veut forcer le tri des loaders par leur nom
         # dans une distribution donnée. Par défaut, il n'y a pas de tri à
         # l'intérieur d'une même distribution (voir doc de pkg_resources)

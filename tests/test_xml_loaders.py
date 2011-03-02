@@ -15,13 +15,14 @@ from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.topology import TopologyLoader
 
 import vigilo.vigiconf.conf as conf
-from helpers import reload_conf, setup_db, teardown_db, DummyDispatchator
+from helpers import setup_db, teardown_db, DummyRevMan
 
 from vigilo.models.tables import SupItemGroup, SupItemGroup, Host, SupItem
 from vigilo.models.tables import LowLevelService, HighLevelService, \
                                     Dependency, DependencyGroup
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
+from vigilo.models.demo import functions as df
 
 
 class XMLLoaderTest(unittest.TestCase):
@@ -29,7 +30,7 @@ class XMLLoaderTest(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        reload_conf()
+        #reload_conf()
         DBSession.query(SupItemGroup).delete()
         DBSession.query(GroupHierarchy).delete()
         DBSession.flush()
@@ -43,7 +44,7 @@ class GroupLoaderTest(XMLLoaderTest):
 
     def setUp(self):
         super(GroupLoaderTest, self).setUp()
-        self.grouploader = GroupLoader(DummyDispatchator())
+        self.grouploader = GroupLoader()
 
     def test_load_hostgroups(self):
         self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
@@ -77,54 +78,13 @@ class DepLoaderTest(XMLLoaderTest):
 
     def setUp(self):
         super(DepLoaderTest, self).setUp()
-        self.grouploader = GroupLoader(DummyDispatchator())
-        self.topologyloader = TopologyLoader(DummyDispatchator())
-        self.host1 =  Host(
-            name=u'host1',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'My Host 1',
-            hosttpl=u'template',
-            address=u'127.0.0.1',
-            snmpport=1234,
-            weight=42,
-        )
-        DBSession.add(self.host1)
-        self.host11 =  Host(
-            name=u'host11',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'My Host 11',
-            hosttpl=u'tSemplate',
-            address=u'127.0.0.2',
-            snmpport=123,
-            weight=43,
-        )
-        DBSession.add(self.host11)
-        self.host12 =  Host(
-            name=u'host12',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'My Host 12',
-            hosttpl=u'template',
-            address=u'127.0.0.3',
-            snmpport=124,
-            weight=44,
-        )
-        DBSession.add(self.host12)
-        self.service11 = LowLevelService(
-            servicename=u'service11',
-            weight=100,
-            host=self.host11
-        )
-        DBSession.add(self.service11)
-        self.service12 = LowLevelService(
-            servicename=u'service12',
-            weight=100,
-            host=self.host12
-        )
-        DBSession.add(self.service12)
-        DBSession.flush()
+        self.grouploader = GroupLoader()
+        self.topologyloader = TopologyLoader(DummyRevMan())
+        self.host1 = df.add_host("host1")
+        self.host11 = df.add_host("host11")
+        self.host12 = df.add_host("host12")
+        self.service11 = df.add_lowlevelservice(self.host11, "service11")
+        self.service12 = df.add_lowlevelservice(self.host12, "service12")
 
     def test_load_topologies(self):
         # let's create hosts and services
@@ -149,42 +109,22 @@ class DepLoaderTest(XMLLoaderTest):
           "One dependency: host1 depends on host11/service11")
 
     def test_load_conf_topologies(self):
-        """ Test de chargement des dépendances de la conf.
-        """
-        localhost =  Host(
-            name=u'localhost',
-            checkhostcmd=u'halt -f',
-            snmpcommunity=u'public',
-            description=u'my localhost',
-            hosttpl=u'template',
-            address=u'127.0.0.1',
-            snmpport=124,
-            weight=44,
-        )
-        DBSession.add(localhost)
-
-        interface = LowLevelService(
-            servicename=u'Interface eth0',
-            weight=100,
-            host=localhost
-        )
-        DBSession.add(interface)
-        DBSession.flush()
-
+        """Test de chargement des dépendances de la conf"""
+        localhost = df.add_host("localhost")
+        interface = df.add_lowlevelservice(localhost, "Interface eth0")
         self.topologyloader.load_dir('tests/testdata/conf.d/topologies')
 
     def test_load_topologies_ko(self):
-        """ Test de fichiers xml valides selon XSD mais invalides pour le loader.
-
+        """
+        Test de fichiers xml valides selon XSD mais invalides pour le loader.
         """
         basedir = 'tests/testdata/xsd/topologies/ok/loader_ko'
-
         self.assertRaises(ParsingError, self.topologyloader.load_dir, basedir)
 
     def test_hostgroups_hierarchy(self):
-        """ Test de grouploader.get_groups_hierarchy().
-
-        réimplémentation avec db du dico python conf.groupsHierarchy
+        """
+        Test de grouploader.get_groups_hierarchy()
+        Réimplémentation avec db du dico python conf.groupsHierarchy
         """
         self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
         gh = self.grouploader._in_conf

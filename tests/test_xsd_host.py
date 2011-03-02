@@ -8,15 +8,15 @@ class HostXSD(XSDTest):
     xsd_file = "src/vigilo/vigiconf/validation/xsd/host.xsd"
     
     xml_ok_files = {
-        "tests/testdata/conf.d/hosts": [
-            "localhost.xml",
-        ],
         "tests/testdata/xsd/hosts/ok": [
             "example_nagios_spec.xml",
             "example_nagios_spec2.xml",
             "no_secondary_groups.xml",
             "interleaved_tags.xml",
             "localhost1.xml",
+        ],
+        "src/vigilo/vigiconf/conf.d/hosts": [
+            "localhost.xml",
         ],
     }
     

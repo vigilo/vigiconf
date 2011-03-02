@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <hosts>
 <host name="interleaved-tags.xml" address="192.168.1.1" ventilation="Servers">
+    <group>Linux servers</group>
     <test name="UpTime"/>
     <template>linux</template>
     <class>linux</class>

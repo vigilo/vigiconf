@@ -28,6 +28,8 @@ from vigilo.models.session import DBSession
 from vigilo.models.tables import Host, Application, Ventilation, VigiloServer
 
 from vigilo.vigiconf.lib.loaders import DBLoader
+from vigilo.vigiconf.lib.server.factory import ServerFactory
+from vigilo.vigiconf.lib.exceptions import VigiConfError
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -108,6 +110,10 @@ class VentilationLoader(DBLoader):
         for hostname, serversbyapp in self.ventilation.iteritems():
             idhost = DBSession.query(Host.idhost).filter(
                 Host.name == unicode(hostname)).scalar()
+            if idhost is None:
+                raise VigiConfError(_("Can't load the ventilation in "
+                                      "database: the host %s is not in "
+                                      "database yet") % hostname)
 
             for app_obj, servernames in serversbyapp.iteritems():
                 if isinstance(servernames, basestring):
@@ -133,6 +139,7 @@ class VentilationLoader(DBLoader):
         for v in current.values():
             DBSession.delete(v)
         # Vérifions qu'on a pas complètement supprimé une application d'un serveur
+        server_factory = ServerFactory()
         for idapp, app_servers in apps_location.iteritems():
             new_app_servers = new_apps_location.get(idapp, set())
             orphan_servers = app_servers - new_app_servers
@@ -149,5 +156,6 @@ class VentilationLoader(DBLoader):
                     break
             for idvserver in orphan_servers:
                 vserver = vigiloservers[idvserver]
-                app.servers[vserver.name] = ["stop", ]
+                app.servers[vserver.name] = server_factory.makeServer(vserver.name)
+                app.actions[vserver.name] = ["stop", ]
 

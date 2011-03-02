@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 ################################################################################
 #
-# Copyright (C) 2007-2010 CS-SI
+# VigiConf
+# Copyright (C) 2007-2009 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -17,42 +18,11 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-"""
-Generic exceptions for the Vigilo Config Manager
-"""
+from __future__ import absolute_import
 
+from .factory import get_server_manager
 
-class VigiConfError(Exception):
-    """Generic VigiConf Exception"""
-
-    def __init__(self, value):
-        super(VigiConfError, self).__init__()
-        self.value = value
-
-    def __repr__(self):
-        return repr(self.value)
-
-    def __str__(self):
-        return self.value
-
-
-class EditionError(VigiConfError):
-    """
-    Exception raised when Entreprise Edition features are called in the
-    Community Edition
-    """
-    pass
-
-class ParsingError(VigiConfError):
-    """
-    Exception raised when parsing of the configuration files failed
-    """
-    pass
-
-class DispatchatorError(VigiConfError):
-    """The exception type raised by instances of Dispatchator"""
-    pass
-
+__all__ = ("get_server_manager")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

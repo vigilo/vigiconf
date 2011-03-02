@@ -50,7 +50,7 @@ class Validator(object):
         nbGenerators.
     """
 
-    def __init__(self, ventilation):
+    def __init__(self, ventilation={}):
         """
         @param ventilation: the ventilation ventilation
         @type  ventilation: C{dict}, see the

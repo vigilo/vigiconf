@@ -49,10 +49,10 @@ class HostLoader(DBLoader):
     Dépend de GroupLoader
     """
 
-    def __init__(self, grouploader, dispatchator):
+    def __init__(self, grouploader, rev_mgr):
         super(HostLoader, self).__init__(Host, "name")
         self.grouploader = grouploader
-        self.dispatchator = dispatchator
+        self.rev_mgr = rev_mgr
 
     def cleanup(self):
         # Presque rien à faire ici : la fin du load_conf se charge déjà
@@ -90,7 +90,6 @@ class HostLoader(DBLoader):
 
         hostnames = []
         conffiles = {}
-        svn_status = self.dispatchator.get_svn_status()
 
         # On ne s'interresse qu'à ceux sur lesquels une modification
         # a eu lieu (ajout ou modification). On génère en même temps
@@ -99,11 +98,7 @@ class HostLoader(DBLoader):
             filename = conf.hostsConf[hostname]["filename"]
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
 
-            # On ajoute systématiquement le nom du fichier dans la liste
-            # de ceux à traiter si l'option "--force" a été utilisée.
-            if self.dispatchator.force or \
-                filename in svn_status['added'] or \
-                filename in svn_status['modified']:
+            if self.rev_mgr.file_changed(filename, exclude_removed=True):
                 hostnames.append(hostname)
 
             # Peuple le cache en créant les instances à la volée si
@@ -188,8 +183,9 @@ class HostLoader(DBLoader):
         # Suppression des fichiers de configuration retirés du SVN
         # ainsi que de leurs hôtes (par CASCADE).
         LOGGER.debug("Cleaning up old hosts")
-        LOGGER.debug("Removing: %d old filenames", len(svn_status['removed']))
-        for filename in svn_status['removed']:
+        removed = self.rev_mgr.get_removed()
+        LOGGER.debug("Removing: %d old filenames", len(removed))
+        for filename in removed:
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
             DBSession.query(ConfFile).filter(
                 ConfFile.name == unicode(relfilename)).delete()
@@ -222,8 +218,7 @@ class HostLoader(DBLoader):
         for conffile in DBSession.query(ConfFile).all():
             filename = os.path.join(settings["vigiconf"].get("confdir"),
                                     conffile.name)
-            if not self.dispatchator.force and \
-                    filename not in svn_status['modified']:
+            if not self.rev_mgr.file_changed(filename):
                 continue # ce fichier n'a pas bougé
             for host in conffile.hosts:
                 if host.name not in hostnames:
@@ -242,7 +237,7 @@ class HostLoader(DBLoader):
         DBSession.flush()
 
         # Si on a changé quelquechose, on le note en base
-        if hostnames or svn_status['removed'] or ghost_hosts or deleted_hosts \
+        if hostnames or removed or ghost_hosts or deleted_hosts \
                 or empty_graphs:
             Change.mark_as_modified(u"Host")
             Change.mark_as_modified(u"Service")

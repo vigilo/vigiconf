@@ -51,19 +51,19 @@ setup_plugins_path(settings["vigiconf"].get("pluginsdir",
                    "/etc/vigilo/vigiconf/plugins"))
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib import VigiConfError, EditionError
-from vigilo.vigiconf.lib.dispatchator import DispatchatorError
+from vigilo.vigiconf.lib.exceptions import VigiConfError, EditionError
+from vigilo.vigiconf.lib.exceptions import DispatchatorError
+from vigilo.vigiconf.lib.dispatchator import make_dispatchator
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib.ventilation.local import VentilatorLocal
 from vigilo.vigiconf.lib.generators import GeneratorManager
-from vigilo.vigiconf.lib import dispatchmodes
 
 from xml.etree import ElementTree as ET # Python 2.5
 
 
 def get_dispatchator(args, restrict=True):
     conf.load_general_conf()
-    dispatchator = dispatchmodes.getinstance()
+    dispatchator = make_dispatchator()
     if restrict and args.server:
         try:
             dispatchator.restrict(args.server)
@@ -73,24 +73,21 @@ def get_dispatchator(args, restrict=True):
             # dès le début même si on s'en sert pas
             LOGGER.error(_("ERROR: %s"), e.message)
             sys.exit(1)
-    if not dispatchator.servers:
+    if not dispatchator.srv_mgr.servers:
         LOGGER.warning(_("No server to manage."))
     return dispatchator
 
 def deploy(args):
     dispatchator = get_dispatchator(args)
     conf.load_xml_conf()
-    if (args.simulate):
+    if args.simulate:
         settings["vigiconf"]["simulate"] = True
         # pas de commit sur la base de données
         dispatchator.mode_db = 'no_commit'
-
-    if (args.force):
+    if args.force:
         dispatchator.force = True
-
-    if (args.revision):
+    if args.revision:
         dispatchator.deploy_revision = args.revision
-
     stop_after = None
     if args.stop_after_generation:
         stop_after = "generation"
@@ -100,12 +97,10 @@ def deploy(args):
 
 def apps(args):
     dispatchator = get_dispatchator(args)
-    if args.stop:
-        dispatchator.stopApplications()
-    elif args.start:
-        dispatchator.startApplications()
-    elif args.restart:
-        dispatchator.restart()
+    if args.stop or args.restart:
+        dispatchator.apps_mgr.start_or_stop("stop")
+    if args.start or args.restart:
+        dispatchator.apps_mgr.start_or_stop("start")
 
 #def undo(args):
 #    args.revision = "PREV"
@@ -138,26 +133,8 @@ def discover(args):
 
 def server(args):
     dispatchator = get_dispatchator(args, restrict=False)
-    ventilator = get_ventilator(dispatchator.applications)
-    if isinstance(ventilator, VentilatorLocal):
-        raise EditionError(_("Vigilo server management is only available "
-                             "in the Enterprise edition. Aborting."))
-    for s in args.server:
-        if args.status == "disable":
-            ventilator.disable_server(s) # pylint:disable-msg=E1103
-        elif args.status == "enable":
-            ventilator.enable_server(s) # pylint:disable-msg=E1103
-    if args.no_deploy:
-        dispatchator.commit()
-        return
     conf.load_xml_conf() # les générateurs (nagios) en ont besoin
-    dispatchator.force = True
-    generator = GeneratorManager(dispatchator.applications, dispatchator)
-    dispatchator.generate(generator, nosyncdb=True)
-    dispatchator.filter_disabled()
-    dispatchator.deploy()
-    dispatchator.commit()
-    dispatchator.restart()
+    dispatchator.server_status(args.server, args.status, args.no_deploy)
 
 
 def parse_args():

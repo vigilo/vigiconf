@@ -839,6 +839,7 @@ class HostFactory(object):
                     test_name = None
                     directives = {}
                     tests = []
+                    tags = []
                     weight = None
 
                     name = get_attrib(elem, 'name')
@@ -917,9 +918,8 @@ class HostFactory(object):
                     service = None
                     if 'service' in elem.attrib:
                         service = get_attrib(elem, 'service')
-                    cur_host.add_tag(service,
-                                     get_attrib(elem, 'name'),
-                                     get_text(elem))
+                    tags.append( (service, get_attrib(elem, 'name'),
+                                  get_text(elem)) )
 
                 elif elem.tag == "directive":
                     if not process_nagios: continue
@@ -972,6 +972,9 @@ class HostFactory(object):
 
                     for (dname, dvalue) in directives.iteritems():
                         cur_host.add_nagios_directive(dname, dvalue)
+
+                    for (service, tagname, tagvalue) in tags:
+                        cur_host.add_tag(service, tagname, tagvalue)
 
                     LOGGER.debug("Loaded host %(host)s, address %(address)s" %
                                  {'host': cur_host.name,

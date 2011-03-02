@@ -24,22 +24,10 @@ The multi-server implementation is part of the Enterprise Edition.
 
 from __future__ import absolute_import
 
-from vigilo.vigiconf.lib.dispatchator import Dispatchator
-from vigilo.vigiconf.lib.server import serverfactory
+from vigilo.vigiconf.lib.dispatchator.base import Dispatchator
 
 class DispatchatorLocal(Dispatchator):
     """A localhost-only implementation of the Dispatchator."""
-
-
-    def listServers(self):
-        """
-        Get all server names from configuration
-        @return: the servers names from the configuration. In our case, a list
-            with only the localhost is returned
-        @rtype: C{list} of C{str}
-        """
-        return {"localhost": serverfactory.makeServer("localhost")}
-
 
     def getServersForApp(self, app):
         """
@@ -51,6 +39,9 @@ class DispatchatorLocal(Dispatchator):
         """
         return [ "localhost" ]
 
+    def server_status(self, *args, **kwargs):
+        raise EditionError(_("Vigilo server management is only available "
+                             "in the Enterprise edition. Aborting."))
 
 
 

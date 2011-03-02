@@ -10,9 +10,7 @@ from vigilo.models.configure import configure_db
 configure_db(settings['database'], 'sqlalchemy_')
 
 from vigilo.models.session import metadata, DBSession
-from vigilo.models.tables import VigiloServer, StateName
-from vigilo.vigiconf.loaders.group import GroupLoader
-from vigilo.vigiconf.lib.dispatchator import Dispatchator
+from vigilo.models.tables import VigiloServer, StateName, MapGroup
 
 import vigilo.vigiconf.conf as conf
 
@@ -25,14 +23,17 @@ def setUpModule(self):
     setup_path()
     self.testdatadir = os.path.join(os.path.dirname(__file__), "testdata")
 
-def setup_path():
+def setup_path(subdir=None):
     conf.CODEDIR = os.path.join(os.path.dirname(__file__), "..", "src",
             "vigilo", "vigiconf")
+    if subdir is None:
+        subdir = "conf.d"
     settings["vigiconf"]["confdir"] = os.path.join(os.path.dirname(__file__),
-                                                   "testdata", "conf.d")
+                                                   "testdata", subdir)
 
 def reload_conf(hostsdir=None, dispatchator=None):
     """We changed the paths, reload the factories"""
+    from vigilo.vigiconf.loaders.group import GroupLoader
     conf.testfactory.__init__()
     conf.hosttemplatefactory.__init__(conf.testfactory)
     conf.hosttemplatefactory.load_templates()
@@ -44,9 +45,7 @@ def reload_conf(hostsdir=None, dispatchator=None):
             conf.testfactory,
       )
     conf.hostsConf = conf.hostfactory.hosts
-    if dispatchator is None:
-        dispatchator = DummyDispatchator()
-    GroupLoader(dispatchator).load()
+    GroupLoader().load()
     #conf.loadConf()
 
 def setup_tmpdir(dirpath=None):
@@ -74,6 +73,7 @@ def setup_db():
     DBSession.add(StateName(statename=u'UP', order=1))
     DBSession.add(StateName(statename=u'UNREACHABLE', order=2))
     DBSession.add(StateName(statename=u'DOWN', order=4))
+    MapGroup(name=u'Root')
     DBSession.flush()
 
 #Teardown that database
@@ -92,8 +92,8 @@ def setup_deploy_dir():
     # Prepare necessary directories
     # TODO: commenter les divers repertoires
     gendir = settings["vigiconf"].get("libdir")
-    shutil.rmtree(gendir, ignore_errors=True)
-    os.mkdir(gendir)
+    #shutil.rmtree(gendir, ignore_errors=True)
+    #os.mkdir(gendir)
 
     basedir = os.path.join(gendir, "deploy")
     os.mkdir(basedir)
@@ -109,7 +109,7 @@ def setup_deploy_dir():
     revs = open( os.path.join(basedir, "localhost", "revisions.txt"), "w")
     revs.close()
     # We changed the paths, reload the factories
-    reload_conf()
+    #reload_conf()
 
 def teardown_deploy_dir():
     """ teardown des tests dispatchator
@@ -120,13 +120,31 @@ def teardown_deploy_dir():
         if os.path.exists(d):
             shutil.rmtree(d)
 
-class DummyDispatchator(Dispatchator):
+from vigilo.vigiconf.lib.dispatchator.revisionmanager import RevisionManager
+class DummyRevMan(RevisionManager):
     def __init__(self):
         self.force = True
 
-    def get_svn_status(self):
+    def status(self):
         # On indique qu'aucun changement n'a eu lieu,
         # car le fait de positionner le flag "force"
         # force de toutes façons les opérations.
         return {'toadd': [], 'added': [],
                 'toremove': [], 'removed': [], 'modified': []}
+
+from vigilo.vigiconf.lib.systemcommand import SystemCommand
+class DummyCommand(SystemCommand):
+    def execute(self):
+        return self.getCommand()
+
+#from vigilo.vigiconf.lib.dispatchator.base import Dispatchator
+#class DummyDispatchator(Dispatchator):
+#    def __init__(self):
+#        self.force = True
+#
+#    def get_svn_status(self):
+#        # On indique qu'aucun changement n'a eu lieu,
+#        # car le fait de positionner le flag "force"
+#        # force de toutes façons les opérations.
+#        return {'toadd': [], 'added': [],
+#                'toremove': [], 'removed': [], 'modified': []}

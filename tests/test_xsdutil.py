@@ -4,6 +4,7 @@ import unittest
 
 import os
 import subprocess
+import glob
 
 class XSDTest(unittest.TestCase):
     """A base class for testing XSD schema.
@@ -25,25 +26,41 @@ class XSDTest(unittest.TestCase):
         self.assertEquals(0, subprocess.call("xmllint --version 2> /dev/null", shell="True"),
                           "xmllint is installed")
 
+    def _run_command(self, filepath, expect):
+        cmd = self._cmd_silent % (self.xsd_file, filepath)
+        r = subprocess.call(cmd, shell="True")
+        if expect == "ko":
+            self.assertNotEquals(0, r, "file %s is invalid" % filepath)
+        elif expect == "ok" and r != 0:
+            print "Failed to validate %s" % filepath
+            print cmd
+            return False
+        return True
+
     def test_xsd_ko_files(self):
         """ test invalid xml files"""
         for dir, files in self.xml_ko_files.iteritems():
             for file in files:
-                cmd = self._cmd_silent % (self.xsd_file, os.path.join(dir, file))
-                r = subprocess.call(cmd, shell="True")
-                self.assertNotEquals(0, r, "file %s is invalid" % file)
+                filepath = os.path.join(dir, file)
+                if "*" in file:
+                    for f in glob.glob(filepath):
+                        self._run_command(f, "ko")
+                else:
+                    self._run_command(filepath, "ko")
 
     def test_xsd_ok_files(self):
         """ test valid xml files"""
         ko_list = []
         for dir, files in self.xml_ok_files.iteritems():
             for file in files:
-                cmd = self._cmd_silent % (self.xsd_file, os.path.join(dir, file))
-                r = subprocess.call(cmd, shell="True")
-                if r != 0:
-                    print "Failed to validate %s" % file
-                    print cmd
-                    ko_list.append(file)
+                filepath = os.path.join(dir, file)
+                if "*" in file:
+                    for f in glob.glob(filepath):
+                        if not self._run_command(f, "ok"):
+                            ko_list.append(f)
+                else:
+                    if not self._run_command(filepath, "ok"):
+                        ko_list.append(filepath)
         if len(ko_list) > 0:
             self.fail("files %s should be valid" % ", ".join(ko_list))
 

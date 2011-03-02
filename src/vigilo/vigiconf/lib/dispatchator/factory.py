@@ -32,32 +32,53 @@ from pkg_resources import working_set
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib import EditionError
+from vigilo.vigiconf.lib.server import get_server_manager
+from vigilo.vigiconf.lib.generators import GeneratorManager
+from vigilo.vigiconf.lib.application import ApplicationManager
+from .revisionmanager import RevisionManager
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-def getinstance():
+
+def get_dispatchator_class():
     """
     Factory for the L{Dispatchator<vigilo.vigiconf.lib.dispatchator.Dispatchator>}
     children.
 
-    @returns: L{local<vigilo.vigiconf.lib.dispatchmodes.local.DispatchatorLocal>}
-        or L{remote<vigilo.vigiconf.lib.dispatchmodes.remote.DispatchatorRemote>}
-        instance of the Dispatchator, depending on the Community or Enterprise
-        Edition
+    @return: the proper class of the Dispatchator, depending on the Community
+        or Enterprise Edition
     """
     if hasattr(conf, "appsGroupsByServer"):
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.extensions", "dispatchator_remote"):
-            dr_class = entry.load()
-            return dr_class()
+            return entry.load()
         message = _("You are trying remote deployment on the Community "
                     "edition. This feature is only available in the "
                     "Enterprise edition. Aborting.")
         raise EditionError(message)
     else:
         from .local import DispatchatorLocal
-        return DispatchatorLocal()
+        return DispatchatorLocal
+
+
+def make_dispatchator():
+    """Factory pour le Dispatchator"""
+    d_class = get_dispatchator_class()
+    # apps
+    apps_mgr = ApplicationManager()
+    apps_mgr.list()
+    # revision
+    rev_mgr = RevisionManager()
+    # servers
+    srv_mgr = get_server_manager()
+    srv_mgr.list()
+    # generators
+    gen_mgr = GeneratorManager(apps_mgr.applications)
+    # instanciation
+    d = d_class(apps_mgr, rev_mgr, srv_mgr, gen_mgr)
+    d.link_apps_to_servers()
+    return d
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

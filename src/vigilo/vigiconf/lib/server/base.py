@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # ConfigMgr Data Consistancy dispatchator
@@ -22,9 +23,10 @@ Describes a Server to push and commit new software configurations to
 
 from __future__ import absolute_import
 
-import shutil, os
-import socket
+import os
+import shutil
 import glob
+import re
 
 from pkg_resources import working_set
 
@@ -37,9 +39,8 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.vigiconf import conf
-from . import VigiConfError, EditionError
-from .systemcommand import SystemCommand, SystemCommandError
-from .revisionmanager import RevisionManager
+from vigilo.vigiconf.lib import VigiConfError, EditionError
+from vigilo.vigiconf.lib.systemcommand import SystemCommand, SystemCommandError
 
 
 class ServerError(VigiConfError):
@@ -57,74 +58,41 @@ class ServerError(VigiConfError):
         return repr("ServerError : %s%s" % (self.value, _srvStr))
 
 
-class ServerFactory(object):
-    """The Server Factory: returns the right subclass"""
-
-    def __init__(self):
-        pass
-
-    def makeServer(self, name):
-        """
-        Returns the right server object, depending on the hostname
-        @param name: the hostname of the Server object to create
-        @type  name: C{str}
-        @returns: Server object with the provided hostname
-        @rtype: L{Server}
-        """
-        localnames = [ "localhost", socket.gethostname(), socket.getfqdn() ]
-        if name in localnames:
-            from vigilo.vigiconf.lib.servertypes.local import ServerLocal
-            return ServerLocal(name)
-        else:
-            for entry in working_set.iter_entry_points(
-                            "vigilo.vigiconf.extensions", "server_remote"):
-                sr_class = entry.load()
-                return sr_class(name)
-            raise EditionError(_("On the Community Edition, you can only "
-                                    "use localhost"), name)
-
-
 class Server(object):
     """
     A generic Server class
     @ivar name: the hostname
     @type name: C{str}
-    @ivar mRevisionManager: the revision manager
-    @type mRevisionManager: L{RevisionManager
-        <lib.revisionmanager.RevisionManager>}
     """
 
-    def __init__(self, iName):
-        self.name = iName
-        # mRevisionManager
-        self.mRevisionManager = RevisionManager()
-        self.mRevisionManager.setRepository(
-                settings["vigiconf"].get("svnrepository"))
-        self.mRevisionManager.setFilename(os.path.join(
+    def __init__(self, name):
+        self.name = name
+        self.rev_filename = os.path.join(
                 settings["vigiconf"].get("libdir"),
-                "revisions" , iName + ".revisions"))
+                "revisions" , "%s.revisions" % name)
+        self.revisions = {"conf": None, 
+                          "deployed": None,
+                          "installed": None,
+                          "previous": None,
+                          }
 
     def getName(self):
         """@return: L{name}"""
         return self.name
-
-    def getRevisionManager(self):
-        """@return: L{mRevisionManager}"""
-        return self.mRevisionManager
 
     def needsDeployment(self):
         """
         Tests wheather the server needs deployment
         @rtype: C{boolean}
         """
-        return self.getRevisionManager().isDeployNeeded()
+        return self.revisions["conf"] != self.revisions["deployed"]
 
     def needsRestart(self):
         """
         Tests wheather the server needs restarting
         @rtype: C{boolean}
         """
-        return self.getRevisionManager().isRestartNeeded()
+        return self.revisions["deployed"] != self.revisions["installed"]
 
     # external references
     def getBaseDir(self):
@@ -160,7 +128,7 @@ class Server(object):
         return simulate
 
     # methods
-    def switchDirectories(self):
+    def switch_directories(self):
         """
         Archive the directory containing the config files
 
@@ -182,6 +150,7 @@ class Server(object):
                 'cmd': cmd,
                 'reason': e.value,
             }, self.getName())
+        LOGGER.debug("Switched directories on %s", self.name)
 
     def _builddepcmd(self):
         """
@@ -209,7 +178,8 @@ class Server(object):
 
     def deployTar(self):
         """
-        Template function for configuration deployment from the tar archive. Must be implemented by a subclass, see L{vigilo.vigiconf.lib.servertypes}.
+        Template function for configuration deployment from the tar archive.
+        Must be implemented by a subclass, see L{vigilo.vigiconf.lib.server}.
         """
         raise NotImplementedError
 
@@ -221,7 +191,7 @@ class Server(object):
         self.deployTar()
         LOGGER.info(_("%s : deployement successful."), self.getName())
 
-    def copy(self, iDestination, iSource):
+    def _copy(self, source, destination):
         """
         Simple wrapper around shutil.copyfile.
         @param iDestination: destination
@@ -231,16 +201,16 @@ class Server(object):
         @todo: reverse arguments order
         """
         try:
-            os.makedirs(os.path.dirname(iDestination))
+            os.makedirs(os.path.dirname(destination))
         except OSError:
             pass
         try:
-            shutil.copyfile(iSource, iDestination)
+            shutil.copyfile(source, destination)
         except Exception, e:
             raise ServerError(_("Cannot copy files (%(from)s to %(to)s): "
                                 "%(error)s.") % {
-                'from': iSource,
-                'to': iDestination,
+                'from': source,
+                'to': destination,
                 'error': e,
             }, self.getName())
 
@@ -256,50 +226,61 @@ class Server(object):
         for validation_script in glob.glob(validation_scripts):
             shutil.copy(validation_script, validation_dir)
 
-    def deploy(self, iRevision):
-        """Do the deployment"""
+    def deploy(self, rev):
         # update local revision files
-        self.getRevisionManager().setSubversion(iRevision)
-        self.getRevisionManager().setDeployed(iRevision)
-        self.getRevisionManager().writeConfigFile()
-        # copy the revisionfile to the deployment directory
-        self.copy("%s/%s/revisions.txt" % (self.getBaseDir(), self.getName()),
-                  self.getRevisionManager().getFilename())
+        self.revisions["conf"] = rev
+        self.revisions["deployed"] = rev
+        self.write_revisions()
+        # copy the revision file to the deployment directory
+        dest_rev_filename = os.path.join(self.getBaseDir(), self.name,
+                                         "revisions.txt")
+        try:
+            os.makedirs(os.path.dirname(dest_rev_filename))
+        except OSError:
+            pass
+        shutil.copyfile(self.rev_filename, dest_rev_filename)
         # insert the "validation" directory in the deployment directory
         self.insertValidationDir()
         # now, the deployment directory is complete.
         self.deployFiles()
 
-    # redirections
-    def getDeployed(self):
-        """
-        @return: The deployed SVN revision from the
-            L{RevisionManager<lib.revisionmanager.RevisionManager>}
-        """
-        return self.getRevisionManager().getDeployed()
+    def update_revisions(self):
+        cmd = self.createCommand(["vigiconf-local", "get-revisions"])
+        cmd.execute()
+        rev_re = re.compile("^\s*(\w+)\s+(\d+)\s*$")
+        revisions = {"new": 0, "prod": 0, "old": 0,}
+        for line in cmd.getResult().split("\n"):
+            rev_match = rev_re.match(line)
+            if not rev_match:
+                continue
+            directory = rev_match.group(1)
+            revision = rev_match.group(2)
+            revisions[directory] = int(revision)
+        self.revisions["deployed"] = revisions["new"]
+        self.revisions["installed"] = revisions["prod"]
+        self.revisions["previous"] = revisions["old"]
 
-    def getInstalled(self):
+    def write_revisions(self):
         """
-        @return: The installed SVN revision from the
-            L{RevisionManager<lib.revisionmanager.RevisionManager>}
+        Write the SVN revision to our state file
         """
-        return self.getRevisionManager().getInstalled()
+        directory = os.path.dirname(self.rev_filename)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        try:
+            _file = open(self.rev_filename, 'wb')
+            _file.write("Revision: %d" % self.revisions["conf"])
+            _file.close()
+        except Exception, e:
+            LOGGER.exception(_("Cannot write the revision file: %s"), e)
 
-    def getPrevious(self):
-        """
-        @return: The previous SVN revision from the
-            L{RevisionManager<lib.revisionmanager.RevisionManager>}
-        """
-        return self.getRevisionManager().getPrevious()
-
-    def updateRevisionManager(self):
-        """
-        Update the SVN revisions in the
-        L{RevisionManager<lib.revisionmanager.RevisionManager>}
-        """
-        self.getRevisionManager().update(self)
+    def revisions_summary(self):
+        summary = []
+        summary.append(_("Deployed: %d") % self.revisions["deployed"])
+        summary.append(_("Installed: %d") % self.revisions["installed"])
+        summary.append(_("Previous: %d") % self.revisions["previous"])
+        return ", ".join(summary)
 
 
-serverfactory = ServerFactory()
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

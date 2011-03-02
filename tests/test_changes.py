@@ -8,10 +8,11 @@ Gestion du changement lors du chargement de
 
 import unittest
 
-from vigilo.vigiconf.loaders.topology import TopologyLoader
+from vigilo.common.conf import settings
 
+from vigilo.vigiconf.loaders.topology import TopologyLoader
 import vigilo.vigiconf.conf as conf
-from helpers import reload_conf, setup_db, teardown_db, DummyDispatchator
+from helpers import setup_path, setup_db, teardown_db, DummyRevMan
 from vigilo.models.demo import functions as df
 
 from vigilo.models import tables
@@ -25,7 +26,8 @@ class ChangeManagementTest(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        reload_conf()
+        setup_path(subdir="changes")
+        self.datadir = settings["vigiconf"]["confdir"]
     
         localhost = df.add_host("localhost")
         hlservice1 = df.add_highlevelservice("hlservice1")
@@ -42,8 +44,8 @@ class ChangeManagementTest(unittest.TestCase):
     def test_change_dependencies_remove(self):
         """ Test de la gestion des changements des dépendances.
         """
-        topologyloader = TopologyLoader(DummyDispatchator())
-        topologyloader.load()
+        topologyloader = TopologyLoader(DummyRevMan())
+        topologyloader.load_dir(self.datadir)
         dep_group = DependencyGroup(
             dependent=self.testhost1,
             operator=u'&',
@@ -58,33 +60,37 @@ class ChangeManagementTest(unittest.TestCase):
 
         # On doit créer un 2ème loader pour forcer le rechargement
         # des instances depuis la base de données.
-        topologyloader = TopologyLoader(DummyDispatchator())
-        topologyloader.load()
+        topologyloader = TopologyLoader(DummyRevMan())
+        topologyloader.has_changed = True
+        topologyloader.load_dir(self.datadir)
+        topologyloader.cleanup()
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before - 1)
 
     def test_change_dependencies_add(self):
-        topologyloader = TopologyLoader(DummyDispatchator())
-        topologyloader.load()
-        DBSession.delete(DBSession.query(Dependency).first())
+        topologyloader = TopologyLoader(DummyRevMan())
+        topologyloader.load_dir(self.datadir)
+        first_dep = DBSession.query(Dependency).first()
+        assert first_dep is not None
+        DBSession.delete(first_dep)
         DBSession.flush()
         depnum_before = DBSession.query(Dependency).count()
 
         # On doit créer un 2ème loader pour forcer le rechargement
         # des instances depuis la base de données.
-        topologyloader = TopologyLoader(DummyDispatchator())
-        topologyloader.load()
+        topologyloader = TopologyLoader(DummyRevMan())
+        topologyloader.load_dir(self.datadir)
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before + 1)
 
     def test_change_dependencies_nothing(self):
-        topologyloader = TopologyLoader(DummyDispatchator())
-        topologyloader.load()
+        topologyloader = TopologyLoader(DummyRevMan())
+        topologyloader.load_dir(self.datadir)
         depnum_before = DBSession.query(Dependency).count()
 
         # On doit créer un 2ème loader pour forcer le rechargement
         # des instances depuis la base de données.
-        topologyloader = TopologyLoader(DummyDispatchator())
-        topologyloader.load()
+        topologyloader = TopologyLoader(DummyRevMan())
+        topologyloader.load_dir(self.datadir)
         depnum_after = DBSession.query(Dependency).count()
         self.assertEquals(depnum_after, depnum_before)

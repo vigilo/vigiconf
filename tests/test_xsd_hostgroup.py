@@ -7,16 +7,13 @@ class HostGroupXSD(XSDTest):
     
     xsd_file = "src/vigilo/vigiconf/validation/xsd/group.xsd"
     
-    xml_ok_files = {"tests/testdata/xsd/hostgroups/ok":[
+    xml_ok_files = {"tests/testdata/xsd/hostgroups/ok": [
                                       "hostgroups.xml",
                                       "hostgroups2.xml",
                                       "hostgroups3.xml",
                                       "hostgroups4.xml",
                                       ],
-                    "tests/testdata/conf.d/groups":[
-                                      "hostgroups.xml",
-                                      "servicegroups.xml",
-                                      ],
+                     "src/vigilo/vigiconf/conf.d/groups": ["*.xml"],
                    }
     
     xml_ko_files = {"tests/testdata/xsd/hostgroups/ko":[

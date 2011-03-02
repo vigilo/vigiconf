@@ -27,6 +27,7 @@ import glob
 import os, sys
 import os.path
 import types
+import shutil
 import multiprocessing
 
 import transaction
@@ -48,8 +49,9 @@ from vigilo.models.tables import LowLevelService
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib import VigiConfError
 from vigilo.vigiconf.lib.validator import Validator
-from vigilo.vigiconf.lib.loaders import LoaderManager
+#from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.ventilation import get_ventilator
+from vigilo.vigiconf.lib.loaders.manager import LoaderManager
 from .base import Generator
 
 
@@ -69,9 +71,8 @@ class GeneratorManager(object):
 
     genshi_enabled = False
 
-    def __init__(self, apps, dispatchator):
+    def __init__(self, apps):
         self.apps = apps
-        self.dispatchator = dispatchator
         self.ventilator = None
         try:
             self.genshi_enabled = settings['vigiconf'].as_bool(
@@ -110,7 +111,7 @@ class GeneratorManager(object):
                 validator.addDirs(result_data["dirs"])
         LOGGER.debug("Configuration generated")
 
-    def generate(self, nosyncdb=False):
+    def generate(self, rev_mgr, nosyncdb=False):
         """
         Méthode principale de la classe, qui charge les données en base et
         génère les fichiers de configuration.
@@ -119,8 +120,13 @@ class GeneratorManager(object):
         @type nosyncdb: C{boolean}
         @raise L{GenerationError}
         """
+        validator = Validator()
+        loader = LoaderManager(rev_mgr)
+        return self._generate(loader, validator, nosyncdb)
 
-        loader = LoaderManager(self.dispatchator)
+    def _generate(self, loader, validator, nosyncdb=False):
+        gendir = os.path.join(settings["vigiconf"].get("libdir"), "deploy")
+        shutil.rmtree(gendir, ignore_errors=True)
         if not nosyncdb:
             LOGGER.debug("Syncing with database")
             loader.load_apps_db(self.apps)
@@ -133,7 +139,7 @@ class GeneratorManager(object):
         loader.load_ventilation_db(self._ventilation, self.apps)
 
         LOGGER.debug("Validating ventilation")
-        validator = Validator(self._ventilation)
+        validator.ventilation = self._ventilation
         if not validator.preValidate():
             for errmsg in validator.getSummary(details=True, stats=True):
                 LOGGER.error(errmsg)

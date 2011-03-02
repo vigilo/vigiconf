@@ -30,7 +30,7 @@ from threading import Thread
 # Warning, the "threading" module overwrites the built-in function enumerate()
 # if used as import * !!
 
-from pkg_resources import resource_exists, resource_string
+from pkg_resources import resource_exists, resource_string, working_set
 
 from vigilo.common.conf import settings
 
@@ -40,9 +40,9 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
+from vigilo.vigiconf import conf
 from .systemcommand import SystemCommand, SystemCommandError
 from . import VigiConfError
-from .server import serverfactory
 
 
 class ApplicationError(VigiConfError):
@@ -80,7 +80,7 @@ class Application(object):
     @cvar group: groupe logique pour la ventilation
     @type group: C{str}
     @ivar servers: liste des serveurs où l'application est déployée
-    @type servers: C{list} de C{str}
+    @type servers: C{dict}
     """
 
     name = None
@@ -97,6 +97,7 @@ class Application(object):
         if self.name is None:
             raise NotImplementedError
         self.servers = {}
+        self.actions = {}
         self.serversQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
 
@@ -117,6 +118,10 @@ class Application(object):
         if self.name in conf.apps_conf:
             config.update(conf.apps_conf[self.name])
         return config
+
+    def generate(self, ventilation):
+        generator = self.generator(self, ventilation)
+        return generator.generate()
 
     def filterServers(self, servers):
         """
@@ -207,12 +212,12 @@ class Application(object):
         """
         return self.execute("stop", iServers, async=async)
 
-    def execute(self, action, servers=None, async=False):
+    def execute(self, action, servernames=None, async=False):
         """
         Stop the application on the intersection between iServers and our own
         servers list.
-        @param servers: The servers to act on
-        @type  servers: C{list} of C{str}
+        @param servernames: The servers to act on
+        @type  servernames: C{list} of C{str}
         """
         result = True
 
@@ -220,20 +225,19 @@ class Application(object):
         self.returnsQueue = Queue.Queue()
 
         # intersection of serverslists
-        if servers is None:
-            servers = set(self.servers)
+        if servernames is None:
+            servernames = set(self.servers)
         else:
-            servers = self.filterServers(servers)
+            servernames = self.filterServers(servernames)
 
         # il faut que l'action courante soit autorisée
         if action in ["stop", "start"]:
-            servers = [ s for s in servers if action in self.servers[s] ]
-
-        for server in servers:
-            self.serversQueue.put(server)
+            servernames = [ s for s in servernames
+                            if action in self.actions[s] ]
 
         # start the threads
-        for server in servers:
+        for servername in servernames:
+            self.serversQueue.put(servername)
             _thread = Thread(target=self._threaded_action, args=[action])
             _thread.start()
 
@@ -245,26 +249,26 @@ class Application(object):
             return result.get()
 
     def _threaded_action(self, action):
-        server = self.serversQueue.get()
+        servername = self.serversQueue.get()
         try:
-            getattr(self, "%sServer" % action)(server)
+            getattr(self, "%sServer" % action)(servername)
         except ApplicationError, e:
             self.returnsQueue.put(e.value)
         self.serversQueue.task_done()
 
 
-    def validateServer(self, iServer):
+    def validateServer(self, servername):
         """
         Validates all the configuration files (starts the validation command)
         on the specified server
-        @param iServer: The server to validate on
-        @type  iServer: C{str}
+        @param server: The server to validate on
+        @type  server: L{vigilo.vigiconf.lib.server.Server}
         """
         # iterate through the servers
         if not self.validation:
             return
         files_dir = os.path.join(settings["vigiconf"].get("libdir"),
-                                 "deploy", iServer)
+                                 "deploy", servername)
         _command = ["vigiconf-local", "validate-app", self.name, files_dir]
         _command = SystemCommand(_command)
         _command.simulate = settings["vigiconf"].as_bool("simulate")
@@ -275,35 +279,35 @@ class Application(object):
                         _("%(app)s: validation failed for server "
                           "'%(server)s': %(reason)s")
                         % {"app": self.name,
-                           "server": iServer,
+                           "server": servername,
                            "reason": e})
             error.cause = e
             raise error
         LOGGER.info(_("%(app)s : Validation successful for server: "
                       "%(server)s"),
-                    {'app': self.name, 'server': iServer})
+                    {'app': self.name, 'server': servername})
 
 
-    def qualifyServer(self, iServer):
+    def qualifyServer(self, servername):
         """
         qualifies all the configuration files (starts the qualification
         command) on a given server
-        @param iServer: The server to qualify on
-        @type  iServer: C{str}
+        @param server: The server to qualify on
+        @type  server: L{vigilo.vigiconf.lib.server.Server}
         """
         if not self.validation:
             return
-        server_obj = serverfactory.makeServer(iServer)
+        server = self.servers[servername]
         # A priori pas necessaire, valeur par défaut
         _command = ["vigiconf-local", "validate-app", self.name] #, files_dir]
-        _command = server_obj.createCommand(_command)
+        _command = server.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
             error = ApplicationError(_("%(app)s : Qualification failed on "
                                         "'%(server)s' - REASON: %(reason)s") % {
                                         'app': self.name,
-                                        'server': iServer,
+                                        'server': server.name,
                                         'reason':
                                             e.value.decode('utf-8', 'replace'),
                                     })
@@ -311,70 +315,70 @@ class Application(object):
             raise error
         LOGGER.info(_("%(app)s : Qualification successful on server : "
                       "%(server)s"),
-                    {'app': self.name, 'server': iServer})
+                    {'app': self.name, 'server': server.name})
 
 
-    def startServer(self, iServer):
+    def startServer(self, servername):
         """
         Starts the application on the specified server
-        @param iServer: The server to start the application on
-        @type  iServer: C{str}
+        @param server: The server to start the application on
+        @type  server: L{vigilo.vigiconf.lib.server.Server}
         """
         if not self.start_command:
             return
         LOGGER.info(_("Starting %(app)s on %(server)s ..."), {
             'app': self.name,
-            'server': iServer,
+            'server': servername,
         })
-        server_obj = serverfactory.makeServer(iServer)
+        server = self.servers[servername]
         _command = ["vigiconf-local", "start-app", self.name]
-        _command = server_obj.createCommand(_command)
+        _command = server.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
             error = ApplicationError(_("Can't Start %(app)s on %(server)s "
                                         "- REASON %(reason)s") % {
                 'app': self.name,
-                'server': iServer,
+                'server': server.name,
                 'reason': e.value.decode('utf-8', 'replace'),
             })
             error.cause = e
             raise error
         LOGGER.info(_("%(app)s started on %(server)s"), {
             'app': self.name,
-            'server': iServer,
+            'server': server.name,
         })
 
 
-    def stopServer(self, iServer):
+    def stopServer(self, servername):
         """
         Stops the application on a given server
-        @param iServer: The server to stop the application on
-        @type  iServer: C{str}
+        @param server: The server to stop the application on
+        @type  server: L{vigilo.vigiconf.lib.server.Server}
         """
         if not self.stop_command:
             return
         LOGGER.info(_("Stopping %(app)s on %(server)s ..."), {
             'app': self.name,
-            'server': iServer,
+            'server': servername,
         })
-        server_obj = serverfactory.makeServer(iServer)
+        server = self.servers[servername]
         _command = ["vigiconf-local", "stop-app", self.name]
-        _command = server_obj.createCommand(_command)
+        _command = server.createCommand(_command)
         try:
             _command.execute()
         except SystemCommandError, e:
             error = ApplicationError(_("Can't Stop %(app)s on %(server)s "
                                         "- REASON %(reason)s") % {
                 'app': self.name,
-                'server': iServer,
+                'server': server.name,
                 'reason': e.value.decode('utf-8', 'replace'),
             })
             error.cause = e
             raise error
         LOGGER.info(_("%(app)s stopped on %(server)s"), {
             'app': self.name,
-            'server': iServer,
+            'server': server.name,
         })
 
 
@@ -408,6 +412,105 @@ class ActionResult(object):
                                    % {"app": self.app_name,
                                       "action": self.action_name})
         return True
+
+
+
+class ApplicationManager(object):
+    def __init__(self):
+        self.applications = []
+
+    def list(self):
+        """
+        Get all applications from configuration, and fill the L{applications}
+        variable.
+        """
+        for entry in working_set.iter_entry_points(
+                        "vigilo.vigiconf.applications"):
+            appclass = entry.load()
+            app = appclass()
+            if app.name != entry.name:
+                msg = _("Incoherent configuration: application %(app)s has an "
+                        "entry point named %(epname)s in package %(eppkg)s")
+                LOGGER.warning(msg % {"app": app.name, "epname": entry.name,
+                                      "eppkg": entry.dist})
+            if app.name not in conf.apps:
+                LOGGER.info(_("Application %s is installed but disabled "
+                              "(see conf.d/general/apps.py)") % app.name)
+                continue
+            if app.name in [ a.name for a in self.applications ]:
+                msg = _("application %s is not unique.") % app.name
+                msg += _(" Providing modules: %s") \
+                        % ", ".join(list(working_set.iter_entry_points(
+                                "vigilo.vigiconf.applications", entry.name)))
+                raise DispatchatorError(msg)
+            self.applications.append(app)
+        # Vérification : a-t-on déclaré une application non installée ?
+        for listed_app in conf.apps:
+            if listed_app not in [a.name for a in self.applications]:
+                LOGGER.warning(_("Application %s has been added to "
+                            "conf.d/general/apps.py, but is not installed")
+                            % listed_app)
+        self.applications.sort(reverse=True, key=lambda a: a.priority)
+
+    def validate(self):
+        """Validation de la génération"""
+        results = []
+        for app in self.applications:
+            results.append(app.validate_servers(async=True))
+        valid = True
+        for result in results:
+            result_status = result.get()
+            valid = valid and result_status
+        if not valid:
+            raise DispatchatorError(_("validation failed, see above for "
+                                      "more information."))
+        LOGGER.info(_("Validation successful"))
+
+    def qualify(self):
+        """
+        Valide la configuration des applications sur les serveurs distants
+        @param servers: Liste de serveurs
+        @type  servers: C{list} de L{str}
+        """
+        results = []
+        for app in self.applications:
+            results.append(app.qualify_servers(async=True))
+        valid = True
+        for result in results:
+            result_status = result.get()
+            valid = valid and result_status
+        if not valid:
+            raise DispatchatorError(_("qualification failed. See above for "
+                                      "more information."))
+        LOGGER.info(_("Qualification successful"))
+
+    def execute(self, action, servers):
+        """
+        Arrête ou démarre les applications sur les serveurs spécifiés.
+        @param action: "start" ou "stop"
+        @type  action: C{str}
+        """
+        if not self.applications:
+            return
+        status = True
+        current_level = self.applications[0].priority
+        results = []
+        for app in self.applications:
+            if (app.priority != current_level):
+                # On attend la fin des actions précédentes
+                for result in results:
+                    result_status = result.get()
+                    status = status and result_status
+                results = []
+                current_level = app.priority
+            # exécution de l'action
+            results.append(app.execute(action, servers, async=True))
+        # on attend les dernières actions
+        for result in results:
+            result_status = result.get()
+            status = status and result_status
+        return status
+
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

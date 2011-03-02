@@ -6,12 +6,13 @@ from vigilo.common.conf import settings
 settings.load_module(__name__)
 
 import vigilo.vigiconf.conf as conf
-from vigilo.vigiconf.lib.confclasses.host import Host
+#from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.loaders.group import GroupLoader
+from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 
-from helpers import reload_conf, setup_tmpdir, setup_path
-from helpers import setup_db, teardown_db, DummyDispatchator
+from helpers import setup_tmpdir, setup_path
+from helpers import setup_db, teardown_db
 
 class ValidateXSD(unittest.TestCase):
 
@@ -52,32 +53,33 @@ class ParseHost(unittest.TestCase):
         # Prepare temporary directory
         setup_db()
         self.tmpdir = setup_tmpdir()
-        shutil.copytree(os.path.join(
-                            settings["vigiconf"].get("confdir"), "general"),
-                        os.path.join(self.tmpdir, "general"))
-        shutil.copytree(os.path.join(
-                        settings["vigiconf"].get("confdir"), "hosttemplates"),
-                        os.path.join(self.tmpdir, "hosttemplates"))
-        shutil.copytree(os.path.join(
-                        settings["vigiconf"].get("confdir"), "groups"),
-                        os.path.join(self.tmpdir, "groups"))
+        #setup_path("parse")
+        #shutil.copytree(os.path.join(
+        #                settings["vigiconf"].get("confdir"), "general"),
+        #                os.path.join(self.tmpdir, "general"))
+        #shutil.copytree(os.path.join(
+        #                settings["vigiconf"].get("confdir"), "hosttemplates"),
+        #                os.path.join(self.tmpdir, "hosttemplates"))
+        #shutil.copytree(os.path.join(
+        #                settings["vigiconf"].get("confdir"), "groups"),
+        #                os.path.join(self.tmpdir, "groups"))
+        conf.hosttemplatefactory.register(HostTemplate("default"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
         settings["vigiconf"]["confdir"] = self.tmpdir
-        # We changed the paths, reload the factories
-        reload_conf()
         self.host = open(os.path.join(self.tmpdir, "hosts", "host.xml"), "w")
 
     def tearDown(self):
         """Call after every test case."""
         # This has been overwritten in setUp, reset it
         setup_path()
-        #settings["vigiconf"]["confdir"] = os.path.join(os.path.dirname(__file__), "..", "src", "conf.d")
+        conf.hostfactory.hosts = {}
+        conf.hostsConf = conf.hostfactory.hosts
         shutil.rmtree(self.tmpdir)
         teardown_db()
 
     def test_host(self):
         """Test the parsing of a basic host declaration"""
-        GroupLoader(DummyDispatchator()).load()
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <group>/Servers/Linux servers</group>
@@ -86,14 +88,14 @@ class ParseHost(unittest.TestCase):
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
-        assert conf.hostsConf.has_key("testserver1"), \
-                "host is not properly parsed"
-        assert conf.hostsConf["testserver1"]["name"] == "testserver1", \
-                "host name is not properly parsed"
-        assert conf.hostsConf["testserver1"]["address"] == "192.168.1.1", \
-                "host address is not properly parsed"
-        assert conf.hostsConf["testserver1"]["serverGroup"] == "Servers", \
-                "host main group is not properly parsed"
+        self.assert_(conf.hostsConf.has_key("testserver1"), 
+                "host is not properly parsed")
+        self.assert_(conf.hostsConf["testserver1"]["name"] == "testserver1",
+                "host name is not properly parsed")
+        self.assert_(conf.hostsConf["testserver1"]["address"] == "192.168.1.1",
+                "host address is not properly parsed")
+        self.assert_(conf.hostsConf["testserver1"]["serverGroup"] == "Servers",
+                "host main group is not properly parsed")
 
     def test_template(self):
         self.host.write("""<?xml version="1.0"?>
@@ -101,7 +103,12 @@ class ParseHost(unittest.TestCase):
             <template>linux</template>
         </host>""")
         self.host.close()
+        htpl = HostTemplate("linux")
+        htpl.add_group("Linux servers")
+        conf.hosttemplatefactory.register(htpl)
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
                      "The \"template\" tag is not properly parsed")
 
@@ -113,6 +120,8 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         self.assert_(conf.hostsConf["testserver1"].has_key("cpulist") and
                      conf.hostsConf["testserver1"]["cpulist"] == "2",
                      "The \"attribute\" tag is not properly parsed")
@@ -125,23 +134,26 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "tags" in conf.hostsConf["testserver1"] and \
-               "important" in conf.hostsConf["testserver1"]["tags"] and \
-                conf.hostsConf["testserver1"]["tags"]["important"] == "2", \
-                "The \"tag\" tag for hosts is not properly parsed"
+        print conf.hostsConf
+        print conf.hostfactory.hosts
+        self.assert_("tags" in conf.hostsConf["testserver1"] and
+               "important" in conf.hostsConf["testserver1"]["tags"] and
+                conf.hostsConf["testserver1"]["tags"]["important"] == "2",
+                "The \"tag\" tag for hosts is not properly parsed")
 
     def test_tag_service(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <test name="UpTime"/>
             <tag service="UpTime" name="important">2</tag>
             <group>/Servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert "tags" in conf.hostsConf["testserver1"]["services"]["UpTime"] and \
-               "important" in conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"] and \
-               conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"]["important"] == "2", \
-               "The \"tag\" tag for services is not properly parsed"
+        self.assert_("tags" in conf.hostsConf["testserver1"]["services"]["UpTime"] and 
+               "important" in conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"] and 
+               conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"]["important"] == "2", 
+               "The \"tag\" tag for services is not properly parsed")
 
     def test_trap(self):
         self.host.write("""<?xml version="1.0"?>
@@ -164,18 +176,20 @@ class ParseHost(unittest.TestCase):
                 "The \"trap\" tag is not properly parsed"
 
     def test_group(self):
-        GroupLoader(DummyDispatchator()).load()
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <group>Linux servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
                      "The \"group\" tag is not properly parsed")
 
     def test_group_multiple(self):
-        GroupLoader(DummyDispatchator()).load()
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <group>Linux servers</group>
@@ -183,6 +197,8 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"]
                  and "AIX servers" in conf.hostsConf["testserver1"]["otherGroups"],
                  "The \"group\" tag does not handle multiple values")
@@ -198,8 +214,10 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        assert ('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"], \
-                "The \"test\" tag is not properly parsed"
+        print conf.hostsConf
+        print conf.hostfactory.hosts
+        self.assert_(('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"],
+                "The \"test\" tag is not properly parsed")
 
     def test_test_weight(self):
         self.host.write("""<?xml version="1.0"?>
@@ -213,6 +231,8 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         #from pprint import pprint; pprint(conf.hostsConf["testserver1"])
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         self.assert_("weight" in conf.hostsConf["testserver1"]["services"]["Interface eth0"],
                      "L'attribut weight du test n'est pas chargé")
         self.assertEquals(conf.hostsConf["testserver1"]["services"]["Interface eth0"]["weight"], 42,
@@ -229,11 +249,13 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         self.assertEquals(conf.hostsConf["testserver1"]["services"]["Interface eth0"]["weight"], 1,
                           "L'attribut weight n'a pas la bonne valeur par défaut")
 
     def test_test_weight_invalid(self):
-        GroupLoader(DummyDispatchator()).load()
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
         <test name="Interface" weight="invalid">
@@ -247,7 +269,7 @@ class ParseHost(unittest.TestCase):
 
     def test_ventilation_explicit_server(self):
         """Ventilation en utilisant un groupe explicitement nommé."""
-        GroupLoader(DummyDispatchator()).load()
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="foo" address="127.0.0.1" ventilation="P-F">
             <arg name="label">eth0</arg>
@@ -257,6 +279,8 @@ class ParseHost(unittest.TestCase):
         """)
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         # L'attribut ventilation a été donné explicitement.
         self.assertEqual(conf.hostsConf['foo']['serverGroup'], 'P-F')
 
@@ -312,7 +336,7 @@ class ParseHost(unittest.TestCase):
         )
 
     def test_host_weight(self):
-        GroupLoader(DummyDispatchator()).load()
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1">
             <weight>42</weight>
@@ -320,26 +344,30 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         self.assert_("weight" in conf.hostsConf["testserver1"],
                      "L'attribut weight n'est pas chargé")
         self.assertEquals(conf.hostsConf["testserver1"]["weight"], 42,
                           "L'attribut weight n'a pas la bonne valeur")
 
     def test_host_weight_default(self):
-        GroupLoader(DummyDispatchator()).load()
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1">
             <group>/Servers/Linux servers</group>
         </host>""")
         self.host.close()
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        print conf.hostsConf
+        print conf.hostfactory.hosts
         self.assert_("weight" in conf.hostsConf["testserver1"],
                      "L'attribut weight n'est pas réglé par défaut")
         self.assertEquals(conf.hostsConf["testserver1"]["weight"], 1,
                           "L'attribut weight n'a pas la bonne valeur par défaut")
 
     def test_host_weight_invalid(self):
-        GroupLoader(DummyDispatchator()).load()
+        GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1">
             <weight>invalid</weight>
@@ -357,17 +385,15 @@ class ParseHostTemplate(unittest.TestCase):
         # Prepare temporary directory
         setup_db()
         self.tmpdir = setup_tmpdir()
-        shutil.copytree(os.path.join(
-                            settings["vigiconf"].get("confdir"), "general"),
-                        os.path.join(self.tmpdir, "general"))
+        #shutil.copytree(os.path.join(
+        #                    settings["vigiconf"].get("confdir"), "general"),
+        #                os.path.join(self.tmpdir, "general"))
         #shutil.copytree(os.path.join(
         #                    settings["vigiconf"].get("confdir"), "hosttemplates"),
         #                os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
         settings["vigiconf"]["confdir"] = self.tmpdir
-        # We changed the paths, reload the factories
-        reload_conf()
         conf.hosttemplatefactory.path = [os.path.join(self.tmpdir, "hosttemplates"),]
         self.defaultht = open(os.path.join(self.tmpdir, "hosttemplates", "default.xml"), "w")
         self.defaultht.write('<?xml version="1.0"?>\n<templates><template name="default"></template></templates>')
@@ -378,6 +404,8 @@ class ParseHostTemplate(unittest.TestCase):
         """Call after every test case."""
         # This has been overwritten in setUp, reset it
         setup_path()
+        conf.hostfactory.hosts = {}
+        conf.hosttemplatefactory.__init__(conf.testfactory)
         shutil.rmtree(self.tmpdir)
         teardown_db()
 

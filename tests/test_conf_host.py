@@ -4,19 +4,21 @@ import sys, os, unittest, tempfile, shutil, glob
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 
-from helpers import reload_conf, setup_db, teardown_db
+from helpers import setup_db, teardown_db, setup_tmpdir
 
 class HostMethods(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        reload_conf()
         self.host = Host(conf.hostsConf, "dummy", u"testserver1", u"192.168.1.1", u"Servers")
 
     def tearDown(self):
         """Call after every test case."""
+        conf.hostfactory.hosts = {}
+        conf.hostsConf = conf.hostfactory.hosts
         teardown_db()
 
     def test_add_metro_service(self):
@@ -193,26 +195,43 @@ class HostFactoryMethods(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        reload_conf()
+        self.tmpdir = setup_tmpdir()
 
     def tearDown(self):
         """Call after every test case."""
+        conf.hostfactory.hosts = {}
+        conf.hostsConf = conf.hostfactory.hosts
         teardown_db()
+        shutil.rmtree(self.tmpdir)
 
 
     def test_load(self):
         """ Test of the loading of the conf test hosts
         """
+        xmlfile = open(os.path.join(self.tmpdir, "localhost.xml"), "w")
+        xmlfile.write("""
+            <host name="localhost" address="127.0.0.1">
+                <group>Linux servers</group>
+            </host>
+        """)
+        xmlfile.close()
+        conf.hosttemplatefactory.register(HostTemplate("default"))
         f = HostFactory(
-                os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
+                self.tmpdir,
                 conf.hosttemplatefactory,
                 conf.testfactory,
             )
         hosts = f.load()
+        print hosts
         self.assertTrue(hosts.has_key('localhost'), "localhost defined in conf")
 
     def test_load_with_nagios_directives(self):
         """Loading some host with nagios directives."""
+        # ces templates sont utilisés dans les fichiers
+        for tplname in ["default", "linux"]:
+            htpl = HostTemplate(tplname)
+            conf.hosttemplatefactory.register(htpl)
+        htpl.add_group("dummy_group") # sinon le no_secondary_groups.xml va pas passer
         f = HostFactory(
                 "tests/testdata/xsd/hosts/ok",
                 conf.hosttemplatefactory,
