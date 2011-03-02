@@ -135,8 +135,8 @@ class ServerRemote(Server):
         tar_dest = os.path.join(settings["vigiconf"].get("targetconfdir"),
                                 "tmp", "vigiconf.tar")
         if not os.path.exists(tar_src):
-            raise RemoteCommandError(None, _("The archive file does not exist: %s")
-                                             % tar_src)
+            raise RemoteCommandError(None,
+                        _("The archive file does not exist: %s") % tar_src)
         cmd = self.createCommand(None)
         try:
             cmd.copyTo(tar_dest, tar_src)

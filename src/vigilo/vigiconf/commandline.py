@@ -51,12 +51,8 @@ setup_plugins_path(settings["vigiconf"].get("pluginsdir",
                    "/etc/vigilo/vigiconf/plugins"))
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib.exceptions import VigiConfError, EditionError
-from vigilo.vigiconf.lib.exceptions import DispatchatorError
+from vigilo.vigiconf.lib.exceptions import VigiConfError
 from vigilo.vigiconf.lib.dispatchator import make_dispatchator
-from vigilo.vigiconf.lib.ventilation import get_ventilator
-from vigilo.vigiconf.lib.ventilation.local import VentilatorLocal
-from vigilo.vigiconf.lib.generators import GeneratorManager
 
 from xml.etree import ElementTree as ET # Python 2.5
 

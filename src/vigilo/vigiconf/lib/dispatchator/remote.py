@@ -28,8 +28,6 @@ This file is part of the Enterprise Edition.
 
 from __future__ import absolute_import
 
-from vigilo.models import tables
-
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 

@@ -38,10 +38,12 @@ class NagiosGen(FileGenerator):
     """
 
     def generate(self):
+        # pylint: disable-msg=W0201
         self._files = {}
         super(NagiosGen, self).generate()
 
     def generate_host(self, hostname, vserver):
+        # pylint: disable-msg=W0201
         self.fileName = os.path.join(self.baseDir, vserver, "nagios",
                                      "nagios.cfg")
         if self.fileName not in self._files:
@@ -90,13 +92,14 @@ class NagiosGen(FileGenerator):
             for k in h["snmpTrap"]:
                 if k in srvnames:
                     continue
-                self.templateAppend(self.fileName, self.templates["collector"], {
-                    'name' :  hostname,
-                    'serviceName' : k,
-                    'quietOrNot': "",
-                    'notification_period': "",
-                    'generic_sdirectives': "",
-                     })
+                self.templateAppend(self.fileName,
+                        self.templates["collector"], {
+                        'name' :  hostname,
+                        'serviceName' : k,
+                        'quietOrNot': "",
+                        'notification_period': "",
+                        'generic_sdirectives': "",
+                         })
 
         # Add the service item into the Nagios configuration file
         if len(h['SNMPJobs']):
@@ -162,8 +165,9 @@ class NagiosGen(FileGenerator):
                 continue # we only deal with "or"-type dependencies
             for (parenthost, parenttype) in d["or"] + d["and"]:
                 parent_ventilation = self.ventilation[parenthost]["nagios"]
-                if parenttype != "Host" or \
-                        self.ventilation[hostname]['nagios'] != parent_ventilation:
+                if (parenttype != "Host" or
+                        self.ventilation[hostname]['nagios']
+                        != parent_ventilation):
                     continue # only host-to-host dependencies
                 parents.append(parenthost)
         return parents
@@ -177,7 +181,8 @@ class NagiosGen(FileGenerator):
             #   directives generiques
             generic_directives = ""
             if newhash['nagiosSrvDirs'].has_key(srvname):
-                for directive, value in newhash['nagiosSrvDirs'][srvname].iteritems():
+                for directive, value in \
+                            newhash['nagiosSrvDirs'][srvname].iteritems():
                     generic_directives += "%s    %s\n    " % (directive, value)
 
             if srvname  in h['PDHandlers']:

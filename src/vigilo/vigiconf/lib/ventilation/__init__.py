@@ -39,7 +39,7 @@ class Ventilator(object):
     def ventilate(self):
         raise NotImplementedError
 
-    def ventilation_by_appname(self, ventilation):
+    def ventilation_by_appname(self, ventilation): # pylint: disable-msg=R0201
         vba = {}
         for host in ventilation:
             vba[host] = {}

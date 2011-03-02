@@ -24,10 +24,6 @@ only the local mode is available.
 
 from __future__ import absolute_import
 
-import os
-import sys
-import glob
-
 from pkg_resources import working_set
 
 from vigilo.vigiconf import conf

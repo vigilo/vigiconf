@@ -26,7 +26,6 @@ Generator for connector-metro, the RRD db generator
 
 import os.path
 import stat
-import urllib
 import sqlite3
 
 from vigilo.vigiconf import conf
@@ -40,6 +39,7 @@ class ConnectorMetroGen(Generator):
     deploy_only_on_first = False
 
     def generate(self):
+        # pylint: disable-msg=W0201
         self.connections = {}
         super(ConnectorMetroGen, self).generate()
         self.finalize_databases()
@@ -59,7 +59,6 @@ class ConnectorMetroGen(Generator):
             os.chmod(db_path, # chmod 644
                      stat.S_IRUSR | stat.S_IWUSR | \
                      stat.S_IRGRP | stat.S_IROTH )
-        db = self.connections[vserver]["db"]
         cursor = self.connections[vserver]["cursor"]
         datasources = h['dataSources'].keys()
         datasources.sort()

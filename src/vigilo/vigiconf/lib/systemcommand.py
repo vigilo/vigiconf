@@ -55,7 +55,8 @@ class SystemCommandError(VigiConfError):
                    'code': self.returncode,
                    'msg': self.message.decode("utf8", "replace"),
                  }
-        #TODO: L'encodage UTF-8 est hardcodé ci-dessus, détecter celui du système
+        # TODO: L'encodage UTF-8 est hardcodé ci-dessus, détecter celui du
+        # système
 
     def __repr__(self):
         return "<%s: code %d and message %s>" \
@@ -73,7 +74,9 @@ class SystemCommand(object):
     @type simulate: C{boolean}
     """
 
-    def __init__(self, iBaseCommand=[], simulate=False):
+    def __init__(self, iBaseCommand=None, simulate=False):
+        if iBaseCommand is None:
+            iBaseCommand = []
         self.mCommand = iBaseCommand
         self.mResult = (None, None)
         self.simulate = simulate

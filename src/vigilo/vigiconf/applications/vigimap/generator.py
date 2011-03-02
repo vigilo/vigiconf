@@ -5,8 +5,6 @@ Générateur de cartes automatiques pour les groupes
 
 from __future__ import absolute_import
 
-from sqlalchemy import and_
-
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -15,8 +13,6 @@ _ = translate(__name__)
 
 from vigilo.models import tables
 from vigilo.models.session import DBSession
-
-from vigilo.vigiconf import conf
 
 from vigilo.vigiconf.lib.generators import MapGenerator
 
@@ -43,6 +39,7 @@ class VigiMapGen(MapGenerator):
     * Les modifications d'un élément affiché dans une carte générée
     automatiquement ne sont pas prises en compte.
     """
+    # pylint: disable-msg=R0201
 
     def __init__(self, application, ventilation):
         super(VigiMapGen, self).__init__(application, ventilation)
@@ -56,7 +53,7 @@ class VigiMapGen(MapGenerator):
         top_group = super(VigiMapGen, self).get_root_group()
         return self.get_or_create_mapgroup(group_name, top_group)
 
-    def populate_map(self, map, group, data={}, created=True):
+    def populate_map(self, map, group, data=None):
         """ ajout de contenu dans une carte.
 
         @param map: carte
@@ -66,6 +63,8 @@ class VigiMapGen(MapGenerator):
         @param data: dictionnaire de données fond de carte
         @type data: C{dict}
         """
+        if data is None:
+            data = {}
         full_data = self.map_defaults.copy()
         full_data.update(data)
         self._populate_hosts(map, group, full_data)
@@ -176,7 +175,7 @@ class VigiMapGen(MapGenerator):
         LOGGER.debug("Creating Map for SupItemGroup %(group)s in MapGroup "
                      "%(mapgroup)s", {"group": supitemgroup.name,
                                       "mapgroup": parent_mapgroup.name})
-        newmap = self.create_map(supitemgroup.name, [parent_mapgroup,])
+        newmap = self.create_map(supitemgroup.name, [parent_mapgroup, ])
         return newmap
 
     def _remove_mapgroup(self, mapgroup):
@@ -247,7 +246,7 @@ class VigiMapGen(MapGenerator):
                 self._remove_mapgroup(submapgroup)
         for submap in parent_mapgroup.maps:
             if submap.title not in allowed_submaps and submap.generated:
-                LOGGER.debug("Removing Map for group %s", supitemgroup.name)
+                LOGGER.debug("Removing Map for group %s", submap.title)
                 DBSession.delete(submap)
 
     def _handle_supitemgroup(self, supitemgroup, parent_mapgroup):

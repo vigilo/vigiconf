@@ -76,7 +76,8 @@ class Generator(object):
         La génération de conf pour un hôte et son serveur associé.
         @note: À implémenter dans les sous-classes
         """
-        raise NotImplementedError(_("Generators must define the generate_host() method"))
+        raise NotImplementedError(_("Generators must define the "
+                                    "generate_host() method"))
 
     def addWarning(self, element, msg):
         """
@@ -100,7 +101,7 @@ class Generator(object):
 
     def get_vigilo_servers(self):
         vservers = set()
-        for hostname, ventilation in self.ventilation.iteritems():
+        for ventilation in self.ventilation.values():
             if self.application.name not in ventilation:
                 continue
             vservers.add(ventilation[self.application.name])

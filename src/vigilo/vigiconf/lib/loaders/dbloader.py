@@ -160,11 +160,11 @@ class DBLoader(object):
     def insert(self, data):
         key = self.get_key(data)
         LOGGER.debug("Inserting: %s", key)
-        instance = self._class(**data)
+        instance = self._class(**data) # pylint: disable-msg=W0142
         DBSession.add(instance)
         self._in_conf[key] = instance
         return instance
 
-    def delete(self, instance):
+    def delete(self, instance): # pylint: disable-msg=R0201
         LOGGER.debug("Deleting: %s", instance)
         DBSession.delete(instance)

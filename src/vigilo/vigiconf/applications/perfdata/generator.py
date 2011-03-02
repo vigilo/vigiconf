@@ -21,7 +21,6 @@
 """Generator for PerfData handler"""
 
 import os
-import urllib
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.generators import FileGenerator

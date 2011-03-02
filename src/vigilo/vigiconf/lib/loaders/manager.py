@@ -54,7 +54,7 @@ class LoaderManager(object):
     def __init__(self, rev_mgr):
         self.rev_mgr = rev_mgr
 
-    def load_apps_db(self, apps):
+    def load_apps_db(self, apps): # pylint: disable-msg=R0201
         """mise à jour de la liste des application en base"""
         from vigilo.vigiconf.loaders.application import ApplicationLoader
         apploader = ApplicationLoader(apps)
@@ -91,7 +91,7 @@ class LoaderManager(object):
         DBSession.flush()
         self.load_specific()
 
-    def load_specific(self):
+    def load_specific(self): # pylint: disable-msg=R0201
         """Loaders spécifiques"""
         # deux boucles parce qu'on veut forcer le tri des loaders par leur nom
         # dans une distribution donnée. Par défaut, il n'y a pas de tri à
@@ -108,7 +108,7 @@ class LoaderManager(object):
                 loader_instance.load()
         DBSession.flush()
 
-    def load_vigilo_servers_db(self):
+    def load_vigilo_servers_db(self): # pylint: disable-msg=R0201
         """Export des serveurs de la supervision en base"""
         # serveurs Vigilo
         from vigilo.vigiconf.loaders.vigiloserver import VigiloServerLoader
@@ -116,7 +116,7 @@ class LoaderManager(object):
         vserver_loader.load()
         #DBSession.flush()
 
-    def load_ventilation_db(self, ventilation, apps):
+    def load_ventilation_db(self, ventilation, apps): # pylint:disable-msg=R0201
         """Export de la ventilation en base"""
         # ventilation
         from vigilo.vigiconf.loaders.ventilation import VentilationLoader

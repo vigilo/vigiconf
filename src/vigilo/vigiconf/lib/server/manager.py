@@ -23,17 +23,8 @@ Describes a Server to push and commit new software configurations to
 
 from __future__ import absolute_import
 
-import os
-import shutil
-import socket
-import glob
-import re
 import Queue
 from threading import Thread
-
-from pkg_resources import working_set
-
-from vigilo.common.conf import settings
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -41,7 +32,6 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.exceptions import VigiConfError, DispatchatorError
 
 
@@ -61,7 +51,9 @@ class ServerManager(object):
             server_obj.update_revisions()
             server_obj.revisions["conf"] = revision
 
-    def run_in_thread(self, servers, action, args=[]):
+    def run_in_thread(self, servers, action, args=None):
+        if args is None:
+            args = []
         self.commands_queue = Queue.Queue()
         self.returns_queue = Queue.Queue()
         for srv in servers:

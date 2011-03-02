@@ -23,17 +23,9 @@ Describes a Server to push and commit new software configurations to
 
 from __future__ import absolute_import
 
-import os
-import shutil
 import socket
-import glob
-import re
-import Queue
-from threading import Thread
 
 from pkg_resources import working_set
-
-from vigilo.common.conf import settings
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -42,7 +34,7 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib import VigiConfError, EditionError
+from vigilo.vigiconf.lib import EditionError
 from vigilo.vigiconf.lib.server.local import ServerLocal, ServerManagerLocal
 
 
@@ -51,9 +43,10 @@ class ServerFactory(object):
 
     def __init__(self):
         self.remote_class = self.find_remote_class()
-        self.localnames = [ "localhost", socket.gethostname(), socket.getfqdn() ]
+        self.localnames = [ "localhost", socket.gethostname(),
+                            socket.getfqdn() ]
 
-    def find_remote_class(self):
+    def find_remote_class(self): # pylint: disable-msg=R0201
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.extensions", "server_remote"):
             sr_class = entry.load()

@@ -28,8 +28,6 @@ import shutil
 import glob
 import re
 
-from pkg_resources import working_set
-
 from vigilo.common.conf import settings
 
 from vigilo.common.logging import get_logger
@@ -39,7 +37,7 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib import VigiConfError, EditionError
+from vigilo.vigiconf.lib import VigiConfError
 from vigilo.vigiconf.lib.systemcommand import SystemCommand, SystemCommandError
 
 
@@ -95,7 +93,7 @@ class Server(object):
         return self.revisions["deployed"] != self.revisions["installed"]
 
     # external references
-    def getBaseDir(self):
+    def getBaseDir(self): # pylint: disable-msg=R0201
         """
         @return: base directory for file deployment
         @rtype: C{str}
@@ -151,13 +149,6 @@ class Server(object):
                 'reason': e.value,
             }, self.getName())
         LOGGER.debug("Switched directories on %s", self.name)
-
-    def _builddepcmd(self):
-        """
-        Build the deployment command line
-        @note: To be implemented by subclasses.
-        """
-        return ""
 
     def tarConf(self):
         """
@@ -248,7 +239,7 @@ class Server(object):
         cmd = self.createCommand(["vigiconf-local", "get-revisions"])
         cmd.execute()
         rev_re = re.compile("^\s*(\w+)\s+(\d+)\s*$")
-        revisions = {"new": 0, "prod": 0, "old": 0,}
+        revisions = {"new": 0, "prod": 0, "old": 0}
         for line in cmd.getResult().split("\n"):
             rev_match = rev_re.match(line)
             if not rev_match:
@@ -271,7 +262,7 @@ class Server(object):
             _file = open(self.rev_filename, 'wb')
             _file.write("Revision: %d" % self.revisions["conf"])
             _file.close()
-        except Exception, e:
+        except Exception, e: # pylint: disable-msg=W0703
             LOGGER.exception(_("Cannot write the revision file: %s"), e)
 
     def revisions_summary(self):

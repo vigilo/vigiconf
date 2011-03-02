@@ -44,7 +44,7 @@ class DispatchatorLocal(Dispatchator):
         """
         return [ "localhost" ]
 
-    def server_status(self, *args, **kwargs):
+    def server_status(self, servernames, status, no_deploy=False):
         raise EditionError(_("Vigilo server management is only available "
                              "in the Enterprise edition. Aborting."))
 

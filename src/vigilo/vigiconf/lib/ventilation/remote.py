@@ -29,7 +29,6 @@ This file is part of the Enterprise Edition
 
 from __future__ import absolute_import
 
-import transaction
 import zlib
 
 from vigilo.models.session import DBSession
@@ -125,7 +124,9 @@ class VentilatorRemote(Ventilator):
         """
         return self._cache["prev_ventilation"].get( (host, appgroup), [] )
 
-    def get_host_ventilation_group(self, hostname, hostdata={}):
+    def get_host_ventilation_group(self, hostname, hostdata=None):
+        if hostdata is None:
+            hostdata = {}
         if "serverGroup" in hostdata and hostdata["serverGroup"]:
             if hostdata["serverGroup"].count("/") == 1:
                 hostdata["serverGroup"] = hostdata["serverGroup"].lstrip("/")
@@ -178,7 +179,7 @@ class VentilatorRemote(Ventilator):
         return [ v for v in vserverlist
                  if v in self._cache["active_vservers"] ]
 
-    def ventilate(self, fromdb=False):
+    def ventilate(self, fromdb=False): # pylint: disable-msg=W0221
         """
         Try to find the best server where to monitor the hosts contained in the
         I{conf}.
@@ -241,7 +242,8 @@ class VentilatorRemote(Ventilator):
                     # avoir 2 (un nominal et un backup) ou un seul
                     # (un backup) si tous les nominaux sont tombés.
                     try:
-                        servers = self._ventilate_appgroup(appgroup, hostgroup, host)
+                        servers = self._ventilate_appgroup(appgroup,
+                                                           hostgroup, host)
                     except NoServerAvailable, e:
                         errors.add(e.value)
                         continue

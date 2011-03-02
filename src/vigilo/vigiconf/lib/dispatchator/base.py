@@ -27,13 +27,7 @@ This is the module to call as a main end-user command line (see --help)
 
 from __future__ import absolute_import
 
-import os
-import Queue
-from xml.etree import ElementTree as ET
-
 import transaction
-
-from vigilo.common.conf import settings
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -42,11 +36,7 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 
-from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib.server import get_server_manager
-from vigilo.vigiconf.lib.generators import GeneratorManager, GenerationError
-from vigilo.vigiconf.lib.systemcommand import SystemCommand, SystemCommandError
-from vigilo.vigiconf.lib.application import ApplicationManager
+from vigilo.vigiconf.lib.generators import GenerationError
 from vigilo.vigiconf.lib.exceptions import DispatchatorError
 
 
@@ -67,7 +57,7 @@ class Dispatchator(object):
     """
 
     def __init__(self, apps_mgr, rev_mgr, srv_mgr, gen_mgr):
-        self._force = False # géré comme propriété, voir get_force / set_force
+        self._force = False # géré comme propriété, voir get_force/set_force
         self.commandsQueue = None # will be initialized as Queue.Queue later
         self.returnsQueue = None # will be initialized as Queue.Queue later
         self.apps_mgr = apps_mgr
@@ -153,7 +143,7 @@ class Dispatchator(object):
         if deployed:
             self.apps_mgr.qualify()
 
-    def commit(self):
+    def commit(self): # pylint: disable-msg=R0201
         """Enregistre la configuration en base de données"""
         try:
             transaction.commit()
@@ -198,14 +188,14 @@ class Dispatchator(object):
                              {"server": servername,
                               "rev": server.revisions_summary(),
                               "dep": _deploymentStr, "restart": _restartStr})
-            except Exception, e:
+            except Exception, e: # pylint: disable-msg=W0703
                 LOGGER.warning(_("Cannot get revision for server: %(server)s. "
                                  "REASON : %(reason)s"),
                                  {"server": servername,
                                   "reason": str(e)})
         return state
 
-    def server_status(self, *args, **kwargs):
+    def server_status(self, servernames, status, no_deploy=False):
         raise NotImplementedError()
 
     def run(self, stop_after=None):

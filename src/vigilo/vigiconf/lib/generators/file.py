@@ -72,6 +72,9 @@ class FileGenerator(Generator):
         self.results["files"] = 0
         self.results["dirs"] = 0
 
+    def generate_host(self, hostname, vserver):
+        raise NotImplementedError()
+
     def copy(self, tplsrc, dst):
         """
         Simply copy a file to a destination, creating directories if necessary.

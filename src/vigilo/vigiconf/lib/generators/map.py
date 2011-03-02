@@ -71,6 +71,9 @@ class MapGenerator(Generator):
         super(MapGenerator, self).__init__(application, ventilation)
         self.map_defaults.update(self.application.getConfig())
 
+    def generate_host(self, hostname, vserver):
+        raise NotImplementedError()
+
     def get_root_group(self):
         root = MapGroup.by_parent_and_name(None, unicode(self.rootgroup_name))
         if root:
@@ -162,7 +165,7 @@ class MapGenerator(Generator):
             DBSession.add(gmap)
         return gmap
 
-    def create_map(self, title, groups, data={}):
+    def create_map(self, title, groups, data=None):
         """ création d'une carte.
 
         @param title: titre de la carte
@@ -175,15 +178,17 @@ class MapGenerator(Generator):
         @return: une carte
         @rtype: C{Map}
         """
+        if data is None:
+            data = {}
         full_data = self.map_defaults.copy()
         full_data.update(data)
-        map = Map(title=unicode(title), generated=True,
-                  mtime=datetime.now(),
-                  background_color=unicode(full_data['background_color']),
-                  background_image=unicode(full_data['background_image']),
-                  background_position=unicode(full_data['background_position']),
-                  background_repeat=unicode(full_data['background_repeat']),
-                  )
+        new_map = Map(title=unicode(title), generated=True,
+                mtime=datetime.now(),
+                background_color=unicode(full_data['background_color']),
+                background_image=unicode(full_data['background_image']),
+                background_position=unicode(full_data['background_position']),
+                background_repeat=unicode(full_data['background_repeat']),
+                )
         map.groups = groups
-        DBSession.add(map)
-        return map
+        DBSession.add(new_map)
+        return new_map

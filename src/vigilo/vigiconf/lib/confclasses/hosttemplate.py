@@ -25,7 +25,6 @@ from __future__ import absolute_import
 
 import os
 import copy
-import subprocess
 from lxml import etree
 
 from vigilo.common.conf import settings
@@ -85,10 +84,10 @@ class HostTemplate(object):
         @type  p: C{str} or C{list} of C{str}
         """
         if not isinstance(p, list): # convert to list
-            p = [p,]
+            p = [ p, ]
         self.data["parent"].extend(p)
 
-    def add_test(self, testname, args={}, weight=None):
+    def add_test(self, testname, args=None, weight=None):
         """
         Add a test to this host template
         @param testname: the test name
@@ -96,6 +95,8 @@ class HostTemplate(object):
         @param args: the test arguments
         @type  args: C{dict}
         """
+        if args is None:
+            args = {}
         if not self.data.has_key("tests"):
             self.data["tests"] = []
         t_dict = {"name": testname}
@@ -268,7 +269,7 @@ class HostTemplateFactory(object):
                 self._load(os.path.join(pathdir, tplfile))
         self.apply_inheritance()
 
-    def _get_xsd(self):
+    def _get_xsd(self): # pylint: disable-msg=R0201
         xsd_path = os.path.join(os.path.dirname(__file__), "..", "..",
                            "validation", "xsd", "hosttemplate.xsd")
         try:
@@ -289,7 +290,7 @@ class HostTemplateFactory(object):
                                 })
         return xsd
 
-    def _validate(self, source, xsd):
+    def _validate(self, source, xsd): # pylint: disable-msg=R0201
         """
         Validate the XML against the XSD using lxml
         @param source: an XML file (or stream)
@@ -355,7 +356,8 @@ class HostTemplateFactory(object):
                     cur_tpl.add_class(get_text(elem))
 
                 elif elem.tag == "directive":
-                    if not process_nagios: continue
+                    if not process_nagios:
+                        continue
 
                     dvalue = get_text(elem).strip()
                     dname = get_attrib(elem, 'name').strip()
@@ -394,7 +396,8 @@ class HostTemplateFactory(object):
                             'weight': test_weight,
                         })
                     except TypeError:
-                        pass # C'est None, on laisse prendre la valeur par défaut
+                        # C'est None, on laisse prendre la valeur par défaut
+                        pass
                     args = {}
                     for arg in elem.getchildren():
                         if arg.tag != "arg":
@@ -417,7 +420,8 @@ class HostTemplateFactory(object):
                             'weight': weight,
                         })
                     except TypeError:
-                        pass # C'est None, on laisse prendre la valeur par défaut
+                        # C'est None, on laisse prendre la valeur par défaut
+                        pass
                     cur_tpl.add_weight(weight)
 
                 elif elem.tag == "template":
@@ -494,7 +498,8 @@ class HostTemplateFactory(object):
                             templates_save[tplname]["tests"])
             self.templates[tplname]["attributes"].update(
                             templates_save[tplname]["attributes"])
-            self.templates[tplname]["weight"] = templates_save[tplname]["weight"]
+            self.templates[tplname]["weight"] = \
+                            templates_save[tplname]["weight"]
             self.templates[tplname]["nagiosDirectives"].update(
                             templates_save[tplname]["nagiosDirectives"])
             self.templates[tplname]["nagiosSrvDirs"].update(

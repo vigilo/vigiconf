@@ -36,6 +36,7 @@ class VigiRRDGen(Generator):
     """Generator for RRD graph generator"""
 
     def generate(self):
+        # pylint: disable-msg=W0201
         self._all_ds_graph = set()
         self._all_ds_metro = set()
         self.connections = {}
@@ -53,7 +54,6 @@ class VigiRRDGen(Generator):
             os.chmod(db_path, # chmod 644
                      stat.S_IRUSR | stat.S_IWUSR | \
                      stat.S_IRGRP | stat.S_IROTH )
-        db = self.connections[vserver]["db"]
         cursor = self.connections[vserver]["cursor"]
         self.db_add_graphs(cursor, hostname, h["graphItems"])
         # list all ds for validation
@@ -158,7 +158,7 @@ class VigiRRDGen(Generator):
             cursor.execute("INSERT INTO graphperfdatasource VALUES "
                            "(?, ?)", (idpds, idgraph))
 
-    def db_add_pds(self, cursor, name, factor):
+    def db_add_pds(self, cursor, name, factor): # pylint: disable-msg=R0201
         cursor.execute("SELECT idperfdatasource FROM perfdatasource "
                        "WHERE name = ?", (name, ))
         idpds = cursor.fetchone()

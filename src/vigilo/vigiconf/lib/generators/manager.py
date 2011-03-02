@@ -23,10 +23,8 @@ Generators for the Vigilo Config Manager
 
 from __future__ import absolute_import
 
-import glob
-import os, sys
+import os
 import os.path
-import types
 import shutil
 import multiprocessing
 
@@ -44,15 +42,11 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-from vigilo.models.tables import LowLevelService
-
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib import VigiConfError
 from vigilo.vigiconf.lib.validator import Validator
-#from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib.loaders.manager import LoaderManager
-from .base import Generator
 
 
 class GenerationError(VigiConfError):
@@ -185,7 +179,7 @@ class GeneratorManager(object):
         for appname, result in results.items():
             try:
                 result.get()
-            except Exception, e:
+            except Exception, e: # pylint: disable-msg=W0703
                 errors[appname] = e
         for appname, error in errors.items():
             LOGGER.error(_("%(errtype)s in application %(app)s: %(error)s"),
@@ -289,7 +283,7 @@ class GeneratorManager(object):
                     if app.name == "collector":
                         self._ventilation[perf_host][app] = vserver
 
-    def _choose_metro_server(self, hostname, vba):
+    def _choose_metro_server(self, hostname, vba): # pylint: disable-msg=R0201
         """On choisit le même serveur que nagios si possible"""
         nagios_servers = vba[hostname]["nagios"]
         if not isinstance(nagios_servers, list):
@@ -302,7 +296,6 @@ class GeneratorManager(object):
 
 def _run_db_generator(appclass):
     from vigilo.models.session import DBSession
-    import transaction
     # Pour éviter que le pool loggue les déconnexions (SALE)
     #DBSession.bind.pool._should_log_info = False
     # On force la reconnection à la base de données

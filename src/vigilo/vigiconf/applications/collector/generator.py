@@ -22,7 +22,6 @@
 """Generator for the Collector"""
 
 import os
-import urllib
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.generators import FileGenerator
@@ -92,7 +91,8 @@ class CollectorGen(FileGenerator):
                 if isinstance(vserver, list):
                     vserver = vserver[0]
                 if jobtype != 'perfData': # service check result => forHost's spoolme server
-                    tplvars['reRouteFor'] = rr_tpl % (vserver, forHost, service)
+                    tplvars['reRouteFor'] = rr_tpl % (vserver, forHost,
+                                                      service)
             else:
                 forHost = hostname
                 service = jobname
@@ -100,7 +100,8 @@ class CollectorGen(FileGenerator):
             if jobtype == 'perfData':
                 self.templateAppend(fileName, self.templates["metro"], tplvars)
             else:
-                self.templateAppend(fileName, self.templates["service"], tplvars)
+                self.templateAppend(fileName, self.templates["service"],
+                                    tplvars)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

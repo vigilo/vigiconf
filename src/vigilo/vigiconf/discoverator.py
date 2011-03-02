@@ -87,7 +87,9 @@ class Discoverator(object):
         # Find the hostname using SNMPv2-MIB::sysName.0
         self.hostname = self.oids[".1.3.6.1.2.1.1.5.0"].strip()
         if re.search('\s', self.hostname):
-            raise DiscoveratorError(_("Invalid HOSTNAME detected in SNMPv2-MIB::sysName.0: \"%s\" (blank character not allowed)") % self.hostname)
+            raise DiscoveratorError(_("Invalid HOSTNAME detected in "
+                    "SNMPv2-MIB::sysName.0: \"%s\" (blank character "
+                    "not allowed)") % self.hostname)
 
     def scanhost(self, host, community="public", version="2c"):
         """

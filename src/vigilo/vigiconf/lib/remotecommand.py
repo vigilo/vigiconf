@@ -24,7 +24,6 @@ from __future__ import absolute_import
 
 import os
 import re
-import doctest
 
 from .systemcommand import SystemCommand, SystemCommandError
 
@@ -114,9 +113,10 @@ class RemoteCommand(SystemCommand):
         """
         # @TODO: est-ce qu'on a vraiment besoin de distinguer les 2 cas ?
         if iServer is None:
-            raise RemoteCommandError(None, _("Server name set to None."))
+            raise RemoteCommandError(None, _("Server name set to None"))
         if len(iServer) == 0:
-            raise RemoteCommandError(None, _("Server name incorrect (length = 0)."))
+            raise RemoteCommandError(None,
+                        _("Invalid server name (empty)"))
         self.mServer = iServer # pylint: disable-msg=W0201
 
     def setUser(self, iUser):
@@ -210,10 +210,12 @@ class RemoteCommand(SystemCommand):
             # TODO: utiliser les codes de retour
             if re.search("ssh:.*Name or service not known",
                          sce.value) != None:
-                raise RemoteCommandError(sce.returncode, _('Cannot reach server.'))
+                raise RemoteCommandError(sce.returncode,
+                            _('Cannot reach server.'))
             elif re.search("scp:.*No such file or directory",
                            sce.value) != None:
-                raise RemoteCommandError(sce.returncode, _('Cannot find file.'))
+                raise RemoteCommandError(sce.returncode,
+                            _('Cannot find file.'))
             else:
                 raise sce
 
@@ -243,7 +245,8 @@ class RemoteCommand(SystemCommand):
         except SystemCommandError, e:
             # TODO: utiliser les codes de retour
             if re.search("ssh:.*Name or service not known", e.value) != None:
-                raise RemoteCommandError(e.returncode, _('Cannot reach server.'))
+                raise RemoteCommandError(e.returncode,
+                            _('Cannot reach server.'))
             elif re.search("scp:.*No such file or directory", e.value) != None:
                 raise RemoteCommandError(e.returncode, _('Cannot find file.'))
             else:

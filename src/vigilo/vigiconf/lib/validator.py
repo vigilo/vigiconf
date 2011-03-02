@@ -50,12 +50,14 @@ class Validator(object):
         nbGenerators.
     """
 
-    def __init__(self, ventilation={}):
+    def __init__(self, ventilation=None):
         """
         @param ventilation: the ventilation ventilation
         @type  ventilation: C{dict}, see the
             L{vigilo.vigiconf.lib.ventilation.Ventilator.ventilate}() method
         """
+        if ventilation is None:
+            ventilation = {}
         self.ventilation = ventilation
         self._warnings = []
         self._errors = []
@@ -107,23 +109,23 @@ class Validator(object):
         @rtype: C{boolean}
         """
         self._stats["nbHosts"] = len(conf.hostsConf)
-        self.apps = set()
+        apps = set()
         servers = set()
         for hostVentilation in self.ventilation.values():
             for (app, vservers) in hostVentilation.iteritems():
-                self.apps.add(app)
+                apps.add(app)
                 servers.update(set(vservers))
         self._stats["nbServers"] = len(servers)
-        self._stats["nbApps"] = len(self.apps)
+        self._stats["nbApps"] = len(apps)
         if not onlydb:
             self.prevalidate_hosts()
             self.prevalidate_services()
-        self.prevalidate_applications()
+        self.prevalidate_applications(apps)
         self.prevalidate_ventilation()
         if len(servers) == 0:
             self.addError("Base Config", "servers",
                           _("No server configuration to be generated"))
-        if len(self.apps) == 0:
+        if len(apps) == 0:
             self.addError("Base Config", "apps",
                           _("No application configuration to be generated"))
         if not onlydb and len(conf.hostsConf) == 0:
@@ -186,13 +188,13 @@ class Validator(object):
             apps_db = set([a.name for a in
                            DBSession.query(tables.Application).all()])
             apps_conf = set()
-            for host, hostVentilation in self.ventilation.iteritems():
+            for hostVentilation in self.ventilation.values():
                 for app in hostVentilation:
                     apps_conf.add(app.name)
             LOGGER.debug("Applications: difference between conf and DB: %s",
                          " ".join(apps_db ^ apps_conf))
 
-    def prevalidate_ventilation(self):
+    def prevalidate_ventilation(self, apps):
         ventilation_db = DBSession.query(tables.Ventilation).count()
         if ventilation_db != self._stats["nbHosts"] * self._stats["nbApps"]:
             self.addWarning("DBLoader", "ventilation",
@@ -205,7 +207,7 @@ class Validator(object):
             ventilation_db = set([ "%s:%s" % (v.host.name, v.application.name)
                          for v in DBSession.query(tables.Ventilation).all() ])
             ventilation_conf = set()
-            for a in self.apps:
+            for a in apps:
                 for h in conf.hostsConf.keys():
                     ventilation_conf.add("%s:%s" % (h, a))
             LOGGER.debug("Ventilation: difference between conf and DB: %s",

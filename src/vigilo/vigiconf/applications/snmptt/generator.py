@@ -22,9 +22,6 @@
 
 import os
 import os.path
-import re
-
-from vigilo.common.conf import settings
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.generators import FileGenerator
@@ -53,22 +50,22 @@ class SnmpTTGen(FileGenerator):
         #  servicename2: etc.
         for srvname in h["snmpTrap"].keys():
             if srvname not in h["services"].keys():
-                self.templateCreate(fileName_nagios, self.templates["nagios_trap"],
-                    {
-                        "hostname": hostname,
-                        "servicename": srvname,
-                    }
-                )
+                self.templateCreate(fileName_nagios,
+                        self.templates["nagios_trap"],
+                        { "hostname": hostname,
+                          "servicename": srvname,
+                        })
             for oid in h["snmpTrap"][srvname].keys():
                 vals = h["snmpTrap"][srvname][oid]
                 if not os.path.exists(fileName):
                     templateFunct = self.templateCreate
                 else:
                     templateFunct = self.templateAppend
-                # from snmptt website: If no MATCH MODE= line exists, it defaults to 'or'.
+                # from snmptt website: If no MATCH MODE= line exists, it
+                # defaults to 'or'.
                 if isinstance(vals["address"], list):
                     all_match = "\n".join(match % i for i in vals["address"])
-                    all_match+= "\nMATCH MODE:%s" % vals["mode"]
+                    all_match += "\nMATCH MODE:%s" % vals["mode"]
                 else:
                     all_match = match % vals["address"]
 

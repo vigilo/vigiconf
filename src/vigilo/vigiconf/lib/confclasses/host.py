@@ -24,7 +24,6 @@ This module contains the Host class
 from __future__ import absolute_import
 
 import os
-import subprocess
 import inspect
 from lxml import etree
 
@@ -40,8 +39,6 @@ from .graph import Graph
 from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.lib import SNMP_ENTERPRISE_OID
 
-from vigilo.models.session import DBSession
-from vigilo.models.tables import SupItemGroup
 
 class Host(object):
     """
@@ -153,7 +150,7 @@ class Host(object):
         """
         self.hosts[self.name].update(attributes)
 
-    def add_tests(self, test_list, args={}, weight=None, directives=None):
+    def add_tests(self, test_list, args=None, weight=None, directives=None):
         """
         Add a list of tests to this host, with the provided arguments
 
@@ -168,6 +165,8 @@ class Host(object):
             weight = 1
         if directives is None:
             directives = {}
+        if args is None:
+            args = {}
         for test_class in test_list:
             inst = test_class()
             try:
@@ -306,7 +305,7 @@ class Host(object):
             self.hosts[hostname][prop][subprop] = {}
         self.hosts[hostname][prop][subprop].update({key: value})
 
-    def add_trap(self, service, oid, data={}):
+    def add_trap(self, service, oid, data=None):
         """
         Add a SNMPT Trap handler (for snmptt)
         @param service: the service description (nagios service)
@@ -320,6 +319,8 @@ class Host(object):
             service: service description (nagios service) C{str} (to remove?)
         @type data: C{dict}
         """
+        if data is None:
+            data = {}
         if not self.hosts[self.name].has_key("snmpTrap"):
             self.hosts[self.name]["snmpTrap"] = {}
         if not self.hosts[self.name]["snmpTrap"].has_key(service):
@@ -331,13 +332,15 @@ class Host(object):
         for key, value in data.iteritems():
             self.hosts[self.name]["snmpTrap"][service][oid].update({key: value})
 
-    def add_netflow(self, data={}):
+    def add_netflow(self, data=None):
         """
         Add netflow handler (for pmacct and pmacct-snmp)
         @param data: dictionary contains data like inbound, outboun, binary
         path and ip list.
         @type data: C{dict}
         """
+        if data is None:
+            data = {}
         if not self.hosts[self.name].has_key("netflow"):
             self.hosts[self.name]["netflow"] = {}
         self.hosts[self.name]["netflow"] = data.copy()
@@ -632,7 +635,8 @@ class Host(object):
                     {'name': name, 'perfDataVarName': perfdatavarname,
                      'reRouteFor': reroutefor})
 
-    def add_metro_service(self, servicename, metroname, warn, crit, factor=1, weight=1):
+    def add_metro_service(self, servicename, metroname, warn, crit,
+                          factor=1, weight=1):
         """
         Add a Nagios test on the values stored in a RRD file
         @param servicename: the name of the Nagios service
@@ -763,7 +767,7 @@ class HostFactory(object):
                     dirs.remove("CVS")
         return self.hosts
 
-    def _get_xsd(self):
+    def _get_xsd(self): # pylint: disable-msg=R0201
         xsd_path = os.path.join(os.path.dirname(__file__), "..", "..",
                            "validation", "xsd", "host.xsd")
         try:
@@ -784,7 +788,7 @@ class HostFactory(object):
                                 })
         return xsd
 
-    def _validatehost(self, source, xsd):
+    def _validatehost(self, source, xsd): # pylint: disable-msg=R0201
         """
         Validate the XML against the XSD using lxml
         @param source: an XML file (or stream)
@@ -898,18 +902,20 @@ class HostFactory(object):
                                 'weight': test_weight,
                             })
                     except TypeError:
-                        pass # C'est None, on laisse prendre la valeur par défaut
+                        # C'est None, on laisse prendre la valeur par défaut
+                        pass
                     args = {}
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
                             args[get_attrib(arg, 'name')] = get_text(arg)
-                    tests.append((test_name, args, test_weight, test_directives))
+                    tests.append( (test_name, args, test_weight,
+                                   test_directives) )
                     test_name = None
 
                 elif elem.tag == "attribute":
                     value = get_text(elem)
-                    items = [get_text(i) for i in elem.getchildren()
-                                     if i.tag == "item" ]
+                    items = [ get_text(i) for i in elem.getchildren()
+                              if i.tag == "item" ]
                     if items:
                         value = items
                     cur_host.set_attribute(get_attrib(elem, 'name'), value)
@@ -922,7 +928,8 @@ class HostFactory(object):
                                   get_text(elem)) )
 
                 elif elem.tag == "directive":
-                    if not process_nagios: continue
+                    if not process_nagios:
+                        continue
 
                     dvalue = get_text(elem).strip()
                     dname = get_attrib(elem, 'name').strip()
@@ -953,21 +960,23 @@ class HostFactory(object):
                             'weight': host_weight,
                         })
                     except TypeError:
-                        pass # C'est None, on laisse prendre la valeur par défaut
+                        # C'est None, on laisse prendre la valeur par défaut
+                        pass
 
                 elif elem.tag == "nagios":
                     process_nagios = False
 
                 elif elem.tag == "host":
                     if not len(cur_host.get_attribute('otherGroups')):
-                        raise ParsingError(_('You must associate host "%s" with '
-                            'at least one group.') % cur_host.name)
+                        raise ParsingError(_('You must associate host "%s" '
+                            'with at least one group.') % cur_host.name)
 
                     if weight is not None:
                         cur_host.set_attribute("weight", weight)
 
                     for test_params in tests:
-                        test_list = self.testfactory.get_test(test_params[0], cur_host.classes)
+                        test_list = self.testfactory.get_test(test_params[0],
+                                          cur_host.classes)
                         cur_host.add_tests(test_list, *test_params[1:])
 
                     for (dname, dvalue) in directives.iteritems():

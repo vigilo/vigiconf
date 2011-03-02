@@ -120,7 +120,6 @@ class Application(object):
 
     def getConfig(self):
         config = self.defaults.copy()
-        from vigilo.vigiconf import conf
         if self.name in conf.apps_conf:
             config.update(conf.apps_conf[self.name])
         return config
@@ -413,11 +412,6 @@ class ActionResult(object):
         self._commands.join()
         result = self.process_errors()
         return result
-        if not result:
-            raise ApplicationError(_("%(app)s: %(action)s process failed.")
-                                   % {"app": self.app_name,
-                                      "action": self.action_name})
-        return True
 
 
 

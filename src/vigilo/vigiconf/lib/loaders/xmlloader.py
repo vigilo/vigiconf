@@ -28,7 +28,6 @@ TODO: confclasses refactoring needed ?
 from __future__ import absolute_import
 
 import os
-import subprocess
 from lxml import etree
 
 from pkg_resources import resource_filename
@@ -104,7 +103,7 @@ class XMLLoader(DBLoader):
                                 })
         return xsd
 
-    def validate(self, xmlfile, xsd):
+    def validate(self, xmlfile, xsd): # pylint: disable-msg=R0201
         """
         Validate the XML against the XSD using lxml
         @param xmlfile: an XML file
@@ -129,7 +128,7 @@ class XMLLoader(DBLoader):
                                 })
         return source_doc
 
-    def visit_dir(self, dirname):
+    def visit_dir(self, dirname): # pylint: disable-msg=R0201
         """ validate the exploration of a directory.
 
         @param dirname: a directory name
@@ -229,7 +228,8 @@ class XMLLoader(DBLoader):
         @param elem: élément (élément courant par défaut)
         @type  elem: C{object}
         """
-        if elem == None: elem = self._elem
+        if elem == None:
+            elem = self._elem
         return elem.text
 
     def get_attrib(self, name, elem=None):
@@ -240,7 +240,8 @@ class XMLLoader(DBLoader):
         @param elem: élément (élément courant par défaut)
         @type  elem: C{object}
         """
-        if elem == None: elem = self._elem
+        if elem == None:
+            elem = self._elem
         return elem.attrib[name]
 
     def get_utext(self, elem=None):

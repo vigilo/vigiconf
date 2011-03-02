@@ -23,8 +23,6 @@ from __future__ import absolute_import
 
 import os
 
-from vigilo.common.conf import settings
-
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
@@ -64,7 +62,7 @@ class ServerLocal(Server):
                                     'error': e.value,
                                 })
 
-    def is_enabled(self):
+    def is_enabled(self): # pylint: disable-msg=R0201
         return True
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -28,10 +28,7 @@ This is the module to call as a main end-user command line (see --help)
 from __future__ import absolute_import
 
 import os
-import Queue
 from xml.etree import ElementTree as ET
-
-import transaction
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -42,8 +39,6 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-
-from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.systemcommand import SystemCommand, SystemCommandError
 from vigilo.vigiconf.lib.exceptions import DispatchatorError
 
@@ -139,7 +134,8 @@ class RevisionManager(object):
             status = self.status()
             i += 1
             if i > 10: # sécurité
-                raise DispatchatorError(_("Error while syncing the SVN directory"))
+                raise DispatchatorError(_("Error while syncing the "
+                                          "SVN directory"))
 
     def add(self, path):
         LOGGER.debug("Adding a new configuration file to the "
@@ -216,7 +212,7 @@ class RevisionManager(object):
                                    })
         return result
 
-    def _get_auth_svn_cmd_prefix(self, svn_cmd):
+    def _get_auth_svn_cmd_prefix(self, svn_cmd): # pylint: disable-msg=R0201
         """
         Get an authentified svn command prefix like
         "svn <svn_cmd> --username user --password password "
@@ -259,7 +255,8 @@ class RevisionManager(object):
             res = entry.get("revision", res)
         return int(res)
 
-    def file_changed(self, filename, exclude_added=False, exclude_removed=False):
+    def file_changed(self, filename, exclude_added=False,
+                     exclude_removed=False):
         if self.force:
             # L'usage de l'option "--force" est considéré comme
             # étant une modification de la configuration.

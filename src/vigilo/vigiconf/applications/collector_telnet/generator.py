@@ -21,8 +21,6 @@
 
 """Generator for Nagios"""
 
-from vigilo.common.conf import settings
-
 import os.path
 
 from vigilo.vigiconf import conf
@@ -37,6 +35,7 @@ class CollectorTelnetGen(FileGenerator):
     """
 
     def generate(self):
+        # pylint: disable-msg=W0201
         self._files = {}
         super(CollectorTelnetGen, self).generate()
 
