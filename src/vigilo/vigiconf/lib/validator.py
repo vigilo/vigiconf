@@ -120,8 +120,8 @@ class Validator(object):
         if not onlydb:
             self.prevalidate_hosts()
             self.prevalidate_services()
-        self.prevalidate_applications(apps)
-        self.prevalidate_ventilation()
+        self.prevalidate_applications()
+        self.prevalidate_ventilation(apps)
         if len(servers) == 0:
             self.addError("Base Config", "servers",
                           _("No server configuration to be generated"))

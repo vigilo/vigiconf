@@ -189,6 +189,6 @@ class MapGenerator(Generator):
                 background_position=unicode(full_data['background_position']),
                 background_repeat=unicode(full_data['background_repeat']),
                 )
-        map.groups = groups
+        new_map.groups = groups
         DBSession.add(new_map)
         return new_map
