@@ -177,7 +177,7 @@ class ServerRemote(Server):
 
     def disable(self):
         """
-        Désactive un serveur Vigilo
+        Désactive ce serveur Vigilo
         """
         vserver = tables.VigiloServer.by_vigiloserver_name(unicode(self.name))
         if vserver is None:
@@ -191,9 +191,7 @@ class ServerRemote(Server):
 
     def enable(self):
         """
-        Active un serveur Vigilo
-        @param vservername: nom du serveur Vigilo
-        @type  vservername: C{str}
+        Active ce serveur Vigilo
         """
         vserver = tables.VigiloServer.by_vigiloserver_name(unicode(self.name))
         if vserver is None:

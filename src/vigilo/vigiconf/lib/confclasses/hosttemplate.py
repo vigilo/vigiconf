@@ -122,9 +122,9 @@ class HostTemplate(object):
 
     def add_class(self, classname):
         """
-        Add a group to this host template
-        @param args: the groups to add
-        @type  args: C{str} or C{list} of C{str}
+        Add a class name to this host template
+        @param classname: the class name to add
+        @type  classname: C{str}
         """
         if not self.data.has_key("classes"):
             self.data["classes"] = []

@@ -7,13 +7,13 @@ import subprocess
 import glob
 
 class XSDTest(unittest.TestCase):
-    """A base class for testing XSD schema.
+    """
+    A base class for testing XSD schema.
 
-    Usage:
-    just use it as a base class then redefine:
-      * xsd_file
-      * xml_ok_files
-      * xml_ko_files
+    Just use it as a base class then redefine:
+      - xsd_file
+      - xml_ok_files
+      - xml_ko_files
     """
     _cmd_verb = "xmllint --noout --schema %s %s"
     _cmd_silent = "xmllint --noout --schema %s %s 2>/dev/null"

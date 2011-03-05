@@ -469,8 +469,6 @@ class ApplicationManager(object):
     def qualify(self):
         """
         Valide la configuration des applications sur les serveurs distants
-        @param servers: Liste de serveurs
-        @type  servers: C{list} de L{str}
         """
         results = []
         for app in self.applications:

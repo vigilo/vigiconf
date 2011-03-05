@@ -3,9 +3,9 @@
 """
 loaders test.
 
- * host groups
- * service groups
- * topology
+  - host groups
+  - service groups
+  - topology
 """
 
 import os, unittest, shutil

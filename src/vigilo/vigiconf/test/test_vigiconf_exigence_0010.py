@@ -27,7 +27,8 @@ from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplateFactory
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 
 class VIGILO_CONFIGURATION_0010(unittest.TestCase):
-    """ Test de l'exigence VIGILO_EXIG_VIGILO_CONFIGURATION_0010
+    """
+    Test de l'exigence VIGILO_EXIG_VIGILO_CONFIGURATION_0010::
 
         Fonctions de préparation des configurations de la supervision
         en mode CLI.

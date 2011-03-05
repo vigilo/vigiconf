@@ -90,10 +90,10 @@ class ServerManager(object):
         """
         Deploys the config files to the servers belonging to iServers, using
         one thread per server.
-        @param iServers: List of servers
-        @type  iServers: C{list} of L{Server<lib.server.Server>}
-        @param iRevision: SVN revision number
-        @type  iRevision: C{int}
+        @param servers: List of servers
+        @type  servers: C{list} of L{Server<lib.server.Server>}
+        @param revision: SVN revision number
+        @type  revision: C{int}
         @return: number of servers deployed
         @rtype:  C{int}
         """

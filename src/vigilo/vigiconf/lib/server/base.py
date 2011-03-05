@@ -185,11 +185,10 @@ class Server(object):
     def _copy(self, source, destination):
         """
         Simple wrapper around shutil.copyfile.
-        @param iDestination: destination
-        @type  iDestination: C{str}
-        @param iSource: source
-        @type  iSource: C{str}
-        @todo: reverse arguments order
+        @param source: source
+        @type  source: C{str}
+        @param destination: destination
+        @type  destination: C{str}
         """
         try:
             os.makedirs(os.path.dirname(destination))
