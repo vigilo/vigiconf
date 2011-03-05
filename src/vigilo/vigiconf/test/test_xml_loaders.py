@@ -15,7 +15,7 @@ from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.topology import TopologyLoader
 
 import vigilo.vigiconf.conf as conf
-from helpers import setup_db, teardown_db, DummyRevMan
+from helpers import setup_db, teardown_db, DummyRevMan, TESTDATADIR
 
 from vigilo.models.tables import SupItemGroup, SupItemGroup, Host, SupItem
 from vigilo.models.tables import LowLevelService, HighLevelService, \
@@ -47,10 +47,11 @@ class GroupLoaderTest(XMLLoaderTest):
         self.grouploader = GroupLoader()
 
     def test_load_hostgroups(self):
-        self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
+        self.grouploader.load_dir(os.path.join(TESTDATADIR, "xsd",
+                                  "hostgroups", "ok"))
 
         g = SupItemGroup.by_group_name(u'root_group')
-        self.assertTrue(g, "root_group created.")
+        self.assertTrue(g, "root_group is not created.")
         n = len(g.get_children())
         c = SupItemGroup.by_group_name(u'hgroup1')
         print g.get_children()
@@ -89,7 +90,8 @@ class DepLoaderTest(XMLLoaderTest):
     def test_load_topologies(self):
         # let's create hosts and services
         print DBSession.query(Dependency).count()
-        self.topologyloader.load_dir('tests/testdata/xsd/topologies/ok/loader')
+        self.topologyloader.load_dir(os.path.join(TESTDATADIR,
+                                     'xsd/topologies/ok/loader'))
         # 4 topologies
         self.assertEquals(2, DBSession.query(Dependency).count())
         # host11/service11 is a dependence of host1
@@ -112,13 +114,13 @@ class DepLoaderTest(XMLLoaderTest):
         """Test de chargement des dépendances de la conf"""
         localhost = df.add_host("localhost")
         interface = df.add_lowlevelservice(localhost, "Interface eth0")
-        self.topologyloader.load_dir('tests/testdata/conf.d/topologies')
+        self.topologyloader.load_dir(os.path.join(TESTDATADIR, 'conf.d/topologies'))
 
     def test_load_topologies_ko(self):
         """
         Test de fichiers xml valides selon XSD mais invalides pour le loader.
         """
-        basedir = 'tests/testdata/xsd/topologies/ok/loader_ko'
+        basedir = os.path.join(TESTDATADIR, 'xsd/topologies/ok/loader_ko')
         self.assertRaises(ParsingError, self.topologyloader.load_dir, basedir)
 
     def test_hostgroups_hierarchy(self):
@@ -126,7 +128,7 @@ class DepLoaderTest(XMLLoaderTest):
         Test de grouploader.get_groups_hierarchy()
         Réimplémentation avec db du dico python conf.groupsHierarchy
         """
-        self.grouploader.load_dir('tests/testdata/xsd/hostgroups/ok')
+        self.grouploader.load_dir(os.path.join(TESTDATADIR, 'xsd/hostgroups/ok'))
         gh = self.grouploader._in_conf
         print gh
         self.assertTrue("/root_group3/hgroup31" in gh)

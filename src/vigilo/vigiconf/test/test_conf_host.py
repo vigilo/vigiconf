@@ -6,7 +6,7 @@ import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 
-from helpers import setup_db, teardown_db, setup_tmpdir
+from helpers import setup_db, teardown_db, setup_tmpdir, TESTDATADIR
 
 class HostMethods(unittest.TestCase):
 
@@ -233,7 +233,7 @@ class HostFactoryMethods(unittest.TestCase):
             conf.hosttemplatefactory.register(htpl)
         htpl.add_group("dummy_group") # sinon le no_secondary_groups.xml va pas passer
         f = HostFactory(
-                "tests/testdata/xsd/hosts/ok",
+                os.path.join(TESTDATADIR, "xsd/hosts/ok"),
                 conf.hosttemplatefactory,
                 conf.testfactory,
             )

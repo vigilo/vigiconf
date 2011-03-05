@@ -18,16 +18,17 @@ class XSDTest(unittest.TestCase):
     _cmd_verb = "xmllint --noout --schema %s %s"
     _cmd_silent = "xmllint --noout --schema %s %s 2>/dev/null"
 
-    xsd_file = "tests/testdata/xsd/sample.xsd"
-    xml_ok_files = {"tests/testdata/xsd":["sample_ok.xml", ]}
-    xml_ko_files = {"tests/testdata/xsd":["sample_ko.xml", ]}
+    xsd_file = "testdata/xsd/sample.xsd"
+    xml_ok_files = {"testdata/xsd":["sample_ok.xml", ]}
+    xml_ko_files = {"testdata/xsd":["sample_ko.xml", ]}
 
     def test_xmllint_present(self):
         self.assertEquals(0, subprocess.call("xmllint --version 2> /dev/null", shell="True"),
                           "xmllint is installed")
 
     def _run_command(self, filepath, expect):
-        cmd = self._cmd_silent % (self.xsd_file, filepath)
+        here = os.path.dirname(__file__)
+        cmd = self._cmd_silent % (os.path.join(here, self.xsd_file), filepath)
         r = subprocess.call(cmd, shell="True")
         if expect == "ko":
             self.assertNotEquals(0, r, "file %s is invalid" % filepath)
@@ -39,9 +40,10 @@ class XSDTest(unittest.TestCase):
 
     def test_xsd_ko_files(self):
         """ test invalid xml files"""
+        here = os.path.dirname(__file__)
         for dir, files in self.xml_ko_files.iteritems():
             for file in files:
-                filepath = os.path.join(dir, file)
+                filepath = os.path.join(here, dir, file)
                 if "*" in file:
                     for f in glob.glob(filepath):
                         self._run_command(f, "ko")
@@ -50,10 +52,11 @@ class XSDTest(unittest.TestCase):
 
     def test_xsd_ok_files(self):
         """ test valid xml files"""
+        here = os.path.dirname(__file__)
         ko_list = []
         for dir, files in self.xml_ok_files.iteritems():
             for file in files:
-                filepath = os.path.join(dir, file)
+                filepath = os.path.join(here, dir, file)
                 if "*" in file:
                     for f in glob.glob(filepath):
                         if not self._run_command(f, "ok"):

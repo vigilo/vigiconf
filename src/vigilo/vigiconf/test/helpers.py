@@ -17,6 +17,7 @@ import vigilo.vigiconf.conf as conf
 # test postgres: appeler abort() avant teardown
 import transaction
 
+TESTDATADIR = os.path.join(os.path.dirname(__file__), "testdata")
 
 def setUpModule(self):
     """Call once, before loading all the test cases."""

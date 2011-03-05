@@ -759,7 +759,7 @@ class HostFactory(object):
                 else:
                     hostxml = None
                 self._loadhosts(hostfile, hostxml)
-            LOGGER.debug("Successfully parsed %s", hostfile)
+                LOGGER.debug("Successfully parsed %s", hostfile)
             for d in dirs: # Don't visit subversion/CVS directories
                 if d.startswith("."):
                     dirs.remove(d)

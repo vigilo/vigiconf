@@ -125,13 +125,14 @@ setup(name='vigilo-vigiconf',
                 ],
         },
         package_dir={'': 'src'},
-        #include_package_data = True,
-        package_data={
-            "vigilo.vigiconf": ["applications/*/*.sh", "applications/*/templates/*",
-                                "validation/dtd/*.dtd", "validation/xsd/*.xsd",
-                                "tests/*/*.py"],
-            "twisted": ["plugins/vigilo_vigiconf.py"],
-            },
+        include_package_data = True,
+        #package_data={
+        #    "vigilo.vigiconf": ["applications/*/*.sh", "applications/*/templates/*",
+        #                        "validation/dtd/*.dtd", "validation/xsd/*.xsd",
+        #                        "tests/*/*.py"],
+        #    "vigilo.vigiconf.test": ["testdata/*/*", "testdata/*/*/*],
+        #    "twisted": ["plugins/vigilo_vigiconf.py"],
+        #    },
         data_files=get_data_files() +
             install_i18n("i18n", os.path.join(sys.prefix, 'share', 'locale')),
         )
