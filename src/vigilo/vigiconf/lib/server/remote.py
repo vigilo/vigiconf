@@ -45,7 +45,7 @@ class ServerManagerRemote(ServerManager):
 
     def list(self):
         """
-        Get all server names from configuration
+        Récupère tous les noms de serveurs depuis la configuration
         @return: the servers names from the configuration.
         @rtype: C{set} of C{str}
         """
@@ -163,7 +163,7 @@ class ServerRemote(Server):
                                 })
 
     def is_enabled(self):
-        """@see: L{lib.dispatchator.Dispatchator.filter_disabled}"""
+        """@see: L{lib.dispatchator.base.Dispatchator.filter_disabled}"""
         server_db = tables.VigiloServer.by_vigiloserver_name(
                             unicode(self.name))
         if server_db is None:

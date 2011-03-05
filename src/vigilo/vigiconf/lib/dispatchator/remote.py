@@ -68,7 +68,7 @@ class DispatchatorRemote(Dispatchator):
         return list(servers)
 
     def filter_disabled(self):
-        """@see: L{lib.dispatchator.Dispatchator.filter_disabled}"""
+        """@see: L{lib.dispatchator.base.Dispatchator.filter_disabled}"""
         servers = self.srv_mgr.filter_servers("is_enabled")
         self.restrict(servers)
 

@@ -18,7 +18,7 @@ from helpers import setup_deploy_dir, teardown_deploy_dir
 from helpers import setup_db, teardown_db
 
 
-class Dispatchator(unittest.TestCase):
+class DispatchatorTest(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""

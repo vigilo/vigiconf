@@ -36,6 +36,15 @@ from vigilo.vigiconf.lib.exceptions import VigiConfError, DispatchatorError
 
 
 class ServerManager(object):
+    """
+    Gestionnaire de serveurs Vigilo. Maintient une liste des serveurs
+    disponibles, et permet d'effectuer des opérations en masse sur les
+    serveurs.
+
+    @ivar servers: C{dict} des serveurs, indexés par le nom (C{str}) et
+        pontant sur l'objet (L{server.base.Server})
+    @type servers: C{dict}
+    """
 
     def __init__(self, factory):
         self.servers = []

@@ -44,22 +44,12 @@ class Dispatchator(object):
     """
     Dispatch the configurations files for all the applications
 
-    @ivar mServers: servers that will be used for operations
-    @type mServers: C{list} of L{Server<lib.server.Server>}
-    @ivar applications: applications deployed on L{mServers}
-    @type applications: C{list} of L{Application<lib.application.Application>}
     @ivar force: defines if the --force option is set
     @type force: C{boolean}
-    @ivar commandsQueue: commands queue
-    @type commandsQueue: L{Queue}
-    @ivar returnsQueue: commands queue
-    @type returnsQueue: L{Queue}
     """
 
     def __init__(self, apps_mgr, rev_mgr, srv_mgr, gen_mgr):
         self._force = False # géré comme propriété, voir get_force/set_force
-        self.commandsQueue = None # will be initialized as Queue.Queue later
-        self.returnsQueue = None # will be initialized as Queue.Queue later
         self.apps_mgr = apps_mgr
         self.rev_mgr = rev_mgr
         self.srv_mgr = srv_mgr

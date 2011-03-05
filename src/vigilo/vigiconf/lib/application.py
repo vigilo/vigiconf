@@ -183,46 +183,80 @@ class Application(object):
             d.write(s)
             d.close()
 
-    def validate_servers(self, iServers=None, async=False):
+    def validate_servers(self, servers=None, async=False):
         """
-        Validates all the configuration files (starts the validation command)
-        @param iBaseDir: The directory where the validation scripts are
-        @type  iBaseDir: C{str}
-        """
-        return self.execute("validate", iServers, async=async)
+        Valide les fichiers de configuration générés, à l'aide de la commande
+        de validation L{validation}.
 
-    def qualify_servers(self, iServers=None, async=False):
+        @param servers: Ne valide que sur cette liste de noms de serveurs (par
+            défaut: tous)
+        @type  servers: C{list} de C{str}
+        @param async: si cet argument est évalué à C{True}, un objet
+            L{ActionResult} est retourné, et l'action est effectuée en
+            arrière-plan
+        @param async: C{bool}
         """
-        Qualifies the configuration files on the provided servers.
-        @param iServers: The servers to qualify on
-        @type  iServers: C{list} of C{str}
-        """
-        return self.execute("qualify", iServers, async=async)
+        return self.execute("validate", servers, async=async)
 
-    def start_servers(self, iServers, async=False):
+    def qualify_servers(self, servers=None, async=False):
         """
-        Start the application on the intersection between iServers and our own
-        servers list.
-        @param iServers: The servers to start the application on
-        @type  iServers: C{list} of C{str}
-        """
-        return self.execute("start", iServers, async=async)
+        Valide les fichers de configuration à distance sur les serveurs spécifiés.
 
-    def stop_servers(self, iServers, async=False):
+        @param servers: Ne valide que sur cette liste de noms de serveurs (par
+            défaut: tous)
+        @type  servers: C{list} de C{str}
+        @param async: si cet argument est évalué à C{True}, un objet
+            L{ActionResult} est retourné, et l'action est effectuée en
+            arrière-plan
+        @param async: C{bool}
         """
-        Stop the application on the intersection between iServers and our own
-        servers list.
-        @param iServers: The servers to stop the application on
-        @type  iServers: C{list} of C{str}
+        return self.execute("qualify", servers, async=async)
+
+    def start_servers(self, servers, async=False):
         """
-        return self.execute("stop", iServers, async=async)
+        Démarre l'application sur l'intersection des serveurs disponibles et de
+        la liste de noms de serveurs fournie en argument.
+
+        @param servers: Ne démarre que sur cette liste de noms de serveurs (par
+            défaut: tous)
+        @type  servers: C{list} de C{str}
+        @param async: si cet argument est évalué à C{True}, un objet
+            L{ActionResult} est retourné, et l'action est effectuée en
+            arrière-plan
+        @param async: C{bool}
+        """
+        return self.execute("start", servers, async=async)
+
+    def stop_servers(self, servers, async=False):
+        """
+        Arrête l'application sur l'intersection des serveurs disponibles et de
+        la liste de noms de serveurs fournie en argument.
+
+        @param servers: N'arrête que sur cette liste de noms de serveurs (par
+            défaut: tous)
+        @type  servers: C{list} de C{str}
+        @param async: si cet argument est évalué à C{True}, un objet
+            L{ActionResult} est retourné, et l'action est effectuée en
+            arrière-plan
+        @param async: C{bool}
+        """
+        return self.execute("stop", servers, async=async)
 
     def execute(self, action, servernames=None, async=False):
         """
-        Stop the application on the intersection between iServers and our own
-        servers list.
-        @param servernames: The servers to act on
-        @type  servernames: C{list} of C{str}
+        Effectue une action sur l'intersection des serveurs disponibles et de
+        la liste de noms de serveurs fournie en argument.
+
+        @param action: Action à effectuer. Correspond à une méthode de la
+            classe, suivie de C{Server}.
+        @type  action: C{str}
+        @param servernames: N'effectue l'action que sur cette liste de noms de
+            serveurs (par défaut: tous)
+        @type  servernames: C{list} de C{str}
+        @param async: si cet argument est évalué à C{True}, un objet
+            L{ActionResult} est retourné, et l'action est effectuée en
+            arrière-plan
+        @param async: C{bool}
         """
         result = True
 
@@ -266,8 +300,8 @@ class Application(object):
         """
         Validates all the configuration files (starts the validation command)
         on the specified server
-        @param server: The server to validate on
-        @type  server: L{vigilo.vigiconf.lib.server.Server}
+        @param servername: The server to validate on
+        @type  servername: C{str}
         """
         # iterate through the servers
         if not self.validation:
@@ -297,8 +331,8 @@ class Application(object):
         """
         qualifies all the configuration files (starts the qualification
         command) on a given server
-        @param server: The server to qualify on
-        @type  server: L{vigilo.vigiconf.lib.server.Server}
+        @param servername: The server to qualify on
+        @type  servername: C{str}
         """
         if not self.validation:
             return
@@ -326,8 +360,8 @@ class Application(object):
     def startServer(self, servername):
         """
         Starts the application on the specified server
-        @param server: The server to start the application on
-        @type  server: L{vigilo.vigiconf.lib.server.Server}
+        @param servername: The server to start the application on
+        @type  servername: C{str}
         """
         if not self.start_command:
             return
@@ -358,8 +392,8 @@ class Application(object):
     def stopServer(self, servername):
         """
         Stops the application on a given server
-        @param server: The server to stop the application on
-        @type  server: L{vigilo.vigiconf.lib.server.Server}
+        @param servername: The server to stop the application on
+        @type  servername: C{str}
         """
         if not self.stop_command:
             return
@@ -389,6 +423,9 @@ class Application(object):
 
 
 class ActionResult(object):
+    """
+    Représente le résultat d'une action lancée de manière asynchrone dans un thread
+    """
 
     def __init__(self, app_name, action_name, commands, errors):
         self.app_name = app_name
@@ -416,6 +453,12 @@ class ActionResult(object):
 
 
 class ApplicationManager(object):
+    """
+    Gestionnaire des applications. Maintient la liste des applications
+    disponibles, et permet d'effectuer des actions sur l'ensemble des
+    applications d'un seul coup.
+    """
+
     def __init__(self):
         self.applications = []
 

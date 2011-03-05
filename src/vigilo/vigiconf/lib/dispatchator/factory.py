@@ -39,8 +39,8 @@ _ = translate(__name__)
 
 def get_dispatchator_class():
     """
-    Factory for the L{Dispatchator<vigilo.vigiconf.lib.dispatchator.Dispatchator>}
-    children.
+    Factory for the L{Dispatchator
+    <vigilo.vigiconf.lib.dispatchator.base.Dispatchator>} children.
 
     @return: the proper class of the Dispatchator, depending on the Community
         or Enterprise Edition
