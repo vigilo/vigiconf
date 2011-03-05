@@ -13,20 +13,15 @@ import vigilo.vigiconf.conf as conf
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
-from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.host import HostLoader
 from vigilo.vigiconf.lib.confclasses.host import Host as ConfHost
-from vigilo.vigiconf.applications.nagios import Nagios
-from vigilo.vigiconf.applications.vigimap import VigiMap
 
 from helpers import setup_db, teardown_db, DummyRevMan, setup_tmpdir
 
-from vigilo.models.tables import Host, SupItemGroup, Ventilation, Application
-from vigilo.models.session import DBSession
-from vigilo.models.tables import ConfItem, Service, VigiloServer
+from vigilo.models.tables import Host
+from vigilo.models.tables import ConfItem
 
-import transaction
 
 class TestLoader(unittest.TestCase):
 

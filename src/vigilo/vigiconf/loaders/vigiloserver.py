@@ -17,13 +17,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-import os
-
-from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
-
-from vigilo.models.session import DBSession
 
 from vigilo.models.tables import VigiloServer
 
@@ -62,7 +57,7 @@ class VigiloServerLoader(DBLoader):
         if hasattr(conf, "appsGroupsByServer"):
             configured_servers = conf.appsGroupsByServer.values()
         else:
-            configured_servers = [{"hostgroup": ["localhost"]},]
+            configured_servers = [{"hostgroup": ["localhost"]}, ]
         if hasattr(conf, "appsGroupsBackup"):
             configured_servers.extend(conf.appsGroupsBackup.values())
         for appgroup in configured_servers:

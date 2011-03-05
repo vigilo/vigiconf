@@ -4,31 +4,29 @@
 Test that the generation works properly
 """
 
-import sys, os, unittest, tempfile, shutil, glob, re
+import os
+import unittest
+import shutil
+import re
 
 from vigilo.common.conf import settings
 
 import vigilo.vigiconf.conf as conf
-#from vigilo.vigiconf.lib import dispatchmodes
 from vigilo.vigiconf.lib.generators import GeneratorManager
-from vigilo.vigiconf.lib.validator import Validator
-from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.confclasses.host import Host
-from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.applications.nagios import Nagios
 from vigilo.vigiconf.applications.vigimap import VigiMap
 from vigilo.vigiconf.applications.connector_metro import ConnectorMetro
 
-from vigilo.models.tables import MapGroup, ConfFile
+from vigilo.models.tables import ConfFile
 from vigilo.models.demo.functions import add_host
 from vigilo.models.session import DBSession
 
-from helpers import reload_conf, setup_tmpdir, DummyRevMan
+from helpers import setup_tmpdir, DummyRevMan
 from helpers import setup_db, teardown_db
 
 from vigilo.vigiconf.applications.nagios.generator import NagiosGen
 
-import pprint
 
 class Generator(unittest.TestCase):
 
@@ -50,7 +48,7 @@ class Generator(unittest.TestCase):
                          "192.168.1.1", "Servers")
         # attention, le fichier dummy.xml doit exister ou l'hôte sera supprimé
         # juste après avoir été inséré
-        open(os.path.join(self.tmpdir, "conf.d", "dummy.xml"), "w").close() # == touch
+        open(os.path.join(self.tmpdir, "conf.d", "dummy.xml"), "w").close()
         conffile = ConfFile.get_or_create("dummy.xml")
         add_host("testserver1", conffile)
         add_host("localhost", conffile)
@@ -77,10 +75,13 @@ class Generator(unittest.TestCase):
         self.host.add_collector_metro("TestAddCS", "TestAddCSMFunction",
                             ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                             "GAUGE", label="TestAddCSLabel")
-        host2 = Host(conf.hostsConf, "host/localhost.xml", u"testserver2", "192.168.1.2", "Servers")
-        host2.add_collector_service( u"TestAddCSReRoute", "TestAddCSReRouteFunction",
+        host2 = Host(conf.hostsConf, "host/localhost.xml", u"testserver2",
+                     "192.168.1.2", "Servers")
+        host2.add_collector_service( u"TestAddCSReRoute",
+                "TestAddCSReRouteFunction",
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
-                reroutefor={'host': "testserver1", "service": u"TestAddCSReRoute"} )
+                reroutefor={'host': "testserver1",
+                            "service": u"TestAddCSReRoute"} )
         add_host("testserver2")
         # Try the generation
         self.genmanager.generate(DummyRevMan())
@@ -118,9 +119,11 @@ class Generator(unittest.TestCase):
             """,
             re.MULTILINE | re.VERBOSE)
         self.assert_(regexp_coll.search(nagios) is not None,
-            "add_metro_service does not generate proper nagios conf (Collector service)")
+            "add_metro_service does not generate proper nagios conf "
+            "(Collector service)")
         self.assert_(regexp_svc.search(nagios) is not None,
-            "add_metro_service does not generate proper nagios conf (passive service)")
+            "add_metro_service does not generate proper nagios conf "
+            "(passive service)")
 
 
 class NagiosGeneratorForTest(NagiosGen):
@@ -132,7 +135,8 @@ class NagiosGeneratorForTest(NagiosGen):
         elif args.has_key('generic_sdirectives'):
             if args['generic_sdirectives'] != "":
                 self.test_srv_data = args
-        super(NagiosGeneratorForTest, self).templateAppend(filename, template, args)
+        super(NagiosGeneratorForTest, self).templateAppend(filename,
+                template, args)
 
 
 class TestGenericDirNagiosGeneration(unittest.TestCase):
@@ -142,22 +146,12 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
-        #conf.hosttemplatefactory.load_templates()
         # on charge en conf un host avec directives generiques nagios
         setup_db()
-        #reload_conf(hostsdir='tests/testdata/generators/nagios/')
-        #conf.load_xml_conf()
-        #self.dispatchator = dispatchmodes.getinstance()
-        #self.dispatchator.force = True
-        #self.nagios_app = [ a for a in self.dispatchator.applications if a.name == "nagios" ][0]
         self.host = Host(conf.hostsConf, "dummy.xml", "testserver1",
                          "192.168.1.1", "Servers")
         conffile = ConfFile.get_or_create("dummy.xml")
         add_host("testserver1", conffile)
-        #loader = LoaderManager(self.dispatchator)
-        #loader.load_apps_db(self.dispatchator.applications)
-        #loader.load_vigilo_servers_db()
-        #self.genmanager = GeneratorManager(self.dispatchator.applications, self.dispatchator)
         self.apps = {"nagios": Nagios(), "vigimap": VigiMap(),
                      "connector-metro": ConnectorMetro()}
         self.ventilation = {"testserver1": {}}

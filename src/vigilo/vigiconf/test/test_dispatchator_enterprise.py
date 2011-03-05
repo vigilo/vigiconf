@@ -5,17 +5,18 @@ Test that the remote dispatchator works properly
 Ces tests ne fonctionneront que dans Vigilo Enterprise Edition
 """
 
-import sys, os, unittest, tempfile, shutil, glob, re
+import os
+import unittest
+import shutil
 
 from vigilo.common.conf import settings
-from vigilo.models.tables import MapGroup
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.dispatchator import make_dispatchator
 
 from helpers import setup_tmpdir
-from helpers import setup_deploy_dir, teardown_deploy_dir
+from helpers import setup_deploy_dir
 from helpers import setup_db, teardown_db
 
 
@@ -30,7 +31,7 @@ class DispatchatorRemote(unittest.TestCase):
 
         # créer le fichier ssh_config
         os.mkdir(os.path.join(self.tmpdir, "ssh"))
-        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close() # == touch
+        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close()
 
         # Prepare necessary directories
         # TODO: commenter les divers repertoires
@@ -44,7 +45,8 @@ class DispatchatorRemote(unittest.TestCase):
                     },
                 }
 
-        self.host = Host(conf.hostsConf, "dummy", u"testserver1", u"192.168.1.1", u"Servers")
+        self.host = Host(conf.hostsConf, "dummy", u"testserver1",
+                         u"192.168.1.1", u"Servers")
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
         self.dispatchator = make_dispatchator()
@@ -61,13 +63,13 @@ class DispatchatorRemote(unittest.TestCase):
         conf.hostfactory.hosts = {}
         conf.hostsConf = conf.hostfactory.hosts
         teardown_db()
-        #teardown_deploy_dir()
         shutil.rmtree(self.tmpdir)
 
     def test_app_servers(self):
         for app in self.dispatchator.apps_mgr.applications:
             servers = self.dispatchator.getServersForApp(app)
-            self.assertEquals([u"localhost", u"localhost2"], sorted(list(servers)))
+            self.assertEquals([u"localhost", u"localhost2"],
+                              sorted(list(servers)))
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

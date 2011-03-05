@@ -193,15 +193,17 @@ class HostLoader(DBLoader):
 
         # Ghostbusters !!
         ghost_hosts = DBSession.query(Host.idhost.label('idsupitem'))
-        ghost_lls = DBSession.query(LowLevelService.idservice.label('idsupitem'))
-        ghost_hls = DBSession.query(HighLevelService.idservice.label('idsupitem'))
+        ghost_lls = DBSession.query(LowLevelService.idservice.label(
+                                    'idsupitem'))
+        ghost_hls = DBSession.query(HighLevelService.idservice.label(
+                                    'idsupitem'))
         union = ghost_hosts.union(ghost_lls).union(ghost_hls).subquery()
         ghost_all = DBSession.query(SupItem.idsupitem).outerjoin(
                         (union, union.c.idsupitem == SupItem.idsupitem)
                     ).filter(union.c.idsupitem == None).all()
         ghost_total = DBSession.query(SupItem).filter(
-                            SupItem.idsupitem.in_([ s.idsupitem for s in ghost_all ])
-                        ).delete()
+                    SupItem.idsupitem.in_([ s.idsupitem for s in ghost_all ])
+                ).delete()
         if ghost_total:
             LOGGER.debug("Deleted %s ghost supitems", ghost_total)
 
@@ -213,7 +215,8 @@ class HostLoader(DBLoader):
             LOGGER.debug("Removing ghost host '%s'", host.name)
             DBSession.delete(host)
 
-        # Suppression des hôtes qui ont été supprimés dans les fichiers modifiés
+        # Suppression des hôtes qui ont été supprimés dans les fichiers
+        # modifiés
         deleted_hosts = []
         for conffile in DBSession.query(ConfFile).all():
             filename = os.path.join(settings["vigiconf"].get("confdir"),

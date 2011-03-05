@@ -4,18 +4,13 @@
 Tests de génération des cartes auto (refactoring)
 """
 
-import os, unittest, shutil
-from pkg_resources import working_set
+import unittest
 
-from helpers import reload_conf, setup_db, teardown_db
+from helpers import setup_db, teardown_db
 
 from vigilo.models import tables
 from vigilo.models.demo import functions as df
 from vigilo.models.session import DBSession
-
-from vigilo.vigiconf.lib.validator import Validator
-
-from vigilo.vigiconf import conf
 
 
 class AutoMapTest(unittest.TestCase):
@@ -23,7 +18,6 @@ class AutoMapTest(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        #reload_conf()
         self.mapgroup_root = tables.MapGroup(name=u'Root')
         from vigilo.vigiconf.applications.vigimap import VigiMap
         self.vigimap = VigiMap()
@@ -100,11 +94,12 @@ class AutoMapTest(unittest.TestCase):
     def test_empty_group(self):
         # Chargement en BD
         group1 = df.add_supitemgroup("Group1")
-        group2 = df.add_supitemgroup("Group2", group1)
+        df.add_supitemgroup("Group2", group1)
         # Génération
         self.generator.generate()
         # pas de carte pour Group2, il ne contient rien
-        self.assertEquals(None, tables.Map.by_group_and_title(group1, u"Group2"))
+        self.assertEquals(None, tables.Map.by_group_and_title(group1,
+                                u"Group2"))
         # et donc pas de groupe de cartes Group1, puisqu'il n'y a rien dessous
         self.assertEquals(None, tables.MapGroup.by_group_name(u"Group1"))
 
@@ -120,8 +115,10 @@ class AutoMapTest(unittest.TestCase):
         # test de la présence des groupes
         mapgroup_base_name = self.vigimap.getConfig()["parent_topgroup"]
         print DBSession.query(tables.MapGroup).all()
-        mapgroup_base = tables.MapGroup.by_group_name(unicode(mapgroup_base_name))
-        mapgroup1 = tables.MapGroup.by_parent_and_name(mapgroup_base, u"Group1")
+        mapgroup_base = tables.MapGroup.by_group_name(
+                            unicode(mapgroup_base_name))
+        mapgroup1 = tables.MapGroup.by_parent_and_name(mapgroup_base,
+                                                       u"Group1")
         self.assertNotEquals(None, mapgroup1)
         mapgroup2 = tables.MapGroup.by_parent_and_name(mapgroup1, u"Group2")
         self.assertNotEquals(None, mapgroup2)
@@ -136,7 +133,8 @@ class AutoMapTest(unittest.TestCase):
         # Génération
         self.generator.generate()
         mapgroup_base_name = self.vigimap.getConfig()["parent_topgroup"]
-        mapgroup_base = tables.MapGroup.by_group_name(unicode(mapgroup_base_name))
+        mapgroup_base = tables.MapGroup.by_group_name(
+                            unicode(mapgroup_base_name))
         map_g1 = tables.Map.by_group_and_title(mapgroup_base, u"Group1")
         self.assertNotEquals(None, map_g1)
         # Renommage
@@ -144,5 +142,6 @@ class AutoMapTest(unittest.TestCase):
         self.generator.generate()
         map_g1_old = tables.Map.by_group_and_title(mapgroup_base, u"Group1")
         self.assertEquals(None, map_g1_old)
-        map_g1_new = tables.Map.by_group_and_title(mapgroup_base, u"Group1 renamed")
+        map_g1_new = tables.Map.by_group_and_title(mapgroup_base,
+                                                   u"Group1 renamed")
         self.assertNotEquals(None, map_g1_new)

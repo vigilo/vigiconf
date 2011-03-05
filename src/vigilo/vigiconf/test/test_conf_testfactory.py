@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys
+
 import unittest
 
 import vigilo.vigiconf.conf as conf

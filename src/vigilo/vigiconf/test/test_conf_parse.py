@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, os, unittest, tempfile, shutil, glob, subprocess
+import os
+import unittest
+import shutil
+import glob
+import subprocess
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -13,6 +17,8 @@ from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 
 from helpers import setup_tmpdir, setup_path
 from helpers import setup_db, teardown_db
+
+# pylint: disable-msg=W0212
 
 class ValidateXSD(unittest.TestCase):
 
@@ -29,9 +35,10 @@ class ValidateXSD(unittest.TestCase):
         hosts = glob.glob(os.path.join(self.hdir, "*.xml"))
         for host in hosts:
             valid = subprocess.call(["xmllint", "--noout", "--schema",
-                                    os.path.join(self.dtddir, "host.xsd"), host],
-                                    stdout=devnull, stderr=subprocess.STDOUT)
-            self.assertEquals(valid, 0, "Validation of host \"%s\" failed" % os.path.basename(host))
+                        os.path.join(self.dtddir, "host.xsd"), host],
+                        stdout=devnull, stderr=subprocess.STDOUT)
+            self.assertEquals(valid, 0, "Validation of host \"%s\" failed"
+                              % os.path.basename(host))
         devnull.close()
 
     def test_hosttemplate(self):
@@ -40,9 +47,10 @@ class ValidateXSD(unittest.TestCase):
         hts = glob.glob(os.path.join(self.htdir, "*.xml"))
         for ht in hts:
             valid = subprocess.call(["xmllint", "--noout", "--schema",
-                                    os.path.join(self.dtddir, "hosttemplate.xsd"), ht],
-                                    stdout=devnull, stderr=subprocess.STDOUT)
-            self.assertEquals(valid, 0, "Validation of hosttemplate \"%s\" failed" % os.path.basename(ht))
+                        os.path.join(self.dtddir, "hosttemplate.xsd"), ht],
+                        stdout=devnull, stderr=subprocess.STDOUT)
+            self.assertEquals(valid, 0, "Validation of hosttemplate \"%s\" "
+                              "failed" % os.path.basename(ht))
         devnull.close()
 
 
@@ -85,10 +93,11 @@ class ParseHost(unittest.TestCase):
             <group>/Servers/Linux servers</group>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
-        self.assert_(conf.hostsConf.has_key("testserver1"), 
+        self.assert_(conf.hostsConf.has_key("testserver1"),
                 "host is not properly parsed")
         self.assert_(conf.hostsConf["testserver1"]["name"] == "testserver1",
                 "host name is not properly parsed")
@@ -106,11 +115,13 @@ class ParseHost(unittest.TestCase):
         htpl = HostTemplate("linux")
         htpl.add_group("Linux servers")
         conf.hosttemplatefactory.register(htpl)
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
-        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
-                     "The \"template\" tag is not properly parsed")
+        self.assertTrue("Linux servers" in
+                        conf.hostsConf["testserver1"]["otherGroups"],
+                        "The \"template\" tag is not properly parsed")
 
     def test_attribute(self):
         self.host.write("""<?xml version="1.0"?>
@@ -119,7 +130,8 @@ class ParseHost(unittest.TestCase):
             <group>/Servers</group>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
         self.assert_(conf.hostsConf["testserver1"].has_key("cpulist") and
@@ -133,7 +145,8 @@ class ParseHost(unittest.TestCase):
             <group>/Servers</group>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
         self.assert_("tags" in conf.hostsConf["testserver1"] and
@@ -149,10 +162,14 @@ class ParseHost(unittest.TestCase):
             <group>/Servers</group>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        self.assert_("tags" in conf.hostsConf["testserver1"]["services"]["UpTime"] and 
-               "important" in conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"] and 
-               conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"]["important"] == "2", 
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
+        self.assertTrue("tags" in
+                conf.hostsConf["testserver1"]["services"]["UpTime"]
+                and "important" in
+                conf.hostsConf["testserver1"]["services"]["UpTime"]["tags"]
+                and conf.hostsConf["testserver1"]["services"]
+                ["UpTime"]["tags"]["important"] == "2",
                "The \"tag\" tag for services is not properly parsed")
 
     def test_trap(self):
@@ -169,11 +186,12 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         srv = "service_name"
         OID = "1.2.3.4.5.6.7.8.9"
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf["testserver1"]["snmpTrap"]
-        assert conf.hostsConf["testserver1"].has_key("snmpTrap") and \
-                conf.hostsConf["testserver1"]["snmpTrap"][srv][OID]["label"] == "test.label", \
-                "The \"trap\" tag is not properly parsed"
+        self.assertTrue(conf.hostsConf["testserver1"].has_key("snmpTrap") and
+                conf.hostsConf["testserver1"]["snmpTrap"][srv][OID]["label"]
+                == "test.label", "The \"trap\" tag is not properly parsed")
 
     def test_group(self):
         GroupLoader().load()
@@ -182,11 +200,13 @@ class ParseHost(unittest.TestCase):
             <group>Linux servers</group>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
-        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"],
-                     "The \"group\" tag is not properly parsed")
+        self.assertTrue("Linux servers" in
+                conf.hostsConf["testserver1"]["otherGroups"],
+                "The \"group\" tag is not properly parsed")
 
     def test_group_multiple(self):
         GroupLoader().load()
@@ -196,12 +216,15 @@ class ParseHost(unittest.TestCase):
             <group>AIX servers</group>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
-        self.assert_("Linux servers" in conf.hostsConf["testserver1"]["otherGroups"]
-                 and "AIX servers" in conf.hostsConf["testserver1"]["otherGroups"],
-                 "The \"group\" tag does not handle multiple values")
+        self.assertTrue("Linux servers" in
+                conf.hostsConf["testserver1"]["otherGroups"]
+                and "AIX servers" in
+                conf.hostsConf["testserver1"]["otherGroups"],
+                "The \"group\" tag does not handle multiple values")
 
     def test_test(self):
         self.host.write("""<?xml version="1.0"?>
@@ -213,10 +236,12 @@ class ParseHost(unittest.TestCase):
         </test>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
-        self.assert_(('Interface eth0', 'service') in conf.hostsConf["testserver1"]["SNMPJobs"],
+        self.assertTrue(('Interface eth0', 'service') in
+                conf.hostsConf["testserver1"]["SNMPJobs"],
                 "The \"test\" tag is not properly parsed")
 
     def test_test_weight(self):
@@ -229,13 +254,15 @@ class ParseHost(unittest.TestCase):
         </test>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        #from pprint import pprint; pprint(conf.hostsConf["testserver1"])
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
-        self.assert_("weight" in conf.hostsConf["testserver1"]["services"]["Interface eth0"],
-                     "L'attribut weight du test n'est pas chargé")
-        self.assertEquals(conf.hostsConf["testserver1"]["services"]["Interface eth0"]["weight"], 42,
+        self.assertTrue("weight" in
+                conf.hostsConf["testserver1"]["services"]["Interface eth0"],
+                "L'attribut weight du test n'est pas chargé")
+        services = conf.hostsConf["testserver1"]["services"]
+        self.assertEquals(services["Interface eth0"]["weight"], 42,
                           "L'attribut weight n'a pas la bonne valeur")
 
     def test_test_weight_default(self):
@@ -251,8 +278,10 @@ class ParseHost(unittest.TestCase):
         conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
-        self.assertEquals(conf.hostsConf["testserver1"]["services"]["Interface eth0"]["weight"], 1,
-                          "L'attribut weight n'a pas la bonne valeur par défaut")
+        services = conf.hostsConf["testserver1"]["services"]
+        self.assertEquals(services["Interface eth0"]["weight"], 1,
+                          "L'attribut weight n'a pas la bonne valeur "
+                          "par défaut")
 
     def test_test_weight_invalid(self):
         GroupLoader().load()
@@ -278,7 +307,8 @@ class ParseHost(unittest.TestCase):
         </host>
         """)
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
         # L'attribut ventilation a été donné explicitement.
@@ -343,7 +373,8 @@ class ParseHost(unittest.TestCase):
             <group>/Servers/Linux servers</group>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
         self.assert_("weight" in conf.hostsConf["testserver1"],
@@ -358,13 +389,15 @@ class ParseHost(unittest.TestCase):
             <group>/Servers/Linux servers</group>
         </host>""")
         self.host.close()
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print conf.hostsConf
         print conf.hostfactory.hosts
         self.assert_("weight" in conf.hostsConf["testserver1"],
                      "L'attribut weight n'est pas réglé par défaut")
         self.assertEquals(conf.hostsConf["testserver1"]["weight"], 1,
-                          "L'attribut weight n'a pas la bonne valeur par défaut")
+                          "L'attribut weight n'a pas la bonne valeur "
+                          "par défaut")
 
     def test_host_weight_invalid(self):
         GroupLoader().load()
@@ -385,20 +418,18 @@ class ParseHostTemplate(unittest.TestCase):
         # Prepare temporary directory
         setup_db()
         self.tmpdir = setup_tmpdir()
-        #shutil.copytree(os.path.join(
-        #                    settings["vigiconf"].get("confdir"), "general"),
-        #                os.path.join(self.tmpdir, "general"))
-        #shutil.copytree(os.path.join(
-        #                    settings["vigiconf"].get("confdir"), "hosttemplates"),
-        #                os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
         settings["vigiconf"]["confdir"] = self.tmpdir
-        conf.hosttemplatefactory.path = [os.path.join(self.tmpdir, "hosttemplates"),]
-        self.defaultht = open(os.path.join(self.tmpdir, "hosttemplates", "default.xml"), "w")
-        self.defaultht.write('<?xml version="1.0"?>\n<templates><template name="default"></template></templates>')
+        conf.hosttemplatefactory.path = [ os.path.join(self.tmpdir,
+                                          "hosttemplates"), ]
+        self.defaultht = open(os.path.join(self.tmpdir, "hosttemplates",
+                              "default.xml"), "w")
+        self.defaultht.write('<?xml version="1.0"?>\n<templates>'
+                '<template name="default"></template></templates>')
         self.defaultht.close()
-        self.ht = open(os.path.join(self.tmpdir, "hosttemplates", "test.xml"), "w")
+        self.ht = open(os.path.join(self.tmpdir, "hosttemplates",
+                       "test.xml"), "w")
 
     def tearDown(self):
         """Call after every test case."""
@@ -411,14 +442,15 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_template(self):
         """Test the parsing of a basic template declaration"""
-        self.ht.write("""<?xml version="1.0"?>\n<templates><template name="test"></template></templates>""")
+        self.ht.write("""<?xml version="1.0"?>\n<templates>"""
+                      """<template name="test"></template></templates>""")
         self.ht.close()
         try:
             conf.hosttemplatefactory.load_templates()
         except KeyError:
             self.fail("template is not properly parsed")
-        assert "test" in conf.hosttemplatefactory.templates, \
-               "template is not properly parsed"
+        self.assertTrue("test" in conf.hosttemplatefactory.templates,
+               "template is not properly parsed")
 
     def test_attribute(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -429,9 +461,10 @@ class ParseHostTemplate(unittest.TestCase):
                 </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        assert "testattr" in conf.hosttemplatefactory.templates["test"]["attributes"] and \
-               conf.hosttemplatefactory.templates["test"]["attributes"]["testattr"] == "testattrvalue", \
-               "The \"attribute\" tag is not properly parsed"
+        attrs = conf.hosttemplatefactory.templates["test"]["attributes"]
+        self.assertTrue("testattr" in attrs and
+                attrs["testattr"] == "testattrvalue",
+                "The \"attribute\" tag is not properly parsed")
 
     def test_test(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -450,6 +483,7 @@ class ParseHostTemplate(unittest.TestCase):
                "The \"test\" tag is not properly parsed")
 
     def test_test_args(self):
+        """The \"test\" tag with arguments must be properly parsed"""
         self.ht.write("""<?xml version="1.0"?>
                 <templates>
                 <template name="test">
@@ -464,13 +498,13 @@ class ParseHostTemplate(unittest.TestCase):
             conf.hosttemplatefactory.load_templates()
         except KeyError:
             self.fail("The \"test\" tag with arguments is not properly parsed")
-        assert len(conf.hosttemplatefactory.templates["test"]["tests"]) == 1 and \
-               conf.hosttemplatefactory.templates["test"]["tests"][0]["name"] == "TestTest" and \
-               "TestArg1" in conf.hosttemplatefactory.templates["test"]["tests"][0]["args"] and \
-               "TestArg2" in conf.hosttemplatefactory.templates["test"]["tests"][0]["args"] and \
-               conf.hosttemplatefactory.templates["test"]["tests"][0]["args"]["TestArg1"] == "TestValue1" and \
-               conf.hosttemplatefactory.templates["test"]["tests"][0]["args"]["TestArg2"] == "TestValue2", \
-               "The \"test\" tag with arguments is not properly parsed"
+        tests = conf.hosttemplatefactory.templates["test"]["tests"]
+        self.assertEqual(len(tests), 1)
+        self.assertEqual(tests[0]["name"], "TestTest")
+        self.assertTrue("TestArg1" in tests[0]["args"])
+        self.assertTrue("TestArg2" in tests[0]["args"])
+        self.assertEqual(tests[0]["args"]["TestArg1"], "TestValue1")
+        self.assertEqual(tests[0]["args"]["TestArg2"], "TestValue2")
 
     def test_test_weight(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -484,11 +518,11 @@ class ParseHostTemplate(unittest.TestCase):
         </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        self.assert_("weight" in conf.hosttemplatefactory.templates["testtemplate"]["tests"][0],
-                     "L'attribut weight du test n'est pas chargé")
-        self.assertEquals(
-                conf.hosttemplatefactory.templates["testtemplate"]["tests"][0]["weight"],
-                42, "L'attribut weight n'a pas la bonne valeur")
+        tests = conf.hosttemplatefactory.templates["test"]["tests"]
+        self.assertTrue("weight" in tests[0],
+                "L'attribut weight du test n'est pas chargé")
+        self.assertEquals(tests[0]["weight"], 42,
+                "L'attribut weight n'a pas la bonne valeur")
 
     def test_test_weight_default(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -502,9 +536,9 @@ class ParseHostTemplate(unittest.TestCase):
         </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        self.assertEquals(
-                conf.hosttemplatefactory.templates["testtemplate"]["tests"][0]["weight"],
-                1, "L'attribut weight n'a pas la bonne valeur par défaut")
+        tests = conf.hosttemplatefactory.templates["test"]["tests"]
+        self.assertEquals(tests[0]["weight"], 1,
+                "L'attribut weight n'a pas la bonne valeur par défaut")
 
     def test_test_weight_invalid(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -517,7 +551,8 @@ class ParseHostTemplate(unittest.TestCase):
         </template>
         </templates>""")
         self.ht.close()
-        self.assertRaises(ParsingError, conf.hosttemplatefactory.load_templates)
+        self.assertRaises(ParsingError,
+                          conf.hosttemplatefactory.load_templates)
 
     def test_group(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -528,8 +563,9 @@ class ParseHostTemplate(unittest.TestCase):
                 </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        assert "/Test group" in conf.hosttemplatefactory.templates["test"]["groups"], \
-               "The \"group\" tag is not properly parsed"
+        self.assertTrue("/Test group" in
+                conf.hosttemplatefactory.templates["test"]["groups"],
+               "The \"group\" tag is not properly parsed")
 
     def test_parent(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -542,8 +578,9 @@ class ParseHostTemplate(unittest.TestCase):
             </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        assert "test1" in conf.hosttemplatefactory.templates["test2"]["parent"], \
-               "The \"parent\" tag is not properly parsed"
+        self.assertTrue("test1" in
+                conf.hosttemplatefactory.templates["test2"]["parent"],
+               "The \"parent\" tag is not properly parsed")
 
     def test_template_weight(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -554,9 +591,10 @@ class ParseHostTemplate(unittest.TestCase):
         </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        self.assert_("weight" in conf.hosttemplatefactory.templates["test"],
-                     "L'attribut weight n'est pas chargé")
-        self.assertEquals(conf.hosttemplatefactory.templates["test"]["weight"], 42,
+        testdata = conf.hosttemplatefactory.templates["test"]
+        self.assertTrue("weight" in testdata,
+                        "L'attribut weight n'est pas chargé")
+        self.assertEquals(testdata["weight"], 42,
                           "L'attribut weight n'a pas la bonne valeur")
 
     def test_template_weight_default(self):
@@ -567,10 +605,11 @@ class ParseHostTemplate(unittest.TestCase):
         </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        self.assert_("weight" in conf.hosttemplatefactory.templates["test"],
+        testdata = conf.hosttemplatefactory.templates["test"]
+        self.assert_("weight" in testdata,
                      "L'attribut weight n'est pas réglé par défaut")
-        self.assertEquals(conf.hosttemplatefactory.templates["test"]["weight"], 1,
-                          "L'attribut weight n'a pas la bonne valeur par défaut")
+        self.assertEquals(testdata["weight"], 1,
+                    "L'attribut weight n'a pas la bonne valeur par défaut")
 
     def test_template_weight_invalid(self):
         self.ht.write("""<?xml version="1.0"?>
@@ -580,7 +619,8 @@ class ParseHostTemplate(unittest.TestCase):
             </template>
         </templates>""")
         self.ht.close()
-        self.assertRaises(ParsingError, conf.hosttemplatefactory.load_templates)
+        self.assertRaises(ParsingError,
+                          conf.hosttemplatefactory.load_templates)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

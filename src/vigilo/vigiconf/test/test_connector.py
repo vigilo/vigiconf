@@ -4,7 +4,6 @@
 Tests du connecteur VigiConf
 """
 
-import os
 import unittest
 import time
 
@@ -39,7 +38,6 @@ class CommandTest(unittest.TestCase):
 
     def test_command_unknown(self):
         """Une commande introuvable doit provoquer une exception"""
-        now = time.time()
         self.assertRaises(CommandNotFound, Command, "nonexistant")
 
     @deferred(10)

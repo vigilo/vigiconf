@@ -11,11 +11,9 @@ import unittest
 from vigilo.common.conf import settings
 
 from vigilo.vigiconf.loaders.topology import TopologyLoader
-import vigilo.vigiconf.conf as conf
 from helpers import setup_path, setup_db, teardown_db, DummyRevMan
 from vigilo.models.demo import functions as df
 
-from vigilo.models import tables
 from vigilo.models.tables import Dependency, DependencyGroup
 
 from vigilo.models.session import DBSession
@@ -30,8 +28,8 @@ class ChangeManagementTest(unittest.TestCase):
         self.datadir = settings["vigiconf"]["confdir"]
     
         localhost = df.add_host("localhost")
-        hlservice1 = df.add_highlevelservice("hlservice1")
-        interface = df.add_lowlevelservice(localhost, "Interface eth0")
+        df.add_highlevelservice("hlservice1")
+        df.add_lowlevelservice(localhost, "Interface eth0")
         # Pour les tests
         self.testhost1 = df.add_host("test_change_deps_1")
         self.testhost2 = df.add_host("test_change_deps_2")

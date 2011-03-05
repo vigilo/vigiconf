@@ -6,14 +6,9 @@ Test that VigiConf works in Enterprise Edition
 Ces tests ne fonctionneront que dans la version Entreprise
 """
 
-import sys
 import os
 import unittest
-import tempfile
 import shutil
-import glob
-import re
-import socket
 
 from vigilo.common.conf import settings
 
@@ -25,7 +20,6 @@ from vigilo.vigiconf.lib.server.factory import ServerFactory
 from vigilo.vigiconf.lib.server.remote import ServerRemote
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.ventilation import get_ventilator
-from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.dispatchator.factory import get_dispatchator_class
 from vigilo.vigiconf.lib.server import get_server_manager
 
@@ -128,7 +122,7 @@ class EnterpriseEdition(unittest.TestCase):
         settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
         os.mkdir(settings["vigiconf"]["confdir"])
         os.mkdir(os.path.join(self.tmpdir, "ssh"))
-        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close() # == touch
+        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close()
         # Start the actual test
         _serverfactory = ServerFactory()
         _server = _serverfactory.makeServer("sup.example.com")
@@ -141,7 +135,7 @@ class EnterpriseEdition(unittest.TestCase):
         settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
         os.mkdir(settings["vigiconf"]["confdir"])
         os.mkdir(os.path.join(self.tmpdir, "ssh"))
-        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close() # == touch
+        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close()
         # début du test
         sm = get_server_manager()
         sm.list()

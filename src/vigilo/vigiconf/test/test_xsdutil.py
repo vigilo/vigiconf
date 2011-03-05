@@ -23,8 +23,8 @@ class XSDTest(unittest.TestCase):
     xml_ko_files = {"testdata/xsd":["sample_ko.xml", ]}
 
     def test_xmllint_present(self):
-        self.assertEquals(0, subprocess.call("xmllint --version 2> /dev/null", shell="True"),
-                          "xmllint is installed")
+        result = subprocess.call("xmllint --version 2> /dev/null", shell="True")
+        self.assertEquals(0, result, "xmllint must be installed")
 
     def _run_command(self, filepath, expect):
         here = os.path.dirname(__file__)

@@ -17,9 +17,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 
-import os
 
-from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -138,7 +136,8 @@ class VentilationLoader(DBLoader):
         LOGGER.debug("Obsolete ventilation entries: %d" % len(current))
         for v in current.values():
             DBSession.delete(v)
-        # Vérifions qu'on a pas complètement supprimé une application d'un serveur
+        # Vérifions qu'on a pas complètement supprimé une application d'un
+        # serveur
         server_factory = ServerFactory()
         for idapp, app_servers in apps_location.iteritems():
             new_app_servers = new_apps_location.get(idapp, set())
@@ -156,6 +155,7 @@ class VentilationLoader(DBLoader):
                     break
             for idvserver in orphan_servers:
                 vserver = vigiloservers[idvserver]
-                app.servers[vserver.name] = server_factory.makeServer(vserver.name)
+                app.servers[vserver.name] = server_factory.makeServer(
+                                                vserver.name)
                 app.actions[vserver.name] = ["stop", ]
 

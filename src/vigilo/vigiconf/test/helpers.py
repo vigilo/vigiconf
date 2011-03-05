@@ -10,7 +10,7 @@ from vigilo.models.configure import configure_db
 configure_db(settings['database'], 'sqlalchemy_')
 
 from vigilo.models.session import metadata, DBSession
-from vigilo.models.tables import VigiloServer, StateName, MapGroup
+from vigilo.models.tables import StateName, MapGroup
 
 import vigilo.vigiconf.conf as conf
 
@@ -32,7 +32,7 @@ def setup_path(subdir=None):
     settings["vigiconf"]["confdir"] = os.path.join(os.path.dirname(__file__),
                                                    "testdata", subdir)
 
-def reload_conf(hostsdir=None, dispatchator=None):
+def reload_conf(hostsdir=None):
     """We changed the paths, reload the factories"""
     from vigilo.vigiconf.loaders.group import GroupLoader
     conf.testfactory.__init__()
@@ -49,12 +49,8 @@ def reload_conf(hostsdir=None, dispatchator=None):
     GroupLoader().load()
     #conf.loadConf()
 
-def setup_tmpdir(dirpath=None):
+def setup_tmpdir():
     """Prepare the temporary directory"""
-    #if not dirpath:
-    #    dirpath = tempfile.mkdtemp(dir="/dev/shm", prefix="tests-vigiconf")
-    #tmpdir = dirpath
-    #tmpdir = settings["vigiconf"].get("libdir")
     tmpdir = tempfile.mkdtemp(prefix="tests-vigiconf-")
     settings["vigiconf"]["libdir"] = tmpdir
     conf.LIBDIR = tmpdir

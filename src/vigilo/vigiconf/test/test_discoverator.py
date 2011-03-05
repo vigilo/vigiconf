@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, unittest, tempfile, shutil, glob, socket
+import os, unittest, shutil, socket
 
 from vigilo.vigiconf.discoverator import Discoverator
 
@@ -238,9 +238,9 @@ class DiscoveratorWinHP(TestDiscoveratorBasics):
         for testdict in self.disc.tests:
             if testdict["name"] != "DiskIO":
                 continue
-            args.append({ "diskname": testdict["args"]["diskname"],})
+            args.append({ "diskname": testdict["args"]["diskname"] })
         print args
-        goodargs = [{"diskname": "Disk 0|1.1",}]
+        goodargs = [{"diskname": "Disk 0|1.1"}]
         args.sort()
         goodargs.sort()
         assert args == goodargs, \

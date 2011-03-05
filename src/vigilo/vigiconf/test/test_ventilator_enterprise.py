@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Tests du Ventilator. Ces tests ne fonctionneront que dans Vigilo Enterprise Edition.
+Tests du Ventilator. Ces tests ne fonctionneront que dans
+Vigilo Enterprise Edition.
 """
 
 import string, random, math
@@ -12,18 +13,12 @@ from vigilo.common.conf import settings
 
 import vigilo.vigiconf.conf as conf
 
-from helpers import reload_conf, setup_tmpdir
+from helpers import setup_tmpdir
 from helpers import setup_db, teardown_db
 
-from sqlalchemy.sql.functions import count
-
-#from vigilo.vigiconf.lib import dispatchmodes
-#from vigilo.vigiconf.lib.ventilation.local import VentilatorLocal
 from vigilo.vigiconf.lib.ventilation.remote import VentilatorRemote
 from vigilo.vigiconf.loaders.ventilation import VentilationLoader
 from vigilo.vigiconf.lib.server.local import ServerLocal
-#from vigilo.vigiconf.lib.generators import GeneratorManager
-#from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib import ParsingError
 from vigilo.vigiconf.lib.confclasses.host import Host as ConfHost
 from vigilo.vigiconf.applications.nagios import Nagios
@@ -32,8 +27,8 @@ from vigilo.vigiconf.applications.connector_metro import ConnectorMetro
 
 from vigilo.models.session import DBSession
 
-from vigilo.models.tables import Host, Ventilation, Application, \
-                                    SupItemGroup, VigiloServer
+from vigilo.models.tables import Host, Ventilation, Application
+from vigilo.models.tables import VigiloServer
 from vigilo.models.demo import functions as df
 
 class VentilatorTest(unittest.TestCase):
@@ -49,19 +44,13 @@ class VentilatorTest(unittest.TestCase):
         os.mkdir(settings["vigiconf"]["confdir"])
         # créer le fichier ssh_config
         os.mkdir(os.path.join(self.tmpdir, "ssh"))
-        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close() # == touch
-        #conf.hosttemplatefactory.load_templates()
+        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close()
         setup_db()
-        #reload_conf()
-        #conf.load_general_conf()
-        #dispatchator = dispatchmodes.getinstance()
-        #self.generator = GeneratorManager(dispatchator.applications, dispatchator)
         self.apps = {"nagios": Nagios(), "vigimap": VigiMap(),
                      "connector-metro": ConnectorMetro()}
         for appname in self.apps:
             df.add_application(appname)
         self.ventilator = VentilatorRemote(self.apps.values())
-        #self.ventilator_local = VentilatorLocal(self.apps.values())
 
     def tearDown(self):
         """Call after every test case."""
@@ -84,8 +73,8 @@ class VentilatorTest(unittest.TestCase):
 
         # chargement en base
         df.add_vigiloserver('sup.example.com')
-        host = ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
-                        "192.168.1.1", "Servers")
+        ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
+                 "192.168.1.1", "Servers")
         host_db = df.add_host("testserver1")
 
         # vérification de sécurité -- peut-être obsolète
@@ -113,7 +102,7 @@ class VentilatorTest(unittest.TestCase):
         host = df.add_host("localhost")
         group1 = df.add_supitemgroup("Group1")
         group2 = df.add_supitemgroup("Group2", group1)
-        host.groups = [group2,]
+        host.groups = [group2, ]
         self.ventilator.make_cache()
         self.assertEquals(self.ventilator.get_host_ventilation_group("localhost", {}), "Group1")
 
@@ -124,7 +113,8 @@ class VentilatorTest(unittest.TestCase):
         group3 = df.add_supitemgroup("Group3", group1)
         host.groups = [group2, group3]
         self.ventilator.make_cache()
-        self.assertEquals(self.ventilator.get_host_ventilation_group("localhost", {}), "Group1")
+        self.assertEquals(self.ventilator.get_host_ventilation_group(
+                          "localhost", {}), "Group1")
 
     def test_host_ventilation_conflicting_groups(self):
         host = df.add_host("localhost")
@@ -134,32 +124,35 @@ class VentilatorTest(unittest.TestCase):
         group4 = df.add_supitemgroup("Group4", group3)
         host.groups = [group2, group4]
         self.ventilator.make_cache()
-        self.assertRaises(ParsingError, self.ventilator.get_host_ventilation_group, "localhost", {})
+        self.assertRaises(ParsingError,
+                self.ventilator.get_host_ventilation_group, "localhost", {})
 
     def test_reventilate(self):
         """Cas où un serveur est supprimé de la conf"""
         # besoin de localhost en base
         host = ConfHost(conf.hostsConf, "hosts/localhost.xml", "localhost",
                              "127.0.0.1", "Servers")
-        host_db = df.add_host("localhost")
+        df.add_host("localhost")
         conf.appsGroupsByServer = {
                 "interface": {
-                    "P-F":     [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
-                    "Servers": [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                    "P-F":     [u"sup.example.com", u"supserver2.example.com",
+                                u"supserver3.example.com"],
+                    "Servers": [u"sup.example.com", u"supserver2.example.com",
+                                u"supserver3.example.com"],
                 },
                 "collect": {
-                    "P-F":     [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
-                    "Servers": [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                    "P-F":     [u"sup.example.com", u"supserver2.example.com",
+                                u"supserver3.example.com"],
+                    "Servers": [u"sup.example.com", u"supserver2.example.com",
+                                u"supserver3.example.com"],
                 },
                 "metrology": {
-                    "P-F":     [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
-                    "Servers": [u"sup.example.com", u"supserver2.example.com", u"supserver3.example.com"],
+                    "P-F":     [u"sup.example.com", u"supserver2.example.com",
+                                u"supserver3.example.com"],
+                    "Servers": [u"sup.example.com", u"supserver2.example.com",
+                                u"supserver3.example.com"],
                 },
         }
-        #for appGroup in conf.appsGroupsByServer:
-        #    for hostGroup in conf.appsGroupsByServer[appGroup]:
-        #        conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver2.example.com')
-        #        conf.appsGroupsByServer[appGroup][hostGroup].append(u'supserver3.example.com')
         df.add_vigiloserver('sup.example.com')
         df.add_vigiloserver('supserver2.example.com')
         df.add_vigiloserver('supserver3.example.com')
@@ -171,7 +164,8 @@ class VentilatorTest(unittest.TestCase):
         ventilation = self.ventilator.ventilate()
         ventilationloader = VentilationLoader(ventilation, self.apps.values())
         ventilationloader.load()
-        # On vérifie que des hôtes ont quand même été affectés à supserver3.example.com
+        # On vérifie que des hôtes ont quand même été affectés à
+        # supserver3.example.com
         ss3_hosts = []
         for host in ventilation:
             for app in ventilation[host]:
@@ -181,7 +175,8 @@ class VentilatorTest(unittest.TestCase):
         # Et maintenant, on supprime supserver3.example.com
         for appGroup in conf.appsGroupsByServer:
             for hostGroup in conf.appsGroupsByServer[appGroup]:
-                conf.appsGroupsByServer[appGroup][hostGroup].remove(u'supserver3.example.com')
+                conf.appsGroupsByServer[appGroup][hostGroup].remove(
+                        u'supserver3.example.com')
         # On reventile
         ventilation = self.ventilator.ventilate()
         ventilationloader = VentilationLoader(ventilation, self.apps.values())
@@ -197,7 +192,10 @@ class VentilatorTest(unittest.TestCase):
                         u"serveur qui a ete supprime")
 
     def test_ventilation_with_backup(self):
-        """La ventilation donne un nominal et un backup pour chaque hôte/fonction."""
+        """
+        La ventilation donne un nominal et un backup pour chaque
+        hôte/fonction.
+        """
         conf.appsGroupsByServer = {
             'collect' : {
                 'P-F'             : ['localhost'],
@@ -223,14 +221,14 @@ class VentilatorTest(unittest.TestCase):
             },
         }
 
-        host = ConfHost(conf.hostsConf, "dummy.xml", "localhost",
-                        "127.0.0.1", "Servers")
-        host = df.add_host("localhost")
+        ConfHost(conf.hostsConf, "dummy.xml", "localhost",
+                 "127.0.0.1", "Servers")
+        df.add_host("localhost")
 
         # Chargement en base
         df.add_vigiloserver('localhost')
         df.add_vigiloserver('localhost2')
-        group1 = df.add_supitemgroup("Group1")
+        df.add_supitemgroup("Group1")
 
         # À l'issue de la ventilation, "localhost" et "localhost2"
         # doivent recevoir la métrologie de "localhost", mais seul
@@ -252,7 +250,8 @@ class VentilatorTest(unittest.TestCase):
             ['localhost', 'localhost2']
         )
 
-        # En base, on ne doit retrouver qu'un serveur de supervision (pour le proxy)
+        # En base, on ne doit retrouver qu'un serveur de supervision (pour le
+        # proxy)
         ventilationloader = VentilationLoader(ventilation, self.apps.values())
         ventilationloader.load()
         ventilations = DBSession.query(
@@ -350,22 +349,16 @@ class VentilatorTest(unittest.TestCase):
             },
         }
         # besoin de localhost en base
-        host = ConfHost(conf.hostsConf, "dummy.xml", "localhost",
+        ConfHost(conf.hostsConf, "dummy.xml", "localhost",
                         "127.0.0.1", "P-F")
-        host = df.add_host("localhost")
-        #conf.load_general_conf()
+        df.add_host("localhost")
         # chargement des apps
-        #dispatchator = dispatchmodes.getinstance()
         nagios = self.apps["nagios"]
         nagios.servers["localhost"] = ServerLocal("localhost")
         nagios.actions["localhost"] = ["stop", "start"]
-        #loader = LoaderManager(dispatchator)
-        #loader.load_apps_db(self.apps)
-        #loader.load_vigilo_servers_db()
         df.add_vigiloserver('localhost')
         ventilation = self.ventilator.ventilate()
         assert ventilation["localhost"][nagios] == ["localhost", ]
-        #loader.load_ventilation_db(ventilation, self.apps.values())
         ventilationloader = VentilationLoader(ventilation, self.apps.values())
         ventilationloader.load()
         #DBSession.flush()
@@ -376,7 +369,6 @@ class VentilatorTest(unittest.TestCase):
         #from pprint import pprint; pprint(ventilation)
         ventilationloader = VentilationLoader(ventilation, self.apps.values())
         ventilationloader.load()
-        #loader.load_ventilation_db(ventilation, self.apps.values())
         self.assertEqual(nagios.actions["localhost"], ["stop"])
 
 

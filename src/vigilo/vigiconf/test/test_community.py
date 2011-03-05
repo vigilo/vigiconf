@@ -4,13 +4,9 @@
 Test that VigiConf works in Community Edition
 """
 
-import sys
 import os
 import unittest
-import tempfile
 import shutil
-import glob
-import re
 import socket
 
 from vigilo.common.conf import settings
@@ -23,12 +19,10 @@ from vigilo.vigiconf.lib.server.factory import ServerFactory
 from vigilo.vigiconf.lib.server.local import ServerLocal
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.ventilation import get_ventilator
-from vigilo.vigiconf.lib.loaders import LoaderManager
 from vigilo.vigiconf.lib.dispatchator.factory import get_dispatchator_class
 
 from vigilo.models.session import DBSession
 from vigilo.models import tables
-from vigilo.models.demo.functions import add_host
 
 from helpers import setup_tmpdir, DummyRevMan
 from helpers import setup_db, teardown_db
@@ -58,7 +52,6 @@ class CommunityEdition(unittest.TestCase):
                     "192.168.1.1", "Servers")
         nagios = Nagios()
         DBSession.add(tables.Application(name=u"nagios"))
-        genmanager = GeneratorManager([nagios])
         ventilator = get_ventilator([nagios])
         mapping = ventilator.ventilate()
         mapping = ventilator.ventilation_by_appname(mapping)

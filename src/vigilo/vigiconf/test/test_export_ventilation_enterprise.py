@@ -20,16 +20,13 @@ from vigilo.vigiconf.loaders.host import HostLoader
 from vigilo.vigiconf.lib.confclasses.host import Host as ConfHost
 from vigilo.vigiconf.applications.nagios import Nagios
 from vigilo.vigiconf.applications.vigimap import VigiMap
-from vigilo.vigiconf.lib.generators import GeneratorManager
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 
 from helpers import setup_db, teardown_db, DummyRevMan, setup_tmpdir
 
-from vigilo.models.tables import Host, SupItemGroup, Ventilation, Application
+from vigilo.models.tables import Ventilation, Application, VigiloServer
 from vigilo.models.session import DBSession
-from vigilo.models.tables import ConfItem, Service, VigiloServer
 
-import transaction
 
 class TestLoader(unittest.TestCase):
 
@@ -62,8 +59,8 @@ class TestLoader(unittest.TestCase):
         On ventile une première fois, puis on supprime une application et on
         re-ventile. L'application ne doit plus être ventilée en BdD
         """
-        host = ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
-                        "192.168.1.1", "Servers")
+        ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
+                 "192.168.1.1", "Servers")
         # attention, le fichier dummy.xml doit exister ou l'hôte sera supprimé
         # juste après avoir été inséré
         settings["vigiconf"]["confdir"] = self.tmpdir
@@ -74,7 +71,6 @@ class TestLoader(unittest.TestCase):
         nagios = Nagios()
         vigimap = VigiMap()
         apps = [nagios, vigimap]
-        genmgr = GeneratorManager(apps)
         ventilator = get_ventilator(apps)
         loader = LoaderManager(rm)
         loader.load_apps_db(apps)
@@ -98,8 +94,10 @@ class TestLoader(unittest.TestCase):
         ventilation = ventilator.ventilate()
         loader.load_ventilation_db(ventilation, apps)
         print DBSession.query(Ventilation).all()
-        trap_app = DBSession.query(Application).filter_by(name=u"snmptt").first()
-        trap_ventil = DBSession.query(Ventilation).filter_by(application=trap_app).count()
+        trap_app = DBSession.query(Application).filter_by(
+                        name=u"snmptt").first()
+        trap_ventil = DBSession.query(Ventilation).filter_by(
+                        application=trap_app).count()
         self.assertEquals(trap_ventil, 0)
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os, unittest, tempfile, shutil, glob
+import unittest
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
@@ -15,7 +15,8 @@ class HostTemplates(unittest.TestCase):
         conf.hosttemplatefactory.register(HostTemplate("default"))
         self.tpl = HostTemplate("testtpl1")
         conf.hosttemplatefactory.register(self.tpl)
-        self.host = Host(conf.hostsConf, "dummy", "testserver1", "192.168.1.1", "Servers")
+        self.host = Host(conf.hostsConf, "dummy", "testserver1",
+                         "192.168.1.1", "Servers")
 
     def tearDown(self):
         """Call after every test case."""
@@ -29,39 +30,43 @@ class HostTemplates(unittest.TestCase):
         """Test for the add_test method, without test arguments"""
         self.tpl.add_test("UpTime")
         conf.hosttemplatefactory.apply(self.host, "testtpl1")
-        assert conf.hostsConf["testserver1"]["services"].has_key("UpTime"), \
-                "add_test does not work without test args"
+        self.assertTrue(conf.hostsConf["testserver1"]["services"].has_key(
+                        "UpTime"), "add_test does not work without test args")
 
     def test_add_test_args(self):
         """Test for the add_test method, with test arguments"""
         self.tpl.add_test("Interface", {"label":"Loopback", "ifname":"lo"})
         conf.hosttemplatefactory.apply(self.host, "testtpl1")
-        assert conf.hostsConf["testserver1"]["SNMPJobs"][('Interface Loopback',
-                'service')]["params"] == ["lo", "Loopback", "i"], \
-                "add_test does not work with test args"
+        self.assertTrue(conf.hostsConf["testserver1"]["SNMPJobs"]
+                [('Interface Loopback', 'service')]["params"]
+                == ["lo", "Loopback", "i"],
+                "add_test does not work with test args")
 
     def test_add_group_simple(self):
         """Test for the add_group method, with one argument only"""
         self.tpl.add_group("/Test Group")
         conf.hosttemplatefactory.apply(self.host, "testtpl1")
-        assert "/Test Group" in conf.hostsConf["testserver1"]["otherGroups"], \
-                "add_group does not work with one arg"
+        self.assertTrue("/Test Group" in
+                conf.hostsConf["testserver1"]["otherGroups"],
+                "add_group does not work with one arg")
 
     def test_add_group_multiple(self):
         """Test for the add_group method, with multiple arguments"""
         self.tpl.add_group("/Test Group 1", "/Test Group 2")
         conf.hosttemplatefactory.apply(self.host, "testtpl1")
-        assert "/Test Group 1" in conf.hostsConf["testserver1"]["otherGroups"], \
-                "add_group does not work with multiple args"
-        assert "/Test Group 2" in conf.hostsConf["testserver1"]["otherGroups"], \
-                "add_group does not work with multiple args"
+        self.assertTrue("/Test Group 1" in
+                conf.hostsConf["testserver1"]["otherGroups"],
+                "add_group does not work with multiple args")
+        self.assertTrue("/Test Group 2" in
+                conf.hostsConf["testserver1"]["otherGroups"],
+                "add_group does not work with multiple args")
 
     def test_add_attribute(self):
         """Test for the add_attribute method"""
         self.tpl.add_attribute("TestAttr", "TestVal")
         conf.hosttemplatefactory.apply(self.host, "testtpl1")
-        assert conf.hostsConf["testserver1"]["TestAttr"] == "TestVal", \
-                "add_attribute does not work"
+        self.assertEqual(conf.hostsConf["testserver1"]["TestAttr"],
+                         "TestVal", "add_attribute does not work")
 
     def test_inherit_test(self):
         self.tpl.add_test("UpTime")
@@ -70,8 +75,10 @@ class HostTemplates(unittest.TestCase):
         conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
-        assert "UpTime" in [ t["name"] for t in conf.hosttemplatefactory.templates["testtpl2"]["tests"] ], \
-                "inheritance does not work with tests"
+        testnames = [ t["name"] for t in
+                conf.hosttemplatefactory.templates["testtpl2"]["tests"] ]
+        self.assertTrue("UpTime" in testnames,
+                        "inheritance does not work with tests")
 
     def test_inherit_group(self):
         self.tpl.add_group("Test Group")
@@ -80,8 +87,9 @@ class HostTemplates(unittest.TestCase):
         conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
-        assert "Test Group" in conf.hosttemplatefactory.templates["testtpl2"]["groups"], \
-                "inheritance does not work with groups"
+        self.assertTrue("Test Group" in
+                conf.hosttemplatefactory.templates["testtpl2"]["groups"],
+                "inheritance does not work with groups")
 
     def test_inherit_attribute(self):
         self.tpl.add_attribute("TestAttr", "TestVal")
@@ -90,10 +98,11 @@ class HostTemplates(unittest.TestCase):
         conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
-        assert conf.hosttemplatefactory.templates["testtpl2"]["attributes"].has_key("TestAttr"), \
-                "inheritance does not work with attributes"
-        assert conf.hosttemplatefactory.templates["testtpl2"]["attributes"]["TestAttr"] == "TestVal", \
-                "inheritance does not work with attributes"
+        tpldata = conf.hosttemplatefactory.templates["testtpl2"]
+        self.assertTrue(tpldata["attributes"].has_key("TestAttr"),
+                "inheritance does not work with attributes")
+        self.assertEqual(tpldata["attributes"]["TestAttr"], "TestVal",
+                "inheritance does not work with attributes")
 
     def test_inherit_redefine_test(self):
         self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label1"})
@@ -107,9 +116,10 @@ class HostTemplates(unittest.TestCase):
         for test in conf.hosttemplatefactory.templates["testtpl2"]["tests"]:
             if test["name"] == "Interface":
                 intftest = test
-        assert intftest is not None, "inheritance does not work with tests"
-        assert intftest["args"]["label"] == "Label2", \
-                "child templates cannot redefine tests from parent templates"
+        self.assertTrue(intftest is not None,
+                        "inheritance does not work with tests")
+        self.assertEqual(intftest["args"]["label"], "Label2",
+                "child templates cannot redefine tests from parent templates")
 
     def test_inherit_multiple_test(self):
         self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label0"})
@@ -125,8 +135,8 @@ class HostTemplates(unittest.TestCase):
         for test in conf.hosttemplatefactory.templates["testtpl3"]["tests"]:
             if test["name"] == "Interface":
                 intftests.append(test["args"]["ifname"])
-        assert intftests == [ "eth0", "eth1"], \
-                "multiple inheritance does not work (%s)" % str(intftests)
+        self.assertEqual(intftests, [ "eth0", "eth1"],
+                "multiple inheritance does not work (%s)" % str(intftests))
 
     def test_deepcopy(self):
         """
@@ -141,8 +151,9 @@ class HostTemplates(unittest.TestCase):
         conf.hosttemplatefactory.register(tpl2)
         # Reload the templates
         conf.hosttemplatefactory.load_templates()
-        assert not conf.hosttemplatefactory.templates["testtpl1"]["attributes"].has_key("TestAttr2"), \
-                "inheritence taints parent templates"
+        tpldata = conf.hosttemplatefactory.templates["testtpl1"]
+        self.failIf(tpldata["attributes"].has_key("TestAttr2"),
+                "inheritence taints parent templates")
 
     def test_defined_templates(self):
         conf.hosttemplatefactory.load_templates()
@@ -153,15 +164,18 @@ class HostTemplates(unittest.TestCase):
         tpl1 = HostTemplate("testtpl2")
         tpl1.add_parent("testtpl1")
         conf.hosttemplatefactory.register(tpl1)
-        assert "default" in conf.hosttemplatefactory.templates["testtpl1"]["parent"], \
-                "The \"default\" template is not automatically added as parent to other templates"
+        self.assertTrue("default" in
+                conf.hosttemplatefactory.templates["testtpl1"]["parent"],
+                "The \"default\" template is not automatically added as "
+                "parent to other templates")
 
 
     def test_add_nagios_directive(self):
         """ Test for the add_nagios_directive method
         """
         self.tpl.add_nagios_directive("max_check_attempts", "5")
-        self.assertEquals(conf.hosttemplatefactory.templates["testtpl1"]["nagiosDirectives"]["max_check_attempts"],
+        tpldata = conf.hosttemplatefactory.templates["testtpl1"]
+        self.assertEquals(tpldata["nagiosDirectives"]["max_check_attempts"],
                           "5")
 
 
@@ -169,10 +183,11 @@ class HostTemplates(unittest.TestCase):
     def test_add_nagios_service_directive(self):
         """ Test for the add_nagios_service_directive method
         """
-        self.tpl.add_nagios_service_directive("Interface eth1", "retry_interval", "10")
-        self.assertEquals(
-            conf.hosttemplatefactory.templates["testtpl1"]["nagiosSrvDirs"]["Interface eth1"]["retry_interval"],
-            "10")
+        self.tpl.add_nagios_service_directive("Interface eth1",
+                "retry_interval", "10")
+        tpldata = conf.hosttemplatefactory.templates["testtpl1"]
+        self.assertEquals(tpldata["nagiosSrvDirs"]["Interface eth1"]
+                          ["retry_interval"], "10")
 
     def test_nagiosdirs_apply_on_host(self):
         self.tpl.add_nagios_directive("retry_interval", "8")

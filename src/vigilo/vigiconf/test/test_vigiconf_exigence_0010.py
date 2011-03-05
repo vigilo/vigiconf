@@ -16,17 +16,16 @@ from helpers import setup_db, teardown_db, DummyRevMan, TESTDATADIR
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.hlservice import HLServiceLoader
 
-from vigilo.models.tables import SupItemGroup, Host, \
-                                    HighLevelService
+from vigilo.models.tables import SupItemGroup, HighLevelService
 from vigilo.models.session import DBSession
 from vigilo.models.demo.functions import add_host, add_lowlevelservice
 
 from vigilo.vigiconf.lib.confclasses.host import HostFactory
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
-from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplateFactory
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 
-class VIGILO_CONFIGURATION_0010(unittest.TestCase):
+
+class ExigConfiguration0010Test(unittest.TestCase):
     """
     Test de l'exigence VIGILO_EXIG_VIGILO_CONFIGURATION_0010::
 
@@ -90,7 +89,8 @@ class VIGILO_CONFIGURATION_0010(unittest.TestCase):
                 conf.testfactory,
             )
         hosts = f.load()
-        self.assertFalse(hosts.has_key('localhost'), "localhost has been deleted in conf")
+        self.assertFalse(hosts.has_key('localhost'),
+                         "localhost has been deleted in conf")
         self.assertTrue(hosts.has_key('testhost2'), "testhost2 is in conf")
 
     # @TODO: il faudrait rédiger ces tests unitaires.
@@ -121,14 +121,15 @@ class VIGILO_CONFIGURATION_0010(unittest.TestCase):
     def test_service_hls_suppr(self):
         # création de groupes de services
         host1 = add_host("host11")
-        host2 = add_host("host12")
+        add_host("host12")
         add_lowlevelservice(host1, "llservice1")
         add_lowlevelservice(host1, "llservice2")
         grouploader = GroupLoader()
         grouploader.insert({"name": u"hlsgroup1", "parent": None})
         grouploader.insert({"name": u"hlsgroup2", "parent": None})
         hlserviceloader1 = HLServiceLoader(grouploader, DummyRevMan())
-        hlserviceloader1.load_dir(os.path.join(TESTDATADIR, 'xsd/hlservices/ok'))
+        hlserviceloader1.load_dir(os.path.join(TESTDATADIR,
+                                  'xsd/hlservices/ok'))
 
         nb = DBSession.query(HighLevelService).count()
         self.assertEquals(nb, 4, "4 hlservices created")
@@ -139,11 +140,13 @@ class VIGILO_CONFIGURATION_0010(unittest.TestCase):
         grouploader = GroupLoader()
         hlserviceloader2 = HLServiceLoader(grouploader, DummyRevMan())
         hlserviceloader2.has_changed = True
-        hlserviceloader2.load_dir(os.path.join(TESTDATADIR, 'xsd/hlservices/todelete'))
+        hlserviceloader2.load_dir(os.path.join(TESTDATADIR,
+                                  'xsd/hlservices/todelete'))
         hlserviceloader2.cleanup()
 
         nb2 = DBSession.query(HighLevelService).count()
-        print [ hls.servicename for hls in DBSession.query(HighLevelService).all() ]
+        print [ hls.servicename for hls in
+                DBSession.query(HighLevelService).all() ]
         self.assertEquals(nb2, 1, "1 hlservice")
 
         hls = HighLevelService.by_service_name(u'hlservice1')

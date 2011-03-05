@@ -4,10 +4,10 @@
 Test that the dispatchator works properly
 """
 
-import sys, os, unittest, tempfile, shutil, glob, re
+import os
+import unittest
 
 from vigilo.common.conf import settings
-from vigilo.models.tables import MapGroup
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
@@ -30,7 +30,8 @@ class DispatchatorTest(unittest.TestCase):
         # Prepare necessary directories
         # TODO: commenter les divers repertoires
         setup_deploy_dir()
-        self.host = Host(conf.hostsConf, "dummy", u"testserver1", u"192.168.1.1", u"Servers")
+        self.host = Host(conf.hostsConf, "dummy", u"testserver1",
+                         u"192.168.1.1", u"Servers")
         test_list = conf.testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
         self.dispatchator = make_dispatchator()

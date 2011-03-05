@@ -8,18 +8,17 @@ loaders test.
   - topology
 """
 
-import os, unittest, shutil
+import os
+import unittest
 
 from vigilo.vigiconf.lib import ParsingError
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.topology import TopologyLoader
 
-import vigilo.vigiconf.conf as conf
 from helpers import setup_db, teardown_db, DummyRevMan, TESTDATADIR
 
-from vigilo.models.tables import SupItemGroup, SupItemGroup, Host, SupItem
-from vigilo.models.tables import LowLevelService, HighLevelService, \
-                                    Dependency, DependencyGroup
+from vigilo.models.tables import SupItemGroup, SupItemGroup, SupItem
+from vigilo.models.tables import Dependency, DependencyGroup
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
 from vigilo.models.demo import functions as df
@@ -53,7 +52,7 @@ class GroupLoaderTest(XMLLoaderTest):
         g = SupItemGroup.by_group_name(u'root_group')
         self.assertTrue(g, "root_group is not created.")
         n = len(g.get_children())
-        c = SupItemGroup.by_group_name(u'hgroup1')
+        #c = SupItemGroup.by_group_name(u'hgroup1')
         print g.get_children()
         self.assertEquals(n, 3, "rootgroup has 3 children (%d)" % n)
 
@@ -67,12 +66,9 @@ class GroupLoaderTest(XMLLoaderTest):
         n = len(g.get_children())
         self.assertEquals(n, 3, "rootgroup2 has 3 children (%d)" % n)
 
-        num = DBSession.query(SupItemGroup).filter_by(name=u"Linux servers 4").count()
+        num = DBSession.query(SupItemGroup).filter_by(
+                    name=u"Linux servers 4").count()
         self.assertEquals(num, 2, "Linux servers 4 is not doubled in DB")
-
-    #def test_load_hostgroups_ko(self):
-    #    basedir = 'tests/testdata/xsd/hostgroups/ko/loader_ko'
-    #    self.assertRaises(Exception, self.grouploader.load_dir, '%s/1' % basedir)
 
 
 class DepLoaderTest(XMLLoaderTest):
@@ -96,7 +92,8 @@ class DepLoaderTest(XMLLoaderTest):
         self.assertEquals(2, DBSession.query(Dependency).count())
         # host11/service11 is a dependence of host1
         si_host1 = SupItem.get_supitem(hostname=u"host1", servicename=None)
-        si_host11 = SupItem.get_supitem(hostname=u"host11", servicename=u"service11")
+        si_host11 = SupItem.get_supitem(hostname=u"host11",
+                                        servicename=u"service11")
         self.assertTrue(si_host1, "si_host1 not null")
         self.assertTrue(si_host11, "si_host11 not null")
         self.assertEquals(1,
@@ -113,8 +110,9 @@ class DepLoaderTest(XMLLoaderTest):
     def test_load_conf_topologies(self):
         """Test de chargement des dépendances de la conf"""
         localhost = df.add_host("localhost")
-        interface = df.add_lowlevelservice(localhost, "Interface eth0")
-        self.topologyloader.load_dir(os.path.join(TESTDATADIR, 'conf.d/topologies'))
+        df.add_lowlevelservice(localhost, "Interface eth0")
+        self.topologyloader.load_dir(os.path.join(TESTDATADIR,
+                                     'conf.d/topologies'))
 
     def test_load_topologies_ko(self):
         """
@@ -128,7 +126,8 @@ class DepLoaderTest(XMLLoaderTest):
         Test de grouploader.get_groups_hierarchy()
         Réimplémentation avec db du dico python conf.groupsHierarchy
         """
-        self.grouploader.load_dir(os.path.join(TESTDATADIR, 'xsd/hostgroups/ok'))
+        self.grouploader.load_dir(os.path.join(TESTDATADIR,
+                                  'xsd/hostgroups/ok'))
         gh = self.grouploader._in_conf
         print gh
         self.assertTrue("/root_group3/hgroup31" in gh)
