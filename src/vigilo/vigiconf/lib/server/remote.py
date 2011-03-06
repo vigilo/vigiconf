@@ -16,9 +16,11 @@
 ################################################################################
 
 """
-Describes a Server where to push and commit new software configurations
+Ce module contient les sous-classes de L{Server<base.Server>} et
+L{ServerManager<manager.ServerManager>} capables de gérer des serveurs
+distants.
 
-This file is part of the Enterprise Edition
+Elles concernent Vigilo Enterprise Edition.
 """
 
 from __future__ import absolute_import
@@ -86,13 +88,13 @@ class ServerManagerRemote(ServerManager):
 
 class ServerRemote(Server):
     """
-    A SSH-accessible server
-    @ivar mCommandUser: the user to execute the command as
+    Un serveur Vigilo accessible par SSH.
+    @ivar mCommandUser: L'utilisateur système en tant que qui exécuter les
+        commandes
     @type mCommandUser: L{CommandUser<lib.remotecommand.CommandUser>}
     """
 
     def __init__(self, iName):
-        # Superclass constructor
         Server.__init__(self, iName)
         # mCommandUser
         ssh_conf_file = os.path.join(settings["vigiconf"].get("confdir"),
@@ -117,10 +119,10 @@ class ServerRemote(Server):
 
     def createCommand(self, iCommand):
         """
-        @param iCommand: command to execute
+        @param iCommand: commande à exécuter à distance
         @type  iCommand: C{str}
-        @return: the command instance
-        @rtype: L{SystemCommand<vigilo.vigiconf.lib.systemcommand.SystemCommand>}
+        @return: L'instance de Command
+        @rtype: L{RemoteCommand<lib.remotecommand.RemoteCommand>}
         """
         c = RemoteCommand(self.getName(), iCommand, self.getCommandUser())
         c.simulate = self.is_simulation()

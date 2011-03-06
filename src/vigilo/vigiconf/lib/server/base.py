@@ -18,7 +18,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 """
-Describes a Server to push and commit new software configurations to
+Ce module contient la classe de base pour un serveur Vigilo: L{Server}.
 """
 
 from __future__ import absolute_import
@@ -42,7 +42,7 @@ from vigilo.vigiconf.lib.systemcommand import SystemCommand, SystemCommandError
 
 
 class ServerError(VigiConfError):
-    """Exception involving a L{Server} object"""
+    """Exception concernant un objet L{Server}"""
 
     def __init__(self, value, iServerName = ''):
         super(ServerError, self).__init__(value)
@@ -58,14 +58,16 @@ class ServerError(VigiConfError):
 
 class Server(object):
     """
-    A generic Server class
-    @ivar name: the hostname
+    Un serveur Vigilo.
+    @ivar name: nom du serveur (DNS)
     @type name: C{str}
+    @ivar revisions: révisions des configurations déployées sur ce serveur.
+    @type revisions: C{dict}
     """
 
     def __init__(self, name):
         self.name = name
-        self.rev_filename = os.path.join(
+        self._rev_filename = os.path.join(
                 settings["vigiconf"].get("libdir"),
                 "revisions" , "%s.revisions" % name)
         self.revisions = {"conf": None, 
@@ -80,32 +82,32 @@ class Server(object):
 
     def needsDeployment(self):
         """
-        Tests wheather the server needs deployment
-        @rtype: C{boolean}
+        Teste si le serveur nécessite un déploiement.
+        @rtype: C{bool}
         """
         return self.revisions["conf"] != self.revisions["deployed"]
 
     def needsRestart(self):
         """
-        Tests wheather the server needs restarting
-        @rtype: C{boolean}
+        Teste si le serveur nécessite un redémarrage des applications.
+        @rtype: C{bool}
         """
         return self.revisions["deployed"] != self.revisions["installed"]
 
     # external references
     def getBaseDir(self): # pylint: disable-msg=R0201
         """
-        @return: base directory for file deployment
+        @return: Répertoire de base pour les déploiements.
         @rtype: C{str}
         """
         return os.path.join(settings["vigiconf"].get("libdir"), "deploy")
 
     def createCommand(self, iCommand):
         """
-        @note: To be implemented by subclasses
-        @param iCommand: command to execute
+        @note: À réimplémenter dans les sous-classes.
+        @param iCommand: commande à exécuter.
         @type  iCommand: C{str}
-        @return: the command instance
+        @return: L'instance de la commande
         @rtype: L{SystemCommand<lib.systemcommand.SystemCommand>}
         """
         c = SystemCommand(iCommand)
@@ -113,10 +115,9 @@ class Server(object):
         return c
 
     def is_simulation(self):
-        """ get simulation mode.
-
-        @return: simulation or not
-        @rtype: C{boolean}
+        """
+        @return: État du mode simulation
+        @rtype: C{bool}
         """
         simulate = False
         try:
@@ -128,13 +129,8 @@ class Server(object):
     # methods
     def switch_directories(self):
         """
-        Archive the directory containing the config files
-
-        All the following commands must success or the whole command fails:
-         1. test if the DIRECTORY "/tmp/testMV/new" exists
-         2. cd into /tmp/testMV
-         3. if the DIRECTORY prod exists, rename it to old
-         4. rename new to prod
+        Archive le répertoire contenant les anciennes configurations, et
+        active les nouvelles, à l'aide de C{vigiconf-local}.
         """
         cmd = ["vigiconf-local", "activate-conf"]
         _command = self.createCommand(cmd)
@@ -152,7 +148,7 @@ class Server(object):
 
     def tarConf(self):
         """
-        Tar the configuration files, before deployment
+        I{Tarre} les fichiers de configuration, avant déploiement.
         """
         cmd = ["tar", "-C",
                os.path.join(self.getBaseDir(), self.getName()), "-cvf",
@@ -168,15 +164,11 @@ class Server(object):
                                 })
 
     def deployTar(self):
-        """
-        Template function for configuration deployment from the tar archive.
-        Must be implemented by a subclass, see L{vigilo.vigiconf.lib.server}.
-        """
         raise NotImplementedError
 
     def deployFiles(self):
         """
-        Copy all the configuration files
+        Copie tous les fichiers de configuration.
         """
         self.tarConf()
         self.deployTar()
@@ -184,7 +176,7 @@ class Server(object):
 
     def _copy(self, source, destination):
         """
-        Simple wrapper around shutil.copyfile.
+        Un simple wrapper pour shutil.copyfile.
         @param source: source
         @type  source: C{str}
         @param destination: destination
@@ -208,7 +200,9 @@ class Server(object):
         return os.path.join(self.getBaseDir(), self.getName(), "validation")
 
     def insertValidationDir(self):
-        """Prepare the directory with the validation scripts"""
+        """
+        Prepare le répertoire avec les scripts de validation.
+        """
         validation_dir = self.getValidationDir()
         if not os.path.exists(validation_dir):
             os.makedirs(validation_dir)
@@ -228,7 +222,7 @@ class Server(object):
             os.makedirs(os.path.dirname(dest_rev_filename))
         except OSError:
             pass
-        shutil.copyfile(self.rev_filename, dest_rev_filename)
+        shutil.copyfile(self._rev_filename, dest_rev_filename)
         # insert the "validation" directory in the deployment directory
         self.insertValidationDir()
         # now, the deployment directory is complete.
@@ -252,13 +246,13 @@ class Server(object):
 
     def write_revisions(self):
         """
-        Write the SVN revision to our state file
+        Écrit la révision SVN dans le fichier d'état.
         """
-        directory = os.path.dirname(self.rev_filename)
+        directory = os.path.dirname(self._rev_filename)
         if not os.path.exists(directory):
             os.makedirs(directory)
         try:
-            _file = open(self.rev_filename, 'wb')
+            _file = open(self._rev_filename, 'wb')
             _file.write("Revision: %d" % self.revisions["conf"])
             _file.close()
         except Exception, e: # pylint: disable-msg=W0703

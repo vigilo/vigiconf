@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # VigiConf
@@ -18,8 +19,11 @@
 ################################################################################
 
 """
-This module contains the localhost-only implementation of the Dispatchator.
-The multi-server implementation is part of the Enterprise Edition.
+Ce module contient une sous-classe du L{Dispatchator<base.Dispatchator>}
+limitée à C{localhost}.
+
+L'implémentation sachant gérer les serveurs distants fait partie de
+Vigilo Enterprise Edition.
 """
 
 from __future__ import absolute_import
@@ -32,16 +36,11 @@ _ = translate(__name__)
 
 
 class DispatchatorLocal(Dispatchator):
-    """A localhost-only implementation of the Dispatchator."""
+    """
+    Implémentation du Dispatchator limitée à C{localhost}.
+    """
 
     def getServersForApp(self, app):
-        """
-        Get the list of server names for this app. In this
-        implementation, return only localhost.
-        @param app: the application to consider
-        @type  app: L{lib.application.Application}
-        @rtype: C{list} of C{str}
-        """
         return [ "localhost" ]
 
     def server_status(self, servernames, status, no_deploy=False):

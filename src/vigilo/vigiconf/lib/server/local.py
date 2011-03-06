@@ -16,7 +16,10 @@
 ################################################################################
 
 """
-The local host Server instance
+Ce module contient les implémentations des classes L{Server<base.Server>} et
+L{ServerManager<manager.ServerManager>} limitées à C{localhost}.
+
+Elles concernent Vigilo Community Edition.
 """
 
 from __future__ import absolute_import
@@ -44,7 +47,7 @@ class ServerManagerLocal(ServerManager):
 
 
 class ServerLocal(Server):
-    """The local host"""
+    """Implémentation de L{Server} pour C{localhost}"""
 
     def __init__(self, iName):
         # Superclass constructor

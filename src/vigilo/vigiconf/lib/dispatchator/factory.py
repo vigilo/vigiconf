@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # VigiConf
@@ -18,8 +19,9 @@
 ################################################################################
 
 """
-This module contain the various dispatch modes. In the Community Edition,
-only the local mode is available.
+Ce module contient la I{Factory} du L{Dispatchator<base.Dispatchator>}.
+Dans Vigilo Community Edition, seule l'implémentation L{DispatchatorLocal
+<local.DispatchatorLocal>} est disponible.
 """
 
 from __future__ import absolute_import
@@ -39,11 +41,8 @@ _ = translate(__name__)
 
 def get_dispatchator_class():
     """
-    Factory for the L{Dispatchator
-    <vigilo.vigiconf.lib.dispatchator.base.Dispatchator>} children.
-
-    @return: the proper class of the Dispatchator, depending on the Community
-        or Enterprise Edition
+    @return: La meilleure sous-classe de L{Dispatchator<base.Dispatchator>}
+    disponible, en fonction de l'édition de Vigilo.
     """
     if hasattr(conf, "appsGroupsByServer"):
         for entry in working_set.iter_entry_points(
@@ -59,7 +58,10 @@ def get_dispatchator_class():
 
 
 def make_dispatchator():
-    """Factory pour le Dispatchator"""
+    """
+    I{Factory} du L{Dispatchator<base.Dispatchator>}. Retourne l'implémentation
+    correspondante à l'édition de Vigilo utilisée.
+    """
     d_class = get_dispatchator_class()
     # apps
     apps_mgr = ApplicationManager()

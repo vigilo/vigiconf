@@ -19,10 +19,8 @@
 ################################################################################
 
 """
-This module is in charge of controling all the deployement/validation process
-of a new configuration.
-
-This is the module to call as a main end-user command line (see --help)
+Ce module contient L{RevisionManager}, une classe permettant de contrôller
+le système de gestion de version qui gère les révisions de la configuration.
 """
 
 from __future__ import absolute_import
@@ -46,7 +44,8 @@ from vigilo.vigiconf.lib.exceptions import DispatchatorError
 class RevisionManager(object):
     """
     Gestionnaire des révisions et du dossier de travail contenant la
-    configuration de VigiConf (conf.d). Actuellement implémenté avec SVN.
+    configuration de VigiConf (C{conf.d}). Actuellement implémenté avec
+    Subversion.
     """
 
     def __init__(self, force=False):
@@ -57,7 +56,7 @@ class RevisionManager(object):
 
     def prepare(self):
         """
-        Prepare the configuration dir (it's an SVN working directory)
+        Prepare le dossier de configuration (c'est une copie de travail SVN).
         """
         status = self.status()
         if self.deploy_revision != "HEAD" and \
@@ -68,6 +67,11 @@ class RevisionManager(object):
         self.sync()
 
     def status(self):
+        """
+        Retourne le résultat de la commande C{svn status} dans un
+        dictionnaire indexé par état et listant les fichiers.
+        @rtype:  C{dict}
+        """
         if self._status is not None:
             return self._status
         _cmd = self._get_auth_svn_cmd_prefix('status')
@@ -115,6 +119,11 @@ class RevisionManager(object):
         return status
 
     def sync(self, status=None):
+        """
+        Synchronise l'état SVN avec l'état réel du dossier. Exécute un
+        C{svn add} sur les fichiers ou dossiers ajoutés, et un
+        C{svn remove} sur ce qui a été supprimé.
+        """
         if not settings["vigiconf"].get("svnrepository", False):
             LOGGER.warning(_("Not updating because the 'svnrepository' "
                                "configuration parameter is empty"))
@@ -138,6 +147,11 @@ class RevisionManager(object):
                                           "SVN directory"))
 
     def add(self, path):
+        """
+        Exécute un C{svn add} sur le chemin spécifié.
+        @param path: Chemin à ajouter.
+        @type  path: C{str}
+        """
         LOGGER.debug("Adding a new configuration file to the "
                      "repository: %s", path)
         _cmd = ["svn", "add"]
@@ -154,6 +168,11 @@ class RevisionManager(object):
         return result
 
     def remove(self, path):
+        """
+        Exécute un C{svn remove} sur le chemin spécifié.
+        @param path: Chemin à supprimer.
+        @type  path: C{str}
+        """
         LOGGER.debug("Removing an old configuration file from the "
                      "repository: %s", path)
         _cmd = self._get_auth_svn_cmd_prefix('remove')
@@ -172,6 +191,9 @@ class RevisionManager(object):
         return result
 
     def commit(self):
+        """
+        Exécute un C{svn commit} dans le dossier de configuration.
+        """
         if not settings["vigiconf"].get("svnrepository", False):
             LOGGER.warning(_("Not committing because the 'svnrepository' "
                            "configuration parameter is empty"))
@@ -195,7 +217,7 @@ class RevisionManager(object):
 
     def update(self):
         """
-        Updates the local copy of the repository
+        Exécute un C{svn update} dans le dossier de configuration.
         """
         _cmd = self._get_auth_svn_cmd_prefix('update')
         _cmd.extend(["-r", str(self.deploy_revision)])
@@ -214,10 +236,9 @@ class RevisionManager(object):
 
     def _get_auth_svn_cmd_prefix(self, svn_cmd): # pylint: disable-msg=R0201
         """
-        Get an authentified svn command prefix like
-        "svn <svn_cmd> --username user --password password "
-
-        @return: the svn command prefix
+        Retourne un début de commande SVN incluant l'authentification
+        paramétrée dans le fichier C{settings.ini}.
+        @return: Le début de la commande SVN
         @rtype: C{list}
         """
         _cmd = ["svn", svn_cmd]
@@ -230,8 +251,9 @@ class RevisionManager(object):
 
     def last_revision(self):
         """
-        Get the last revision of the files via SVN
-        @return: the number of the current revision
+        Retourne la dernière révision des fichiers en exécutant un
+        C{svn info} dans le dossier de configuration.
+        @return: Le numéro de la dernière révision
         @rtype: C{int}
         """
         res = 0
@@ -257,6 +279,19 @@ class RevisionManager(object):
 
     def file_changed(self, filename, exclude_added=False,
                      exclude_removed=False):
+        """
+        Retourne l'état de modification d'un fichier.
+        @param filename: Fichier à analyser
+        @type  filename: C{str}
+        @param exclude_added: Si C{True}, ne considère pas les fichiers
+            ajoutés.
+        @type  exclude_added: C{bool}
+        @param exclude_removed: Si C{True}, ne considère pas les fichiers
+            supprimés.
+        @type  exclude_removed: C{bool}
+        @return: C{True} si C{filename} a été modifiée, C{False} sinon.
+        @rtype: C{bool}
+        """
         if self.force:
             # L'usage de l'option "--force" est considéré comme
             # étant une modification de la configuration.
@@ -270,6 +305,13 @@ class RevisionManager(object):
         return filename in changes
 
     def dir_changed(self, dirname):
+        """
+        Retourne l'état de modification d'un dossier.
+        @param dirname: Dossier à analyser
+        @type  dirname: C{str}
+        @return: C{True} si C{dirname} a été modifié, C{False} sinon.
+        @rtype: C{bool}
+        """
         if self.force:
             # L'usage de l'option "--force" est considéré comme
             # étant une modification de la configuration.
@@ -283,6 +325,10 @@ class RevisionManager(object):
                 return True
 
     def get_removed(self):
+        """
+        Retourne la liste des fichiers ou dossiers supprimés.
+        @rtype: C{list}
+        """
         status = self.status()
         return status["removed"]
 

@@ -21,9 +21,10 @@
 # pylint: disable-msg=E1101
 
 """
-Remote deployment mode.
+Ce module contient une sous-classe du L{Dispatchator<base.Dispatchator>} qui
+sait gérér des serveurs Vigilo distants.
 
-This file is part of the Enterprise Edition.
+Ce fichier fait partie de Vigilo Enterprise Edition.
 """
 
 from __future__ import absolute_import
@@ -41,16 +42,17 @@ from vigilo.vigiconf.lib.dispatchator.base import Dispatchator
 class DispatchatorRemote(Dispatchator):
     """
     Version du Dispatchator qui gère les serveurs distants
-    @ivar mUser: utilisateur pour les opérations distantes
-    @type mUser: L{CommandUser<lib.remotecommand.CommandUser>}
     """
 
     def getServersForApp(self, app):
         """
-        Get the list of server names for this app.
-        @param app: the application to consider
-        @type  app: L{lib.application.Application}
-        @rtype: C{list} of C{str}
+        Récupère la liste des noms de serveurs pour l'application fournie en
+        paramètre.
+        @note: Cette méthode doit être réimplémentée par les sous-classes
+        @param app: Application à laquelle affecter les serveurs
+        @type  app: L{Application<lib.application.Application>}
+        @return: Nom des serveurs pour cette application
+        @rtype: C{list} de C{str}
         """
         if not app.group:
             # pas de groupe, probablement juste de la génération
@@ -74,21 +76,14 @@ class DispatchatorRemote(Dispatchator):
 
     def restrict(self, servernames):
         """
-        Restrict applications and servers to the ones given as argument.
-        @param servernames: List of servers to filter from
-        @type  servernames: C{list} of C{str}
+        Limite les serveurs de nos applications aux serveurs fournis en
+        paramètre.
+        @param servernames: Liste des noms de serveurs
+        @type  servernames: C{list} de C{str}
         """
         if not servernames:
             return
         self.srv_mgr.restrict(servernames)
-        self.restrictApplicationsListToServers(servernames)
-
-    def restrictApplicationsListToServers(self, servernames):
-        """
-        Restricts our applications' servers to the servers list
-        @param servernames: List of servers to filter from
-        @type  servernames: C{list} of C{str}
-        """
         newapplications = []
         for _app in self.apps_mgr.applications:
             serversforapp = {}
@@ -101,6 +96,16 @@ class DispatchatorRemote(Dispatchator):
         self.apps_mgr.applications = newapplications
 
     def server_status(self, servernames, status, no_deploy=False):
+        """
+        Règle l'état d'un ou plusieurs serveur(s) Vigilo.
+        @note: Cette méthode doit être réimplémentée dans les sous-classes
+        @param servernames: Les noms des serveurs dont il faut changer l'état
+        @type  servernames: C{list} de C{str}
+        @param status: Nouvel état à affecter
+        @type  status: C{str}
+        @param no_deploy: Si C{True}, on ne re-déploiera pas la configuration
+        @type  no_deploy: C{bool}
+        """
         for servername in servernames:
             server = self.srv_mgr.servers[servername]
             if status == "disable":

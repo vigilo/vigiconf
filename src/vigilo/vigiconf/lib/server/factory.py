@@ -18,7 +18,11 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 """
-Describes a Server to push and commit new software configurations to
+Ce module contient les I{Factories} des sous-classes de L{Server<base.Server>}
+et L{ServerManager<manager.ServerManager>}.
+
+Dans Vigilo Community Edition, seules les sous-classes L{ServerLocal} et
+L{ServerManagerLocal} sont disponibles.
 """
 
 from __future__ import absolute_import
@@ -39,7 +43,10 @@ from vigilo.vigiconf.lib.server.local import ServerLocal, ServerManagerLocal
 
 
 class ServerFactory(object):
-    """The Server Factory: returns the right subclass"""
+    """
+    I{Factory} pour L{Server<base.Server>}: retourne une instance de la bonne
+    sous-classe.
+    """
 
     def __init__(self):
         self.remote_class = self.find_remote_class()
@@ -71,6 +78,10 @@ class ServerFactory(object):
 
 
 def get_server_manager_class():
+    """
+    Retourne la bonne sous-classe de L{ServerManager<manager.ServerManager>}
+    en fonction de l'édition de Vigilo.
+    """
     if hasattr(conf, "appsGroupsByServer"):
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.extensions", "server_manager_remote"):
@@ -83,6 +94,10 @@ def get_server_manager_class():
         return ServerManagerLocal
 
 def get_server_manager():
+    """
+    I{Factory} pour L{ServerManager<manager.ServerManager>}: retourne une
+    instance de la meilleure sous-classe en fonction de l'édition de Vigilo.
+    """
     server_factory = ServerFactory()
     sm_class = get_server_manager_class()
     return sm_class(server_factory)

@@ -19,10 +19,8 @@
 ################################################################################
 
 """
-This module is in charge of controling all the deployement/validation process
-of a new configuration.
-
-This is the module to call as a main end-user command line (see --help)
+Ce module contient la classe de base pour le Dispatchator, contrôllant tout le
+processus de génération/validation/déploiement des configurations.
 """
 
 from __future__ import absolute_import
@@ -42,10 +40,22 @@ from vigilo.vigiconf.lib.exceptions import DispatchatorError
 
 class Dispatchator(object):
     """
-    Dispatch the configurations files for all the applications
+    Contrôle du processus principal de VigiConf. Une instance de cette classe
+    est construite par la factory L{factory.make_dispatchator}().
 
-    @ivar force: defines if the --force option is set
-    @type force: C{boolean}
+    @ivar force: Si cette variable est évaluée à C{True}, une synchronisation
+        complète de la configuration sera réalisée, et les configurations
+        générées seront déployées même si les serveurs ont déjà la bonne
+        version de la configuration.
+    @type force: C{bool}
+    @ivar apps_mgr: Gestionnaire des applications
+    @type apps_mgr: L{ApplicationManager<application.ApplicationManager>}
+    @ivar rev_mgr: Gestionnaire des révisions de la configuration
+    @type rev_mgr: L{RevisionManager<revisionmanager.RevisionManager>}
+    @ivar srv_mgr: Gestionnaire des serveurs Vigilo
+    @type srv_mgr: L{ServerManager<server.manager.ServerManager>}
+    @ivar gen_mgr: Gestionnaire du processus de génération
+    @type gen_mgr: L{GeneratorManager<generators.manager.GeneratorManager>}
     """
 
     def __init__(self, apps_mgr, rev_mgr, srv_mgr, gen_mgr):
@@ -62,12 +72,12 @@ class Dispatchator(object):
         self.rev_mgr.force = value
     force = property(get_force, set_force)
 
-    def restrict(self, servers):
+    def restrict(self, servernames):
         """
-        Restrict applications and servers to the ones given as arguments.
-        @note: This method has to be implemented by subclasses
-        @param servers: Server names.
-        @type  servers: C{list} of C{str}
+        Limite les applications et les serveurs à ceux fournis en argument.
+        @note: Cette méthode doit être réimplémentée par les sous-classes
+        @param servernames: Noms de serveurs
+        @type  servernames: C{list} de C{str}
         """
         pass
 
@@ -83,20 +93,16 @@ class Dispatchator(object):
         pass
 
     def getServersForApp(self, app):
-        """
-        Get the list of server names for this application.
-        @note: To be implemented by subclasses.
-        @param app: Application to analyse
-        @type  app: L{Application<lib.application.Application>}
-        @return: Server names for this application
-        @rtype: C{list} of C{str}
-        """
         raise NotImplementedError()
 
     def generate(self, nosyncdb=False):
         """
         Génère la configuration des différents composants, en utilisant le
         L{GeneratorManager}.
+        @param nosyncdb: Si ce paramètre est C{True}, aucune synchronisation en
+            base ne sera réalisée (utile pour redéployer rapidement dans un cas
+            de perte d'un serveur Vigilo.
+        @type  nosyncdb: C{bool}
         """
         try:
             self.gen_mgr.generate(rev_mgr=self.rev_mgr, nosyncdb=nosyncdb)
@@ -111,6 +117,10 @@ class Dispatchator(object):
         self.rev_mgr.commit()
 
     def link_apps_to_servers(self):
+        """
+        Affecte les serveurs Vigilo aux applications, en utilisant
+        L{getServersForApp}.
+        """
         for app in self.apps_mgr.applications:
             for servername in self.getServersForApp(app):
                 server = self.srv_mgr.get(servername)
@@ -118,7 +128,9 @@ class Dispatchator(object):
                 app.actions[servername] = ["stop", "start"]
 
     def prepareServers(self):
-        """prépare la liste des serveurs sur lesquels travailler"""
+        """
+        Prépare la liste des serveurs sur lesquels travailler
+        """
         self.filter_disabled()
         if self.force:
             return
@@ -134,7 +146,9 @@ class Dispatchator(object):
             self.apps_mgr.qualify()
 
     def commit(self): # pylint: disable-msg=R0201
-        """Enregistre la configuration en base de données"""
+        """
+        Enregistre la configuration en base de données
+        """
         try:
             transaction.commit()
             LOGGER.info(_("Database commit successful"))
@@ -159,7 +173,10 @@ class Dispatchator(object):
         self.apps_mgr.execute("start", servers)
 
     def getState(self):
-        """Returns a summary"""
+        """
+        Retourne un résumé de l'état de la configuration et des serveurs
+        Vigilo.
+        """
         state = []
         _revision = self.rev_mgr.last_revision()
         state.append(_("Current revision in the repository : %d") % _revision)
@@ -189,6 +206,13 @@ class Dispatchator(object):
         raise NotImplementedError()
 
     def run(self, stop_after=None):
+        """
+        Méthode principale pour déclencher VigiConf.
+        @param stop_after: Étape après laquelle il faut s'arrêter. Valeurs
+            possibles : C{generation} ou C{deployment}. Par défaut : on déroule
+            la totalité du processus.
+        @type  stop_after: C{bool}
+        """
         self.rev_mgr.prepare()
         self.generate()
         if stop_after == "generation":

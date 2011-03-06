@@ -18,7 +18,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 """
-Describes a Server to push and commit new software configurations to
+Ce module contient la classe de base de L{ServerManager}, permettant de gérer
+un parc de serveurs Vigilo.
 """
 
 from __future__ import absolute_import
@@ -42,7 +43,7 @@ class ServerManager(object):
     serveurs.
 
     @ivar servers: C{dict} des serveurs, indexés par le nom (C{str}) et
-        pontant sur l'objet (L{server.base.Server})
+        pontant sur l'objet (L{Server<base.Server>})
     @type servers: C{dict}
     """
 
@@ -61,6 +62,15 @@ class ServerManager(object):
             server_obj.revisions["conf"] = revision
 
     def run_in_thread(self, servers, action, args=None):
+        """
+        Exécute une action sur des serveurs, en parallèle avec un thread par
+        serveur.
+        @param servers: Liste de noms de serveurs
+        @type  servers: C{list} de C{str}
+        @param action: l'action à effectuer, doit correspondre à une méthode de
+            L{Server<base.Server>}.
+        @type  action: C{str}
+        """
         if args is None:
             args = []
         self.commands_queue = Queue.Queue()
@@ -78,6 +88,10 @@ class ServerManager(object):
         return result
 
     def _threaded_action(self, action, args):
+        """
+        Exécute l'action avec les arguments donnés en paramètres. Cette méthode
+        est prévue pour s'exécuter dans un thread séparé.
+        """
         servername = self.commands_queue.get()
         server = self.servers[servername]
         try:
@@ -97,13 +111,13 @@ class ServerManager(object):
 
     def deploy(self, revision, servers=None, force=False):
         """
-        Deploys the config files to the servers belonging to iServers, using
-        one thread per server.
-        @param servers: List of servers
-        @type  servers: C{list} of L{Server<lib.server.Server>}
-        @param revision: SVN revision number
+        Déploie les fichiers de configuration des serveurs, avec un thread par
+        serveur.
+        @param servers: Liste de noms de serveurs
+        @type  servers: C{list} of C{str}
+        @param revision: Numéro de révision SVN
         @type  revision: C{int}
-        @return: number of servers deployed
+        @return: Nombre de serveurs déployés
         @rtype:  C{int}
         """
         servers = self.filter_servers("needsDeployment", servers, force)
@@ -121,9 +135,10 @@ class ServerManager(object):
 
     def switch_directories(self, servers=None):
         """
-        Switch directories prod->old and new->prod, with one thread per server.
-        @param servers: List of servers
-        @type  servers: C{list} of L{str}
+        Permute les répertoires C{prod -> old} et C{new -> prod}, avec un
+        thread par serveur.
+        @param servers: Liste de noms de serveurs
+        @type  servers: C{list} de L{str}
         """
         if servers is None:
             servers = self.servers.keys()

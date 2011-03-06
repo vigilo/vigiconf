@@ -17,8 +17,8 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
 """
-Classes concernant le Dispatchator. Seule la factory est directement
-accessibleau niveau du module.
+Classes concernant le L{Dispatchator<base.Dispatchator>}. Seule L{la factory
+<factory.make_dispatchator>} est directement accessible au niveau du module.
 """
 
 from __future__ import absolute_import

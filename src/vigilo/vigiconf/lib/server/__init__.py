@@ -17,6 +17,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ################################################################################
+"""
+Classes concernant les L{serveurs<base.Server>} Vigilo. Seule L{la factory
+<factory.get_server_manager>} du L{ServerManager<manager.ServerManager>} est
+directement accessible au niveau du module.
+"""
 
 from __future__ import absolute_import
 
