@@ -19,7 +19,10 @@
 ################################################################################
 
 """
-Defines an application that is managed by VigiConf, i.e. Nagios
+Ce module contient la définition d'une application gérée par VigiConf, par
+exemple Nagios ou VigiMap.
+
+Toutes les applications héritent de la classe L{Application}.
 """
 
 from __future__ import absolute_import
@@ -57,35 +60,48 @@ class ApplicationError(VigiConfError):
 
 
 class PassGenerator(object):
+    """Pseudo-générateur qui ne fait rien. C'est le générateur par défaut."""
     def __init__(self, app, ventilation):
         pass
     def generate(self):
         pass
+
 
 class Application(object):
     """
     Une application gérée par VigiConf. La classe fournit des méthodes pour
     démarrer, arrêter et valider l'application.
 
-    @cvar name: nom de l'application
+    @cvar name: Nom de l'application
     @type name: C{str}
-    @cvar priority: priorité pour l'ordonnancement du redémarrage
+    @cvar priority: Priorité pour l'ordonnancement du redémarrage
     @type priority: C{int}
-    @cvar validation: nom d'un script shell pour valider l'application
+    @cvar validation: Nom d'un script shell pour valider l'application
         localement et à distance. Le nom du script peut être un chemin, mais
         il doit être relatif au package python contenant l'application.
     @type validation: C{str}
-    @cvar start_command: commande pour démarrer l'application
+    @cvar start_command: Commande pour démarrer l'application. Il peut s'agir
+        du nom d'un script dans le même répertoire.
     @type start_command: C{str}
-    @cvar stop_command: commande pour arrêter l'application
+    @cvar stop_command: Commande pour arrêter l'application. Il peut s'agir
+        du nom d'un script dans le même répertoire.
     @type stop_command: C{str}
-    @cvar generator: classe utilisée pour la génération, ou None si aucune
-        génération n'est nécessaire
-    @type generator: instance de L{vigilo.vigiconf.lib.generators.Generator} ou
-        C{None}
-    @cvar group: groupe logique pour la ventilation
+    @cvar generator: Classe utilisée pour la génération.
+    @type generator: Instance de L{Generator
+        <vigilo.vigiconf.lib.generators.Generator>}
+    @cvar group: Groupe logique pour la ventilation
     @type group: C{str}
-    @ivar servers: liste des serveurs où l'application est déployée
+    @cvar defaults: Configuration de l'application, peut être surchargée par
+        une entrée du nom de l'application dans le dictionnaire C{apps_conf}
+        défini dans le dossier C{conf.d/general/}.
+    @type defaults: C{dict}
+    @cvar dbonly: Spécifie si l'application ne traite que des informations
+        disponibles dans la base de données. Dans ce cas, sa génération sera
+        décalée à la fin du déploiement, parallélisée avec les autres
+        applications définissant C{dbonly} à C{True}, et ignorée en cas de
+        bascule d'un serveur Vigilo (haute-disponibilité).
+    @type dbonly: C{bool}
+    @ivar servers: Liste des serveurs où l'application est déployée
     @type servers: C{dict}
     """
 
@@ -97,7 +113,7 @@ class Application(object):
     generator = PassGenerator
     group = None
     defaults = {}
-    dbonly = False # permet de décaler la génération à la fin du déploiement
+    dbonly = False
 
     def __init__(self):
         if self.name is None:
@@ -109,35 +125,52 @@ class Application(object):
 
 
     def __str__(self):
-        """
-        @return: String representation of the instance
-        @rtype: C{str}
-        """
         return self.name
 
     def __repr__(self):
         return "<Application %s>" % self.name
 
     def getConfig(self):
+        """
+        Retourne la configuration de l'application, éventuellement surchargée
+        par l'administrateur dans le dictionnaire C{apps_conf} du dossier
+        C{conf.d/general}.
+        @return: Configuration de l'application
+        @rtype: C{dict}
+        """
         config = self.defaults.copy()
         if self.name in conf.apps_conf:
             config.update(conf.apps_conf[self.name])
         return config
 
     def generate(self, ventilation):
+        """
+        Lance la génération de l'application
+        @param ventilation: La ventilation calculée par VigiConf
+        @type  ventilation: C{dict}
+        """
         generator = self.generator(self, ventilation)
         return generator.generate()
 
     def filterServers(self, servers):
         """
-        @param servers: the list of servers to filter on
-        @type  servers: C{list} of C{str}
-        @returns: The intersection between servers and our own servers list.
+        @param servers: liste de noms de serveurs
+        @type  servers: C{list} de C{str}
+        @returns: L'intersection entre servers et notre propre liste de
+            serveurs.
         """
         return set(servers) & set(self.servers) # intersection
 
 
     def write_startup_scripts(self, basedir):
+        """
+        Écrit les scripts de démarrage et d'arrêt dans le dossier qui sera
+        télé-déployé.
+
+        @param basedir: Le dossier de base pour la génération. Il doit contenir
+            un sous-dossier par serveur Vigilo.
+        @type  basedir: C{str}
+        """
         config = self.getConfig()
         for vserver in self.servers:
             scripts_dir = os.path.join(basedir, vserver, "apps", self.name)
@@ -153,6 +186,14 @@ class Application(object):
                 script.close()
 
     def _get_startup_command(self, action):
+        """
+        Retourne la commande (shell) associée à l'action en paramètre. Permet
+        d'abstraire la provenance (script séparé ou commande définie
+        directement)
+
+        @param action: C{stop} ou C{start}
+        @type  action: C{str}
+        """
         command = getattr(self, "%s_command" % action, None)
         if not command: # non déclaré ou vide ou None
             return "#!/bin/sh\nreturn true\n"
@@ -163,6 +204,13 @@ class Application(object):
         return "#!/bin/sh\n%s\n" % command
 
     def write_validation_script(self, basedir):
+        """
+        Écrit le script de validation dans le dossier qui sera télé-déployé.
+
+        @param basedir: Le dossier de base pour la génération. Il doit contenir
+            un sous-dossier par serveur Vigilo.
+        @type  basedir: C{str}
+        """
         if not self.validation:
             return
         if not resource_exists(self.__module__, self.validation):
@@ -191,7 +239,7 @@ class Application(object):
         @param servers: Ne valide que sur cette liste de noms de serveurs (par
             défaut: tous)
         @type  servers: C{list} de C{str}
-        @param async: si cet argument est évalué à C{True}, un objet
+        @param async: Si cet argument est évalué à C{True}, un objet
             L{ActionResult} est retourné, et l'action est effectuée en
             arrière-plan
         @param async: C{bool}
@@ -205,7 +253,7 @@ class Application(object):
         @param servers: Ne valide que sur cette liste de noms de serveurs (par
             défaut: tous)
         @type  servers: C{list} de C{str}
-        @param async: si cet argument est évalué à C{True}, un objet
+        @param async: Si cet argument est évalué à C{True}, un objet
             L{ActionResult} est retourné, et l'action est effectuée en
             arrière-plan
         @param async: C{bool}
@@ -220,7 +268,7 @@ class Application(object):
         @param servers: Ne démarre que sur cette liste de noms de serveurs (par
             défaut: tous)
         @type  servers: C{list} de C{str}
-        @param async: si cet argument est évalué à C{True}, un objet
+        @param async: Si cet argument est évalué à C{True}, un objet
             L{ActionResult} est retourné, et l'action est effectuée en
             arrière-plan
         @param async: C{bool}
@@ -235,7 +283,7 @@ class Application(object):
         @param servers: N'arrête que sur cette liste de noms de serveurs (par
             défaut: tous)
         @type  servers: C{list} de C{str}
-        @param async: si cet argument est évalué à C{True}, un objet
+        @param async: Si cet argument est évalué à C{True}, un objet
             L{ActionResult} est retourné, et l'action est effectuée en
             arrière-plan
         @param async: C{bool}
@@ -253,7 +301,7 @@ class Application(object):
         @param servernames: N'effectue l'action que sur cette liste de noms de
             serveurs (par défaut: tous)
         @type  servernames: C{list} de C{str}
-        @param async: si cet argument est évalué à C{True}, un objet
+        @param async: Si cet argument est évalué à C{True}, un objet
             L{ActionResult} est retourné, et l'action est effectuée en
             arrière-plan
         @param async: C{bool}
@@ -298,9 +346,11 @@ class Application(object):
 
     def validateServer(self, servername):
         """
-        Validates all the configuration files (starts the validation command)
-        on the specified server
-        @param servername: The server to validate on
+        Valide tous les fichiers de configuration générés pour le serveur
+        spécifié à l'aide de la commande de validation, sur la machine
+        locale.
+
+        @param servername: Le serveur sur lequel valider
         @type  servername: C{str}
         """
         # iterate through the servers
@@ -329,9 +379,10 @@ class Application(object):
 
     def qualifyServer(self, servername):
         """
-        qualifies all the configuration files (starts the qualification
-        command) on a given server
-        @param servername: The server to qualify on
+        Valide tous les fichiers de configuration générés à l'aide de la
+        commande de validation, sur le serveur distant spécifié en paramètre.
+
+        @param servername: Le serveur sur lequel valider.
         @type  servername: C{str}
         """
         if not self.validation:
@@ -359,8 +410,9 @@ class Application(object):
 
     def startServer(self, servername):
         """
-        Starts the application on the specified server
-        @param servername: The server to start the application on
+        Démarre l'application sur le serveur spécifié.
+
+        @param servername: Nom du serveur concerné
         @type  servername: C{str}
         """
         if not self.start_command:
@@ -391,8 +443,9 @@ class Application(object):
 
     def stopServer(self, servername):
         """
-        Stops the application on a given server
-        @param servername: The server to stop the application on
+        Arrête l'application sur le serveur spécifié.
+
+        @param servername: Nom du serveur concerné
         @type  servername: C{str}
         """
         if not self.stop_command:
@@ -424,7 +477,8 @@ class Application(object):
 
 class ActionResult(object):
     """
-    Représente le résultat d'une action lancée de manière asynchrone dans un thread
+    Représente le résultat d'une action lancée de manière asynchrone dans un
+    thread.
     """
 
     def __init__(self, app_name, action_name, commands, errors):
@@ -435,7 +489,7 @@ class ActionResult(object):
 
     def process_errors(self):
         """
-        Syslogs all the error strings that are in the errors queue
+        Envoie tous les messages d'erreur dans syslog.
         """
         result = True # we suppose there is no error (empty queue)
         while not self._errors.empty():
@@ -446,6 +500,9 @@ class ActionResult(object):
         return result
 
     def get(self):
+        """
+        Retourne le résultat de l'action en attendant la fin du thread.
+        """
         self._commands.join()
         result = self.process_errors()
         return result
@@ -528,8 +585,11 @@ class ApplicationManager(object):
     def execute(self, action, servers):
         """
         Arrête ou démarre les applications sur les serveurs spécifiés.
-        @param action: "start" ou "stop"
+        @param action: C{start} ou C{stop}
         @type  action: C{str}
+        @param servers: Liste des noms de serveurs sur lesquels exécuter
+            l'action.
+        @type  servers: C{list} de C{str}
         """
         if not self.applications:
             return
