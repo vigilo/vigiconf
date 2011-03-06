@@ -518,7 +518,7 @@ class ParseHostTemplate(unittest.TestCase):
         </templates>""")
         self.ht.close()
         conf.hosttemplatefactory.load_templates()
-        tests = conf.hosttemplatefactory.templates["test"]["tests"]
+        tests = conf.hosttemplatefactory.templates["testtemplate"]["tests"]
         self.assertTrue("weight" in tests[0],
                 "L'attribut weight du test n'est pas chargé")
         self.assertEquals(tests[0]["weight"], 42,
