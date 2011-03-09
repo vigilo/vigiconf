@@ -24,6 +24,7 @@ Buildrequires: python26-distribute
 #Buildrequires: graphviz # Documentation generation
 
 Requires:   python26-distribute
+Requires:   python26-lxml
 Requires:   perl
 Requires:   subversion
 Requires:   openssh-clients

@@ -43,6 +43,7 @@ Requires:   vigilo-models
 Requires:   vigilo-vigiconf
 Requires:   python-zope-interface
 Requires:   python-zope.sqlalchemy
+Requires:   python-lxml
 #Buildrequires: graphviz # Documentation generation
 
 # Renamed from vigilo-confmgr

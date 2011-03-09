@@ -18,6 +18,7 @@ Buildrequires: python-distribute
 #Buildrequires: graphviz # Documentation generation
 
 Requires:   python-distribute
+Requires:   python-lxml
 Requires:   perl
 Requires:   subversion
 Requires:   openssh-clients
