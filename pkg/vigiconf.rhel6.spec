@@ -121,6 +121,7 @@ rm -rf $RPM_BUILD_ROOT
 # Connector
 %attr(744,root,root) %{_initrddir}/vigilo-connector-vigiconf
 %config(noreplace) %{_sysconfdir}/sysconfig/*
+%attr(-,%{module},%{module}) %{_localstatedir}/run/vigilo-connector-vigiconf
 
 
 %changelog
