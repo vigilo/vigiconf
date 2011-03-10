@@ -27,7 +27,6 @@ from vigilo.models.tables import Host, Application, Ventilation, VigiloServer
 
 from vigilo.vigiconf.lib.loaders import DBLoader
 from vigilo.vigiconf.lib.server.factory import ServerFactory
-from vigilo.vigiconf.lib.exceptions import VigiConfError
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -109,10 +108,15 @@ class VentilationLoader(DBLoader):
             idhost = DBSession.query(Host.idhost).filter(
                 Host.name == unicode(hostname)).scalar()
             if idhost is None:
-                raise VigiConfError(_("Can't load the ventilation in "
-                                      "database: the host %s is not in "
-                                      "database yet") % hostname)
-
+                # on continue sans erreur pour être cohérent avec le
+                # comportement du chargeur d'hôtes en cas de problème dans les
+                # groupes (l.155)
+                # Normalement ça devrait pas arriver parce que le ventilateur
+                # fait déjà cette vérification
+                LOGGER.warning(_("Can't load the ventilation in database: "
+                                 "the host %s is not in database yet"),
+                               hostname)
+                continue
             for app_obj, servernames in serversbyapp.iteritems():
                 if isinstance(servernames, basestring):
                     servernames = [servernames, ]

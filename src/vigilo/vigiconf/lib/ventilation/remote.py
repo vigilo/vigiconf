@@ -127,15 +127,15 @@ class VentilatorRemote(Ventilator):
     def get_host_ventilation_group(self, hostname, hostdata=None):
         if hostdata is None:
             hostdata = {}
-        if "serverGroup" in hostdata and hostdata["serverGroup"]:
-            if hostdata["serverGroup"].count("/") == 1:
-                hostdata["serverGroup"] = hostdata["serverGroup"].lstrip("/")
-            return hostdata["serverGroup"]
         groups = set()
         idhost = self._cache["host"].get(unicode(hostname))
         if not idhost:
             raise KeyError("Trying to ventilate host %s, but it's not in the "
                            "database yet" % hostname)
+        if "serverGroup" in hostdata and hostdata["serverGroup"]:
+            if hostdata["serverGroup"].count("/") == 1:
+                hostdata["serverGroup"] = hostdata["serverGroup"].lstrip("/")
+            return hostdata["serverGroup"]
         hostgroups = DBSession.query(tables.SupItemGroup
                 ).join(
                     (SUPITEM_GROUP_TABLE, SUPITEM_GROUP_TABLE.c.idgroup
@@ -214,7 +214,7 @@ class VentilatorRemote(Ventilator):
         # deux façons de récupérer les hôtes
         if not fromdb:
             # cas classique
-            iter_hosts = conf.hostsConf.iteritems
+            iter_hosts = conf.hostsConf.copy().iteritems
         else:
             # désactivation d'un serveur : on reventile depuis la base
             def iter_hosts():
@@ -224,7 +224,12 @@ class VentilatorRemote(Ventilator):
         # On collecte tous les groupes d'hôtes
         hostgroups = {}
         for host, v in iter_hosts():
-            hostgroup = self.get_host_ventilation_group(host, v)
+            try:
+                hostgroup = self.get_host_ventilation_group(host, v)
+            except KeyError, e:
+                LOGGER.warning(str(e))
+                del conf.hostsConf[host]
+                continue
             if hostgroup not in hostgroups:
                 hostgroups[hostgroup] = []
             hostgroups[hostgroup].append(host)
