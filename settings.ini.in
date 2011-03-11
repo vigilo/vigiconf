@@ -39,54 +39,54 @@ sqlalchemy_url = postgres://vigilo:vigilo@127.0.0.1/vigilo
 db_basename = vigilo_
 external_auth=False
 
-# affichage des requetes SQL (debug)
-#sqlalchemy_echo = false
-#sqlalchemy_echo_pool = false
-#sqlalchemy_pool_recycle = 3600
+; affichage des requetes SQL (debug)
+;sqlalchemy_echo = false
+;sqlalchemy_echo_pool = false
+;sqlalchemy_pool_recycle = 3600
 
 
 [bus]
-# Nom ou adresse IP du serveur XMPP à utiliser.
+; Nom ou adresse IP du serveur XMPP à utiliser.
 host = vigilo-bus.example.com
-# Nom du service de publication pour les messages.
+; Nom du service de publication pour les messages.
 service = pubsub.localhost
-# Nom d'utilisateur à utiliser pour se connecter au bus.
+; Nom d'utilisateur à utiliser pour se connecter au bus.
 jid = vigiconf@localhost/vigiconf
-# Mot de passe associé au JID donné.
+; Mot de passe associé au JID donné.
 password = vigiconf
-# Indique s'il faut chiffrer la connexion (True) ou simplement compresser
-# le flux (False).
+; Indique s'il faut chiffrer la connexion (True) ou simplement compresser
+; le flux (False).
 require_tls = False
-# Liste des noms des topics auxquels le connecteur est abonné,
-# séparés par des virgules.
-# Si la liste est vide, mettre uniquement une virgule.
+; Liste des noms des topics auxquels le connecteur est abonné,
+; séparés par des virgules.
+; Si la liste est vide, mettre uniquement une virgule.
 subscriptions = ,
-# Le trafic lié au bus XMPP doit-il être enregistré dans les logs ?
+; Le trafic lié au bus XMPP doit-il être enregistré dans les logs ?
 log_traffic = False
 
 [connector]
-# Nom d'hôte utilisé pour signaler à Vigilo que ce connecteur fonctionne
-# correctement. Cela doit correspondre au nom d'hôte configuré dans VigiConf
-# pour cette machine. Par défaut, on utilise le nom d'hôte court (sans le
-# domaine DNS)
-#hostname = hostname
+; Nom d'hôte utilisé pour signaler à Vigilo que ce connecteur fonctionne
+; correctement. Cela doit correspondre au nom d'hôte configuré dans VigiConf
+; pour cette machine. Par défaut, on utilise le nom d'hôte court (sans le
+; domaine DNS)
+;hostname = hostname
 
-# Le noeud de publication à utiliser pour les messages d'état du connecteur.
-# Par défaut, les noeuds définis dans la section [publications] sont utilisés.
-#status_node = /vigilo/connectors-status
+; Le noeud de publication à utiliser pour les messages d'état du connecteur.
+; Par défaut, les noeuds définis dans la section [publications] sont utilisés.
+;status_node = /vigilo/connectors-status
 
 
 [publications]
-# Noms des messages XML traités avec pour chaque type de message
-# le nom du nœud XMPP sur lesquel les messages de ce type sont envoyés.
+; Noms des messages XML traités avec pour chaque type de message
+; le nom du nœud XMPP sur lesquel les messages de ce type sont envoyés.
 perf = /vigilo/perf
 command = /vigilo/command
-# Dans vigiconf, la publication est utilisée pour diffuser l'état du connecteur
-# à Nagios
+; Dans vigiconf, la publication est utilisée pour diffuser l'état du connecteur
+; à Nagios
 
-#
-# LOGGING
-#
+;
+; LOGGING
+;
 [loggers]
 keys=root,sqlalchemy
 
@@ -101,7 +101,7 @@ level=INFO
 handlers=console,syslog
 
 [logger_sqlalchemy]
-# mettre le level a INFO pour afficher les requetes SQL
+; mettre le level a INFO pour afficher les requetes SQL
 level = WARNING
 handlers = console
 qualname = sqlalchemy.engine
@@ -117,14 +117,14 @@ args=(sys.stdout, )
 class=handlers.SysLogHandler
 level=DEBUG
 formatter=syslogFormatter
-# Le premier argument correspond à l'emplacement du syslog.
-# Il peut s'agir d'un fichier (ex : socket Unix, '/dev/log')
-# ou d'une adresse IP avec un port, auquel cas il faut saisir
-# le tout sous forme de tuple (args=('127.0.0.1', 514), 'daemon').
-#
-# Le 2ème argument correspond à la facility à utiliser lors
-# de l'envoi à syslog (voir logger(1) pour la liste des noms
-# des facilities).
+; Le premier argument correspond à l'emplacement du syslog.
+; Il peut s'agir d'un fichier (ex : socket Unix, '/dev/log')
+; ou d'une adresse IP avec un port, auquel cas il faut saisir
+; le tout sous forme de tuple (args=('127.0.0.1', 514), 'daemon').
+;
+; Le 2ème argument correspond à la facility à utiliser lors
+; de l'envoi à syslog (voir logger(1) pour la liste des noms
+; des facilities).
 args='/dev/log', 'daemon'
 
 [formatter_consoleFormatter]
@@ -141,4 +141,3 @@ class=vigilo.common.logging.VigiloFormatter
 format=%(processName)s[%(process)d]: %(levelname)s::%(message)s
 datefmt=
 class=vigilo.common.logging.VigiloFormatter
-
