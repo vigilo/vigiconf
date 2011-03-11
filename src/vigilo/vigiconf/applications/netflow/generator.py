@@ -23,8 +23,6 @@
 import os
 import os.path
 
-from vigilo.common.conf import settings
-
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.generators import FileGenerator
 

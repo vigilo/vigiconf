@@ -397,7 +397,7 @@ class TagLoader(DBLoader):
         pass
 
     def load_conf(self):
-        for name, value in self.tags.iteritems():
+        for name in self.tags:
             name = unicode(name)
             tag = self.add({'name': name})
             if (self.supitem.idsupitem not in self.all_tags or

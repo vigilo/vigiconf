@@ -29,7 +29,6 @@ from vigilo.models.tables import MapGroup, Map
 from vigilo.models.session import DBSession
 
 from .base import Generator
-from vigilo.vigiconf import conf
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
