@@ -26,7 +26,6 @@ from vigilo.models.session import DBSession
 from vigilo.models.tables import Host, Application, Ventilation, VigiloServer
 
 from vigilo.vigiconf.lib.loaders import DBLoader
-from vigilo.vigiconf.lib.server.factory import ServerFactory
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -142,7 +141,6 @@ class VentilationLoader(DBLoader):
             DBSession.delete(v)
         # Vérifions qu'on a pas complètement supprimé une application d'un
         # serveur
-        server_factory = ServerFactory()
         for idapp, app_servers in apps_location.iteritems():
             new_app_servers = new_apps_location.get(idapp, set())
             orphan_servers = app_servers - new_app_servers
@@ -159,7 +157,5 @@ class VentilationLoader(DBLoader):
                     break
             for idvserver in orphan_servers:
                 vserver = vigiloservers[idvserver]
-                app.servers[vserver.name] = server_factory.makeServer(
-                                                vserver.name)
-                app.actions[vserver.name] = ["stop", ]
+                app.add_server(vserver.name, ["stop", ])
 

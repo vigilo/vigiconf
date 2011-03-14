@@ -63,19 +63,19 @@ def make_dispatchator():
     correspondante à l'édition de Vigilo utilisée.
     """
     d_class = get_dispatchator_class()
-    # apps
-    apps_mgr = ApplicationManager()
-    apps_mgr.list()
-    # revision
-    rev_mgr = RevisionManager()
     # servers
     srv_mgr = get_server_manager()
     srv_mgr.list()
+    # apps
+    app_mgr = ApplicationManager(srv_mgr)
+    app_mgr.list()
+    app_mgr.link_apps_to_servers()
+    # revision
+    rev_mgr = RevisionManager()
     # generators
-    gen_mgr = GeneratorManager(apps_mgr.applications)
+    gen_mgr = GeneratorManager(app_mgr.applications)
     # instanciation
-    d = d_class(apps_mgr, rev_mgr, srv_mgr, gen_mgr)
-    d.link_apps_to_servers()
+    d = d_class(app_mgr, rev_mgr, srv_mgr, gen_mgr)
     return d
 
 

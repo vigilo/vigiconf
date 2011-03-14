@@ -63,6 +63,29 @@ class ServerManagerRemote(ServerManager):
         self.servers = dict([ (s, self.factory.makeServer(s))
                               for s in _serversList ])
 
+    def servers_for_app(self, app):
+        """
+        Récupère les serveurs pour l'application fournie en paramètre.
+        @param app: Application à laquelle affecter les serveurs
+        @type  app: L{Application<lib.application.Application>}
+        @return: Instances des serveurs pour cette application
+        @rtype: C{list} de L{Server<lib.server.base.Server>}
+        """
+        if not app.group:
+            # pas de groupe, probablement juste de la génération
+            return []
+        # If we're not listed in the appsGroupsByServer matrix, bail out
+        if not conf.appsGroupsByServer.has_key(app.group):
+            LOGGER.warning(_("The %s app group is not listed in "
+                             "appsGroupsByServer"), app.group)
+            return []
+        # Use the appgroup to hostgroup to server mapping
+        servers = set()
+        for hostgroup in conf.appsGroupsByServer[app.group]:
+            for server in conf.appsGroupsByServer[app.group][hostgroup]:
+                servers.add(server)
+        return [ self.get(server) for server in servers ]
+
     def restrict(self, servernames):
         """
         @param servernames: List of servers to filter from

@@ -44,31 +44,6 @@ class DispatchatorRemote(Dispatchator):
     Version du Dispatchator qui gère les serveurs distants
     """
 
-    def getServersForApp(self, app):
-        """
-        Récupère la liste des noms de serveurs pour l'application fournie en
-        paramètre.
-        @note: Cette méthode doit être réimplémentée par les sous-classes
-        @param app: Application à laquelle affecter les serveurs
-        @type  app: L{Application<lib.application.Application>}
-        @return: Nom des serveurs pour cette application
-        @rtype: C{list} de C{str}
-        """
-        if not app.group:
-            # pas de groupe, probablement juste de la génération
-            return []
-        # If we're not listed in the appsGroupsByServer matrix, bail out
-        if not conf.appsGroupsByServer.has_key(app.group):
-            LOGGER.warning(_("The %s app group is not listed in "
-                             "appsGroupsByServer"), app.group)
-            return []
-        # Use the appgroup to hostgroup to server mapping
-        servers = set()
-        for hostgroup in conf.appsGroupsByServer[app.group]:
-            for server in conf.appsGroupsByServer[app.group][hostgroup]:
-                servers.add(server)
-        return list(servers)
-
     def filter_disabled(self):
         """@see: L{lib.dispatchator.base.Dispatchator.filter_disabled}"""
         servers = self.srv_mgr.filter_servers("is_enabled")

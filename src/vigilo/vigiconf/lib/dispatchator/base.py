@@ -92,7 +92,7 @@ class Dispatchator(object):
         """
         pass
 
-    def getServersForApp(self, app):
+    def servers_for_app(self, app):
         raise NotImplementedError()
 
     def generate(self, nosyncdb=False):
@@ -115,17 +115,6 @@ class Dispatchator(object):
         self.apps_mgr.validate()
         # Commit de la configuration dans SVN
         self.rev_mgr.commit()
-
-    def link_apps_to_servers(self):
-        """
-        Affecte les serveurs Vigilo aux applications, en utilisant
-        L{getServersForApp}.
-        """
-        for app in self.apps_mgr.applications:
-            for servername in self.getServersForApp(app):
-                server = self.srv_mgr.get(servername)
-                app.servers[servername] = server
-                app.actions[servername] = ["stop", "start"]
 
     def prepareServers(self):
         """

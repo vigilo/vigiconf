@@ -46,6 +46,7 @@ _ = translate(__name__)
 from vigilo.vigiconf import conf
 from .systemcommand import SystemCommand, SystemCommandError
 from vigilo.vigiconf.lib.exceptions import VigiConfError, DispatchatorError
+from vigilo.vigiconf.lib.server.factory import ServerFactory
 
 
 class ApplicationError(VigiConfError):
@@ -151,6 +152,24 @@ class Application(object):
         """
         generator = self.generator(self, ventilation)
         return generator.generate()
+
+    def add_server(self, server, actions=None):
+        """
+        Ajoute un serveur où doit être déployée cette application
+        @param server: Le serveur où déployer, ou son nom.
+        @type  server: C{str} ou L{Server<lib.server.base.Server>}
+        @param actions: Liste d'actions à effectuer sur ce server, par défaut
+            C{stop} et C{start}
+        @type  actions: C{list}
+        """
+        if actions is None:
+            actions = ["stop", "start"]
+        if isinstance(server, basestring):
+            server_factory = ServerFactory()
+            server = server_factory.makeServer(server)
+        servername = server.name
+        self.servers[servername] = server
+        self.actions[servername] = actions
 
     def filterServers(self, servers):
         """
@@ -516,7 +535,8 @@ class ApplicationManager(object):
     applications d'un seul coup.
     """
 
-    def __init__(self):
+    def __init__(self, srv_mgr):
+        self.srv_mgr = srv_mgr
         self.applications = []
 
     def list(self):
@@ -551,6 +571,15 @@ class ApplicationManager(object):
                             "conf.d/general/apps.py, but is not installed")
                             % listed_app)
         self.applications.sort(reverse=True, key=lambda a: a.priority)
+
+    def link_apps_to_servers(self):
+        """
+        Affecte les serveurs Vigilo aux applications, en utilisant
+        L{getServersForApp}.
+        """
+        for app in self.applications:
+            for server in self.srv_mgr.servers_for_app(app):
+                app.add_server(server)
 
     def validate(self):
         """Validation de la génération"""

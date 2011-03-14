@@ -40,9 +40,6 @@ class DispatchatorLocal(Dispatchator):
     Implémentation du Dispatchator limitée à C{localhost}.
     """
 
-    def getServersForApp(self, app):
-        return [ "localhost" ]
-
     def server_status(self, servernames, status, no_deploy=False):
         raise EditionError(_("Vigilo server management is only available "
                              "in the Enterprise edition. Aborting."))
