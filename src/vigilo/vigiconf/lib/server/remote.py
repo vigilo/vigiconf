@@ -39,6 +39,9 @@ from vigilo.vigiconf.lib.systemcommand import SystemCommandError
 from vigilo.vigiconf.lib.remotecommand import RemoteCommand, CommandUser
 from vigilo.vigiconf.lib.remotecommand import RemoteCommandError
 
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 

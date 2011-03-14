@@ -141,4 +141,17 @@ class EnterpriseEdition(unittest.TestCase):
         sm.list()
         self.assertEquals([u"sup.example.com"], list(sm.servers))
 
+    def test_servermanager_ent_servers_for_app(self):
+        # créer le fichier ssh_config
+        settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
+        os.mkdir(settings["vigiconf"]["confdir"])
+        os.mkdir(os.path.join(self.tmpdir, "ssh"))
+        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close()
+        # début du test
+        sm = get_server_manager()
+        sm.list()
+        nagios = Nagios()
+        servers = sm.servers_for_app(nagios)
+        self.assertEquals([u"sup.example.com"], [ s.name for s in servers])
+
 # vim:set expandtab tabstop=4 shiftwidth=4:

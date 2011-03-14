@@ -65,11 +65,5 @@ class DispatchatorRemote(unittest.TestCase):
         teardown_db()
         shutil.rmtree(self.tmpdir)
 
-    def test_app_servers(self):
-        for app in self.dispatchator.apps_mgr.applications:
-            servers = self.dispatchator.getServersForApp(app)
-            self.assertEquals([u"localhost", u"localhost2"],
-                              sorted(list(servers)))
-
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
