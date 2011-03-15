@@ -101,14 +101,22 @@ class EnterpriseEdition(unittest.TestCase):
         # juste après avoir été inséré
         settings["vigiconf"]["confdir"] = self.tmpdir
         open(os.path.join(self.tmpdir, "dummy.xml"), "w").close() # == touch
+        # créer le fichier ssh_config
+        settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
+        os.mkdir(settings["vigiconf"]["confdir"])
+        os.mkdir(os.path.join(self.tmpdir, "ssh"))
+        open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close()
+        # ajout d'un test
         test_list = conf.testfactory.get_test("UpTime", host.classes)
         host.add_tests(test_list)
+        # génération
         nagios = Nagios()
         DBSession.add(tables.Application(name=u"nagios"))
         genmanager = GeneratorManager([nagios])
         genmanager.generate(DummyRevMan())
-        self.assert_(os.path.exists(os.path.join(self.basedir,
-                     "sup.example.com", "nagios", "nagios.cfg")))
+        self.assertTrue(os.path.exists(os.path.join(self.basedir,
+                        "sup.example.com", "nagios", "nagios.cfg")))
+        self.assertEqual([u"sup.example.com"], nagios.servers.keys())
 
     def test_dispatchator_ent(self):
         """The dispatchator instance in E.E. must be remote"""
@@ -167,14 +175,6 @@ class ServerManagerRemoteTest(unittest.TestCase):
         sm.list()
         self.assertEquals([u"sup1.example.com", u"sup2.example.com"],
                           sorted(list(sm.servers)))
-
-    def test_servers_for_app(self):
-        sm = get_server_manager()
-        sm.list()
-        nagios = Nagios()
-        servers = sm.servers_for_app(nagios)
-        self.assertEquals([u"sup1.example.com", u"sup2.example.com"],
-                          sorted([ s.name for s in servers]))
 
 
 class ServerRemoteTest(unittest.TestCase):

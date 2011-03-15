@@ -371,6 +371,14 @@ class VentilatorTest(unittest.TestCase):
         ventilationloader.load()
         self.assertEqual(nagios.actions["localhost"], ["stop"])
 
+    def test_servers_for_app(self):
+        nagios = Nagios()
+        ventilation = {
+                "dummy1": {nagios: ["vsrv1", "vsrv2"]},
+                "dummy2": {nagios: ["vsrv3", "vsrv4"]},
+                }
+        result = self.ventilator.servers_for_app(ventilation, nagios)
+        self.assertEqual(sorted(list(result)), ["vsrv1", "vsrv3"])
 
 if __name__ == '__main__':
     unittest.main()

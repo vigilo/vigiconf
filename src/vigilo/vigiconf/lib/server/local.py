@@ -45,9 +45,6 @@ class ServerManagerLocal(ServerManager):
         """
         self.servers = {"localhost": ServerLocal("localhost")}
 
-    def servers_for_app(self, app):
-        return [ ServerLocal("localhost") ]
-
 
 class ServerLocal(Server):
     """Implémentation de L{Server} pour C{localhost}"""

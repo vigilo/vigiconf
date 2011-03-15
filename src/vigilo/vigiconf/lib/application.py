@@ -171,15 +171,6 @@ class Application(object):
         self.servers[servername] = server
         self.actions[servername] = actions
 
-    def filterServers(self, servers):
-        """
-        @param servers: liste de noms de serveurs
-        @type  servers: C{list} de C{str}
-        @returns: L'intersection entre servers et notre propre liste de
-            serveurs.
-        """
-        return set(servers) & set(self.servers) # intersection
-
 
     def write_startup_scripts(self, basedir):
         """
@@ -353,6 +344,15 @@ class Application(object):
             return result
         else:
             return result.get()
+
+    def filterServers(self, servers):
+        """
+        @param servers: liste de noms de serveurs
+        @type  servers: C{list} de C{str}
+        @returns: L'intersection entre servers et notre propre liste de
+            serveurs.
+        """
+        return set(servers) & set(self.servers) # intersection
 
     def _threaded_action(self, action):
         servername = self.serversQueue.get()
@@ -535,8 +535,7 @@ class ApplicationManager(object):
     applications d'un seul coup.
     """
 
-    def __init__(self, srv_mgr):
-        self.srv_mgr = srv_mgr
+    def __init__(self):
         self.applications = []
 
     def list(self):
@@ -571,15 +570,6 @@ class ApplicationManager(object):
                             "conf.d/general/apps.py, but is not installed")
                             % listed_app)
         self.applications.sort(reverse=True, key=lambda a: a.priority)
-
-    def link_apps_to_servers(self):
-        """
-        Affecte les serveurs Vigilo aux applications, en utilisant
-        L{getServersForApp}.
-        """
-        for app in self.applications:
-            for server in self.srv_mgr.servers_for_app(app):
-                app.add_server(server)
 
     def validate(self):
         """Validation de la génération"""

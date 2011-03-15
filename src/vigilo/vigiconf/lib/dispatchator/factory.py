@@ -67,9 +67,8 @@ def make_dispatchator():
     srv_mgr = get_server_manager()
     srv_mgr.list()
     # apps
-    app_mgr = ApplicationManager(srv_mgr)
+    app_mgr = ApplicationManager()
     app_mgr.list()
-    app_mgr.link_apps_to_servers()
     # revision
     rev_mgr = RevisionManager()
     # generators

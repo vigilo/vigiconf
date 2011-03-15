@@ -84,6 +84,9 @@ class GeneratorManager(object):
         LOGGER.debug("Generating configuration")
         results = {}
         for app in self.apps:
+            # d'abord on indique à l'application les serveurs où déployer
+            for srv in self.ventilator.servers_for_app(self._ventilation, app):
+                app.add_server(srv)
             if not app.generator:
                 continue
             validator.addAGenerator()

@@ -47,6 +47,19 @@ class Ventilator(object):
                 vba[host][app.name] = vserver
         return vba
 
+    def servers_for_app(self, ventilation, app): # pylint: disable-msg=R0201
+        servers = set()
+        for host in ventilation:
+            if app not in ventilation[host]:
+                continue
+            vsrvs = ventilation[host][app]
+            if isinstance(vsrvs, basestring):
+                vsrv = vsrvs
+            else:
+                vsrv = vsrvs[0]
+            servers.add(vsrv)
+        return servers
+
 
 def get_ventilator(apps):
     """Ventilation factory"""

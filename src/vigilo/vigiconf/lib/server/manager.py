@@ -56,9 +56,6 @@ class ServerManager(object):
     def get(self, servername):
         return self.servers[servername]
 
-    def servers_for_app(self, app):
-        raise NotImplementedError()
-
     def prepare(self, revision):
         for server_obj in self.servers.values():
             server_obj.update_revisions()
