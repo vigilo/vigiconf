@@ -433,7 +433,7 @@ class TagLoader(DBLoader):
                                          set()).add(name)
         if self.supitem.idsupitem not in self.all_tags:
             return
-        for tagname in self.all_tags[self.supitem.idsupitem]:
+        for tagname in self.all_tags[self.supitem.idsupitem].copy():
             if tagname not in self.tags:
                 for tag in self.supitem.tags:
                     if tag.name == tagname:
