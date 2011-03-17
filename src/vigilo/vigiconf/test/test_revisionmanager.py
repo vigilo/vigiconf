@@ -25,7 +25,10 @@ class RevisionManagerTest(unittest.TestCase):
         # Créer le dépôt SVN
         repopath = os.path.join(self.tmpdir, "svn")
         settings["vigiconf"]["svnrepository"] = "file://%s" % repopath
-        subprocess.call(["svnadmin", "create", repopath])
+        try:
+            subprocess.call(["svnadmin", "create", repopath])
+        except OSError:
+            self.fail("La commande \"svnadmin\" n'est pas disponible")
         self._run_svn(["checkout", "file://%s" % repopath, self.confdir])
         for subdir in ["general", "hosts"]:
             os.mkdir(os.path.join(self.confdir, subdir))
@@ -207,9 +210,14 @@ class RevisionManagerTest(unittest.TestCase):
             ["svn", "remove", test1],
             ["svn", "status", "--xml", self.confdir],
         ]
-        print cmdlogger.executed
+        print cmdlogger.executed 
+        # On ne peut pas comparer directement les listes parce que l'ordre des
+        # "svn add" peut être différent
         self.assertEqual(len(cmdlogger.executed), len(expected))
-        self.assertEqual(cmdlogger.executed, expected)
+        subcommands = [ c[1] for c in cmdlogger.executed ]
+        expected_subcommands = [ c[1] for c in expected ]
+        self.assertEqual(subcommands, expected_subcommands)
+        self.assertEqual(sorted(cmdlogger.executed), sorted(expected))
         status = self.rev_mgr.status()
         print status
         expected = {'toremove': [],
