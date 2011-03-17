@@ -134,6 +134,25 @@ class DummyCommand(SystemCommand):
     def execute(self):
         return self.getCommand()
 
+class LoggingCommand(SystemCommand):
+    def __init__(self, command, logger, simulate):
+        super(LoggingCommand, self).__init__(command)
+        self.logger = logger
+        self.simulate = simulate
+    def execute(self):
+        self.logger.append(self.getCommand())
+        if not self.simulate:
+            return super(LoggingCommand, self).execute()
+        else:
+            return ""
+        
+class LoggingCommandFactory(object):
+    def __init__(self, simulate=False):
+        self.executed = []
+        self.simulate = simulate
+    def __call__(self, command):
+        return LoggingCommand(command, self.executed, self.simulate)
+
 #from vigilo.vigiconf.lib.dispatchator.base import Dispatchator
 #class DummyDispatchator(Dispatchator):
 #    def __init__(self):

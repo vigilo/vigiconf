@@ -74,9 +74,10 @@ class RevisionManager(object):
         """
         if self._status is not None:
             return self._status
-        _cmd = self._get_auth_svn_cmd_prefix('status')
-        _cmd.append("--xml")
-        _cmd.append(settings["vigiconf"].get("confdir"))
+        #_cmd = self._get_auth_svn_cmd_prefix('status')
+        #_cmd.append("--xml")
+        #_cmd.append(settings["vigiconf"].get("confdir"))
+        _cmd = ["svn", "status", "--xml", settings["vigiconf"]["confdir"]]
         _command = self.command_class(_cmd)
         try:
             _command.execute()
@@ -111,7 +112,9 @@ class RevisionManager(object):
                     status["removed"].append(path)
                 elif os.path.isdir(path):
                     status["removed"].append(path)
-                else: # probablement un dossier supprimé avec rm -rf
+                else:
+                    # probablement les fichiers d'un dossier supprimé avec
+                    # rm -rf
                     status["toremove"].append(path)
             elif state == "modified":
                 status["modified"].append(entry.get("path"))
@@ -154,8 +157,7 @@ class RevisionManager(object):
         """
         LOGGER.debug("Adding a new configuration file to the "
                      "repository: %s", path)
-        _cmd = ["svn", "add"]
-        _cmd.append(path)
+        _cmd = ["svn", "add", path]
         _command = self.command_class(_cmd)
         try:
             result = _command.execute()
@@ -175,8 +177,8 @@ class RevisionManager(object):
         """
         LOGGER.debug("Removing an old configuration file from the "
                      "repository: %s", path)
-        _cmd = self._get_auth_svn_cmd_prefix('remove')
-        _cmd.append(path)
+        #_cmd = self._get_auth_svn_cmd_prefix('remove')
+        _cmd = ["svn", "remove", path]
         _command = self.command_class(_cmd)
         try:
             result = _command.execute()
