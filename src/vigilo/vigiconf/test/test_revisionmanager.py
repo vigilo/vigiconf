@@ -220,9 +220,11 @@ class RevisionManagerTest(unittest.TestCase):
         self.assertEqual(sorted(cmdlogger.executed), sorted(expected))
         status = self.rev_mgr.status()
         print status
+        # Là aussi, l'ordre n'est pas garanti
+        status["added"].sort()
         expected = {'toremove': [],
                     'removed': [test1, ],
-                    'added': [test3, test4, test2],
+                    'added': [test2, test3, test4],
                     'toadd': [],
                     'modified': []}
         self.assertEqual(status, expected)
