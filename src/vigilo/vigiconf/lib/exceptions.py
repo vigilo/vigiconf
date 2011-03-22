@@ -26,7 +26,7 @@ class VigiConfError(Exception):
     """Generic VigiConf Exception"""
 
     def __init__(self, value):
-        super(VigiConfError, self).__init__()
+        super(VigiConfError, self).__init__(value)
         self.value = value
 
     def __repr__(self):

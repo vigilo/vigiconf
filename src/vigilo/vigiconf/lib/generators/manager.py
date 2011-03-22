@@ -27,6 +27,8 @@ import os
 import os.path
 import shutil
 import multiprocessing
+import sys
+from traceback import format_tb
 
 import transaction
 
@@ -182,12 +184,15 @@ class GeneratorManager(object):
         for appname, result in results.items():
             try:
                 result.get()
-            except Exception, e: # pylint: disable-msg=W0703
-                errors[appname] = e
+            except Exception: # pylint: disable-msg=W0703
+                errors[appname] = sys.exc_info()
         for appname, error in errors.items():
+            errtype, err, tb = error
             LOGGER.error(_("%(errtype)s in application %(app)s: %(error)s"),
-                         {"app": appname, "error": str(error),
-                          "errtype": error.__class__.__name__})
+                         {"app": appname, "error": str(err),
+                          "errtype": errtype.__name__})
+            LOGGER.debug("".join(format_tb(tb)))
+            del tb
         pool.close()
         pool.join()
         LOGGER.debug("Database configuration generated")
