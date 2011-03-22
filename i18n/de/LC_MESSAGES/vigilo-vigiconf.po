@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2011-03-22 10:39+0100\n"
+"PO-Revision-Date: 2011-03-22 13:23+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -573,10 +573,12 @@ msgstr "%(filesWritten)d Datein wurden in %(dirsCreated)d Verzeichnissen erstell
 #: src/vigilo/vigiconf/lib/confclasses/host.py:133
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:160
 #, python-format
-msgid "The \"%s\" attribute has been deprecated. Please use \"%s\" instead."
+msgid ""
+"The \"%(old_attribute)s\" attribute has been deprecated. Please use "
+"\"%(replacement)s\" instead."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:184
+#: src/vigilo/vigiconf/lib/confclasses/host.py:187
 #, python-format
 msgid ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
@@ -585,22 +587,22 @@ msgstr ""
 "Test \"%(test_name)s\" auf \"%(host)s\" benötigt die folgenden Argumente:"
 " %(args)s (and only those)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:544
+#: src/vigilo/vigiconf/lib/confclasses/host.py:547
 #, python-format
 msgid "Wrong datasource in graph '%(graph)s': %(ds)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:777
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:279
+#: src/vigilo/vigiconf/lib/confclasses/host.py:780
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:282
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:92
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:783
-#: src/vigilo/vigiconf/lib/confclasses/host.py:803
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:285
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:305
+#: src/vigilo/vigiconf/lib/confclasses/host.py:786
+#: src/vigilo/vigiconf/lib/confclasses/host.py:806
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:288
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:308
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:98
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:118
 #, python-format
@@ -609,55 +611,55 @@ msgid ""
 "correctly.Message: %(error)s."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:800
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:302
+#: src/vigilo/vigiconf/lib/confclasses/host.py:803
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:305
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:115
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "XML Syntaxfehler in \"%(file)s\": %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:811
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:313
+#: src/vigilo/vigiconf/lib/confclasses/host.py:814
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:316
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:126
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:864
+#: src/vigilo/vigiconf/lib/confclasses/host.py:867
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Ungültige Aufteilungsgruppe: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:898
+#: src/vigilo/vigiconf/lib/confclasses/host.py:901
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Test %(test)s auf Host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:948
+#: src/vigilo/vigiconf/lib/confclasses/host.py:951
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:120
 #: src/vigilo/vigiconf/loaders/hlservice.py:135
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Ungültiger Gruppenname (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:957
+#: src/vigilo/vigiconf/lib/confclasses/host.py:960
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:971
+#: src/vigilo/vigiconf/lib/confclasses/host.py:974
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "Host \"%s\" muss mindestens einer Gruppe zugeordnet werden."
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:392
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:395
 #, python-format
 msgid "Invalid weight value for test %(test)s in template %(tpl)s: %(weight)r"
 msgstr ""
 "Ungültiger Gewichtungswert für Test %(test)s in Vorlage %(tpl)s: "
 "%(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:417
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:420
 #, python-format
 msgid "Invalid weight value for template %(tpl)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Vorlage %(tpl)s: %(weight)r"
@@ -1106,6 +1108,6 @@ msgid ""
 "be stopped manually"
 msgstr ""
 
-#~ msgid "Recieved unhandled message type: %(msgtype)s"
+#~ msgid "The \"%s\" attribute has been deprecated. Please use \"%s\" instead."
 #~ msgstr ""
 

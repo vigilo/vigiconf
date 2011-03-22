@@ -131,9 +131,12 @@ class Host(object):
         if attribute in self.deprecated_attr:
             import warnings
             warnings.warn(DeprecationWarning(_(
-                'The "%s" attribute has been deprecated. '
-                'Please use "%s" instead.'
-            ) % (attribute, self.deprecated_attr[attribute])))
+                'The "%(old_attribute)s" attribute has been deprecated. '
+                'Please use "%(replacement)s" instead.'
+            ) % {
+                'old_attribute': attribute,
+                'replacement': self.deprecated_attr[attribute],
+            }))
             attribute = self.deprecated_attr[attribute]
         if attribute in self.attr_types \
                 and not isinstance(value, self.attr_types[attribute]):

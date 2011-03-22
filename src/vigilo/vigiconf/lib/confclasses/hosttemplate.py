@@ -158,9 +158,12 @@ class HostTemplate(object):
         if attrname in self.deprecated_attr:
             import warnings
             warnings.warn(DeprecationWarning(_(
-                'The "%s" attribute has been deprecated. '
-                'Please use "%s" instead.'
-            ) % (attrname, self.deprecated_attr[attrname])))
+                'The "%(old_attribute)s" attribute has been deprecated. '
+                'Please use "%(replacement)s" instead.'
+            ) % {
+                'old_attribute': attrname,
+                'replacement': self.deprecated_attr[attrname],
+            }))
             attrname = self.deprecated_attr[attrname]
 
         if not self.data.has_key("attributes"):
