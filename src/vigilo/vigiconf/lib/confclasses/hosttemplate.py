@@ -33,8 +33,9 @@ from . import get_text, get_attrib, parse_path
 from .. import ParsingError
 from ..external import topsort
 
-from vigilo.common.gettext import translate
+from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
+N_ = translate_narrow(__name__)
 
 
 class HostTemplate(object):
@@ -157,7 +158,7 @@ class HostTemplate(object):
         """
         if attrname in self.deprecated_attr:
             import warnings
-            warnings.warn(DeprecationWarning(_(
+            warnings.warn(DeprecationWarning(N_(
                 'The "%(old_attribute)s" attribute has been deprecated. '
                 'Please use "%(replacement)s" instead.'
             ) % {
