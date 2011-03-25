@@ -48,7 +48,7 @@ class VigiRRDGen(Generator):
         h = conf.hostsConf[hostname]
         if len(h['graphItems']) == 0:
             return
-        db_path = os.path.join(self.baseDir, vserver, "vigirrd.db") 
+        db_path = os.path.join(self.baseDir, vserver, "vigirrd.db")
         if vserver not in self.connections:
             self.init_db(db_path, vserver)
             os.chmod(db_path, # chmod 644
@@ -126,6 +126,7 @@ class VigiRRDGen(Generator):
         c.execute("""CREATE TABLE graphperfdatasource (
                          idperfdatasource INTEGER NOT NULL, 
                          idgraph INTEGER NOT NULL, 
+                         `order` INTEGER NOT NULL, 
                          PRIMARY KEY (idperfdatasource, idgraph), 
                           FOREIGN KEY(idperfdatasource) REFERENCES perfdatasource (idperfdatasource) ON DELETE CASCADE ON UPDATE CASCADE, 
                           FOREIGN KEY(idgraph) REFERENCES graph (idgraph) ON DELETE CASCADE ON UPDATE CASCADE
@@ -152,11 +153,11 @@ class VigiRRDGen(Generator):
                    (idhost, graphname, graphdata["template"],
                     graphdata["vlabel"], graphdata.get("last_is_max", False)))
         idgraph = cursor.lastrowid
-        for dsname in graphdata["ds"]:
+        for index, dsname in enumerate(graphdata["ds"]):
             factor = graphdata["factors"].get(dsname, 1)
             idpds = self.db_add_pds(cursor, dsname, factor)
             cursor.execute("INSERT INTO graphperfdatasource VALUES "
-                           "(?, ?)", (idpds, idgraph))
+                           "(?, ?, ?)", (idpds, idgraph, index))
 
     def db_add_pds(self, cursor, name, factor): # pylint: disable-msg=R0201
         cursor.execute("SELECT idperfdatasource FROM perfdatasource "
