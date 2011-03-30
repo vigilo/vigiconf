@@ -18,7 +18,7 @@ class AutoMapTest(unittest.TestCase):
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        self.mapgroup_root = tables.MapGroup(name=u'Root')
+        self.mapgroup_root = tables.MapGroup(name=u'Root', parent=None)
         from vigilo.vigiconf.applications.vigimap import VigiMap
         self.vigimap = VigiMap()
         self.generator = self.vigimap.generator(self.vigimap, None)
