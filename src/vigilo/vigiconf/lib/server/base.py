@@ -258,13 +258,27 @@ class Server(object):
         except Exception, e: # pylint: disable-msg=W0703
             LOGGER.exception(_("Cannot write the revision file: %s"), e)
 
-    def revisions_summary(self):
-        summary = []
-        summary.append(_("Deployed: %d") % self.revisions["deployed"])
-        summary.append(_("Installed: %d") % self.revisions["installed"])
-        summary.append(_("Previous: %d") % self.revisions["previous"])
-        return ", ".join(summary)
-
+    def get_state_text(self, last_revision):
+        self.update_revisions()
+        self.revisions["conf"] = last_revision
+        state = ( _("Server %(server)s:\n"
+                    "    deployed: %(deployed)d\n"
+                    "    installed: %(installed)d\n"
+                    "    previous: %(previous)d"
+                   )
+                  % {"server": self.name,
+                     "deployed": self.revisions["deployed"],
+                     "installed": self.revisions["installed"],
+                     "previous": self.revisions["previous"],
+                    } )
+        if self.needsDeployment() or self.needsRestart():
+            todo = []
+            if self.needsDeployment():
+                todo.append(_("should be deployed"))
+            if self.needsRestart():
+                todo.append(_("should restart"))
+            state += "\n    -> %s" % ", ".join(todo)
+        return state
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

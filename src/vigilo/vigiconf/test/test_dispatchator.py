@@ -1,10 +1,10 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Test that the dispatchator works properly
 """
 
 import os
+import locale
 import unittest
 
 from vigilo.common.conf import settings
@@ -79,6 +79,14 @@ class DispatchatorTest(unittest.TestCase):
                      "--password", "pass1", "-r", "1234",
                      settings["vigiconf"]["confdir"]],
                     "Invalid svn update command")
+
+    def test_get_state(self):
+        """Test de la récupération de l'état (par la commande vigiconf info)"""
+        locale.setlocale(locale.LC_ALL, 'C')
+        self.dispatchator.rev_mgr.last_revision = lambda: 43
+        state = self.dispatchator.getState()
+        print state
+        self.assertEqual(len(state), 2)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

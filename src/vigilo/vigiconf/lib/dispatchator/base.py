@@ -169,21 +169,9 @@ class Dispatchator(object):
         state = []
         _revision = self.rev_mgr.last_revision()
         state.append(_("Current revision in the repository : %d") % _revision)
-        for servername, server in self.servers.items():
+        for servername, server in self.srv_mgr.servers.items():
             try:
-                server.update_revisions()
-                server.revisions["conf"] = _revision
-                _deploymentStr = ""
-                _restartStr = ""
-                if server.needsDeployment():
-                    _deploymentStr = _("(should be deployed)")
-                if server.needsRestart():
-                    _restartStr = _("(should restart)")
-                state.append(_("Revisions for server %(server)s : "
-                               "%(rev)s%(dep)s%(restart)s") % \
-                             {"server": servername,
-                              "rev": server.revisions_summary(),
-                              "dep": _deploymentStr, "restart": _restartStr})
+                state.append(server.get_state_text(_revision))
             except Exception, e: # pylint: disable-msg=W0703
                 LOGGER.warning(_("Cannot get revision for server: %(server)s. "
                                  "REASON : %(reason)s"),

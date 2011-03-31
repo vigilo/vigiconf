@@ -48,7 +48,7 @@ class ServerManager(object):
     """
 
     def __init__(self, factory):
-        self.servers = []
+        self.servers = {}
         self.commands_queue = None # will be initialized as Queue.Queue later
         self.returns_queue = None # will be initialized as Queue.Queue later
         self.factory = factory

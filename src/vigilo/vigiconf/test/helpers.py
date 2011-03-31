@@ -144,23 +144,29 @@ class DummyCommand(SystemCommand):
         return self.getCommand()
 
 class LoggingCommand(SystemCommand):
-    def __init__(self, command, logger, simulate):
+    def __init__(self, command, logger, result=None):
         super(LoggingCommand, self).__init__(command)
         self.logger = logger
-        self.simulate = simulate
+        self.result = result
+
     def execute(self):
         self.logger.append(self.getCommand())
-        if not self.simulate:
+        if self.result is None:
             return super(LoggingCommand, self).execute()
         else:
-            return ""
+            self.mResult = [ self.result, "" ] # stdout, stderr
+            return self.mResult
 
 class LoggingCommandFactory(object):
     def __init__(self, simulate=False):
         self.executed = []
         self.simulate = simulate
     def __call__(self, command):
-        return LoggingCommand(command, self.executed, self.simulate)
+        if self.simulate:
+            result = ""
+        else:
+            result = None
+        return LoggingCommand(command, self.executed, result)
 
 #from vigilo.vigiconf.lib.dispatchator.base import Dispatchator
 #class DummyDispatchator(Dispatchator):
