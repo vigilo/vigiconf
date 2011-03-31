@@ -10,14 +10,15 @@ import unittest
 from vigilo.common.conf import settings
 
 import vigilo.vigiconf.conf as conf
-from vigilo.vigiconf.lib.server.base import Server
+from vigilo.vigiconf.lib.server.local import ServerLocal
 
 from helpers import setup_tmpdir, LoggingCommand
 from helpers import setup_db, teardown_db
 
-class ServerFakeCommand(Server):
+
+class ServerFakeCommand(ServerLocal):
     def __init__(self, name):
-        Server.__init__(self, name)
+        ServerLocal.__init__(self, name)
         self.executed = []
         self.command_result = ""
     def createCommand(self, command):
@@ -59,4 +60,15 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(state.count("42"), 1)
         self.assertEqual(state.count("->"), 1)
         self.assertEqual(state.count(","), 1)
+
+    def test_get_state_text_disabled(self):
+        """
+        Si le serveur est désactivé, son état doit contenir le message
+        correspondant
+        """
+        self.server.is_enabled = lambda: False
+        state = self.server.get_state_text(0)
+        print state
+        # On ne peut pas tester directement à cause de la traduction
+        self.assertEqual(state.count("\n"), 4)
 

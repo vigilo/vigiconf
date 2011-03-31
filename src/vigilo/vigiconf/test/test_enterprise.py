@@ -176,11 +176,20 @@ class ServerManagerRemoteTest(unittest.TestCase):
         self.assertEquals([u"sup1.example.com", u"sup2.example.com"],
                           sorted(list(sm.servers)))
 
+    def test_restrict(self):
+        """C{restrict}() doit limiter les serveurs à la liste choisie"""
+        sm = get_server_manager()
+        for i in range(1, 10):
+            sname = "sup%s.example.com" % i
+            sm.servers[sname] = ServerRemote(sname)
+        sm.restrict(["sup1.example.com", "sup2.example.com"])
+        self.assertEqual(sorted(sm.servers),
+                         ["sup1.example.com", "sup2.example.com"])
+
 
 class ServerRemoteTest(unittest.TestCase):
 
     def setUp(self):
-        """Call before every test case."""
         setup_db()
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
@@ -192,12 +201,14 @@ class ServerRemoteTest(unittest.TestCase):
         open(os.path.join(self.tmpdir, "ssh", "ssh_config"), "w").close()
 
     def tearDown(self):
-        """Call after every test case."""
         DBSession.expunge_all()
         teardown_db()
         shutil.rmtree(self.tmpdir)
 
     def test_disable(self):
+        """
+        Si on appelle disable() sur un serveur, cela doit le désactiver en base
+        """
         df.add_vigiloserver("sup1.example.com")
         s = ServerRemote("sup1.example.com")
         s.disable()
@@ -205,10 +216,17 @@ class ServerRemoteTest(unittest.TestCase):
         self.assertTrue(vs.disabled)
 
     def test_disable_not_in_db(self):
+        """
+        Si on désactive un serveur pas encore en base de données, cela doit
+        lever une exception
+        """
         s = ServerRemote("sup1.example.com")
         self.assertRaises(VigiConfError, s.disable)
 
     def test_disabled_already(self):
+        """
+        Si on désactive un serveur déjà inactif, cela doit lever une exception
+        """
         s = ServerRemote("sup1.example.com")
         v = df.add_vigiloserver("sup1.example.com")
         v.disabled = True
@@ -217,6 +235,9 @@ class ServerRemoteTest(unittest.TestCase):
         s.enable()
 
     def test_enable(self):
+        """
+        Si on appelle enable() sur un serveur, cela doit l'activer en base
+        """
         s = ServerRemote("sup1.example.com")
         v = df.add_vigiloserver("sup1.example.com")
         v.disabled = True
@@ -226,15 +247,25 @@ class ServerRemoteTest(unittest.TestCase):
         self.assertFalse(v.disabled)
 
     def test_enable_not_in_db(self):
+        """
+        Si on active un serveur pas encore en base de données, cela doit lever
+        une exception
+        """
         s = ServerRemote("sup1.example.com")
         self.assertRaises(VigiConfError, s.enable)
 
     def test_enable_already(self):
+        """
+        Si on active un serveur déjà actif, cela doit lever une exception
+        """
         s = ServerRemote("sup1.example.com")
         v = df.add_vigiloserver("sup1.example.com")
         self.assertRaises(VigiConfError, s.enable)
 
     def test_enable_delete_prev_ventilation(self):
+        """
+        Quand on ré-active un serveur, il doit reprendre son ancienne ventil.
+        """
         s = ServerRemote("sup1.example.com")
         v1 = df.add_vigiloserver("sup1.example.com")
         v2 = df.add_vigiloserver("sup2.example.com")
@@ -253,6 +284,25 @@ class ServerRemoteTest(unittest.TestCase):
         self.assertEqual(DBSession.query(tables.Ventilation).count(), 1)
         ventil = DBSession.query(tables.Ventilation).first()
         self.assertEqual(ventil.idvigiloserver, v1.idvigiloserver)
+
+    def test_is_enabled_true(self):
+        """Si le serveur est actif, is_enabled doit être True"""
+        s = ServerRemote("sup1.example.com")
+        df.add_vigiloserver("sup1.example.com")
+        self.assertTrue(s.is_enabled())
+
+    def test_is_enabled_false(self):
+        """Si le serveur est inactif, is_enabled doit être False"""
+        s = ServerRemote("sup1.example.com")
+        v = df.add_vigiloserver("sup1.example.com")
+        v.disabled = True
+        DBSession.flush()
+        self.assertFalse(s.is_enabled())
+
+    def test_is_enabled_not_in_db(self):
+        """Si le serveur n'est pas encore en base, is_enabled doit être True"""
+        s = ServerRemote("sup1.example.com")
+        self.assertTrue(s.is_enabled())
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

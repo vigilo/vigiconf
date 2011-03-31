@@ -94,6 +94,9 @@ class Server(object):
         """
         return self.revisions["deployed"] != self.revisions["installed"]
 
+    def is_enabled(self): # pylint: disable-msg=R0201
+        raise NotImplementedError
+
     # external references
     def getBaseDir(self): # pylint: disable-msg=R0201
         """
@@ -278,6 +281,8 @@ class Server(object):
             if self.needsRestart():
                 todo.append(_("should restart"))
             state += "\n    -> %s" % ", ".join(todo)
+        if not self.is_enabled():
+            state += "\n    " + _("disabled").upper()
         return state
 
 
