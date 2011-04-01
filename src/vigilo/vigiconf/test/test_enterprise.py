@@ -22,6 +22,7 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib.dispatchator.factory import get_dispatchator_class
 from vigilo.vigiconf.lib.server import get_server_manager
+from vigilo.vigiconf.lib.server.local import ServerManagerLocal
 from vigilo.vigiconf.lib.exceptions import VigiConfError
 
 from vigilo.models.session import DBSession
@@ -169,6 +170,10 @@ class ServerManagerRemoteTest(unittest.TestCase):
         conf.hostsConf = conf.hostfactory.hosts
         delattr(conf, "appsGroupsByServer")
         shutil.rmtree(self.tmpdir)
+
+    def test_class(self):
+        sm = get_server_manager()
+        self.assertFalse(isinstance(sm, ServerManagerLocal))
 
     def test_list(self):
         sm = get_server_manager()

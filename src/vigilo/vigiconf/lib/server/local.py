@@ -45,6 +45,8 @@ class ServerManagerLocal(ServerManager):
         """
         self.servers = {"localhost": ServerLocal("localhost")}
 
+    def restrict(self, servernames):
+        return
 
 class ServerLocal(Server):
     """Implémentation de L{Server} pour C{localhost}"""
