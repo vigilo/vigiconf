@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
 import unittest
@@ -15,7 +14,7 @@ from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 
-from helpers import setup_tmpdir, setup_path
+from helpers import setup_tmpdir
 from helpers import setup_db, teardown_db
 
 # pylint: disable-msg=W0212
@@ -23,7 +22,6 @@ from helpers import setup_db, teardown_db
 class ValidateXSD(unittest.TestCase):
 
     def setUp(self):
-        """Call before every test case."""
         self.dtddir = os.path.join(conf.CODEDIR, "validation", "xsd")
         self.hdir = os.path.join(settings["vigiconf"].get("confdir"), "hosts")
         self.htdir = os.path.join(settings["vigiconf"].get("confdir"),
@@ -57,29 +55,18 @@ class ValidateXSD(unittest.TestCase):
 class ParseHost(unittest.TestCase):
 
     def setUp(self):
-        """Call before every test case."""
         # Prepare temporary directory
         setup_db()
         self.tmpdir = setup_tmpdir()
-        #setup_path("parse")
-        #shutil.copytree(os.path.join(
-        #                settings["vigiconf"].get("confdir"), "general"),
-        #                os.path.join(self.tmpdir, "general"))
-        #shutil.copytree(os.path.join(
-        #                settings["vigiconf"].get("confdir"), "hosttemplates"),
-        #                os.path.join(self.tmpdir, "hosttemplates"))
-        #shutil.copytree(os.path.join(
-        #                settings["vigiconf"].get("confdir"), "groups"),
-        #                os.path.join(self.tmpdir, "groups"))
         conf.hosttemplatefactory.register(HostTemplate("default"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
+        self.old_conf_path = settings["vigiconf"]["confdir"]
         settings["vigiconf"]["confdir"] = self.tmpdir
         self.host = open(os.path.join(self.tmpdir, "hosts", "host.xml"), "w")
 
     def tearDown(self):
-        """Call after every test case."""
         # This has been overwritten in setUp, reset it
-        setup_path()
+        settings["vigiconf"]["confdir"] = self.old_conf_path
         conf.hostfactory.hosts = {}
         conf.hostsConf = conf.hostfactory.hosts
         shutil.rmtree(self.tmpdir)
@@ -171,27 +158,6 @@ class ParseHost(unittest.TestCase):
                 and conf.hostsConf["testserver1"]["services"]
                 ["UpTime"]["tags"]["important"] == "2",
                "The \"tag\" tag for services is not properly parsed")
-
-    def test_trap(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <test name="Trap">
-                <arg name="command">echo</arg>
-                <arg name="service">service_name</arg>
-                <arg name="label">test.label</arg>
-                <arg name="OID">1.2.3.4.5.6.7.8.9</arg>
-            </test>
-            <group>/Servers</group>
-        </host>""")
-        self.host.close()
-        srv = "service_name"
-        OID = "1.2.3.4.5.6.7.8.9"
-        conf.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
-                                    "host.xml"))
-        print conf.hostsConf["testserver1"]["snmpTrap"]
-        self.assertTrue(conf.hostsConf["testserver1"].has_key("snmpTrap") and
-                conf.hostsConf["testserver1"]["snmpTrap"][srv][OID]["label"]
-                == "test.label", "The \"trap\" tag is not properly parsed")
 
     def test_group(self):
         GroupLoader().load()
@@ -414,12 +380,12 @@ class ParseHost(unittest.TestCase):
 class ParseHostTemplate(unittest.TestCase):
 
     def setUp(self):
-        """Call before every test case."""
         # Prepare temporary directory
         setup_db()
         self.tmpdir = setup_tmpdir()
         os.mkdir(os.path.join(self.tmpdir, "hosttemplates"))
         os.mkdir(os.path.join(self.tmpdir, "hosts"))
+        self.old_conf_path = settings["vigiconf"]["confdir"]
         settings["vigiconf"]["confdir"] = self.tmpdir
         conf.hosttemplatefactory.path = [ os.path.join(self.tmpdir,
                                           "hosttemplates"), ]
@@ -432,9 +398,8 @@ class ParseHostTemplate(unittest.TestCase):
                        "test.xml"), "w")
 
     def tearDown(self):
-        """Call after every test case."""
         # This has been overwritten in setUp, reset it
-        setup_path()
+        settings["vigiconf"]["confdir"] = self.old_conf_path
         conf.hostfactory.hosts = {}
         conf.hosttemplatefactory.__init__(conf.testfactory)
         shutil.rmtree(self.tmpdir)

@@ -2,20 +2,25 @@
 
 import unittest
 
+from vigilo.common.conf import settings
+
 from helpers import setup_db, teardown_db, setup_path
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.models.session import DBSession
 from vigilo.models.tables import SupItemGroup
 
+# pylint: disable-msg=W0212
+
 class TestSplitGroup(unittest.TestCase):
     def setUp(self):
         super(TestSplitGroup, self).setUp()
-        setup_path(subdir="split_group")
+        self.old_conf_path = setup_path(subdir="split_group")
         setup_db()
 
     def tearDown(self):
         teardown_db()
         super(TestSplitGroup, self).tearDown()
+        settings["vigiconf"]["confdir"] = self.old_conf_path
 
     def test_split_group(self):
         """Test l'éclatement de la définition des groupes (#336)"""

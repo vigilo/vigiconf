@@ -36,6 +36,7 @@ class Generator(unittest.TestCase):
         # Prepare temporary directory
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
+        self.old_conf_path = settings["vigiconf"]["confdir"]
         settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
         os.mkdir(settings["vigiconf"]["confdir"])
         #conf.hosttemplatefactory.load_templates()
@@ -65,6 +66,7 @@ class Generator(unittest.TestCase):
         conf.hostfactory.hosts = {}
         conf.hostsConf = conf.hostfactory.hosts
         shutil.rmtree(self.tmpdir)
+        settings["vigiconf"]["confdir"] = self.old_conf_path
 
     def test_generation(self):
         """Globally test the generation"""

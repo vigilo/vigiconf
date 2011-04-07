@@ -25,6 +25,9 @@ from __future__ import absolute_import
 import os
 import sys
 
+from pkg_resources import working_set
+from pkg_resources import resource_exists, resource_string, resource_isdir
+
 from vigilo.common.conf import settings
 
 
@@ -132,16 +135,27 @@ class TestFactory(object):
     hclasschecks = {}
 
     def __init__(self):
-        self.path = [
-                  os.path.join(
-                      os.path.dirname(__file__), "..", "..", "tests"),
-                      #TODO: utiliser resource_filename
-                  os.path.join(
-                      settings["vigiconf"].get("confdir"),
-                      "tests"),
-                    ]
+        self.path = self._list_test_paths()
         if not self.tests:
             self.load_tests()
+
+    def _list_test_paths(self):
+        paths = []
+        for entry in working_set.iter_entry_points(
+                        "vigilo.vigiconf.testlib"):
+            path = entry.load().__path__[0]
+            #if not resource_exists(path) or not resource_isdir(path):
+            if not os.path.isdir(path):
+                LOGGER.warning(_("Invalid entry point %(epname)s in package "
+                                 "%(eppkg)s: %(epmodname)s") %
+                               {"epname": entry.name,
+                                "eppkg": entry.dist,
+                                "epmodname": entry.module_name,
+                               })
+                continue
+            paths.append(path)
+        paths.append(os.path.join(settings["vigiconf"].get("confdir"), "tests"))
+        return paths
 
     def load_tests(self):
         """

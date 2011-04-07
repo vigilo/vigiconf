@@ -37,6 +37,9 @@ class CommunityEdition(unittest.TestCase):
         setup_db()
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
+        self.old_conf_dir = settings["vigiconf"]["confdir"]
+        settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf")
+        os.makedirs(os.path.join(self.tmpdir, "conf"))
 
     def tearDown(self):
         """Call after every test case."""
@@ -45,6 +48,7 @@ class CommunityEdition(unittest.TestCase):
         conf.hostfactory.hosts = {}
         conf.hostsConf = conf.hostfactory.hosts
         shutil.rmtree(self.tmpdir)
+        settings["vigiconf"]["confdir"] = self.old_conf_dir
 
     def test_ventilator_com(self):
         """The supervision server in C.E. must always be the localhost"""
@@ -64,8 +68,7 @@ class CommunityEdition(unittest.TestCase):
         """Test the generation in C.E."""
         # attention, le fichier dummy.xml doit exister ou l'hôte sera supprimé
         # juste après avoir été inséré
-        settings["vigiconf"]["confdir"] = self.tmpdir
-        open(os.path.join(self.tmpdir, "dummy.xml"), "w").close() # == touch
+        open(os.path.join(self.tmpdir, "conf", "dummy.xml"), "w").close()
         host = Host(conf.hostsConf, "dummy.xml", "testserver1",
                     "192.168.1.1", "Servers")
         test_list = conf.testfactory.get_test("UpTime", host.classes)

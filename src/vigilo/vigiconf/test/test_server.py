@@ -29,6 +29,7 @@ class ServerTest(unittest.TestCase):
     def setUp(self):
         setup_db()
         self.tmpdir = setup_tmpdir()
+        self.old_conf_path = settings["vigiconf"]["confdir"]
         settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
         os.mkdir(settings["vigiconf"]["confdir"])
         self.server = ServerFakeCommand("testserver")
@@ -37,6 +38,7 @@ class ServerTest(unittest.TestCase):
         """Call after every test case."""
         teardown_db()
         shutil.rmtree(self.tmpdir)
+        settings["vigiconf"]["confdir"] = self.old_conf_path
 
 
     def test_update_revisions(self):

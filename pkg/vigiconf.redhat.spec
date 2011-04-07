@@ -38,11 +38,6 @@ Requires:   sqlite >= 3
 
 Requires(pre): shadow-utils
 Requires(post): openssh
-# Init
-Requires(post): chkconfig
-Requires(preun): chkconfig
-Requires(preun): initscripts
-Requires(postun): initscripts
 
 %description
 This program generates and pushes the configuration for the
@@ -87,21 +82,6 @@ if [ ! -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key ]; then
     ssh-keygen -t rsa -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key -N "" > /dev/null 2>&1 || :
 fi
 chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
-# Connector
-/sbin/chkconfig --add vigilo-connector-vigiconf || :
-%{_libexecdir}/twisted-dropin-cache-%{pybasever} >/dev/null 2>&1 || :
-
-%preun
-if [ $1 = 0 ]; then
-    /sbin/service vigilo-connector-vigiconf stop > /dev/null 2>&1 || :
-    /sbin/chkconfig --del vigilo-connector-vigiconf || :
-fi
-
-%postun
-if [ "$1" -ge "1" ] ; then
-    /sbin/service vigilo-connector-vigiconf condrestart > /dev/null 2>&1 || :
-fi
-%{_libexecdir}/twisted-dropin-cache-%{pybasever} >/dev/null 2>&1 || :
 
 
 %clean
@@ -124,18 +104,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
 %attr(-,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
-# Connector
-%attr(744,root,root) %{_initrddir}/vigilo-connector-vigiconf
-%config(noreplace) %{_sysconfdir}/sysconfig/*
-%attr(-,%{module},%{module}) %{_localstatedir}/run/vigilo-connector-vigiconf
 
 
 %changelog
-* Wed Aug 26 2009 Aurelien Bompard <aurelien.bompard@c-s.fr> - 1.36-3
-- rebuild
-
-* Thu Jul 30 2009 Aurelien Bompard <aurelien.bompard@c-s.fr> 1.36-2
-- rename confmgr to vigiconf
-
-* Fri Feb 06 2009 Thomas BURGUIERE <thomas.burguiere@c-s.fr>
-- first creation of the RPM from debian archive
+* Thu Apr 07 2011 Aurelien Bompard <aurelien.bompard@c-s.fr> 
+- Adapt to Vigilo V2

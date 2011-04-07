@@ -30,6 +30,7 @@ class TestLoader(unittest.TestCase):
         self.tmpdir = setup_tmpdir()
         # attention, le fichier dummy.xml doit exister ou l'hôte sera supprimé
         # juste après avoir été inséré
+        self.old_conf_dir = settings["vigiconf"]["confdir"]
         settings["vigiconf"]["confdir"] = self.tmpdir
         open(os.path.join(self.tmpdir, "dummy.xml"), "w").close() # == touch
         self.host = ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
@@ -44,6 +45,7 @@ class TestLoader(unittest.TestCase):
         conf.hostsConf = conf.hostfactory.hosts
         teardown_db()
         shutil.rmtree(self.tmpdir)
+        settings["vigiconf"]["confdir"] = self.old_conf_dir
 
     def test_export_hosts_db(self):
         self.hostloader.load()

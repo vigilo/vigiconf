@@ -15,7 +15,6 @@ install_requires=[
     "lxml",
     "vigilo-common",
     "vigilo-models",
-    'vigilo-connector',
     ]
 if tuple(python_version_tuple()) < ('2', '6'):
     install_requires.append("multiprocessing")
@@ -71,8 +70,6 @@ def get_data_files():
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/deploy"), []))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/revisions"), []))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/tmp"), []))
-    files.append((os.path.join(localstatedir, "lock/vigilo-vigiconf"), []))
-    files.append((os.path.join(localstatedir, "run/vigilo-connector-vigiconf"), []))
     return files
 
 
@@ -90,7 +87,7 @@ setup(name='vigilo-vigiconf',
         namespace_packages = [
             'vigilo',
             ],
-        packages=find_packages("src")+["twisted"],
+        packages=find_packages("src"),
         message_extractors={
             'src': [
                 ('**.py', 'python', None),
@@ -103,39 +100,22 @@ setup(name='vigilo-vigiconf',
             'console_scripts': [
                 'vigiconf = vigilo.vigiconf.commandline:main',
                 'vigiconf-debug = vigilo.vigiconf.debug:main',
-                'vigilo-connector-vigiconf = twisted.scripts.twistd:run',
                 ],
             'vigilo.vigiconf.applications': [
                 'collector = vigilo.vigiconf.applications.collector:Collector',
-                'collector-telnet = vigilo.vigiconf.applications.collector_telnet:CollectorTelnet',
                 'connector-metro = vigilo.vigiconf.applications.connector_metro:ConnectorMetro',
-                'snmptt = vigilo.vigiconf.applications.snmptt:SnmpTT',
-                'netflow = vigilo.vigiconf.applications.netflow:Netflow',
                 'nagios = vigilo.vigiconf.applications.nagios:Nagios',
-                'nagios-hls = vigilo.vigiconf.applications.nagios_hls:NagiosHLS',
                 'perfdata = vigilo.vigiconf.applications.perfdata:PerfData',
                 'vigirrd = vigilo.vigiconf.applications.vigirrd:VigiRRD',
                 'vigimap = vigilo.vigiconf.applications.vigimap:VigiMap',
                 ],
-            'vigilo.vigiconf.extensions': [
-                'ventilator = vigilo.vigiconf.lib.ventilation.remote:VentilatorRemote',
-                'server_remote = vigilo.vigiconf.lib.server.remote:ServerRemote',
-                'server_manager_remote = vigilo.vigiconf.lib.server.remote:ServerManagerRemote',
-                'dispatchator_remote = vigilo.vigiconf.lib.dispatchator.remote:DispatchatorRemote',
+            'vigilo.vigiconf.testlib': [
+                'vigiconf-default = vigilo.vigiconf.tests',
                 ],
         },
         package_dir={'': 'src'},
         include_package_data = True,
-        #package_data={
-        #    "vigilo.vigiconf": ["applications/*/*.sh", "applications/*/templates/*",
-        #                        "validation/dtd/*.dtd", "validation/xsd/*.xsd",
-        #                        "tests/*/*.py"],
-        #    "vigilo.vigiconf.test": ["testdata/*/*", "testdata/*/*/*],
-        #    "twisted": ["plugins/vigilo_vigiconf.py"],
-        #    },
         data_files=get_data_files() +
             install_i18n("i18n", os.path.join(sys.prefix, 'share', 'locale')),
         )
 
-#from pprint import pprint
-#pprint(find_data_files("/etc/vigilo-vigiconf/conf.d", "src/vigilo/vigiconf/conf.d"))

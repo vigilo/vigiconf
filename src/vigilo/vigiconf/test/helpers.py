@@ -29,8 +29,10 @@ def setup_path(subdir=None):
             "vigilo", "vigiconf")
     if subdir is None:
         subdir = "conf.d"
+    old_path = settings["vigiconf"]["confdir"]
     settings["vigiconf"]["confdir"] = os.path.join(os.path.dirname(__file__),
                                                    "testdata", subdir)
+    return old_path
 
 def reload_conf(hostsdir=None):
     """We changed the paths, reload the factories"""

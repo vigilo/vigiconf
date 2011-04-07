@@ -19,12 +19,14 @@ from vigilo.models.tables import Dependency, DependencyGroup
 from vigilo.models.session import DBSession
 
 
+# pylint: disable-msg=W0212
+
 class ChangeManagementTest(unittest.TestCase):
 
     def setUp(self):
         """Call before every test case."""
         setup_db()
-        setup_path(subdir="changes")
+        self.old_conf_path = setup_path(subdir="changes")
         self.datadir = settings["vigiconf"]["confdir"]
     
         localhost = df.add_host("localhost")
@@ -37,6 +39,7 @@ class ChangeManagementTest(unittest.TestCase):
     def tearDown(self):
         """Call after every test case."""
         teardown_db()
+        settings["vigiconf"]["confdir"] = self.old_conf_path
 
 
     def test_change_dependencies_remove(self):

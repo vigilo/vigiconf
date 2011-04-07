@@ -24,6 +24,7 @@ class DispatchatorTest(unittest.TestCase):
         """Call before every test case."""
         setup_db()
         self.tmpdir = setup_tmpdir()
+        self.old_conf_path = settings["vigiconf"]["confdir"]
         settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
         os.mkdir(settings["vigiconf"]["confdir"])
 
@@ -49,6 +50,7 @@ class DispatchatorTest(unittest.TestCase):
         conf.hostsConf = conf.hostfactory.hosts
         teardown_db()
         teardown_deploy_dir()
+        settings["vigiconf"]["confdir"] = self.old_conf_path
 
     def test_deploy(self):
         """Globally test the deployment"""

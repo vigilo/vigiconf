@@ -49,5 +49,5 @@ clean: clean_python
 	rm -f pkg/ssh_config pkg/$(PKGNAME).cron settings.ini
 
 
-.PHONY: all clean install apidoc lint install_users install tests
+.PHONY: all clean install apidoc lint install_users install_permissions tests
 

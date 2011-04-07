@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+import os
 import unittest
 
+from vigilo.common.conf import settings
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
@@ -32,6 +34,17 @@ class TestFactory(unittest.TestCase):
         hclasses = conf.testfactory.get_hclasses()
         assert "all" in hclasses, "get_hclasses does not work"
 
+    def test_list_test_paths(self):
+        """
+        La liste des chemins des tests doit contenir ceux de VigiConf et ceux de l'admin sys
+        """
+        default_path = os.path.normpath(os.path.join(
+                            os.path.dirname(__file__), "..", "tests"))
+        sysadmin_path = os.path.join(settings["vigiconf"]["confdir"], "tests")
+        print conf.testfactory.path
+        self.assertTrue(len(conf.testfactory.path) >= 2)
+        self.assertEqual(conf.testfactory.path[0], default_path)
+        self.assertEqual(conf.testfactory.path[-1], sysadmin_path)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
