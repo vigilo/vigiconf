@@ -31,17 +31,11 @@ install: settings.ini $(PYTHON)
 	$(PYTHON) setup.py install --single-version-externally-managed --root=$(DESTDIR) --record=INSTALLED_FILES
 	chmod a+rX -R $(DESTDIR)$(PREFIX)/lib*/python*/*
 	chmod 750 $(DESTDIR)$(VARDIR)
-	# Connector
-	install -p -m 755 -D pkg/init $(DESTDIR)/etc/rc.d/init.d/vigilo-connector-vigiconf
-	echo /etc/rc.d/init.d/vigilo-connector-vigiconf >> INSTALLED_FILES
-	install -p -m 644 -D pkg/initconf $(DESTDIR)$(INITCONFDIR)/vigilo-connector-vigiconf
-	echo $(INITCONFDIR)/vigilo-connector-vigiconf >> INSTALLED_FILES
 
 install_permissions:
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(VARDIR)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/lock/$(PKGNAME)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
-	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/run/vigilo-connector-vigiconf
 
 lint: lint_pylint
 tests: tests_nose

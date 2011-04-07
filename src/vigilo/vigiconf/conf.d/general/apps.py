@@ -1,15 +1,11 @@
-apps = [
+apps.update([
         "nagios",
-        "nagios-hls",
-        "collector-telnet",
-        "snmptt",
-#        "netflow",
         "connector-metro",
         "collector",
         "perfdata",
         "vigirrd",
         "vigimap",
-        ]
+        ])
 
 confid = "$Rev$"[6:-2]
 

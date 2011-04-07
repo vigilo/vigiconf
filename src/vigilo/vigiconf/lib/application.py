@@ -564,7 +564,7 @@ class ApplicationManager(object):
                 raise DispatchatorError(msg)
             self.applications.append(app)
         # Vérification : a-t-on déclaré une application non installée ?
-        for listed_app in conf.apps:
+        for listed_app in set(conf.apps):
             if listed_app not in [a.name for a in self.applications]:
                 LOGGER.warning(_("Application %s has been added to "
                             "conf.d/general/apps.py, but is not installed")

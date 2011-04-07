@@ -70,6 +70,7 @@ def get_data_files():
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/deploy"), []))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/revisions"), []))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/tmp"), []))
+    files.append((os.path.join(localstatedir, "lock/vigilo-vigiconf"), []))
     return files
 
 

@@ -78,20 +78,10 @@ class LoaderManager(object):
         hostloader = HostLoader(grouploader, self.rev_mgr)
         hostloader.load()
 
-        # services de haut niveau
-        from vigilo.vigiconf.loaders.hlservice import HLServiceLoader
-        hlserviceloader = HLServiceLoader(grouploader, self.rev_mgr)
-        hlserviceloader.load()
-
-        # dépendances topologiques
-        from vigilo.vigiconf.loaders.topology import TopologyLoader
-        topologyloader = TopologyLoader(self.rev_mgr)
-        topologyloader.load()
-
         DBSession.flush()
-        self.load_specific()
+        self.load_specific(grouploader)
 
-    def load_specific(self): # pylint: disable-msg=R0201
+    def load_specific(self, grouploader):
         """Loaders spécifiques"""
         # deux boucles parce qu'on veut forcer le tri des loaders par leur nom
         # dans une distribution donnée. Par défaut, il n'y a pas de tri à
@@ -104,7 +94,7 @@ class LoaderManager(object):
             loaders.sort(cmp=lambda x, y: cmp(x.name, y.name))
             for loader_entry in loaders:
                 loadclass = loader_entry.load()
-                loader_instance = loadclass()
+                loader_instance = loadclass(grouploader, self.rev_mgr)
                 loader_instance.load()
         DBSession.flush()
 

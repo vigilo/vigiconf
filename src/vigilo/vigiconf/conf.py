@@ -85,7 +85,7 @@ def load_xml_conf(validation=True):
 CODEDIR = os.path.dirname(__file__)
 
 # Initialize global conf variables
-apps = []
+apps = set()
 apps_conf = {}
 
 # TODO: en base, plus de python
