@@ -46,17 +46,6 @@ class GroupLoader(XMLLoader):
     @type _tag_group: C{str}
     @ivar _xsd_filename: fichier schema xsd pour validation
     @type _xsd_filename: C{str}
-
-    VIGILO_EXIG_VIGILO_CONFIGURATION_0010 : Fonctions de préparation des
-    configurations de la supervision en mode CLI :
-        - configuration d'un group d'hôtes : ajout/modification/suppression
-            d'un hôte
-        - configuration d'un groupe de services : ajout/modification/
-            suppression d'un service
-        - configuration des services de haut niveau : ajout/modification/
-            suppression d'un service
-        - configuration des règles de corrélations associé à un service de haut
-            niveau : ajout/modification/suppression d'une règle de corrélation
     """
 
     _tag_group = "group"

@@ -3,7 +3,10 @@ import os, unittest, shutil, socket
 
 from vigilo.vigiconf.discoverator import Discoverator
 
-from helpers import setup_tmpdir, setup_db, teardown_db
+from helpers import setup_tmpdir, setup_db, teardown_db, TESTDATADIR
+
+# pylint: disable-msg=W0212
+
 
 class TestDiscoveratorBasics(unittest.TestCase):
     testmib = None
@@ -14,8 +17,7 @@ class TestDiscoveratorBasics(unittest.TestCase):
         self.tmpdir = setup_tmpdir()
         self.disc = Discoverator(group="Test")
         if self.testmib:
-            walkfile = os.path.join(os.path.dirname(__file__), "testdata",
-                                    "discoverator", self.testmib)
+            walkfile = os.path.join(TESTDATADIR, "discoverator", self.testmib)
             self.disc.scanfile(walkfile)
             self.disc.detect()
         self.testnames = [ t["name"] for t in self.disc.tests ]

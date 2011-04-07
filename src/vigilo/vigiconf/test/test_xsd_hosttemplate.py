@@ -5,14 +5,14 @@ class HosttemplateXSD(XSDTest):
 
     The hosttemplate.xsd file is used to validate host templates xml files"""
 
-    xsd_file = "../validation/xsd/hosttemplate.xsd"
+    xsd_file = "hosttemplate.xsd"
 
     xml_ok_files = {
-        "../conf.d/hosttemplates": ["*.xml"],
-        "testdata/xsd/hosttemplates/ok": [
+        "hosttemplates/ok": [
             "interleaved_tags.xml",
         ],
+        "../../../conf.d/hosttemplates": ["*.xml"],
    }
 
-    xml_ko_files = {"testdata/xsd/hosttemplates/ko":[
+    xml_ko_files = {"hosttemplates/ko":[
                      "linux.xml", ]}

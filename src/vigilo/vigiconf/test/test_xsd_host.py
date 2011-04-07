@@ -5,22 +5,22 @@ class HostXSD(XSDTest):
 
     The host.xsd file is used to validate hosts xml files"""
 
-    xsd_file = "../validation/xsd/host.xsd"
+    xsd_file = "host.xsd"
 
     xml_ok_files = {
-        "testdata/xsd/hosts/ok": [
+        "hosts/ok": [
             "example_nagios_spec.xml",
             "example_nagios_spec2.xml",
             "no_secondary_groups.xml",
             "interleaved_tags.xml",
             "localhost1.xml",
         ],
-        "../conf.d/hosts": [
+        "../../../conf.d/hosts": [
             "localhost.xml",
         ],
     }
 
     xml_ko_files = {
-        "testdata/xsd/hosts/ko": [
+        "hosts/ko": [
         ],
     }

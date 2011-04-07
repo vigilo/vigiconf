@@ -6,6 +6,9 @@ import os
 import subprocess
 import glob
 
+from helpers import TESTDATADIR
+
+
 class XSDTest(unittest.TestCase):
     """
     A base class for testing XSD schema.
@@ -17,18 +20,21 @@ class XSDTest(unittest.TestCase):
     """
     _cmd_verb = "xmllint --noout --schema %s %s"
     _cmd_silent = "xmllint --noout --schema %s %s 2>/dev/null"
+    _xsd_basedir = os.path.join(os.path.dirname(__file__), "..",
+                                "validation", "xsd")
+    _basedir = os.path.join(TESTDATADIR, "xsd")
 
-    xsd_file = "testdata/xsd/sample.xsd"
-    xml_ok_files = {"testdata/xsd":["sample_ok.xml", ]}
-    xml_ko_files = {"testdata/xsd":["sample_ko.xml", ]}
+    xsd_file = "../../test/testdata/xsd/sample.xsd"
+    xml_ok_files = {"":["sample_ok.xml", ]}
+    xml_ko_files = {"":["sample_ko.xml", ]}
 
     def test_xmllint_present(self):
         result = subprocess.call("xmllint --version 2> /dev/null", shell="True")
         self.assertEquals(0, result, "xmllint must be installed")
 
     def _run_command(self, filepath, expect):
-        here = os.path.dirname(__file__)
-        cmd = self._cmd_silent % (os.path.join(here, self.xsd_file), filepath)
+        xsd_path = os.path.join(self._xsd_basedir, self.xsd_file)
+        cmd = self._cmd_silent % (xsd_path, filepath)
         r = subprocess.call(cmd, shell="True")
         if expect == "ko":
             self.assertNotEquals(0, r, "file %s is invalid" % filepath)
@@ -40,11 +46,10 @@ class XSDTest(unittest.TestCase):
 
     def test_xsd_ko_files(self):
         """ test invalid xml files"""
-        here = os.path.dirname(__file__)
-        for dir, files in self.xml_ko_files.iteritems():
-            for file in files:
-                filepath = os.path.join(here, dir, file)
-                if "*" in file:
+        for subdir, files in self.xml_ko_files.iteritems():
+            for filename in files:
+                filepath = os.path.join(self._basedir, subdir, filename)
+                if "*" in filename:
                     for f in glob.glob(filepath):
                         self._run_command(f, "ko")
                 else:
@@ -52,12 +57,11 @@ class XSDTest(unittest.TestCase):
 
     def test_xsd_ok_files(self):
         """ test valid xml files"""
-        here = os.path.dirname(__file__)
         ko_list = []
-        for dir, files in self.xml_ok_files.iteritems():
-            for file in files:
-                filepath = os.path.join(here, dir, file)
-                if "*" in file:
+        for subdir, files in self.xml_ok_files.iteritems():
+            for filename in files:
+                filepath = os.path.join(self._basedir, subdir, filename)
+                if "*" in filename:
                     for f in glob.glob(filepath):
                         if not self._run_command(f, "ok"):
                             ko_list.append(f)

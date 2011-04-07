@@ -78,11 +78,16 @@ class XMLLoader(DBLoader):
         self.change = False
 
 
+    def get_xsd_path(self):
+        if not self._xsd_filename:
+            return None
+        return resource_filename("vigilo.vigiconf",
+                    "validation/xsd/%s" % self._xsd_filename)
+
     def get_xsd(self):
         if not self._xsd_filename:
             return None
-        xsd_path = resource_filename("vigilo.vigiconf",
-                    "validation/xsd/%s" % self._xsd_filename)
+        xsd_path = self.get_xsd_path()
         if not os.path.exists(xsd_path):
             raise OSError(_("XSD file does not exist: %s") % xsd_path)
         try:

@@ -5,18 +5,18 @@ class HostGroupXSD(XSDTest):
 
     The group.xsd file is used to validate host/service groups xml files"""
 
-    xsd_file = "../validation/xsd/group.xsd"
+    xsd_file = "group.xsd"
 
-    xml_ok_files = {"testdata/xsd/hostgroups/ok": [
-                                      "hostgroups.xml",
-                                      "hostgroups2.xml",
-                                      "hostgroups3.xml",
-                                      "hostgroups4.xml",
-                                      ],
-                     "../conf.d/groups": ["*.xml"],
+    xml_ok_files = {"hostgroups/ok": [
+                        "hostgroups.xml",
+                        "hostgroups2.xml",
+                        "hostgroups3.xml",
+                        "hostgroups4.xml",
+                        ],
+                     "../../../conf.d/groups": ["*.xml"],
                    }
 
-    xml_ko_files = {"testdata/xsd/hostgroups/ko":[
-                                      "hostgroups1.xml",
+    xml_ko_files = {"hostgroups/ko":[
+                        "hostgroups1.xml",
                                       ]
                    }
