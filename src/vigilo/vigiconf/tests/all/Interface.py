@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903
 
 import re # for the detect_snmp function
+from vigilo.vigiconf.lib.confclasses.test import Test
+
+
 
 class Interface(Test):
     """Check the status of an interface, and graph its throughput"""

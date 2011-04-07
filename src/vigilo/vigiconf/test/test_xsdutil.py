@@ -8,6 +8,8 @@ import glob
 
 from helpers import TESTDATADIR
 
+#pylint: disable-msg=C0111
+
 
 class XSDTest(unittest.TestCase):
     """

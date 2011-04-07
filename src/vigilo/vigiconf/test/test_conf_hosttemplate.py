@@ -6,6 +6,8 @@ from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 from vigilo.vigiconf.lib.confclasses.host import Host
 
 from helpers import setup_db, teardown_db
+#pylint: disable-msg=C0111
+
 
 class HostTemplates(unittest.TestCase):
 

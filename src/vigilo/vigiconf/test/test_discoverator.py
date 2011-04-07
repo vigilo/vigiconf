@@ -5,7 +5,7 @@ from vigilo.vigiconf.discoverator import Discoverator
 
 from helpers import setup_tmpdir, setup_db, teardown_db, TESTDATADIR
 
-# pylint: disable-msg=W0212
+# pylint: disable-msg=W0212,C0111
 
 
 class TestDiscoveratorBasics(unittest.TestCase):

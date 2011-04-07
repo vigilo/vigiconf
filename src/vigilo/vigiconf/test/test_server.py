@@ -9,11 +9,12 @@ import unittest
 
 from vigilo.common.conf import settings
 
-import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.server.local import ServerLocal
 
 from helpers import setup_tmpdir, LoggingCommand
 from helpers import setup_db, teardown_db
+
+#pylint: disable-msg=C0111
 
 
 class ServerFakeCommand(ServerLocal):

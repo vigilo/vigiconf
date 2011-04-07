@@ -27,6 +27,8 @@ from helpers import setup_db, teardown_db
 
 from vigilo.vigiconf.applications.nagios.generator import NagiosGen
 
+#pylint: disable-msg=C0111
+
 
 class Generator(unittest.TestCase):
 

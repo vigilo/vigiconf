@@ -14,12 +14,10 @@ from vigilo.models.tables import SupItemGroup
 from vigilo.models.session import DBSession
 
 from vigilo.vigiconf.loaders.group import GroupLoader
-from vigilo.vigiconf.test.helpers import setup_path, setup_db, teardown_db
-from vigilo.vigiconf.test.helpers import DummyRevMan
+from helpers import setup_path, setup_db, teardown_db
 
 
-
-# pylint: disable-msg=W0212
+# pylint: disable-msg=W0212,C0111
 
 class ChangeManagementTest(unittest.TestCase):
 

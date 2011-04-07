@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903
+
+from vigilo.vigiconf.lib.confclasses.test import Test
+
+
 
 class NTPSync(Test):
     """Check if a host's time is synchronized with the NTP server (uses NRPE)"""

@@ -17,7 +17,8 @@ from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 from helpers import setup_tmpdir
 from helpers import setup_db, teardown_db
 
-# pylint: disable-msg=W0212
+# pylint: disable-msg=W0212,C0111
+
 
 class ValidateXSD(unittest.TestCase):
 

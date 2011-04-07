@@ -12,6 +12,8 @@ from vigilo.models import tables
 from vigilo.models.demo import functions as df
 from vigilo.models.session import DBSession
 
+#pylint: disable-msg=C0111
+
 
 class AutoMapTest(unittest.TestCase):
 

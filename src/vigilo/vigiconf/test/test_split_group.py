@@ -9,7 +9,7 @@ from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.models.session import DBSession
 from vigilo.models.tables import SupItemGroup
 
-# pylint: disable-msg=W0212
+# pylint: disable-msg=W0212,C0111
 
 class TestSplitGroup(unittest.TestCase):
     def setUp(self):

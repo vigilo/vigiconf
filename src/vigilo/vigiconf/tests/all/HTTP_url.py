@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 # vim:set expandtab tabstop=4 shiftwidth=4:
+#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903
+
+from vigilo.vigiconf.lib.confclasses.test import Test
+
+
 
 class HTTP_url(Test):
     """Check if the HTTP service is up for a given url"""

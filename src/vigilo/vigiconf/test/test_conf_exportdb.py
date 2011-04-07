@@ -22,6 +22,8 @@ from helpers import setup_db, teardown_db, DummyRevMan, setup_tmpdir
 from vigilo.models.tables import Host
 from vigilo.models.tables import ConfItem
 
+#pylint: disable-msg=C0111
+
 
 class TestLoader(unittest.TestCase):
 

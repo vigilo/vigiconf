@@ -27,6 +27,8 @@ from vigilo.models import tables
 from helpers import setup_tmpdir, DummyRevMan
 from helpers import setup_db, teardown_db
 
+#pylint: disable-msg=C0111
+
 
 class CommunityEdition(unittest.TestCase):
     """Test the Community Edition aspects"""

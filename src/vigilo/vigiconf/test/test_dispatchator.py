@@ -17,6 +17,8 @@ from helpers import setup_tmpdir, DummyCommand
 from helpers import setup_deploy_dir, teardown_deploy_dir
 from helpers import setup_db, teardown_db
 
+#pylint: disable-msg=C0111
+
 
 class DispatchatorTest(unittest.TestCase):
 

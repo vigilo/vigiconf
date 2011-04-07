@@ -9,16 +9,13 @@ import unittest
 import shutil
 import sqlite3
 
-from vigilo.common.conf import settings
-from vigilo.models import tables
-from vigilo.models.demo import functions as df
-from vigilo.models.session import DBSession
-
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.applications.vigirrd import VigiRRD
 
 from helpers import setup_tmpdir
+
+#pylint: disable-msg=C0111
 
 
 class VigiRRDTest(unittest.TestCase):

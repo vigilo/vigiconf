@@ -11,6 +11,8 @@ from vigilo.vigiconf.lib.confclasses.host import HostFactory
 
 from helpers import setup_db, teardown_db, setup_tmpdir, TESTDATADIR
 
+#pylint: disable-msg=C0111
+
 
 class HostMethods(unittest.TestCase):
 

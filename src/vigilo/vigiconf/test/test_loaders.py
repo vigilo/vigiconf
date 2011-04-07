@@ -4,16 +4,15 @@
 import os
 import unittest
 
-from vigilo.vigiconf.lib import ParsingError
 from vigilo.vigiconf.loaders.group import GroupLoader
 
-from helpers import setup_db, teardown_db, DummyRevMan, TESTDATADIR
+from helpers import setup_db, teardown_db, TESTDATADIR
 
-from vigilo.models.tables import SupItemGroup, SupItemGroup, SupItem
-from vigilo.models.tables import Dependency, DependencyGroup
+from vigilo.models.tables import SupItemGroup, SupItemGroup
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
-from vigilo.models.demo import functions as df
+
+#pylint: disable-msg=C0111
 
 
 class XMLLoaderTest(unittest.TestCase):

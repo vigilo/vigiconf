@@ -12,9 +12,10 @@ import unittest
 from vigilo.vigiconf.applications.connector_metro import ConnectorMetro
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
-from vigilo.vigiconf.lib.server.local import ServerLocal
 
 from helpers import setup_tmpdir
+
+#pylint: disable-msg=C0111
 
 
 class ConnectorMetroTest(unittest.TestCase):

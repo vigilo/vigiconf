@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903
+
+from vigilo.vigiconf.lib.confclasses.test import Test
+
+
 
 class InterrCS(Test):
     """Check the Interrupts and Context Switches of a host"""

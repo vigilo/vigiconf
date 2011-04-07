@@ -14,6 +14,8 @@ from vigilo.vigiconf.lib.dispatchator.revisionmanager import RevisionManager
 
 from helpers import setup_tmpdir, LoggingCommandFactory
 
+#pylint: disable-msg=C0111
+
 
 class RevisionManagerTest(unittest.TestCase):
 

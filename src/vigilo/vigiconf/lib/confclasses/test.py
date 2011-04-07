@@ -26,7 +26,6 @@ import os
 import sys
 
 from pkg_resources import working_set
-from pkg_resources import resource_exists, resource_string, resource_isdir
 
 from vigilo.common.conf import settings
 
