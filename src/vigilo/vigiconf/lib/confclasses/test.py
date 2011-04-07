@@ -29,6 +29,12 @@ from pkg_resources import working_set
 
 from vigilo.common.conf import settings
 
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 
 class Test(object):
     """

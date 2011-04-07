@@ -4,7 +4,6 @@
 from vigilo.vigiconf.lib.confclasses.test import Test
 
 
-
 class RAID(Test):
     """Check the RAID status of a host"""
 

@@ -4,7 +4,6 @@
 from vigilo.vigiconf.lib.confclasses.test import Test
 
 
-
 class CPU(Test):
     """Check the CPU usage of a host (service only)"""
 
