@@ -44,7 +44,7 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.vigiconf import conf
-from .systemcommand import SystemCommand, SystemCommandError
+from vigilo.vigiconf.lib.systemcommand import SystemCommand, SystemCommandError
 from vigilo.vigiconf.lib.exceptions import VigiConfError, DispatchatorError
 from vigilo.vigiconf.lib.server.factory import ServerFactory
 
@@ -88,8 +88,8 @@ class Application(object):
         du nom d'un script dans le même répertoire.
     @type stop_command: C{str}
     @cvar generator: Classe utilisée pour la génération.
-    @type generator: Instance de L{Generator
-        <vigilo.vigiconf.lib.generators.Generator>}
+    @type generator: Instance de C{Generator}
+        (C{lib.generators.base.Generator})
     @cvar group: Groupe logique pour la ventilation
     @type group: C{str}
     @cvar defaults: Configuration de l'application, peut être surchargée par

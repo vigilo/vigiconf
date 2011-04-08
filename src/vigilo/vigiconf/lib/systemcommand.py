@@ -33,36 +33,6 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 
-class SystemCommandError(VigiConfError):
-    """Exceptions involving L{SystemCommand} instances"""
-
-    def __init__(self, command, returncode, message):
-        super(SystemCommandError, self).__init__(message)
-        self.command = command
-        self.returncode = returncode
-        self.message = self.value
-
-    def __str__(self):
-        return str(unicode(self))
-
-    def __unicode__(self):
-        cmd = self.command
-        if isinstance(cmd, list):
-            cmd = " ".join(cmd)
-        return _("Command \"%(cmd)s\" failed with code %(code)s "
-                 "and message: %(msg)s") % {
-                   'cmd': cmd,
-                   'code': self.returncode,
-                   'msg': self.message.decode("utf8", "replace"),
-                 }
-        # TODO: L'encodage UTF-8 est hardcodé ci-dessus, détecter celui du
-        # système
-
-    def __repr__(self):
-        return "<%s: code %d and message %s>" \
-               % (type(self).__name__, self.returncode, self.message)
-
-
 class SystemCommand(object):
     """
     Provide methods for executing commands
@@ -133,6 +103,36 @@ class SystemCommand(object):
         @rtype: C{int}
         """
         return self.process.returncode
+
+
+class SystemCommandError(VigiConfError):
+    """Exceptions involving C{SystemCommand} instances"""
+
+    def __init__(self, command, returncode, message):
+        super(SystemCommandError, self).__init__(message)
+        self.command = command
+        self.returncode = returncode
+        self.message = self.value
+
+    def __str__(self):
+        return str(unicode(self))
+
+    def __unicode__(self):
+        cmd = self.command
+        if isinstance(cmd, list):
+            cmd = " ".join(cmd)
+        return _("Command \"%(cmd)s\" failed with code %(code)s "
+                 "and message: %(msg)s") % {
+                   'cmd': cmd,
+                   'code': self.returncode,
+                   'msg': self.message.decode("utf8", "replace"),
+                 }
+        # TODO: L'encodage UTF-8 est hardcodé ci-dessus, détecter celui du
+        # système
+
+    def __repr__(self):
+        return "<%s: code %d and message %s>" \
+               % (type(self).__name__, self.returncode, self.message)
 
 
 

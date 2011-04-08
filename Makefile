@@ -1,5 +1,4 @@
 NAME := vigiconf
-EPYDOC_PARSE := vigilo\.vigiconf\.tests
 CONFDIR := $(SYSCONFDIR)/vigilo/$(NAME)
 VARDIR := $(LOCALSTATEDIR)/lib/vigilo/$(NAME)
 
