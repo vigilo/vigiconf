@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 """
 Test du chargeur de configuration en base
 """
@@ -12,17 +12,14 @@ import unittest
 import vigilo.vigiconf.conf as conf
 from vigilo.common.conf import settings
 settings.load_module(__name__)
+from vigilo.models.tables import Host
+from vigilo.models.tables import ConfItem
 
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.host import HostLoader
 from vigilo.vigiconf.lib.confclasses.host import Host as ConfHost
 
 from helpers import setup_db, teardown_db, DummyRevMan, setup_tmpdir
-
-from vigilo.models.tables import Host
-from vigilo.models.tables import ConfItem
-
-#pylint: disable-msg=C0111
 
 
 class TestLoader(unittest.TestCase):
@@ -42,9 +39,6 @@ class TestLoader(unittest.TestCase):
         self.hostloader = HostLoader(grouploader, rm)
 
     def tearDown(self):
-        """Call after every test case."""
-        conf.hostfactory.hosts = {}
-        conf.hostsConf = conf.hostfactory.hosts
         teardown_db()
         shutil.rmtree(self.tmpdir)
         settings["vigiconf"]["confdir"] = self.old_conf_dir
@@ -93,7 +87,3 @@ class TestLoader(unittest.TestCase):
         self.assertTrue(ci, "confitem retry_interval must exist")
         self.assertEquals(ci.value, "3", "retry_interval=3")
 
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 
 import unittest
 
@@ -9,7 +10,6 @@ from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.models.session import DBSession
 from vigilo.models.tables import SupItemGroup
 
-# pylint: disable-msg=W0212,C0111
 
 class TestSplitGroup(unittest.TestCase):
     def setUp(self):
@@ -40,3 +40,4 @@ class TestSplitGroup(unittest.TestCase):
         names = [c.name for c in children]
         names.sort()
         self.assertEquals([u'bar', u'foo'], names)
+

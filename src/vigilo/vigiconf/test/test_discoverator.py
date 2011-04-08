@@ -1,21 +1,25 @@
-#!/usr/bin/env python
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0211,R0904
+
 import os, unittest, shutil, socket
 
+from vigilo.common.conf import settings
+
+from vigilo.vigiconf.lib.confclasses.test import TestFactory
 from vigilo.vigiconf.discoverator import Discoverator
 
 from helpers import setup_tmpdir, setup_db, teardown_db, TESTDATADIR
-
-# pylint: disable-msg=W0212,C0111
 
 
 class TestDiscoveratorBasics(unittest.TestCase):
     testmib = None
 
     def setUp(self):
-        """Call before every test case."""
         setup_db()
         self.tmpdir = setup_tmpdir()
-        self.disc = Discoverator(group="Test")
+        testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
+        self.disc = Discoverator(testfactory, group="Test")
+        self.disc.testfactory.load_hclasses_checks()
         if self.testmib:
             walkfile = os.path.join(TESTDATADIR, "discoverator", self.testmib)
             self.disc.scanfile(walkfile)
@@ -23,7 +27,6 @@ class TestDiscoveratorBasics(unittest.TestCase):
         self.testnames = [ t["name"] for t in self.disc.tests ]
 
     def tearDown(self):
-        """Call after every test case."""
         shutil.rmtree(self.tmpdir)
         teardown_db()
 
@@ -55,16 +58,17 @@ class DiscoveratorLinux(TestDiscoveratorBasics):
 
     def test_classes(self):
         """Test the host classes detection on Linux"""
-        assert self.disc.hclasses == set(["all", "ucd", "linux"]), \
-               "Host classes are not properly detected: %s" \
-               % str(self.disc.hclasses)
+        self.assertEqual(self.disc.hclasses, set(["all", "ucd", "linux"]),
+               "Host classes are not properly detected: %s"
+               % str(self.disc.hclasses))
 
     def test_simple_test_detection(self):
         """Test the simple test detection on Linux
         This uses the test's detect_oid() method"""
         for test in [ "Load", "CPU", "TotalProcesses", "Users", "RAM",
                       "UpTime", "Swap", "Partition", "Interface" ]:
-            assert test in self.testnames, "Test %s is not detected" % test
+            self.assertTrue(test in self.testnames,
+                            "Test %s is not detected" % test)
 
     def test_partition_args(self):
         """Test the args of the Partition test detection on Linux"""
@@ -84,9 +88,9 @@ class DiscoveratorLinux(TestDiscoveratorBasics):
                    ]
         args.sort()
         goodargs.sort()
-        assert args == goodargs, \
-            "Arguments are not properly detected:\n%s\n%s" \
-            % (str(args), str(goodargs))
+        self.assertEqual(args, goodargs,
+                         "Arguments are not properly detected:\n%s\n%s"
+                         % (str(args), str(goodargs)))
 
     def test_interface_args(self):
         """Test the args of the Interface test detection on Linux"""
@@ -104,11 +108,7 @@ class DiscoveratorLinux(TestDiscoveratorBasics):
                    ]
         args.sort()
         goodargs.sort()
-        assert args == goodargs, \
-            "Arguments are not properly detected:\n%s\n%s" \
-            % (str(args), str(goodargs))
+        self.assertEqual(args, goodargs,
+                         "Arguments are not properly detected:\n%s\n%s"
+                         % (str(args), str(goodargs)))
 
-
-
-
-# vim:set expandtab tabstop=4 shiftwidth=4:

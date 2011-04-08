@@ -72,6 +72,15 @@ def load_xml_conf(validation=True):
     @returns: None, but sets global variables as described above.
     """
     LOGGER.info(_("Loading XML configuration"))
+    # Initialize global objects and only use those
+    testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
+    hosttemplatefactory = HostTemplateFactory(testfactory)
+    hostfactory = HostFactory(
+                    os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
+                    hosttemplatefactory,
+                    testfactory,
+                  )
+    hostsConf = hostfactory.hosts
     # Parse hosts
     try:
         hostfactory.load(validation=validation)
@@ -89,7 +98,7 @@ apps = set()
 apps_conf = {}
 
 # TODO: en base, plus de python
-hostsGroups     = {}
+hostsGroups = {}
 
 hostsConf = {}
 dependencies = {}
@@ -98,15 +107,8 @@ dns = {}
 mode = "onedir"
 confid = ""
 
-# Initialize global objects and only use those
-testfactory = TestFactory()
-hosttemplatefactory = HostTemplateFactory(testfactory)
-hostfactory = HostFactory(
-                os.path.join(settings["vigiconf"].get("confdir"), "hosts"),
-                hosttemplatefactory,
-                testfactory,
-              )
-hostsConf = hostfactory.hosts
+#hostsConf = hostfactory.hosts
+hostsConf = {}
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

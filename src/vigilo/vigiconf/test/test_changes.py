@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
-Gestion du changement lors du chargement de
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=W0212,C0111,R0904
 
- - Dependency
+"""
+Gestion du changement lors du chargement des fichiers XML
 """
 
 import unittest
@@ -17,21 +16,12 @@ from vigilo.vigiconf.loaders.group import GroupLoader
 from helpers import setup_path, setup_db, teardown_db
 
 
-# pylint: disable-msg=W0212,C0111
-
 class ChangeManagementTest(unittest.TestCase):
 
     def setUp(self):
         setup_db()
         self.old_conf_path = setup_path(subdir="changes")
         self.datadir = settings["vigiconf"]["confdir"]
-    
-        #localhost = df.add_host("localhost")
-        #df.add_highlevelservice("hlservice1")
-        #df.add_lowlevelservice(localhost, "Interface eth0")
-        # Pour les tests
-        #self.testhost1 = df.add_host("test_change_deps_1")
-        #self.testhost2 = df.add_host("test_change_deps_2")
 
     def tearDown(self):
         teardown_db()
@@ -78,3 +68,4 @@ class ChangeManagementTest(unittest.TestCase):
         grouploader.load_dir(self.datadir)
         after = DBSession.query(SupItemGroup).count()
         self.assertEquals(after, before)
+

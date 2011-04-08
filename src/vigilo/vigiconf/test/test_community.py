@@ -1,4 +1,5 @@
 # vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 """
 Test that VigiConf works in Community Edition
 """
@@ -9,6 +10,8 @@ import shutil
 import socket
 
 from vigilo.common.conf import settings
+from vigilo.models.session import DBSession
+from vigilo.models import tables
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.generators import GeneratorManager
@@ -17,24 +20,18 @@ from vigilo.vigiconf.lib.dispatchator.local import DispatchatorLocal
 from vigilo.vigiconf.lib.server.factory import ServerFactory
 from vigilo.vigiconf.lib.server.local import ServerLocal
 from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib.confclasses.test import TestFactory
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib.dispatchator.factory import get_dispatchator_class
 
-from vigilo.models.session import DBSession
-from vigilo.models import tables
-
 from helpers import setup_tmpdir, DummyRevMan
 from helpers import setup_db, teardown_db
-
-#pylint: disable-msg=C0111
 
 
 class CommunityEdition(unittest.TestCase):
     """Test the Community Edition aspects"""
 
     def setUp(self):
-        """Call before every test case."""
-        # Prepare temporary directory
         setup_db()
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
@@ -43,11 +40,8 @@ class CommunityEdition(unittest.TestCase):
         os.makedirs(os.path.join(self.tmpdir, "conf"))
 
     def tearDown(self):
-        """Call after every test case."""
         DBSession.expunge_all()
         teardown_db()
-        conf.hostfactory.hosts = {}
-        conf.hostsConf = conf.hostfactory.hosts
         shutil.rmtree(self.tmpdir)
         settings["vigiconf"]["confdir"] = self.old_conf_dir
 
@@ -67,17 +61,13 @@ class CommunityEdition(unittest.TestCase):
 
     def test_generator_com(self):
         """Test the generation in C.E."""
-        # attention, le fichier dummy.xml doit exister ou l'hôte sera supprimé
-        # juste après avoir été inséré
-        open(os.path.join(self.tmpdir, "conf", "dummy.xml"), "w").close()
         host = Host(conf.hostsConf, "dummy.xml", "testserver1",
                     "192.168.1.1", "Servers")
-        test_list = conf.testfactory.get_test("UpTime", host.classes)
+        testfactory = TestFactory(confdir=os.path.join(self.tmpdir, "conf"))
+        test_list = testfactory.get_test("UpTime", host.classes)
         host.add_tests(test_list)
-        #add_host("testserver1")
+        conf.load_xml_conf()
         nagios = Nagios()
-        #DBSession.add(tables.Application(name=u"nagios"))
-        #DBSession.flush()
         genmanager = GeneratorManager([nagios])
         genmanager.generate(DummyRevMan())
         self.assert_(os.path.exists(os.path.join(self.basedir, "localhost",
@@ -99,8 +89,9 @@ class CommunityEdition(unittest.TestCase):
                 "for localhost")
 
     def test_serverfactory_localname(self):
-        """ServerFactory must return ServerLocal instances for the
-           local hostname"""
+        """
+        ServerFactory must return ServerLocal instances for the local hostname
+        """
         _localname = socket.gethostname()
         _serverfactory = ServerFactory()
         _server = _serverfactory.makeServer(_localname)
@@ -109,8 +100,9 @@ class CommunityEdition(unittest.TestCase):
                 "for the local hostname")
 
     def test_serverfactory_localfqdn(self):
-        """ServerFactory must return ServerLocal instances for the
-           local FQDN"""
+        """
+        ServerFactory must return ServerLocal instances for the local FQDN
+        """
         _localname = socket.getfqdn()
         _serverfactory = ServerFactory()
         _server = _serverfactory.makeServer(_localname)

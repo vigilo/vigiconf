@@ -34,23 +34,6 @@ def setup_path(subdir=None):
                                                    "testdata", subdir)
     return old_path
 
-def reload_conf(hostsdir=None):
-    """We changed the paths, reload the factories"""
-    from vigilo.vigiconf.loaders.group import GroupLoader
-    conf.testfactory.__init__()
-    conf.hosttemplatefactory.__init__(conf.testfactory)
-    conf.hosttemplatefactory.load_templates()
-    if not hostsdir:
-        hostsdir = os.path.join(settings["vigiconf"].get("confdir"), "hosts")
-    conf.hostfactory.__init__(
-            hostsdir,
-            conf.hosttemplatefactory,
-            conf.testfactory,
-      )
-    conf.hostsConf = conf.hostfactory.hosts
-    GroupLoader().load()
-    #conf.loadConf()
-
 def setup_tmpdir():
     """Prepare the temporary directory"""
     tmpdir = tempfile.mkdtemp(prefix="tests-vigiconf-")

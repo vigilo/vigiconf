@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 """
 Tests de génération de configuration pour VigiRRD
 """
@@ -15,8 +15,6 @@ from vigilo.vigiconf.applications.vigirrd import VigiRRD
 
 from helpers import setup_tmpdir
 
-#pylint: disable-msg=C0111
-
 
 class VigiRRDTest(unittest.TestCase):
 
@@ -30,8 +28,6 @@ class VigiRRDTest(unittest.TestCase):
         self.generator = self.vigirrd.generator(self.vigirrd, ventilation)
 
     def tearDown(self):
-        conf.hostfactory.hosts = {}
-        conf.hostsConf = conf.hostfactory.hosts
         shutil.rmtree(self.tmpdir)
 
     def test_graph_order(self):
@@ -67,3 +63,4 @@ class VigiRRDTest(unittest.TestCase):
         ds_in_graph_2 = [ r[0] for r in c.fetchall() ]
         self.assertEqual(ds_in_graph_2,
                          [ "test_ds_%d" % i for i in range(6, -1, -1) ])
+

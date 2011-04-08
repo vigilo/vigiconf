@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 """
 Test de l'objet Server
 """
@@ -14,8 +15,6 @@ from vigilo.vigiconf.lib.server.local import ServerLocal
 from helpers import setup_tmpdir, LoggingCommand
 from helpers import setup_db, teardown_db
 
-#pylint: disable-msg=C0111
-
 
 class ServerFakeCommand(ServerLocal):
     def __init__(self, name):
@@ -24,6 +23,7 @@ class ServerFakeCommand(ServerLocal):
         self.command_result = ""
     def createCommand(self, command):
         return LoggingCommand(command, self.executed, self.command_result)
+
 
 class ServerTest(unittest.TestCase):
 
@@ -66,8 +66,7 @@ class ServerTest(unittest.TestCase):
 
     def test_get_state_text_disabled(self):
         """
-        Si le serveur est désactivé, son état doit contenir le message
-        correspondant
+        Si le serveur est désactivé, son état doit contenir le message correspondant
         """
         self.server.is_enabled = lambda: False
         state = self.server.get_state_text(0)

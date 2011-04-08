@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 """
 Tests sur le gestionnaire de dépôt SVN (RevisionManager)
 """
@@ -13,8 +14,6 @@ from vigilo.common.conf import settings
 from vigilo.vigiconf.lib.dispatchator.revisionmanager import RevisionManager
 
 from helpers import setup_tmpdir, LoggingCommandFactory
-
-#pylint: disable-msg=C0111
 
 
 class RevisionManagerTest(unittest.TestCase):
@@ -231,6 +230,3 @@ class RevisionManagerTest(unittest.TestCase):
                     'modified': []}
         self.assertEqual(status, expected)
 
-
-
-# vim:set expandtab tabstop=4 shiftwidth=4:

@@ -1,5 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
+
 import unittest
 
 import os
@@ -7,8 +8,6 @@ import subprocess
 import glob
 
 from helpers import TESTDATADIR
-
-#pylint: disable-msg=C0111
 
 
 class XSDTest(unittest.TestCase):

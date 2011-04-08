@@ -48,6 +48,7 @@ class Test(object):
     """
 
     oids = []
+    __test__ = False # pour Nose
 
     def __init__(self):
         self.weight = 1
@@ -138,13 +139,14 @@ class TestFactory(object):
 
     tests = {}
     hclasschecks = {}
+    __test__ = False # pour Nose
 
-    def __init__(self):
-        self.path = self._list_test_paths()
+    def __init__(self, confdir):
+        self.path = self._list_test_paths(confdir)
         if not self.tests:
             self.load_tests()
 
-    def _list_test_paths(self):
+    def _list_test_paths(self, confdir):
         paths = []
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.testlib"):
@@ -159,7 +161,7 @@ class TestFactory(object):
                                })
                 continue
             paths.append(path)
-        paths.append(os.path.join(settings["vigiconf"].get("confdir"), "tests"))
+        paths.append(os.path.join(confdir, "tests"))
         return paths
 
     def load_tests(self):

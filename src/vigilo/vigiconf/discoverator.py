@@ -53,7 +53,7 @@ class Discoverator(object):
     snmpcommand = "snmpwalk -OnQe -c %(community)s -v %(version)s" \
                  +" \"%(host)s\" .1"
 
-    def __init__(self, group=None):
+    def __init__(self, testfactory, group=None):
         self.group = group
         self.oids = {}
         self.hclasses = set()
@@ -61,7 +61,8 @@ class Discoverator(object):
         self.hostname = None
         self.ipaddr = None
         self.attributes = {}
-        conf.testfactory.load_hclasses_checks()
+        self.testfactory = testfactory
+        self.testfactory.load_hclasses_checks()
 
     def scanfile(self, filename):
         """
@@ -151,7 +152,7 @@ class Discoverator(object):
 
     def find_tests(self):
         """Find the applicable tests using the test's detect() function"""
-        for test in conf.testfactory.get_tests():
+        for test in self.testfactory.get_tests():
             # Was it already detected ?
             if test.__name__ in [ t["name"] for t in self.tests ]:
                 continue
@@ -178,16 +179,16 @@ class Discoverator(object):
     def find_hclasses_from_tests(self):
         """Get the host classes from the detected tests"""
         for testdict in self.tests:
-            test_hclass = conf.testfactory.get_hclass(testdict["class"])
+            test_hclass = self.testfactory.get_hclass(testdict["class"])
             if test_hclass:
                 self.hclasses.add(test_hclass)
 
     def find_hclasses_sysdescr(self):
         """Get the host classes from the sysDescr matching"""
-        for hclass in conf.testfactory.get_hclasses():
-            if not conf.testfactory.hclasschecks.has_key(hclass):
+        for hclass in self.testfactory.get_hclasses():
+            if not self.testfactory.hclasschecks.has_key(hclass):
                 continue
-            sysdescrre = conf.testfactory.hclasschecks[hclass]["sysdescr"]
+            sysdescrre = self.testfactory.hclasschecks[hclass]["sysdescr"]
             if sysdescrre is None:
                 continue
             if re.match(sysdescrre, self.oids[".1.3.6.1.2.1.1.1.0"]):
@@ -195,10 +196,10 @@ class Discoverator(object):
 
     def find_hclasses_oid(self):
         """Get the host classes by testing the OID presence"""
-        for hclass in conf.testfactory.get_hclasses():
-            if not conf.testfactory.hclasschecks.has_key(hclass):
+        for hclass in self.testfactory.get_hclasses():
+            if not self.testfactory.hclasschecks.has_key(hclass):
                 continue
-            oid = conf.testfactory.hclasschecks[hclass]["oid"]
+            oid = self.testfactory.hclasschecks[hclass]["oid"]
             if oid is None:
                 continue
             if oid in self.oids.keys():
@@ -206,10 +207,10 @@ class Discoverator(object):
 
     def find_hclasses_function(self):
         """Get the host classes from a hardcoded mapping"""
-        for hclass in conf.testfactory.get_hclasses():
-            if not conf.testfactory.hclasschecks.has_key(hclass):
+        for hclass in self.testfactory.get_hclasses():
+            if not self.testfactory.hclasschecks.has_key(hclass):
                 continue
-            detect_snmp = conf.testfactory.hclasschecks[hclass]["detect_snmp"]
+            detect_snmp = self.testfactory.hclasschecks[hclass]["detect_snmp"]
             if detect_snmp is None:
                 continue
             result = eval(detect_snmp)(self.oids)

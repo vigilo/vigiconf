@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 """
 Test that the dispatchator works properly
 """
@@ -11,19 +12,17 @@ from vigilo.common.conf import settings
 
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib.confclasses.test import TestFactory
 from vigilo.vigiconf.lib.dispatchator import make_dispatchator
 
 from helpers import setup_tmpdir, DummyCommand
 from helpers import setup_deploy_dir, teardown_deploy_dir
 from helpers import setup_db, teardown_db
 
-#pylint: disable-msg=C0111
-
 
 class DispatchatorTest(unittest.TestCase):
 
     def setUp(self):
-        """Call before every test case."""
         setup_db()
         self.tmpdir = setup_tmpdir()
         self.old_conf_path = settings["vigiconf"]["confdir"]
@@ -35,7 +34,8 @@ class DispatchatorTest(unittest.TestCase):
         setup_deploy_dir()
         self.host = Host(conf.hostsConf, "dummy", u"testserver1",
                          u"192.168.1.1", u"Servers")
-        test_list = conf.testfactory.get_test("UpTime", self.host.classes)
+        testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
+        test_list = testfactory.get_test("UpTime", self.host.classes)
         self.host.add_tests(test_list)
         self.dispatchator = make_dispatchator()
         # Disable qualification, validation, stop and start scripts
@@ -47,9 +47,6 @@ class DispatchatorTest(unittest.TestCase):
         self.dispatchator.force = True
 
     def tearDown(self):
-        """Call after every test case."""
-        conf.hostfactory.hosts = {}
-        conf.hostsConf = conf.hostfactory.hosts
         teardown_db()
         teardown_deploy_dir()
         settings["vigiconf"]["confdir"] = self.old_conf_path
@@ -92,5 +89,3 @@ class DispatchatorTest(unittest.TestCase):
         print state
         self.assertEqual(len(state), 2)
 
-
-# vim:set expandtab tabstop=4 shiftwidth=4:

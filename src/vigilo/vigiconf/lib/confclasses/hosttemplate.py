@@ -450,12 +450,15 @@ class HostTemplateFactory(object):
          2. Start from scratch and load the parents in order
          3. Apply the template-specific data
         """
+        if self.templates.keys() == ["default", ]:
+            return # pas de tri nécessaire
         # Sort the dependencies
         testdeps = []
         for tplname, tpl in self.templates.iteritems():
             if not tpl.has_key("parent") or not tpl["parent"]:
                 # the "default" template is removed from self.templates,
                 # all hosts will automatically add it (in Host.__init__())
+                # unless it's the only template
                 continue
             if isinstance(tpl["parent"], list):
                 for parent in tpl["parent"]:

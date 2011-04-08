@@ -1,9 +1,13 @@
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
+
 from test_xsdutil import XSDTest
 
 class HostXSD(XSDTest):
-    """ Test of the host.xsd file.
-
-    The host.xsd file is used to validate hosts xml files"""
+    """
+    Test du fichier host.xsd.
+    The host.xsd file is used to validate hosts xml files
+    """
 
     xsd_file = "host.xsd"
 
@@ -24,3 +28,4 @@ class HostXSD(XSDTest):
         "hosts/ko": [
         ],
     }
+

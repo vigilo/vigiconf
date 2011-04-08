@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 """
 Test de l'application connector-metro
 """
@@ -7,15 +8,11 @@ import os
 import shutil
 import unittest
 
-#from vigilo.common.conf import settings
-
 from vigilo.vigiconf.applications.connector_metro import ConnectorMetro
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
 from helpers import setup_tmpdir
-
-#pylint: disable-msg=C0111
 
 
 class ConnectorMetroTest(unittest.TestCase):

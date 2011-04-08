@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 """
 Tests de génération des cartes auto (refactoring)
 """
@@ -12,13 +12,10 @@ from vigilo.models import tables
 from vigilo.models.demo import functions as df
 from vigilo.models.session import DBSession
 
-#pylint: disable-msg=C0111
-
 
 class AutoMapTest(unittest.TestCase):
 
     def setUp(self):
-        """Call before every test case."""
         setup_db()
         self.mapgroup_root = tables.MapGroup(name=u'Root', parent=None)
         from vigilo.vigiconf.applications.vigimap import VigiMap
@@ -26,7 +23,6 @@ class AutoMapTest(unittest.TestCase):
         self.generator = self.vigimap.generator(self.vigimap, None)
 
     def tearDown(self):
-        """Call after every test case."""
         teardown_db()
 
     def test_gen_host(self):
@@ -147,3 +143,4 @@ class AutoMapTest(unittest.TestCase):
         map_g1_new = tables.Map.by_group_and_title(mapgroup_base,
                                                    u"Group1 renamed")
         self.assertNotEquals(None, map_g1_new)
+

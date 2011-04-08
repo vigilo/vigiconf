@@ -112,8 +112,11 @@ def info(args):
     print "\n".join([s.encode(encoding) for s in state])
 
 def discover(args):
-    from .discoverator import Discoverator, indent
-    discoverator = Discoverator(args.group)
+    from vigilo.vigiconf.lib.confclasses.test import TestFactory
+    from vigilo.vigiconf.discoverator import Discoverator, indent
+    testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
+    discoverator = Discoverator(testfactory, args.group)
+    discoverator.testfactory.load_hclasses_checks()
     for target in args.target:
         if os.path.exists(target):
             discoverator.scanfile(target)

@@ -1,9 +1,13 @@
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
+
 from test_xsdutil import XSDTest
 
 class HostGroupXSD(XSDTest):
-    """ Test of the hostgroup.xsd file.
-
-    The group.xsd file is used to validate host/service groups xml files"""
+    """
+    Test du fichier hostgroup.xsd.
+    The group.xsd file is used to validate host/service groups xml files
+    """
 
     xsd_file = "group.xsd"
 
@@ -20,3 +24,4 @@ class HostGroupXSD(XSDTest):
                         "hostgroups1.xml",
                                       ]
                    }
+

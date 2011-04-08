@@ -1,32 +1,27 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# vim: set fileencoding=utf-8 sw=4 ts=4 et :
+# pylint: disable-msg=C0111,W0212,R0904
 
 import os
 import unittest
-
-from vigilo.vigiconf.loaders.group import GroupLoader
-
-from helpers import setup_db, teardown_db, TESTDATADIR
 
 from vigilo.models.tables import SupItemGroup, SupItemGroup
 from vigilo.models.tables.grouphierarchy import GroupHierarchy
 from vigilo.models.session import DBSession
 
-#pylint: disable-msg=C0111
+from vigilo.vigiconf.loaders.group import GroupLoader
+
+from helpers import setup_db, teardown_db, TESTDATADIR
 
 
 class XMLLoaderTest(unittest.TestCase):
 
     def setUp(self):
-        """Call before every test case."""
         setup_db()
-        #reload_conf()
         DBSession.query(SupItemGroup).delete()
         DBSession.query(GroupHierarchy).delete()
         DBSession.flush()
 
     def tearDown(self):
-        """Call after every test case."""
         teardown_db()
 
 
