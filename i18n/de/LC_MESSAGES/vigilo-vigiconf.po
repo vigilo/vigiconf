@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2011-04-07 12:52+0200\n"
+"PO-Revision-Date: 2011-04-08 10:41+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -404,36 +404,7 @@ msgstr ""
 msgid "Qualification successful"
 msgstr "Gültigkeitsprüfung erfolgreich"
 
-#: src/vigilo/vigiconf/lib/remotecommand.py:116
-#, fuzzy
-msgid "Server name set to None"
-msgstr "Servername auf Keiner gesetzt."
-
-#: src/vigilo/vigiconf/lib/remotecommand.py:119
-#, fuzzy
-msgid "Invalid server name (empty)"
-msgstr "Ungültiger Gruppenname (%s)"
-
-#: src/vigilo/vigiconf/lib/remotecommand.py:179
-msgid "Unknown command type."
-msgstr "Unbekannter Befehlstyp."
-
-#: src/vigilo/vigiconf/lib/remotecommand.py:196
-#, python-format
-msgid "The source file does not exist: %s"
-msgstr "Die Quelldatei ist nicht vorhanden: %s"
-
-#: src/vigilo/vigiconf/lib/remotecommand.py:214
-#: src/vigilo/vigiconf/lib/remotecommand.py:249
-msgid "Cannot reach server."
-msgstr "Server kann nicht erreicht werden."
-
-#: src/vigilo/vigiconf/lib/remotecommand.py:218
-#: src/vigilo/vigiconf/lib/remotecommand.py:251
-msgid "Cannot find file."
-msgstr "Datei kann nicht gefunden werden."
-
-#: src/vigilo/vigiconf/lib/systemcommand.py:52
+#: src/vigilo/vigiconf/lib/systemcommand.py:124
 #, python-format
 msgid "Command \"%(cmd)s\" failed with code %(code)s and message: %(msg)s"
 msgstr "Befehl %(cmd)s fehlgeschlagen mit Code %(code)s und Meldung: %(msg)s"
@@ -548,7 +519,7 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:780
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:283
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:92
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:97
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr ""
@@ -557,8 +528,8 @@ msgstr ""
 #: src/vigilo/vigiconf/lib/confclasses/host.py:806
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:289
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:309
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:98
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:118
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:103
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:123
 #, python-format
 msgid ""
 "Error reading %(file)s, make sure the permissions are set "
@@ -567,14 +538,14 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:803
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:306
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:115
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:120
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "XML Syntaxfehler in \"%(file)s\": %(error)s"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:814
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:317
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:126
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr ""
@@ -617,7 +588,7 @@ msgstr ""
 msgid "Invalid weight value for template %(tpl)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Vorlage %(tpl)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:149
+#: src/vigilo/vigiconf/lib/confclasses/test.py:154
 #, python-format
 msgid "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 msgstr ""
@@ -802,22 +773,22 @@ msgstr ""
 "Schlüsselattribut muss definiert oder die get_key() Methode muss "
 "neudefiniert werden"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:87
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:92
 #, python-format
 msgid "XSD file does not exist: %s"
 msgstr "XSD Datei ist nicht vorhanden: %s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:177
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:182
 #, python-format
 msgid "End tag mismatch error: %(start)s/%(end)s"
 msgstr "Fehler durch Abweichung des Ende-Tags: %(start)s/%(end)s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:184
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:189
 #, python-format
 msgid "Syntax error in \"%(path)s\": %(error)s"
 msgstr "Syntaxfehler in \"%(path)s\": %(error)s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:355
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:360
 #, python-format
 msgid "Can't find an item matching %s"
 msgstr "Es kann kein zu %s passendes Element gefunden werden"
@@ -911,7 +882,7 @@ msgstr ""
 msgid "Switch directories was not successful on each server."
 msgstr "Wechseln der Verzeichnisse war nicht auf jedem Server erfolgreich."
 
-#: src/vigilo/vigiconf/loaders/group.py:133
+#: src/vigilo/vigiconf/loaders/group.py:122
 #, fuzzy
 msgid "Loading groups"
 msgstr "Hosts werden geladen"
