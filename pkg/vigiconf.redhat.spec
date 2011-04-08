@@ -35,6 +35,7 @@ Requires:   vigilo-models
 Requires:   vigilo-common
 Requires:   net-snmp-utils
 Requires:   sqlite >= 3
+Requires:   python26-initgroups
 
 Requires(pre): shadow-utils
 Requires(post): openssh

@@ -27,7 +27,7 @@ from __future__ import absolute_import
 import fcntl
 import sys
 import os
-import pwd, grp
+import pwd
 import atexit
 
 import argparse
@@ -277,33 +277,35 @@ def parse_args():
     return parser.parse_args()
 
 
-def change_user():
+def change_user(username="vigiconf", os=os, pwd=pwd):
+    # pylint: disable-msg=W0621
     uid = os.getuid()
     # Vigiconf est lancé en tant que "root",
     # on bascule sur un compte utilisateur
     # plus approprié (vigiconf).
     if not uid:
         LOGGER.warning(_("VigiConf was launched as user 'root'. "
-                        "Switching to user 'vigiconf' instead."))
+                        "Switching to user '%s' instead."), username)
         try:
-            entry = pwd.getpwnam("vigiconf")
+            entry = pwd.getpwnam(username)
         except KeyError:
-            LOGGER.error(_("Unable to switch to user 'vigiconf'. Aborting."))
+            LOGGER.error(_("Unable to switch to user '%s'. Aborting."),
+                         username)
             sys.exit(2)
-
-        # Permet de charger les groupes supplémentaires
-        # associés à l'utilisateur "vigiconf".
-        groups = grp.getgrall()
-        suppl_groups = []
-        for grp_name, grp_pwd, grp_gid, grp_suppl in groups:
-            if 'vigiconf' in grp_suppl or grp_name == 'vigiconf':
-                suppl_groups.append(grp_gid)
 
         # On remplace les UID/GID réels et effectifs
         # par ceux de l'utilisateur 'vigiconf', ainsi que les variables
         # d'environnements nécessaires.
         os.setregid(entry.pw_gid, entry.pw_gid)
-        os.setgroups(suppl_groups)
+
+        # Permet de charger les groupes supplémentaires
+        # associés à l'utilisateur "vigiconf".
+        if hasattr(os, "initgroups"):
+            os.initgroups(username, entry.pw_gid) #pylint: disable-msg=E1103
+        else:
+            import initgroups
+            initgroups.initgroups(username, entry.pw_gid)
+
         os.setreuid(entry.pw_uid, entry.pw_uid)
         os.environ["LOGNAME"] = entry.pw_name
         os.environ["USER"] = entry.pw_name
@@ -311,9 +313,9 @@ def change_user():
         os.environ["HOME"] = entry.pw_dir
         os.environ["SHELL"] = entry.pw_shell
 
-    if pwd.getpwuid(os.getuid()).pw_name != 'vigiconf':
-        LOGGER.error(_("VigiConf was not launched as user 'vigiconf'. "
-                       "Aborting."))
+    if pwd.getpwuid(os.getuid()).pw_name != username:
+        LOGGER.error(_("VigiConf was not launched as user '%s'. "
+                       "Aborting."), username)
         sys.exit(2)
 
 def delete_lock(f):

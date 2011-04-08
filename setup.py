@@ -18,11 +18,14 @@ install_requires=[
     ]
 if tuple(python_version_tuple()) < ('2', '6'):
     install_requires.append("multiprocessing")
+if tuple(python_version_tuple()) < ('2', '7'):
+    install_requires.append("initgroups")
 
 tests_require = [
     'coverage',
     'nose',
     'pylint',
+    'mock',
 ]
 
 def install_i18n(i18ndir, destdir):

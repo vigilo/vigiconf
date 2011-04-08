@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # vim: set fileencoding=utf-8 sw=4 ts=4 et :
 """
 Test that VigiConf works in Community Edition
@@ -120,5 +119,3 @@ class CommunityEdition(unittest.TestCase):
                 "for the local FQDN")
 
 
-
-# vim:set expandtab tabstop=4 shiftwidth=4:

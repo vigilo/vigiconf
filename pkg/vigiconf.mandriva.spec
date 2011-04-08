@@ -27,6 +27,7 @@ Requires:   vigilo-common
 Requires:   net-snmp-utils
 Requires:   sqlite3-tools
 Requires:   python-multiprocessing
+Requires:   python-initgroups
 ######### Dependance from python dependance tree ########
 Requires:   python-argparse
 Requires:   python-babel
