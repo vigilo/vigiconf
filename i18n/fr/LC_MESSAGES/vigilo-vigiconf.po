@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2011-04-08 10:41+0200\n"
+"PO-Revision-Date: 2011-04-08 13:08+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -213,23 +213,24 @@ msgstr "Nouveau statut"
 msgid "Server name(s) to enable/disable"
 msgstr "Nom du/des serveurs à activer/désactiver."
 
-#: src/vigilo/vigiconf/commandline.py:286
-msgid ""
-"VigiConf was launched as user 'root'. Switching to user 'vigiconf' "
-"instead."
+#: src/vigilo/vigiconf/commandline.py:287
+#, python-format
+msgid "VigiConf was launched as user 'root'. Switching to user '%s' instead."
 msgstr ""
-"VigiConf a été lancé depuis le compte 'root'. Utilisation du compte "
-"'vigiconf' à la place."
+"VigiConf a été lancé depuis le compte 'root'. Utilisation du compte '%s' "
+"à la place."
 
-#: src/vigilo/vigiconf/commandline.py:291
-msgid "Unable to switch to user 'vigiconf'. Aborting."
-msgstr "Impossible de basculer vers le compte 'vigiconf'. Abandon."
+#: src/vigilo/vigiconf/commandline.py:292
+#, python-format
+msgid "Unable to switch to user '%s'. Aborting."
+msgstr "Impossible de basculer vers le compte '%s'. Abandon."
 
-#: src/vigilo/vigiconf/commandline.py:315
-msgid "VigiConf was not launched as user 'vigiconf'. Aborting."
-msgstr "VigiConf n'a pas été lancé en utilisant le compte 'vigiconf'. Abandon."
+#: src/vigilo/vigiconf/commandline.py:317
+#, python-format
+msgid "VigiConf was not launched as user '%s'. Aborting."
+msgstr "VigiConf n'a pas été lancé en utilisant le compte '%s'. Abandon."
 
-#: src/vigilo/vigiconf/commandline.py:348
+#: src/vigilo/vigiconf/commandline.py:350
 #, python-format
 msgid ""
 "Can't obtain lock on lockfile (%(lockfile)s). VigiConf already running ? "
@@ -238,13 +239,13 @@ msgstr ""
 "Impossible d'obtenir un verrou sur le fichier %(lockfile)s. VigiConf est-"
 "il déjà lancé ? Raison : %(error)s"
 
-#: src/vigilo/vigiconf/commandline.py:361
 #: src/vigilo/vigiconf/commandline.py:363
+#: src/vigilo/vigiconf/commandline.py:365
 #, python-format
 msgid "VigiConf error: %s"
 msgstr "Erreur dans VigiConf : %s"
 
-#: src/vigilo/vigiconf/commandline.py:367
+#: src/vigilo/vigiconf/commandline.py:369
 msgid "VigiConf is done."
 msgstr "VigiConf se termine"
 

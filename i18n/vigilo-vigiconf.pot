@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2011-04-08 10:41+0200\n"
+"POT-Creation-Date: 2011-04-08 13:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -201,31 +201,34 @@ msgstr ""
 msgid "Server name(s) to enable/disable"
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:286
-msgid "VigiConf was launched as user 'root'. Switching to user 'vigiconf' instead."
+#: src/vigilo/vigiconf/commandline.py:287
+#, python-format
+msgid "VigiConf was launched as user 'root'. Switching to user '%s' instead."
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:291
-msgid "Unable to switch to user 'vigiconf'. Aborting."
+#: src/vigilo/vigiconf/commandline.py:292
+#, python-format
+msgid "Unable to switch to user '%s'. Aborting."
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:315
-msgid "VigiConf was not launched as user 'vigiconf'. Aborting."
+#: src/vigilo/vigiconf/commandline.py:317
+#, python-format
+msgid "VigiConf was not launched as user '%s'. Aborting."
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:348
+#: src/vigilo/vigiconf/commandline.py:350
 #, python-format
 msgid ""
 "Can't obtain lock on lockfile (%(lockfile)s). VigiConf already running ? "
 "REASON : %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:361 src/vigilo/vigiconf/commandline.py:363
+#: src/vigilo/vigiconf/commandline.py:363 src/vigilo/vigiconf/commandline.py:365
 #, python-format
 msgid "VigiConf error: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:367
+#: src/vigilo/vigiconf/commandline.py:369
 msgid "VigiConf is done."
 msgstr ""
 
