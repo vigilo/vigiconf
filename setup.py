@@ -82,11 +82,10 @@ setup(name='vigilo-vigiconf',
         author='Vigilo Team',
         author_email='contact@projet-vigilo.org',
         url='http://www.projet-vigilo.org/',
-        description='vigilo configuration component',
         license='http://www.gnu.org/licenses/gpl-2.0.html',
-        long_description='The Vigilo configuration system generates\n'
-        +'configuration for every other component in Vigilo, distributes\n'
-        +'it and restarts the services.\n',
+        description="Configuration manager for the supervision system",
+        long_description="This program generates and pushes the "
+                         "configuration for the applications used in Vigilo.",
         install_requires=install_requires,
         namespace_packages = [
             'vigilo',

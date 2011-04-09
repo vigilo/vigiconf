@@ -1,14 +1,11 @@
-%define module  vigiconf
-%define name    vigilo-%{module}
-%define version 2.0.0
-%define release 1%{?svn}%{?dist}
+%define module  @SHORT_NAME@
 
-Name:       %{name}
-Summary:    Configuration manager for the supervision system
-Version:    %{version}
-Release:    %{release}
+Name:       vigilo-%{module}
+Summary:    @SUMMARY@
+Version:    @VERSION@
+Release:    1%{?svn}%{?dist}
 Source0:    %{name}-%{version}.tar.gz
-URL:        http://www.projet-vigilo.org
+URL:        @URL@
 Group:      System/Servers
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
 License:    GPLv2
@@ -16,6 +13,7 @@ Buildarch:  noarch
 
 Requires:   python >= 2.5
 Requires:   python-setuptools
+Requires:   python-lxml
 Requires:   perl
 Requires:   subversion
 Requires:   openssh-clients
@@ -47,16 +45,11 @@ Requires:   python-zope.sqlalchemy
 Requires:   python-lxml
 #Buildrequires: graphviz # Documentation generation
 
-# Renamed from vigilo-confmgr
-Obsoletes:  vigilo-confmgr < 1.36-2
-Provides:   vigilo-confmgr = %{version}-%{release}
-
 Requires(pre): rpm-helper
 
 
 %description
-This program generates and pushes the configuration for the
-applications used in the supervision system.
+@DESCRIPTION@
 This application is part of the Vigilo Project <http://vigilo-project.org>
 
 %prep
