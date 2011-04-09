@@ -458,7 +458,6 @@ class HostTemplateFactory(object):
             if not tpl.has_key("parent") or not tpl["parent"]:
                 # the "default" template is removed from self.templates,
                 # all hosts will automatically add it (in Host.__init__())
-                # unless it's the only template
                 continue
             if isinstance(tpl["parent"], list):
                 for parent in tpl["parent"]:
@@ -550,6 +549,9 @@ class HostTemplateFactory(object):
             for testdict in tpl["tests"]:
                 test_list = self.testfactory.get_test(testdict["name"],
                                                       host.classes)
+                if not test_list:
+                    raise ParsingError(_("Invalid test name: %s")
+                                       % testdict["name"])
                 test_args = {}
                 if testdict.has_key("args"):
                     test_args = testdict["args"]

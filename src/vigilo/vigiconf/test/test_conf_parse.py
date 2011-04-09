@@ -260,6 +260,18 @@ class ParseHost(unittest.TestCase):
         filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
         self.assertRaises(ParsingError, self.hostfactory._loadhosts, filepath)
 
+    def test_test_nonexistant(self):
+        """
+        Une exception doit être levée si on cherche à ajouter un test inexistant.
+        """
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1">
+        <group>/Servers</group>
+        <test name="NonExistant"/></host>""")
+        self.host.close()
+        filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
+        self.assertRaises(ParsingError, self.hostfactory._loadhosts, filepath)
+
     def test_ventilation_explicit_server(self):
         """Ventilation en utilisant un groupe explicitement nommé."""
         GroupLoader().load()

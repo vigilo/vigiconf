@@ -13,7 +13,7 @@
     </test>
     <test name="CPU"/>
     <test name="DiskIO"/>
-    <test name="Processes"/>
+    <test name="TotalProcesses"/>
     <test name="Swap"/>
     <test name="Ping"/>
     <test name="RAM"/>

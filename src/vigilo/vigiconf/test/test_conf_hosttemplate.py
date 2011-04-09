@@ -6,6 +6,7 @@ import unittest
 from vigilo.common.conf import settings
 
 import vigilo.vigiconf.conf as conf
+from vigilo.vigiconf.lib.exceptions import ParsingError
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplateFactory
@@ -209,5 +210,13 @@ class HostTemplates(unittest.TestCase):
         nagiosdirs = testserver1.get('nagiosSrvDirs')
         self.assertEquals(nagiosdirs['Interface eth0']['retry_interval'], "6",
                           "retry_interval=6")
+
+    def test_nonexistant_test(self):
+        """
+        Une exception doit être levée si on cherche à ajouter un test inexistant.
+        """
+        self.tpl.add_test("NonExistant")
+        self.assertRaises(ParsingError, self.hosttemplatefactory.apply,
+                          self.host, "testtpl1")
 
 
