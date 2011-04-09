@@ -36,6 +36,7 @@ class XSDTest(unittest.TestCase):
     def _run_command(self, filepath, expect):
         xsd_path = os.path.join(self._xsd_basedir, self.xsd_file)
         cmd = self._cmd_silent % (xsd_path, filepath)
+        #cmd = self._cmd_verb % (xsd_path, filepath)
         r = subprocess.call(cmd, shell="True")
         if expect == "ko":
             self.assertNotEquals(0, r, "file %s is invalid" % filepath)
