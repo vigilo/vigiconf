@@ -39,26 +39,15 @@ This application is part of the Vigilo Project <http://vigilo-project.org>
 %setup -q
 
 %build
-make \
-    PREFIX=%{_prefix} \
-    SYSCONFDIR=%{_sysconfdir} \
-    LOCALSTATEDIR=%{_localstatedir} \
-    PYTHON=%{__python}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install \
+make install_pkg \
     DESTDIR=$RPM_BUILD_ROOT \
     PREFIX=%{_prefix} \
     SYSCONFDIR=%{_sysconfdir} \
     LOCALSTATEDIR=%{_localstatedir} \
     PYTHON=%{__python}
-
-# Listed explicitely in %%files as %%config:
-grep -v '^%{_sysconfdir}' INSTALLED_FILES \
-    | grep -v '^%{_localstatedir}/lib/vigilo/%{module}' \
-    > INSTALLED_FILES.filtered
-mv -f INSTALLED_FILES.filtered INSTALLED_FILES
 
 %find_lang %{name}
 
