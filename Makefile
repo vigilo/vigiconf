@@ -1,12 +1,12 @@
 NAME := vigiconf
-CONFDIR := $(SYSCONFDIR)/vigilo/$(NAME)
-VARDIR := $(LOCALSTATEDIR)/lib/vigilo/$(NAME)
 
 INFILES = pkg/ssh_config pkg/$(PKGNAME).cron settings.ini
 
 all: build
 
 include buildenv/Makefile.common
+CONFDIR := $(SYSCONFDIR)/vigilo/$(NAME)
+VARDIR := $(LOCALSTATEDIR)/lib/vigilo/$(NAME)
 
 build: $(INFILES)
 
@@ -30,8 +30,8 @@ install_python_pkg: settings.ini $(PYTHON)
 
 install_users:
 	@echo "Creating the $(NAME) user..."
-	-groupadd $(NAME)
-	-useradd -s /bin/bash -M -d $(VARDIR) -g $(NAME) -c 'Vigilo VigiConf user' $(NAME)
+	-/usr/sbin/groupadd $(NAME)
+	-/usr/sbin/useradd -s /bin/bash -M -d $(VARDIR) -g $(NAME) -c 'Vigilo VigiConf user' $(NAME)
 	if [ ! -f $(DESTIDR)$(CONFDIR)/ssh/vigiconf.key ]; then \
 	    ssh-keygen -t rsa -f $(DESTIDR)$(CONFDIR)/ssh/vigiconf.key -N "" ;\
 	fi
