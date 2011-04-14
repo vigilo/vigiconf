@@ -833,6 +833,7 @@ class HostFactory(object):
         directives = {}
         tests = []
         weight = None
+        templates = []
 
         if sourcexml is not None:
             iterator = etree.iterwalk
@@ -848,6 +849,7 @@ class HostFactory(object):
                     tests = []
                     tags = []
                     weight = None
+                    templates = []
 
                     name = get_attrib(elem, 'name')
 
@@ -887,7 +889,7 @@ class HostFactory(object):
 
             else: # Événement de type "end"
                 if elem.tag == "template":
-                    self.hosttemplatefactory.apply(cur_host, get_text(elem))
+                    templates.append(get_text(elem))
 
                 elif elem.tag == "class":
                     cur_host.classes.append(get_text(elem))
@@ -970,6 +972,9 @@ class HostFactory(object):
                     process_nagios = False
 
                 elif elem.tag == "host":
+                    for template in templates:
+                        self.hosttemplatefactory.apply(cur_host, template)
+
                     if not len(cur_host.get_attribute('otherGroups')):
                         raise ParsingError(_('You must associate host "%s" '
                             'with at least one group.') % cur_host.name)
@@ -981,10 +986,11 @@ class HostFactory(object):
                         test_list = self.testfactory.get_test(test_params[0],
                                           cur_host.classes)
                         if not test_list:
-                            raise ParsingError(_("Invalid test name in host "
-                                                 "%(hostname)s: %(testname)s")
-                                               % {"hostname": cur_host.name,
-                                                  "testname": test_params[0]})
+                            raise ParsingError(_("Can't add test %(testname)s "
+                                    "to host %(hostname)s. Maybe a missing "
+                                    "host class ?")
+                                    % {"hostname": cur_host.name,
+                                       "testname": test_params[0]})
                         cur_host.add_tests(test_list, *test_params[1:])
 
                     for (dname, dvalue) in directives.iteritems():

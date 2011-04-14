@@ -383,6 +383,27 @@ class ParseHost(unittest.TestCase):
         filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
         self.assertRaises(ParsingError, self.hostfactory._loadhosts, filepath)
 
+    def test_class_after_template(self):
+        """Les classes doivent pouvoir être déclarées après les templates"""
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <template>linux</template>
+            <class>linux</class>
+        </host>""")
+        self.host.close()
+        htpl = HostTemplate("linux")
+        htpl.add_group("Linux servers")
+        htpl.add_test("RAID")
+        self.hosttemplatefactory.register(htpl)
+        try:
+            self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                        "host.xml"))
+        except ParsingError, e:
+            print e
+            self.fail("L'ordre des balises class et template est important")
+        self.assertTrue("RAID" in self.hostsConf["testserver1"]["services"],
+                        "L'ordre des balises class et template est important")
+
 
 class ParseHostTemplate(unittest.TestCase):
 

@@ -550,10 +550,12 @@ class HostTemplateFactory(object):
                 test_list = self.testfactory.get_test(testdict["name"],
                                                       host.classes)
                 if not test_list:
-                    raise ParsingError(_("Invalid test name in template "
-                                         "%(tplname)s: %(testname)s")
-                                       % {"tplname": tplname,
-                                          "testname": testdict["name"]})
+                    raise ParsingError(_("Can't add test %(testname)s to host "
+                            "%(hostname)s (added by template %(tplname)s). "
+                            "Maybe a missing host class ?")
+                            % {"tplname": tplname,
+                               "hostname": host.name,
+                               "testname": testdict["name"]})
                 test_args = {}
                 if testdict.has_key("args"):
                     test_args = testdict["args"]
