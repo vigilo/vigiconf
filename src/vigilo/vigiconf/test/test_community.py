@@ -66,7 +66,6 @@ class CommunityEdition(unittest.TestCase):
         testfactory = TestFactory(confdir=os.path.join(self.tmpdir, "conf"))
         test_list = testfactory.get_test("UpTime", host.classes)
         host.add_tests(test_list)
-        conf.load_xml_conf()
         nagios = Nagios()
         genmanager = GeneratorManager([nagios])
         genmanager.generate(DummyRevMan())

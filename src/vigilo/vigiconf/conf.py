@@ -71,6 +71,7 @@ def load_xml_conf(validation=True):
     Load the confdir directory, looking for configuration files.
     @returns: None, but sets global variables as described above.
     """
+    global hostsConf
     LOGGER.info(_("Loading XML configuration"))
     # Initialize global objects and only use those
     testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
