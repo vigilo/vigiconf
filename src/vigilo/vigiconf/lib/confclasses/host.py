@@ -981,8 +981,10 @@ class HostFactory(object):
                         test_list = self.testfactory.get_test(test_params[0],
                                           cur_host.classes)
                         if not test_list:
-                            raise ParsingError(_("Invalid test name: %s")
-                                               % test_params[0])
+                            raise ParsingError(_("Invalid test name in host "
+                                                 "%(hostname)s: %(testname)s")
+                                               % {"hostname": cur_host.name,
+                                                  "testname": test_params[0]})
                         cur_host.add_tests(test_list, *test_params[1:])
 
                     for (dname, dvalue) in directives.iteritems():
