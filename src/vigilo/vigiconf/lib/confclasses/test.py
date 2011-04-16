@@ -339,7 +339,8 @@ class TestFactory(object):
                 #from pprint import pprint; pprint(temp_locals)
                 hccheck = {"sysdescr": None, "oid": None, "detect_snmp": None}
                 hccheck.update(temp_locals)
-                del hccheck["__doc__"] # small cleanup
+                if "__doc__" in hccheck:
+                    del hccheck["__doc__"] # small cleanup
                 self.hclasschecks[hclass] = hccheck
 
 
