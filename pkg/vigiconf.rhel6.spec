@@ -68,7 +68,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}.lang
 %defattr(644,root,root,755)
-%doc COPYING README HACKING doc/*
+%doc COPYING.txt README.txt doc/*
 %dir %{_sysconfdir}/vigilo
 %dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/
 %config(noreplace) %attr(640,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/settings.ini
