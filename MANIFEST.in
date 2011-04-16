@@ -1,2 +1,20 @@
 include buildenv/Makefile.common
 include buildenv/buildout.*.cfg
+include buildout.cfg
+include Makefile
+include COPYING.txt
+
+graft doc
+graft pkg
+recursive-include i18n *.pot *.po
+
+graft debian
+graft src/vigilo/vigiconf/conf.d
+graft src/vigilo/vigiconf/validation
+graft src/vigilo/vigiconf/test/testdata
+
+include src/vigilo/vigiconf/applications/*/*.sh
+graft src/vigilo/vigiconf/applications/*/templates
+
+include settings_tests.ini
+include settings.ini.in
