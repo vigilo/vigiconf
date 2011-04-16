@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903
+# vim:set fileencoding=utf-8 expandtab tabstop=4 shiftwidth=4:
+# pylint: disable-msg=C0301,C0111,W0232,R0201,R0903,W0221
 
 from vigilo.vigiconf.lib.confclasses.test import Test
-
 
 
 class RAM(Test):
@@ -22,10 +21,10 @@ class RAM(Test):
             ".1.3.6.1.4.1.2021.4.6.0"]
 
     def add_test(self, host, warn=80, crit=90):
-        """Arguments:
-            host:   the Host object to add the test to
-            warn:   WARNING threshold
-            crit:   CRITICAL threshold
+        """
+        @param host: the Host object to add the test to
+        @param warn: WARNING threshold
+        @param crit: CRITICAL threshold
         """
 
         host.add_collector_metro("Total memory Swap", "directValue", [],
@@ -48,4 +47,3 @@ class RAM(Test):
                 factors={"Total memory Real": 1024,
                          "Avail memory Real": 1024})
 
-# vim:set expandtab tabstop=4 shiftwidth=4:

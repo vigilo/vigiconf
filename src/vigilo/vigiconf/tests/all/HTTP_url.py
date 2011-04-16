@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # vim:set expandtab tabstop=4 shiftwidth=4:
-#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903
+#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903,W0221
 
 from vigilo.vigiconf.lib.confclasses.test import Test
 

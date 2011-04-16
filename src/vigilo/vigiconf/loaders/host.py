@@ -198,8 +198,8 @@ class HostLoader(DBLoader):
         ghost_hosts = DBSession.query(Host.idhost).filter(
                         Host.idconffile == None).all()
         nb_ghosts = DBSession.query(SupItem).filter(
-                            SupItem.idsupitem.in_([ h.idhost for h in ghost_hosts ])
-                        ).delete()
+                SupItem.idsupitem.in_([ h.idhost for h in ghost_hosts ])
+            ).delete()
         LOGGER.debug("Deleted %d ghosts [Host]", nb_ghosts)
 
         # 2- SupItems qui ne sont ni des hôtes, ni des HLS/LLS.
@@ -218,31 +218,34 @@ class HostLoader(DBLoader):
         LOGGER.debug("Deleted %d ghosts [SupItem]", nb_ghosts)
 
         # 3- MapLinks qui n'ont pas de type (lien service ou segment).
-        service_link = DBSession.query(MapServiceLink.idmapservicelink.label('idmaplink'))
+        service_link = DBSession.query(MapServiceLink.idmapservicelink.label(
+                                       'idmaplink'))
         segment = DBSession.query(MapSegment.idmapsegment.label('idmaplink'))
         union = service_link.union(segment).subquery()
         ghost_all = DBSession.query(MapLink.idmaplink).outerjoin(
                 (union, union.c.idmaplink == MapLink.idmaplink)
             ).filter(union.c.idmaplink == None).all()
         nb_ghosts = DBSession.query(MapLink).filter(
-                            MapLink.idmaplink.in_([ ml.idmaplink for ml in ghost_all ])
-                        ).delete()
+                MapLink.idmaplink.in_([ ml.idmaplink for ml in ghost_all ])
+            ).delete()
         LOGGER.debug("Deleted %d ghosts [MapLink]", nb_ghosts)
 
         # 4- MapNodes qui n'ont pas d'entité (hôte/HLS/LLS) associée.
         node_host = DBSession.query(MapNodeHost.idmapnode.label('idmapnode'))
-        node_service = DBSession.query(MapNodeService.idmapnode.label('idmapnode'))
+        node_service = DBSession.query(MapNodeService.idmapnode.label(
+                                       'idmapnode'))
         union = node_host.union(node_service).subquery()
         ghost_all = DBSession.query(MapNode.idmapnode).outerjoin(
                 (union, union.c.idmapnode == MapNode.idmapnode)
             ).filter(union.c.idmapnode == None
             ).filter(MapNode.type_node != None).all()
         nb_ghosts = DBSession.query(MapNode).filter(
-                            MapNode.idmapnode.in_([ mn.idmapnode for mn in ghost_all ])
-                        ).delete()
+                MapNode.idmapnode.in_([ mn.idmapnode for mn in ghost_all ])
+            ).delete()
         LOGGER.debug("Deleted %d ghosts [MapNode]", nb_ghosts)
 
-        # Suppression des hôtes qui ont été supprimés dans les fichiers modifiés
+        # Suppression des hôtes qui ont été supprimés dans les fichiers
+        # modifiés
         deleted_hosts = []
         for conffile in DBSession.query(ConfFile).all():
             filename = os.path.join(settings["vigiconf"].get("confdir"),

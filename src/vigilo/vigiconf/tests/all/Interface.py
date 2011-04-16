@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903
+#pylint: disable-msg=C0301,C0111,W0232,R0201,R0903,W0221
 
 import re # for the detect_snmp function
 from vigilo.vigiconf.lib.confclasses.test import Test
