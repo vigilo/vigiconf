@@ -1,45 +1,53 @@
 VigiConf
 ========
 
-VigiConf is part of the Vigilo project <http://vigilo-project.org>.
+VigiConf est le composant de Vigilo_ qui permet de distribuer la configuration
+aux autres applications qui composent Vigilo.
 
-VigiConf acts as a configuration generator, validator and dispatcher for
-several software components, some of them being Vigilo modules (in parethesis),
-that all share a common data referential:
+Il joue le rôle d'un "chef d'orchestre", offrant un point d'entrée unique pour
+la configuration du parc et s'assurant de la cohérence de la configuration des
+applications de Vigilo.
 
-  * Nagios
-  * Collector (a highly optimized SNMP Nagios plugin)
-  * Connector-Metro (an XMPP-to-RRD metrology store)
-  * VigiRRD (a web-based RRD graph generator)
-  * VigiMap (a map-sytle interface for Vigilo)
-  * Nagios-HLS (a nagios instance dedicated to High Level Services)
-  * CorrTrap (an SNMP Trap receiver and translator)
-  * PerfData (a PerfData-to-XMPP router)
+Pour les détails du fonctionnement de VigiConf, se reporter à la
+`documentation officielle`_.
 
-All data definition comes from a single model, described as a tree of
-XML files contained in a directory. Data definition decribes the
-assets to supervise:
 
-  * hosts
-  * host groups
-  * supervision servers in charge of hosts groups
-  * services associated with hosts
-  * the way the services are collected (passively, directly…)
-  * SNMP jobs that are to be scheduled for a give host
-  * data sources related to data collected from SNMP Jobs or Nagios' perfdata
-  * graphes that contain several data sources on a single image
-  * and more…
+Dépendances
+-----------
+Vigilo nécessite une version de Python supérieure ou égale à 2.5. Le chemin de
+l'exécutable python peut être passé en paramètre du ``make install`` de la
+façon suivante::
 
-VigiConf uses SVN as a configuration versionning system and rely on SSH
-and sudo to copy configuration files, and launch commands (to validate a
-configuration file validity, stop/start/restart deamons). The actions on the
-(possibly remote) Vigilo server are handled by the VigiConf-local component.
+    make install PYTHON=/usr/bin/python2.6
 
-After installing this package, you need to extract the configuration and
-templates directories from the subversion repository. See
-/etc/vigilo/vigiconf/conf.d/README.source for the subversion repository
-address.
+VigiConf a besoin des modules Python suivants :
 
-All actions are done using the "vigiconf" command, under the the "vigiconf"
-system user.
+- setuptools (ou distribute)
+- vigilo-common
+- vigilo-models
+- argparse
+- lxml
+
+Sur Python < 2.6, il nécessite aussi le module "multiprocessing".
+
+Sur Python < 2.7, il nécessite aussi le module "initgroups".
+
+
+Installation
+------------
+L'installation se fait par la commande ``make install`` (à exécuter en
+``root``).
+
+
+License
+-------
+VigiConf est sous licence `GPL v2`_.
+
+
+.. _documentation officielle: Vigilo_
+.. _Vigilo: http://www.projet-vigilo.org
+.. _GPL v2: http://www.gnu.org/licenses/gpl-2.0.html
+
+.. vim: set syntax=rst fileencoding=utf-8 tw=78 :
+
 
