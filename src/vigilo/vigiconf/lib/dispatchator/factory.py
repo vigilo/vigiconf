@@ -48,7 +48,7 @@ def get_dispatchator_class():
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.extensions", "dispatchator_remote"):
             return entry.load()
-        message = _("You are trying remote deployment on the Community "
+        message = _("You are attempting a remote deployment on the Community "
                     "edition. This feature is only available in the "
                     "Enterprise edition. Aborting.")
         raise EditionError(message)

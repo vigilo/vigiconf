@@ -86,7 +86,7 @@ def get_server_manager_class():
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.extensions", "server_manager_remote"):
             return entry.load()
-        message = _("You are trying remote server management with the "
+        message = _("Remote server management is not possible with the "
                     "Community edition. This feature is only available "
                     "in the Enterprise edition. Aborting.")
         raise EditionError(message)
