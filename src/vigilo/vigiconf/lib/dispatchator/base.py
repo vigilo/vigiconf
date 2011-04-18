@@ -197,7 +197,7 @@ class Dispatchator(object):
             return
         self.prepareServers()
         self.deploy()
-        if stop_after == "deployment":
+        if stop_after == "push":
             self.gen_mgr.generate_dbonly()
             return
         self.commit()

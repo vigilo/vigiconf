@@ -32,6 +32,7 @@ import atexit
 
 import argparse
 import gettext
+import warnings
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -56,6 +57,17 @@ from vigilo.vigiconf.lib.dispatchator import make_dispatchator
 
 from xml.etree import ElementTree as ET # Python 2.5
 
+class DeprecateStopAfterXAction(argparse._StoreConstAction):
+    def __call__(self, parser, namespace, values, option_string=None):
+        super(DeprecateStopAfterXAction, self).__call__(
+            parser, namespace, values, option_string)
+        if option_string:
+            warnings.warn(DeprecationWarning(_(
+                "%(option)s has been deprecated. Please use "
+                "--stop-after=%(value)s instead.") % {
+                    'option': option_string,
+                    'value': option_string[13:],
+                }))
 
 def get_dispatchator(args, restrict=True):
     conf.load_general_conf()
@@ -84,12 +96,7 @@ def deploy(args):
         dispatchator.force = True
     if args.revision:
         dispatchator.deploy_revision = args.revision
-    stop_after = None
-    if args.stop_after_generation:
-        stop_after = "generation"
-    if args.stop_after_push:
-        stop_after = "deployment"
-    dispatchator.run(stop_after=stop_after)
+    dispatchator.run(stop_after=args.stop_after)
 
 def apps(args):
     dispatchator = get_dispatchator(args)
@@ -224,12 +231,23 @@ def parse_args():
                         help=N_("Deploys the configuration on each server "
                                "if the configuration has changed."))
     parser_deploy.set_defaults(func=deploy)
-    parser_deploy.add_argument("--stop-after-generation", action="store_true",
-                        help=N_("Stop the process after the file generation, "
-                               "before pushing the files."))
-    parser_deploy.add_argument("--stop-after-push", action="store_true",
-                        help=N_("Stop after pushing the files to the remote "
-                               "servers, and before restarting the services."))
+    parser_deploy.add_argument("--stop-after-generation",
+                        action=DeprecateStopAfterXAction,
+                        dest="stop_after", const="generation",
+                        help=N_("[DEPRECATED] Stop the process after "
+                                "the file generation, before pushing "
+                                "the files."))
+    parser_deploy.add_argument("--stop-after-push",
+                        action=DeprecateStopAfterXAction,
+                        dest="stop_after", const="push",
+                        help=N_("[DEPRECATED] Stop after pushing the files "
+                                "to the remote servers, before services are "
+                                "restarted."))
+    stop_after_choices = ['generation', 'push']
+    parser_deploy.add_argument("--stop-after", dest="stop_after", default=None,
+                        choices=stop_after_choices, metavar=N_("OPERATION"),
+                        help=N_("Stop after the given OPERATION (one of '%s')")
+                            % "', '".join(stop_after_choices))
     parser_deploy.add_argument("--revision", type=int,
                         help=N_("Deploy the given revision"))
     parser_deploy.add_argument("-f", "--force", action="store_true",
