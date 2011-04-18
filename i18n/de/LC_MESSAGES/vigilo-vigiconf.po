@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2011-04-08 13:08+0200\n"
+"PO-Revision-Date: 2011-04-18 21:02+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -18,139 +18,157 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: src/vigilo/vigiconf/commandline.py:70
+#: src/vigilo/vigiconf/commandline.py:65
+#, python-format
+msgid "%(option)s has been deprecated. Please use --stop-after=%(value)s instead."
+msgstr ""
+
+#: src/vigilo/vigiconf/commandline.py:82
 #, python-format
 msgid "ERROR: %s"
 msgstr "FEHLER: %s"
 
-#: src/vigilo/vigiconf/commandline.py:73
+#: src/vigilo/vigiconf/commandline.py:85
 msgid "No server to manage."
 msgstr "Kein Server zur Verwaltung."
 
-#: src/vigilo/vigiconf/commandline.py:140
+#: src/vigilo/vigiconf/commandline.py:150
 msgid "usage: "
 msgstr "Verwendung: "
 
-#: src/vigilo/vigiconf/commandline.py:141
+#: src/vigilo/vigiconf/commandline.py:151
 #, python-format
 msgid "conflicting option string(s): %s"
 msgstr "widersprüchliche Option String(s): %s"
 
-#: src/vigilo/vigiconf/commandline.py:142
+#: src/vigilo/vigiconf/commandline.py:152
 msgid "subcommands"
 msgstr "Unterbefehle"
 
-#: src/vigilo/vigiconf/commandline.py:143
+#: src/vigilo/vigiconf/commandline.py:153
 #, python-format
 msgid "unrecognized arguments: %s"
 msgstr "Unbekannte Argumente: %s"
 
-#: src/vigilo/vigiconf/commandline.py:144
+#: src/vigilo/vigiconf/commandline.py:154
 msgid "expected one argument"
 msgstr "ein Argument erwartet"
 
-#: src/vigilo/vigiconf/commandline.py:145
+#: src/vigilo/vigiconf/commandline.py:155
 msgid "expected at most one argument"
 msgstr "höchstens ein Argument erwartet"
 
-#: src/vigilo/vigiconf/commandline.py:146
+#: src/vigilo/vigiconf/commandline.py:156
 msgid "expected at least one argument"
 msgstr "mindestens ein Argument erwartet"
 
-#: src/vigilo/vigiconf/commandline.py:147
+#: src/vigilo/vigiconf/commandline.py:157
 #, python-format
 msgid "expected %s argument(s)"
 msgstr "%s Argument(e) erwartet"
 
-#: src/vigilo/vigiconf/commandline.py:148
+#: src/vigilo/vigiconf/commandline.py:158
 #, python-format
 msgid "invalid choice: %r (choose from %s)"
 msgstr "ungültige Auswahl: %r (gewählt aus %s)"
 
-#: src/vigilo/vigiconf/commandline.py:149
+#: src/vigilo/vigiconf/commandline.py:159
 msgid "positional arguments"
 msgstr "positionale Argumente"
 
-#: src/vigilo/vigiconf/commandline.py:150
+#: src/vigilo/vigiconf/commandline.py:160
 msgid "optional arguments"
 msgstr "optionale Argumente"
 
-#: src/vigilo/vigiconf/commandline.py:151
+#: src/vigilo/vigiconf/commandline.py:161
 msgid "too few arguments"
 msgstr "zu wenig Argumente"
 
-#: src/vigilo/vigiconf/commandline.py:152
+#: src/vigilo/vigiconf/commandline.py:162
 #, python-format
 msgid "argument %s is required"
 msgstr "Argument %s erforderlich"
 
-#: src/vigilo/vigiconf/commandline.py:153
+#: src/vigilo/vigiconf/commandline.py:163
 #, python-format
 msgid "one of the arguments %s is required"
 msgstr "eines der Argumente %s ist erforderlich"
 
-#: src/vigilo/vigiconf/commandline.py:154
+#: src/vigilo/vigiconf/commandline.py:164
 #, python-format
 msgid "%s: error: %s\n"
 msgstr "%s: Fehler: %s\n"
 
-#: src/vigilo/vigiconf/commandline.py:155
+#: src/vigilo/vigiconf/commandline.py:165
 msgid "show this help message and exit"
 msgstr "Diese Hilfemeldung anzeigen und beenden"
 
-#: src/vigilo/vigiconf/commandline.py:156
+#: src/vigilo/vigiconf/commandline.py:166
 msgid "show program's version number and exit"
 msgstr "Versionsnummer des Programms anzeigen und beenden"
 
-#: src/vigilo/vigiconf/commandline.py:160
+#: src/vigilo/vigiconf/commandline.py:170
 msgid "Debug mode."
 msgstr "Debug-Modus."
 
-#: src/vigilo/vigiconf/commandline.py:162
+#: src/vigilo/vigiconf/commandline.py:172
 msgid "Don't try to switch to the correct user."
 msgstr "Nicht versuchen, zum korrekten Benutzer zu wechseln."
 
-#: src/vigilo/vigiconf/commandline.py:167
+#: src/vigilo/vigiconf/commandline.py:177
 msgid "Vigilo configuration manager"
 msgstr "Vigilo Konfigurationsmanager"
 
-#: src/vigilo/vigiconf/commandline.py:168
+#: src/vigilo/vigiconf/commandline.py:178
 msgid "Subcommands"
 msgstr "Unterbefehle"
 
-#: src/vigilo/vigiconf/commandline.py:174
+#: src/vigilo/vigiconf/commandline.py:184
 msgid "Prints a summary of the current configuration."
 msgstr "Druckt eine Übersicht der aktuellen Konfiguration."
 
-#: src/vigilo/vigiconf/commandline.py:177
+#: src/vigilo/vigiconf/commandline.py:187
 msgid "Supervision servers to query, all of them if not specified."
 msgstr "Abzufragender Kontrollserver, alle, wenn nicht angegeben."
 
-#: src/vigilo/vigiconf/commandline.py:221
+#: src/vigilo/vigiconf/commandline.py:231
 msgid "Deploys the configuration on each server if the configuration has changed."
 msgstr ""
 "Stellt die Konfiguration auf jedem Server bereit, wenn sich die "
 "Konfiguration geändert hat."
 
-#: src/vigilo/vigiconf/commandline.py:225
-msgid "Stop the process after the file generation, before pushing the files."
+#: src/vigilo/vigiconf/commandline.py:237
+#, fuzzy
+msgid ""
+"[DEPRECATED] Stop the process after the file generation, before pushing "
+"the files."
 msgstr ""
 "Den Prozess nach Dateierstellung beenden, bevor die Datein verschoben "
 "werden."
 
-#: src/vigilo/vigiconf/commandline.py:228
+#: src/vigilo/vigiconf/commandline.py:243
+#, fuzzy
 msgid ""
-"Stop after pushing the files to the remote servers, and before restarting"
-" the services."
+"[DEPRECATED] Stop after pushing the files to the remote servers, before "
+"services are restarted."
 msgstr ""
 "Nach Verschieben der Datein zum Remoteserver und vor erneutem Start von "
 "Services beenden."
 
-#: src/vigilo/vigiconf/commandline.py:231
+#: src/vigilo/vigiconf/commandline.py:248
+msgid "OPERATION"
+msgstr ""
+
+#: src/vigilo/vigiconf/commandline.py:249
+#, python-format
+msgid "Stop after the given OPERATION (one of '%s')"
+msgstr ""
+
+#: src/vigilo/vigiconf/commandline.py:252
 msgid "Deploy the given revision"
 msgstr "Gegebene Revision bereitstellen"
 
-#: src/vigilo/vigiconf/commandline.py:233
+#: src/vigilo/vigiconf/commandline.py:254
 msgid ""
 "Force the immediate execution of the command. Do not wait. Bypass all "
 "checks."
@@ -158,40 +176,40 @@ msgstr ""
 "Sofortige Ausführung des Befehls erzwingen. Nicht warten. Alle Prüfungen "
 "umgehen."
 
-#: src/vigilo/vigiconf/commandline.py:236
+#: src/vigilo/vigiconf/commandline.py:257
 msgid "Simulate only, no copy will actually be made, no commit in the database."
 msgstr ""
 "Nur Simulation, es wird keine Kopie wirklich erstellt, kein Commit in der"
 " Datenbank."
 
-#: src/vigilo/vigiconf/commandline.py:239
+#: src/vigilo/vigiconf/commandline.py:260
 msgid "Supervision servers to deploy to, all of them if not specified."
 msgstr "Kontrollserver zur Bereitstellung, alle, wenn nicht angegeben."
 
-#: src/vigilo/vigiconf/commandline.py:246
+#: src/vigilo/vigiconf/commandline.py:267
 msgid "Discover the services available on a remote server."
 msgstr "Services eines Remoteserver entdecken ."
 
-#: src/vigilo/vigiconf/commandline.py:251
+#: src/vigilo/vigiconf/commandline.py:272
 msgid "Output file. Default: standard output."
 msgstr "Ausgabedatei. Standardmäßig: Standardausgabe."
 
-#: src/vigilo/vigiconf/commandline.py:253
+#: src/vigilo/vigiconf/commandline.py:274
 #, python-format
 msgid "SNMP community. Default: %(default)s."
 msgstr "SNMP Community. Fehler: %(default)s."
 
-#: src/vigilo/vigiconf/commandline.py:255
+#: src/vigilo/vigiconf/commandline.py:276
 #, python-format
 msgid "SNMP version. Default: %(default)s."
 msgstr "SNMP Version. Fehler: %(default)s."
 
-#: src/vigilo/vigiconf/commandline.py:257
+#: src/vigilo/vigiconf/commandline.py:278
 #, python-format
 msgid "Main group. Default: %(default)s."
 msgstr "Hauptgruppe. Fehler: %(default)s."
 
-#: src/vigilo/vigiconf/commandline.py:259
+#: src/vigilo/vigiconf/commandline.py:280
 msgid ""
 "Hosts or files to scan. The files must be the result of an snmpwalk "
 "command on the '.1' OID with the '-OnQe' options."
@@ -199,40 +217,40 @@ msgstr ""
 "Zu scannende Hosts oder Datein. Die Datein müssen das Ergebnis eines "
 "snmpwalk Befehls auf '.1' OID mit den  '-OnQe' Optionen sein."
 
-#: src/vigilo/vigiconf/commandline.py:267
+#: src/vigilo/vigiconf/commandline.py:288
 msgid "Enables or disables a Vigilo server"
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:270
+#: src/vigilo/vigiconf/commandline.py:291
 msgid "Don't re-deploy the configuration, only set the status."
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:273
+#: src/vigilo/vigiconf/commandline.py:294
 msgid "New status"
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:275
+#: src/vigilo/vigiconf/commandline.py:296
 msgid "Server name(s) to enable/disable"
 msgstr ""
 
-#: src/vigilo/vigiconf/commandline.py:287
+#: src/vigilo/vigiconf/commandline.py:308
 #, python-format
 msgid "VigiConf was launched as user 'root'. Switching to user '%s' instead."
 msgstr ""
 "VigiConf wurde als Benutzer 'root' gestartet. Stattdessen zu Benutzer "
 "'%s' wechseln."
 
-#: src/vigilo/vigiconf/commandline.py:292
+#: src/vigilo/vigiconf/commandline.py:313
 #, python-format
 msgid "Unable to switch to user '%s'. Aborting."
 msgstr "Es kann nicht zu Benutzer '%s' gewechselt werden. Wird abgebrochen."
 
-#: src/vigilo/vigiconf/commandline.py:317
+#: src/vigilo/vigiconf/commandline.py:338
 #, python-format
 msgid "VigiConf was not launched as user '%s'. Aborting."
 msgstr "VigiConf wurde nicht als Benutzer '%s' gestartet. Wird abgebrochen."
 
-#: src/vigilo/vigiconf/commandline.py:350
+#: src/vigilo/vigiconf/commandline.py:371
 #, python-format
 msgid ""
 "Can't obtain lock on lockfile (%(lockfile)s). VigiConf already running ? "
@@ -241,41 +259,41 @@ msgstr ""
 "Keine Sperre bei dieser Lock-Datei (%(lockfile)s) möglich. Wurde VigiConf"
 " schon gestartet ? URSACHE: %(error)s"
 
-#: src/vigilo/vigiconf/commandline.py:363
-#: src/vigilo/vigiconf/commandline.py:365
+#: src/vigilo/vigiconf/commandline.py:384
+#: src/vigilo/vigiconf/commandline.py:386
 #, python-format
 msgid "VigiConf error: %s"
 msgstr "VigiConf Fehler: %s"
 
-#: src/vigilo/vigiconf/commandline.py:369
+#: src/vigilo/vigiconf/commandline.py:390
 msgid "VigiConf is done."
 msgstr ""
 
-#: src/vigilo/vigiconf/conf.py:74
+#: src/vigilo/vigiconf/conf.py:75
 msgid "Loading XML configuration"
 msgstr "XML Konfiguration wird geladen"
 
-#: src/vigilo/vigiconf/conf.py:79
+#: src/vigilo/vigiconf/conf.py:89
 msgid "Error loading configuration"
 msgstr "Fehler beim Laden der Konfiguration"
 
-#: src/vigilo/vigiconf/discoverator.py:78
+#: src/vigilo/vigiconf/discoverator.py:79
 #, python-format
 msgid "%s: No such file"
 msgstr "%s: Datei nicht vorhanden"
 
-#: src/vigilo/vigiconf/discoverator.py:90
+#: src/vigilo/vigiconf/discoverator.py:91
 #, python-format
 msgid ""
 "Invalid HOSTNAME detected in SNMPv2-MIB::sysName.0: \"%s\" (blank "
 "character not allowed)"
 msgstr ""
 
-#: src/vigilo/vigiconf/discoverator.py:127
+#: src/vigilo/vigiconf/discoverator.py:128
 msgid "The \"snmpwalk\" command is not installed."
 msgstr "Der \"snmpwalk\"-Befehl ist nicht installiert."
 
-#: src/vigilo/vigiconf/discoverator.py:130
+#: src/vigilo/vigiconf/discoverator.py:131
 #, python-format
 msgid ""
 "SNMP walk command failed with error status %(status)s and message:\n"
@@ -551,31 +569,38 @@ msgstr "XML Syntaxfehler in \"%(file)s\": %(error)s"
 msgid "XML validation failed: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:867
+#: src/vigilo/vigiconf/lib/confclasses/host.py:869
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Ungültige Aufteilungsgruppe: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:901
+#: src/vigilo/vigiconf/lib/confclasses/host.py:903
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Test %(test)s auf Host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:951
+#: src/vigilo/vigiconf/lib/confclasses/host.py:953
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:121
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Ungültiger Gruppenname (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:960
+#: src/vigilo/vigiconf/lib/confclasses/host.py:962
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:974
+#: src/vigilo/vigiconf/lib/confclasses/host.py:979
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "Host \"%s\" muss mindestens einer Gruppe zugeordnet werden."
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:989
+#, python-format
+msgid ""
+"Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
+"class ?"
+msgstr ""
 
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:396
 #, python-format
@@ -589,7 +614,14 @@ msgstr ""
 msgid "Invalid weight value for template %(tpl)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Vorlage %(tpl)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:154
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:553
+#, python-format
+msgid ""
+"Can't add test %(testname)s to host %(hostname)s (added by template "
+"%(tplname)s). Maybe a missing host class ?"
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/confclasses/test.py:156
 #, python-format
 msgid "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 msgstr ""
@@ -627,9 +659,10 @@ msgstr ""
 " %(reason)s"
 
 #: src/vigilo/vigiconf/lib/dispatchator/factory.py:51
+#, fuzzy
 msgid ""
-"You are trying remote deployment on the Community edition. This feature "
-"is only available in the Enterprise edition. Aborting."
+"You are attempting a remote deployment on the Community edition. This "
+"feature is only available in the Enterprise edition. Aborting."
 msgstr ""
 "Sie versuchen eine Remote-Bereitstellung bei der Community Ausgabe. Diese"
 " Funktion ist nur für die Unternehmens-Ausgabe verfügbar. Wird "
@@ -853,8 +886,8 @@ msgstr "Auf der Community Ausgabe, kann nur der Lokalhost benutzt werden"
 #: src/vigilo/vigiconf/lib/server/factory.py:89
 #, fuzzy
 msgid ""
-"You are trying remote server management with the Community edition. This "
-"feature is only available in the Enterprise edition. Aborting."
+"Remote server management is not possible with the Community edition. This"
+" feature is only available in the Enterprise edition. Aborting."
 msgstr ""
 "Sie versuchen eine Remote-Bereitstellung bei der Community Ausgabe. Diese"
 " Funktion ist nur für die Unternehmens-Ausgabe verfügbar. Wird "
@@ -902,16 +935,16 @@ msgstr "Hosts werden geladen"
 msgid "Loading host %s"
 msgstr "Host %s wird geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:265
+#: src/vigilo/vigiconf/loaders/host.py:268
 msgid "Done loading hosts"
 msgstr "Hosts sind geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:288
+#: src/vigilo/vigiconf/loaders/host.py:291
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Unbekannte Gruppe \"%(group)s\" in Host \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:315
+#: src/vigilo/vigiconf/loaders/host.py:318
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
