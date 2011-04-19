@@ -58,7 +58,17 @@ from vigilo.vigiconf.lib.dispatchator import make_dispatchator
 from xml.etree import ElementTree as ET # Python 2.5
 
 class DeprecateStopAfterXAction(argparse._StoreConstAction):
+    """
+    Action de compatibilité pour les options C{--stop-after-generation}
+    et C{--stop-after-push}.
+    """
+
     def __call__(self, parser, namespace, values, option_string=None):
+        """
+        Effectue les mêmes opérations qu'une action "store_const",
+        mais lève un avertissement concernant le fait que les options
+        C{--stop-after-*} sont désormais obsolètes.
+        """
         super(DeprecateStopAfterXAction, self).__call__(
             parser, namespace, values, option_string)
         if option_string:
@@ -68,6 +78,19 @@ class DeprecateStopAfterXAction(argparse._StoreConstAction):
                     'option': option_string,
                     'value': option_string[13:],
                 }))
+
+def flatten(lst):
+    """
+    Met à plat une liste. Cette fonctionne ne gère que les
+    listes de listes (2 niveaux d'imbrication).
+    """
+    res = []
+    for item in lst:
+        if isinstance(item, list):
+            res.extend(item)
+        else:
+            res.append(item)
+    return res
 
 def get_dispatchator(args, restrict=True):
     conf.load_general_conf()
@@ -92,10 +115,10 @@ def deploy(args):
         settings["vigiconf"]["simulate"] = True
         # pas de commit sur la base de données
         dispatchator.mode_db = 'no_commit'
-    if args.force:
-        dispatchator.force = True
+
     if args.revision:
         dispatchator.deploy_revision = args.revision
+    dispatchator.force = tuple(flatten(args.force))
     dispatchator.run(stop_after=args.stop_after)
 
 def apps(args):
@@ -250,9 +273,12 @@ def parse_args():
                             % "', '".join(stop_after_choices))
     parser_deploy.add_argument("--revision", type=int,
                         help=N_("Deploy the given revision"))
-    parser_deploy.add_argument("-f", "--force", action="store_true",
-            dest="force", help=N_("Force the immediate execution of the "
-                                  "command. Do not wait. Bypass all checks."))
+    force_choices = ['deploy', 'db-sync']
+    parser_deploy.add_argument("-f", "--force", action="append",
+                        dest="force", nargs='?', choices=force_choices,
+                        default=[], const=force_choices,
+                        help=N_("Force the given operations. This can be used "
+                                "to return VigiConf to a known good state."))
     parser_deploy.add_argument("-n", "--dry-run", action="store_true",
                       dest="simulate", help=N_("Simulate only, no copy will "
                       "actually be made, no commit in the database."))

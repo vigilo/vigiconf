@@ -43,11 +43,11 @@ class Dispatchator(object):
     Contrôle du processus principal de VigiConf. Une instance de cette classe
     est construite par la factory L{factory.make_dispatchator}().
 
-    @ivar force: Si cette variable est évaluée à C{True}, une synchronisation
-        complète de la configuration sera réalisée, et les configurations
-        générées seront déployées même si les serveurs ont déjà la bonne
-        version de la configuration.
-    @type force: C{bool}
+    @ivar force: Si cette itérable contient la valeur C{deploy}, une
+        synchronisation complète de la configuration sera réalisée,
+        et les configurations générées seront déployées même si les
+        serveurs ont déjà la bonne version de la configuration.
+    @type force: C{tuple}
     @ivar apps_mgr: Gestionnaire des applications
     @type apps_mgr: L{ApplicationManager<application.ApplicationManager>}
     @ivar rev_mgr: Gestionnaire des révisions de la configuration
@@ -59,7 +59,7 @@ class Dispatchator(object):
     """
 
     def __init__(self, apps_mgr, rev_mgr, srv_mgr, gen_mgr):
-        self._force = False # géré comme propriété, voir get_force/set_force
+        self._force = () # géré comme propriété, voir get_force/set_force
         self.apps_mgr = apps_mgr
         self.rev_mgr = rev_mgr
         self.srv_mgr = srv_mgr
@@ -121,7 +121,7 @@ class Dispatchator(object):
         Prépare la liste des serveurs sur lesquels travailler
         """
         self.filter_disabled()
-        if self.force:
+        if "deploy" in self.force:
             return
         self.srv_mgr.prepare(self.rev_mgr.deploy_revision)
 

@@ -44,7 +44,7 @@ class DispatchatorTest(unittest.TestCase):
             app.start_command = None
             app.stop_command = None
         # Don't check the installed revisions
-        self.dispatchator.force = True
+        self.dispatchator.force = ("deploy", "db-sync")
 
     def tearDown(self):
         teardown_db()
@@ -88,4 +88,3 @@ class DispatchatorTest(unittest.TestCase):
         state = self.dispatchator.getState()
         print state
         self.assertEqual(len(state), 2)
-

@@ -100,16 +100,18 @@ class ServerManager(object):
             self.returns_queue.put(e.value)
         self.commands_queue.task_done()
 
-    def filter_servers(self, method, servers=None, force=False):
+    def filter_servers(self, method, servers=None, force=None):
+        if force is None:
+            force = ()
         if servers is None:
             servers = self.servers.keys()
-        if not force:
+        if 'deloy' not in force:
             for server, server_obj in self.servers.items():
                 if not getattr(server_obj, method)():
                     servers.remove(server)
         return servers
 
-    def deploy(self, revision, servers=None, force=False):
+    def deploy(self, revision, servers=None, force=None):
         """
         Déploie les fichiers de configuration des serveurs, avec un thread par
         serveur.
@@ -120,6 +122,8 @@ class ServerManager(object):
         @return: Nombre de serveurs déployés
         @rtype:  C{int}
         """
+        if force is None:
+            force = ()
         servers = self.filter_servers("needsDeployment", servers, force)
         if not servers:
             LOGGER.info(_("All servers are up-to-date, no deployment needed."))

@@ -48,7 +48,9 @@ class RevisionManager(object):
     Subversion.
     """
 
-    def __init__(self, force=False):
+    def __init__(self, force=None):
+        if force is None:
+            force = ()
         self._status = None # cache
         self.force = force
         self.deploy_revision = "HEAD"
@@ -294,9 +296,9 @@ class RevisionManager(object):
         @return: C{True} si C{filename} a été modifiée, C{False} sinon.
         @rtype: C{bool}
         """
-        if self.force:
-            # L'usage de l'option "--force" est considéré comme
-            # étant une modification de la configuration.
+        if "db-sync" in self.force:
+            # L'usage de l'option "--force db-sync" est considéré
+            # comme étant une modification de la configuration.
             return True
         status = self.status()
         changes = status['modified'][:]
@@ -314,9 +316,9 @@ class RevisionManager(object):
         @return: C{True} si C{dirname} a été modifié, C{False} sinon.
         @rtype: C{bool}
         """
-        if self.force:
-            # L'usage de l'option "--force" est considéré comme
-            # étant une modification de la configuration.
+        if "db-sync" in self.force:
+            # L'usage de l'option "--force db-sync" est considéré
+            # comme étant une modification de la configuration.
             return True
         status = self.status()
         changes = status['added'] + \

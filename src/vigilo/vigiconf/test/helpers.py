@@ -117,7 +117,7 @@ def teardown_deploy_dir():
 from vigilo.vigiconf.lib.dispatchator.revisionmanager import RevisionManager
 class DummyRevMan(RevisionManager):
     def __init__(self):
-        self.force = True
+        self.force = ("deploy", "db-sync")
 
     def status(self):
         # On indique qu'aucun changement n'a eu lieu,
