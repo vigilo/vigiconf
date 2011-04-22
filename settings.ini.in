@@ -37,7 +37,7 @@ simulate = False
 [database]
 sqlalchemy_url = postgres://vigilo:vigilo@127.0.0.1/vigilo
 db_basename = vigilo_
-external_auth=False
+external_auth = False
 
 ; affichage des requetes SQL (debug)
 ;sqlalchemy_echo = false
@@ -49,17 +49,17 @@ external_auth=False
 ; LOGGING
 ;
 [loggers]
-keys=root,sqlalchemy
+keys = root,sqlalchemy
 
 [handlers]
-keys=console,syslog
+keys = console,syslog
 
 [formatters]
-keys=consoleFormatter,syslogFormatter
+keys = consoleFormatter,syslogFormatter
 
 [logger_root]
-level=INFO
-handlers=console,syslog
+level = INFO
+handlers = console,syslog
 
 [logger_sqlalchemy]
 ; mettre le level a INFO pour afficher les requetes SQL
@@ -69,36 +69,36 @@ qualname = sqlalchemy.engine
 propagate = 0
 
 [handler_console]
-class=StreamHandler
-level=DEBUG
-formatter=consoleFormatter
-args=(sys.stdout, )
+class = StreamHandler
+level = DEBUG
+formatter = consoleFormatter
+args = (sys.stdout, )
 
 [handler_syslog]
-class=handlers.SysLogHandler
-level=DEBUG
-formatter=syslogFormatter
+class = handlers.SysLogHandler
+level = DEBUG
+formatter = syslogFormatter
 ; Le premier argument correspond à l'emplacement du syslog.
 ; Il peut s'agir d'un fichier (ex : socket Unix, '/dev/log')
 ; ou d'une adresse IP avec un port, auquel cas il faut saisir
-; le tout sous forme de tuple (args=('127.0.0.1', 514), 'daemon').
+; le tout sous forme de tuple (args = ('127.0.0.1', 514), 'daemon').
 ;
 ; Le 2ème argument correspond à la facility à utiliser lors
 ; de l'envoi à syslog (voir logger(1) pour la liste des noms
 ; des facilities).
-args='/dev/log', 'daemon'
+args = '/dev/log', 'daemon'
 
 [formatter_consoleFormatter]
-format=%(message)s
-datefmt=
-class=vigilo.common.logging.VigiloFormatter
+format = %(message)s
+datefmt =
+class = vigilo.common.logging.VigiloFormatter
 
 [formatter_consoleFormatter_verbose]
-format=[%(created)f] %(levelname)s::%(name)s::%(message)s
-datefmt=
-class=vigilo.common.logging.VigiloFormatter
+format = [%(created)f] %(levelname)s::%(name)s::%(message)s
+datefmt =
+class = vigilo.common.logging.VigiloFormatter
 
 [formatter_syslogFormatter]
-format=%(processName)s[%(process)d]: %(levelname)s::%(message)s
-datefmt=
-class=vigilo.common.logging.VigiloFormatter
+format = %(processName)s[%(process)d]: %(levelname)s::%(message)s
+datefmt =
+class = vigilo.common.logging.VigiloFormatter
