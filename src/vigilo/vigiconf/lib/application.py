@@ -436,10 +436,12 @@ class Application(object):
         """
         if not self.start_command:
             return
-        LOGGER.info(_("Starting %(app)s on %(server)s ..."), {
-            'app': self.name,
-            'server': servername,
-        })
+        if self.stop_command:
+            msg = _("Starting %(app)s on %(server)s ...")
+        else:
+            # S'il n'y a pas de commande d'arrêt, c'est un rechargement
+            msg = _("Reloading %(app)s on %(server)s ...")
+        LOGGER.info(msg, {'app': self.name, 'server': servername})
         server = self.servers[servername]
         _command = ["vigiconf-local", "start-app", self.name]
         _command = server.createCommand(_command)
@@ -454,10 +456,11 @@ class Application(object):
             })
             error.cause = e
             raise error
-        LOGGER.info(_("%(app)s started on %(server)s"), {
-            'app': self.name,
-            'server': server.name,
-        })
+        if self.stop_command:
+            msg = _("%(app)s started on %(server)s")
+        else:
+            msg = _("%(app)s reloaded on %(server)s")
+        LOGGER.info(msg, {'app': self.name, 'server': server.name})
 
 
     def stopServer(self, servername):
