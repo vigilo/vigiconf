@@ -16,26 +16,30 @@ class Interface(Test):
     def add_test(self, host, label, ifname, max=None,
                  errors=True, staticindex=False, warn=None, crit=None,
                  counter32=False, teststate=True ):
-        """Arguments:
-            host: the Host object to add the test to
-            label: Label to display
-            ifname: SNMP name for the interface
-            max: the maximum bandwidth available through this interface, in bits/s
-            errors: create a graph for interface errors
-            staticindex: consider the ifname as the static SNMP index instead
-                         of the interface name. It's not recommanded, but it
-                         can be necessary as some OS (Windows among others)
-                         assign the same name to different interfaces.
-            warn: WARNING threshold. See below for the format
-            crit: CRITICAL threshold. See below for the format
-            counter32: to use Counter32bits specifically for this interface.
-            teststate: Used to deactivate the interface state control. (When
-                       you only need statistics.)
+        """
+        The parameters L{warn} and L{crit} must be tuples in the form of
+        strings separated by commas, for example: C{max_in,max_out} (in
+        bits/s).
 
-            warn and crit must be tuples in the form of strings separated by
-            commas, for example: max_in,max_out (in bits/s).
-            If warn and crit contain 4 or 6 values, the next values will be
-            applied in order to Discards and Errors if they are not None.
+        If warn and crit contain 4 or 6 values, the next values will be applied
+        in order to Discards and Errors if they are not None.
+
+        @param host: the Host object to add the test to
+        @param label: Label to display
+        @param ifname: SNMP name for the interface
+        @param max: the maximum bandwidth available through this interface, in
+            bits/s
+        @param errors: create a graph for interface errors
+        @param staticindex: consider the ifname as the static SNMP index instead
+            of the interface name. It's not recommanded, but it can be
+            necessary as some OS (Windows among others) assign the same name to
+            different interfaces.
+        @param warn: WARNING threshold. See description for the format.
+        @param crit: CRITICAL threshold. See description for the format.
+        @param counter32: to use Counter32bits specifically for this interface.
+        @param teststate: Used to deactivate the interface state control. (When
+            you only need statistics.)
+
         """
         snmp_oids = {
             # using by default High Capacity (64Bits) COUNTER for in and out

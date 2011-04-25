@@ -16,15 +16,14 @@ class Partition(Test):
 
     def add_test(self, host, label, partname, max=None, warn=80, crit=95, percent=True):
         """
-        Arguments:
-            host:     the Host object to add the test to
-            label:    the displayed name for the partition (ex: Data)
-            partname: the SNMP name of the partition (ex: /var)
-            max:      total size of the partition
-            warn:     WARNING threshold
-            crit:     CRITICAL threshold
-            percent:  if True, the thresholds apply to the percent. If False,
-                      they apply to the number of bytes
+        @param host:     the Host object to add the test to
+        @param label:    the displayed name for the partition (ex: C{Data})
+        @param partname: the SNMP name of the partition (ex: C{/var})
+        @param max:      total size of the partition
+        @param warn:     WARNING threshold
+        @param crit:     CRITICAL threshold
+        @param percent:  if True, the thresholds apply to the percent. If
+            C{False}, they apply to the number of bytes
         """
         host.add_collector_service("Partition %s"%label, "storage",
                     [partname,warn,crit,int(percent)],

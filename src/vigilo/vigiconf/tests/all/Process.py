@@ -14,13 +14,12 @@ class Process(Test):
 
     def add_test(self, host, processname, section="name", label=None, warn="", crit="@0"):
         """
-        Arguments:
-            host:    the Host object to add the test to
-            processname: the name of the process
-            section: the section to search in the SNMP table
-            label:   the label to display
-            warn:    WARNING threshold
-            crit:    CRITICAL threshold
+        @param host:    the Host object to add the test to
+        @param processname: the name of the process
+        @param section: the section to search in the SNMP table
+        @param label:   the label to display
+        @param warn:    WARNING threshold
+        @param crit:    CRITICAL threshold
         """
         if label is None:
             label = processname

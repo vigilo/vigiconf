@@ -13,12 +13,12 @@ class InterrCS(Test):
     oids = [".1.3.6.1.4.1.2021.11.59.0", ".1.3.6.1.4.1.2021.11.60.0"]
 
     def add_test(self, host, warn=None, crit=None):
-        """Arguments:
-            host:    the Host object to add the test to
-            warn:    WARNING threshold
-            crit:    CRITICAL threshold
-
-        warn and crit must be tuples (max_interrupts, max_context_switches)
+        """
+        The parameters L{warn} and L{crit} must be tuples C{(max_interrupts,
+        max_context_switches)}.
+        @param host: the Host object to add the test to
+        @param warn: WARNING threshold
+        @param crit: CRITICAL threshold
         """
         # Metrology
         host.add_collector_metro("Interrupts", "directValue", [], 
