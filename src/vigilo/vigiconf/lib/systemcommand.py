@@ -87,10 +87,13 @@ class SystemCommand(object):
         newenv = os.environ.copy()
         newenv["LANG"] = "C"
         newenv["LC_ALL"] = "C"
-        self.process = subprocess.Popen(self.getCommand(),
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        env=newenv)
+        try:
+            self.process = subprocess.Popen(self.getCommand(),
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE,
+                                            env=newenv)
+        except OSError:
+            raise MissingCommand(self.getCommand())
         self.mResult = self.process.communicate()
         if self.process.returncode != 0: # command failed
             raise SystemCommandError(self.getCommand(), self.process.returncode,
@@ -135,5 +138,14 @@ class SystemCommandError(VigiConfError):
                % (type(self).__name__, self.returncode, self.message)
 
 
+class MissingCommand(SystemCommandError):
+    def __init__(self, command):
+        if isinstance(command, basestring):
+            command = command.split()
+        super(MissingCommand, self).__init__(command, 255, 
+            _("Missing command: %s") % command[0])
+
+    def __unicode__(self):
+        return self.message
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
