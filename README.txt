@@ -20,7 +20,7 @@ façon suivante::
 
     make install PYTHON=/usr/bin/python2.6
 
-VigiConf a besoin des modules Python suivants :
+VigiConf a besoin de ``subversion`` et des modules Python suivants :
 
 - setuptools (ou distribute)
 - vigilo-common
@@ -37,6 +37,21 @@ Installation
 ------------
 L'installation se fait par la commande ``make install`` (à exécuter en
 ``root``).
+
+Après l'installation, il est nécessaire de mettre en place le dossier de
+configuration, qui sera géré sous SVN. Pour cela, suivre les indications du
+fichier ``/etc/vigilo/vigiconf/README.post-install``.
+
+Enfin, si cela n'a pas été fait lors de l'install de vigiconf-local, il
+faut ajouter des droits sudo à l'utilisateur ``vigiconf`` pour lui permettre
+de redémarrer les services qu'il télé-administre. Pour cela, ajouter à la fin
+du fichier ``/etc/sudoers`` les lignes suivantes ::
+
+    # VigiConf
+    Defaults:vigiconf !requiretty
+    Cmnd_Alias INIT = /etc/init.d/*
+    Cmnd_Alias VALID = /usr/sbin/nagios
+    vigiconf ALL=(ALL) NOPASSWD: INIT, VALID
 
 
 License
