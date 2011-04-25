@@ -67,6 +67,9 @@ class RevisionManager(object):
                 "revision if you have modified your configuration. "
                 "Use 'svn revert' to cancel your modifications"))
         self.sync()
+        last_rev = self.last_revision()
+        if last_rev == 1:
+            self.force = self.force + ("db-sync", )
 
     def status(self):
         """

@@ -27,7 +27,8 @@ following command::
 
 Then update the ``svnrepository`` parameter in the ``settings.ini``
 configuration file and run::
-  vigiconf deploy --force
+
+  vigiconf deploy
 
 
 .. vim: set syntax=rst fileencoding=utf-8 tw=78 :
