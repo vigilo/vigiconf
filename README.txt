@@ -54,6 +54,12 @@ du fichier ``/etc/sudoers`` les lignes suivantes ::
     vigiconf ALL=(ALL) NOPASSWD: INIT, VALID
 
 
+Utilisation
+-----------
+VigiConf s'exécute par la commande ``vigiconf``. Utilisez l'option ``--help``
+pour découvrir les fonctionnalités disponibles.
+
+
 License
 -------
 VigiConf est sous licence `GPL v2`_.
