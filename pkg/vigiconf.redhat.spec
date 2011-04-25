@@ -82,7 +82,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/ssh
 %dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/plugins
 %{_sysconfdir}/vigilo/%{module}/conf.d.example
-%{_sysconfdir}/vigilo/%{module}/README.source
+%{_sysconfdir}/vigilo/%{module}/README.post-install
 %config(noreplace) /etc/cron.d/*
 %attr(755,root,root) %{_bindir}/*
 %{python26_sitelib}/*
