@@ -45,6 +45,9 @@ class ServerManager(object):
     @ivar servers: C{dict} des serveurs, indexés par le nom (C{str}) et
         pontant sur l'objet (L{Server<base.Server>})
     @type servers: C{dict}
+    @ivar factory: instance de L{ServerFactory<factory.ServerFactory>} qui
+        servira à construire des objets L{Server<base.Server>} si besoin.
+    @type factory: L{ServerFactory<factory.ServerFactory>}
     """
 
     def __init__(self, factory):
@@ -105,7 +108,7 @@ class ServerManager(object):
             force = ()
         if servers is None:
             servers = self.servers.keys()
-        if 'deloy' not in force:
+        if 'deploy' not in force:
             for server, server_obj in self.servers.items():
                 if not getattr(server_obj, method)():
                     servers.remove(server)
