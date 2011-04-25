@@ -1,0 +1,33 @@
+TO DO AFTER INSTALLATION
+========================
+
+The content of the conf.d directory should be managed in SVN.
+
+The address of the SVN repository could be something like:
+http://vigilo.example.com/svn/vigilo/trunk/conf.d/
+
+
+Example usage for a local repository::
+
+  cd /etc/vigilo/vigiconf/
+  mkdir -p /var/lib/svn/vigiconf
+  svnadmin create /var/lib/svn/vigiconf
+  chown vigiconf:vigiconf -R /var/lib/svn/vigiconf
+  svn import -m "initial import" conf.d.example file:///var/lib/svn/vigiconf/conf.d
+  rm -rf conf.d
+  svn checkout file:///var/lib/svn/vigiconf/conf.d
+  chown vigiconf:vigiconf -R conf.d
+
+
+Then activate the Rev keyword on the file conf.d/general/apps.py by the
+following command::
+
+  svn propset svn:keywords Rev conf.d/general/apps.py
+
+
+Then update the ``svnrepository`` parameter in the ``settings.ini``
+configuration file and run::
+  vigiconf deploy --force
+
+
+.. vim: set syntax=rst fileencoding=utf-8 tw=78 :
