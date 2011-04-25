@@ -981,8 +981,8 @@ msgstr ""
 #, python-format
 msgid "Can't load the ventilation in database: the host %s is not in database yet"
 msgstr ""
-"Impossible de charger la ventilation en base de données : l'hôte %s \"\n"
-"\"n'existe pas encore dans la base de données"
+"Impossible de charger la ventilation en base de données : l'hôte %s "
+"n'existe pas encore dans la base de données"
 
 #: src/vigilo/vigiconf/loaders/ventilation.py:151
 #, python-format
