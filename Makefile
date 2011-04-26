@@ -38,7 +38,7 @@ install_users:
 	chown $(NAME):$(NAME) $(DESTIDR)$(CONFDIR)/ssh/vigiconf.key
 
 install_permissions:
-	chmod 750 $(DESTDIR)$(VARDIR)
+	chmod 755 $(DESTDIR)$(VARDIR)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(VARDIR)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/lock/$(PKGNAME)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
