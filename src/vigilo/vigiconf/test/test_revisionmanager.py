@@ -150,6 +150,18 @@ class RevisionManagerTest(unittest.TestCase):
         self.assertEqual(status["removed"], [testdir, testfile])
         self.assertEqual(status["toremove"], [])
 
+    def test_status_strange_files(self):
+        """RevMan: synchronisation avec un dossier supprimé manuellement contenant des fichiers bizarres"""
+        testfile = os.path.join(self.confdir, "dummy.orig.old.disabled")
+        open(testfile, "w").close()
+        self._run_svn(["add", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        self._run_svn(["rm", testfile])
+        status = self.rev_mgr.status()
+        print status
+        self.assertEqual(status["toremove"], [])
+        self.assertEqual(status["removed"], [testfile])
+
     def test_status_moved(self):
         """RevMan: fichier renommé"""
         oldname = os.path.join(self.confdir, "dummy1.xml")
@@ -232,4 +244,18 @@ class RevisionManagerTest(unittest.TestCase):
                     'toadd': [],
                     'modified': []}
         self.assertEqual(status, expected)
+
+    def test_sync_manually_deleted_dir(self):
+        """RevMan: synchronisation avec un dossier supprimé manuellement"""
+        testdir = os.path.join(self.confdir, "hosts")
+        testfile = os.path.join(testdir, "dummy.xml")
+        open(testfile, "w").close()
+        self._run_svn(["add", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        shutil.rmtree(testdir)
+        self.rev_mgr.sync()
+        status = self.rev_mgr.status()
+        print status
+        self.assertEqual(status["removed"], [testdir, testfile])
+        self.assertEqual(status["toremove"], [])
 

@@ -15,8 +15,10 @@ import unittest
 import vigilo.vigiconf.conf as conf
 from vigilo.common.conf import settings
 settings.load_module(__name__)
-from vigilo.models.tables import Host
-from vigilo.models.tables import ConfItem
+
+from vigilo.models.session import DBSession
+
+from vigilo.models.tables import Host, ConfItem, ConfFile
 
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.host import HostLoader
@@ -37,9 +39,9 @@ class TestLoader(unittest.TestCase):
         open(os.path.join(self.tmpdir, "dummy.xml"), "w").close() # == touch
         self.host = ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
                              "192.168.1.1", "Servers")
-        rm = DummyRevMan()
+        self.rm = DummyRevMan()
         grouploader = GroupLoader()
-        self.hostloader = HostLoader(grouploader, rm)
+        self.hostloader = HostLoader(grouploader, self.rm)
 
     def tearDown(self):
         teardown_db()
@@ -89,4 +91,28 @@ class TestLoader(unittest.TestCase):
                             u"retry_interval")
         self.assertTrue(ci, "confitem retry_interval must exist")
         self.assertEquals(ci.value, "3", "retry_interval=3")
+
+    def test_remove_conffile_on_missing_files(self):
+        ci = ConfFile.get_or_create(u"dummy2.xml")
+        self.hostloader.load()
+        self.assertEqual(0, DBSession.query(ConfFile).filter_by(
+                            name=u"dummy2.xml").count())
+
+    def test_remove_conffile_on_svn_remove(self):
+        ci = ConfFile.get_or_create(u"dummy2.xml")
+        dummy_file = os.path.join(self.tmpdir, "dummy2.xml")
+        open(dummy_file, "w").close()
+        self.rm.dummy_status["removed"] = [dummy_file]
+        self.hostloader.load()
+        self.assertEqual(0, DBSession.query(ConfFile).filter_by(
+                            name=u"dummy2.xml").count())
+
+    def test_remove_conffile_on_parent_svn_remove(self):
+        ci = ConfFile.get_or_create(u"dummydir/dummy2.xml")
+        os.mkdir(os.path.join(self.tmpdir, "dummydir"))
+        open(os.path.join(self.tmpdir, "dummydir", "dummy2.xml"), "w").close()
+        self.rm.dummy_status["removed"] = [os.path.join(self.tmpdir, "dummydir"), ]
+        self.hostloader.load()
+        self.assertEqual(0, DBSession.query(ConfFile).filter_by(
+                            name=u"dummydir/dummy2.xml").count())
 

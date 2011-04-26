@@ -120,13 +120,14 @@ from vigilo.vigiconf.lib.dispatchator.revisionmanager import RevisionManager
 class DummyRevMan(RevisionManager):
     def __init__(self):
         self.force = ("deploy", "db-sync")
-
-    def status(self):
         # On indique qu'aucun changement n'a eu lieu,
         # car le fait de positionner le flag "force"
         # force de toutes façons les opérations.
-        return {'toadd': [], 'added': [],
-                'toremove': [], 'removed': [], 'modified': []}
+        self.dummy_status = {'toadd': [], 'added': [],
+                          'toremove': [], 'removed': [], 'modified': []}
+
+    def status(self):
+        return self.dummy_status
 
 from vigilo.vigiconf.lib.systemcommand import SystemCommand
 class DummyCommand(SystemCommand):

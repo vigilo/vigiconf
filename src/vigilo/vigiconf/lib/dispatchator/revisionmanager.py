@@ -112,15 +112,7 @@ class RevisionManager(object):
             elif state == "missing":
                 status["toremove"].append(entry.get("path"))
             elif state == "deleted":
-                path = entry.get("path")
-                if path.endswith(".xml"):
-                    status["removed"].append(path)
-                elif os.path.isdir(path):
-                    status["removed"].append(path)
-                else:
-                    # probablement les fichiers d'un dossier supprimé avec
-                    # rm -rf
-                    status["toremove"].append(path)
+                status["removed"].append(entry.get("path"))
             elif state == "modified":
                 status["modified"].append(entry.get("path"))
         self._status = status

@@ -19,6 +19,8 @@
 
 import os
 
+from sqlalchemy import or_
+
 from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -186,11 +188,15 @@ class HostLoader(DBLoader):
         # ainsi que de leurs hôtes (par CASCADE).
         LOGGER.debug("Cleaning up old hosts")
         removed = self.rev_mgr.get_removed()
-        LOGGER.debug("Removing: %d old filenames", len(removed))
         for filename in removed:
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
-            DBSession.query(ConfFile).filter(
-                ConfFile.name == unicode(relfilename)).delete()
+            # si un dossier est supprimé avec rm -rf, SVN ne signale que le
+            # dossier, pas tous ses fichiers/sous-dossiers -> on doit utiliser
+            # un LIKE pour les attrapper
+            DBSession.query(ConfFile).filter(or_(
+                    ConfFile.name == unicode(relfilename),
+                    ConfFile.name.like(unicode(relfilename) + u"/%")
+                )).delete()
         LOGGER.debug("Done cleaning up old hosts")
 
         # Ghostbusters
