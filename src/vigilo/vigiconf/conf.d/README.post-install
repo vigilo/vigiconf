@@ -27,15 +27,13 @@ Then update the ``svnrepository`` parameter accordingly in the
 ``settings.ini`` configuration file.
 
 Then, you must add some ``sudo`` rights to the ``vigiconf`` user, to let it
-restart managed services. Add the following lines to ``/etc/sudoers`` ::
+restart managed services. Add the following lines to ``/etc/sudoers``::
 
   # VigiConf
   Defaults:vigiconf !requiretty
   Cmnd_Alias INIT = /etc/init.d/*
   Cmnd_Alias VALID = /usr/sbin/nagios
   vigiconf ALL=(ALL) NOPASSWD: INIT, VALID
-
-At last, you can run VigiConf with the following command::
 
 Then update the ``svnrepository`` parameter in the ``settings.ini``
 configuration file and run::

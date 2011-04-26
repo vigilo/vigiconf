@@ -20,7 +20,8 @@ façon suivante::
 
     make install PYTHON=/usr/bin/python2.6
 
-VigiConf a besoin de ``subversion`` et des modules Python suivants :
+VigiConf a besoin de ``subversion``, de ``sqlite3``, et des modules Python
+suivants :
 
 - setuptools (ou distribute)
 - vigilo-common
