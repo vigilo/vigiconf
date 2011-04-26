@@ -89,10 +89,9 @@ setup(name='vigilo-vigiconf',
         description="Configuration manager for the supervision system",
         long_description="This program generates and pushes the "
                          "configuration for the applications used in Vigilo.",
+        zip_safe=False,
         install_requires=install_requires,
-        namespace_packages = [
-            'vigilo',
-            ],
+        namespace_packages=['vigilo'],
         packages=find_packages("src"),
         message_extractors={
             'src': [
