@@ -415,39 +415,12 @@ class TagLoader(DBLoader):
         super(TagLoader, self).__init__(Tag, "name")
         self.supitem = supitem
         self.tags = tags
-        if not self.all_tags:
-            self._load_tags()
-
-    def _load_tags(self):
-        tags = {}
-        for tag in DBSession.query(Tag).all():
-            tags[tag.name] = [ s.idsupitem for s in tag.supitems ]
-        for tag, idsupitems in tags.iteritems():
-            for idsupitem in idsupitems:
-                if idsupitem not in self.all_tags:
-                    self.all_tags[idsupitem] = set()
-                self.all_tags[idsupitem].add(tag)
 
     def cleanup(self):
         pass
 
     def load_conf(self):
-        for name in self.tags:
-            name = unicode(name)
-            tag = self.add({'name': name})
-            if (self.supitem.idsupitem not in self.all_tags or
-                    name not in self.all_tags[self.supitem.idsupitem]):
-                self.supitem.tags.append(tag)
-                self.all_tags.setdefault(self.supitem.idsupitem,
-                                         set()).add(name)
-        if self.supitem.idsupitem not in self.all_tags:
-            return
-        for tagname in self.all_tags[self.supitem.idsupitem].copy():
-            if tagname not in self.tags:
-                for tag in self.supitem.tags:
-                    if tag.name == tagname:
-                        self.supitem.tags.remove(tag)
-                self.all_tags[self.supitem.idsupitem].remove(tagname)
+        self.supitem.tags = self.tags
 
 class NagiosConfLoader(DBLoader):
     """
