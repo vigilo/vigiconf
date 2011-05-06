@@ -46,6 +46,7 @@ _ = translate(__name__)
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib import VigiConfError
+from vigilo.vigiconf.lib.generators.base import SkipGenerator
 from vigilo.vigiconf.lib.validator import Validator
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib.loaders.manager import LoaderManager
@@ -95,10 +96,15 @@ class GeneratorManager(object):
             if app.dbonly:
                 continue # sera fait après le déploiement
             generator = app.generator(app, vba)
-            generator.generate()
-            generator.write_scripts()
-            LOGGER.info(_("Generated configuration for %s"), app.name)
-            results[app.name] = generator.results
+            try:
+                generator.generate()
+            except SkipGenerator, e:
+                LOGGER.warning(e)
+                LOGGER.warning(_("Skipping %s generator"), app.name)
+            else:
+                generator.write_scripts()
+                LOGGER.info(_("Generated configuration for %s"), app.name)
+                results[app.name] = generator.results
         for appname, result_data in results.items():
             for element, msg in result_data.get("errors", []):
                 validator.addError(appname, element, msg)
@@ -170,8 +176,14 @@ class GeneratorManager(object):
             app = db_generators[0]
             LOGGER.info(_("Generating configuration for %s"), app.name)
             generator = app.generator(app, {})
-            generator.generate()
-            transaction.commit()
+            try:
+                generator.generate()
+            except SkipGenerator, e:
+                transaction.abort()
+                LOGGER.warning(e)
+                LOGGER.warning(_("Skipping %s generator"), app.name)
+            else:
+                transaction.commit()
             return
         # Ici, on a plusieurs générateurs DB, à exécuter en parallèle
         LOGGER.info(_("Running database generators"))
@@ -312,10 +324,17 @@ def _run_db_generator(appclass):
 
     app = appclass()
     generator = app.generator(app, {})
-    generator.generate()
-    transaction.commit()
-    LOGGER.info(_("Generated configuration for %s"), app.name)
-    DBSession.close_all()
-    # fermeture propre des connexions, ce sous-process va être tué
-    DBSession.bind.dispose()
+    try:
+        generator.generate()
+    except SkipGenerator, e:
+        LOGGER.warning(e)
+        LOGGER.warning(_("Skipping %s generator"), app.name)
+        transaction.abort()
+    else:
+        transaction.commit()
+        LOGGER.info(_("Generated configuration for %s"), app.name)
+    finally:
+        DBSession.close_all()
+        # fermeture propre des connexions, ce sous-process va être tué
+        DBSession.bind.dispose()
 

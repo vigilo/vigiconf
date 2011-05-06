@@ -17,7 +17,7 @@ _ = translate(__name__)
 from vigilo.models import tables
 from vigilo.models.session import DBSession
 
-from vigilo.vigiconf.lib.generators import MapGenerator
+from vigilo.vigiconf.lib.generators.map import MapGenerator
 
 
 class VigiMapGen(MapGenerator):

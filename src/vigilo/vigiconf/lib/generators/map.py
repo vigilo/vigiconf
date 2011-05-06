@@ -28,7 +28,8 @@ from datetime import datetime
 from vigilo.models.tables import MapGroup, Map
 from vigilo.models.session import DBSession
 
-from .base import Generator
+from vigilo.vigiconf.lib.exceptions import VigiConfError
+from .base import Generator, SkipGenerator
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
@@ -77,7 +78,7 @@ class MapGenerator(Generator):
         root = MapGroup.by_parent_and_name(None, unicode(self.rootgroup_name))
         if root:
             return root
-        raise KeyError(_("The map group %s has not been added "
+        raise SkipGenerator(_("The map group %s has not been added "
                         "by the install procedure") % self.rootgroup_name)
 
     def process_top_group(self, group):

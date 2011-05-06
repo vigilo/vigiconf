@@ -28,6 +28,13 @@ from vigilo.common.conf import settings
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
+from vigilo.vigiconf.lib.exceptions import VigiConfError
+
+
+class SkipGenerator(VigiConfError):
+    pass
+
+
 class Generator(object):
     """
     La classe de base pour les générateurs

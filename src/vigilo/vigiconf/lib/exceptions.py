@@ -23,7 +23,7 @@ Generic exceptions for the Vigilo Config Manager
 
 
 class VigiConfError(Exception):
-    """Generic VigiConf Exception"""
+    """Exception VigiConf générique"""
 
     def __init__(self, value):
         super(VigiConfError, self).__init__(value)
