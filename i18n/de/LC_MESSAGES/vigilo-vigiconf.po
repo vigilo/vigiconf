@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2011-04-25 08:22+0200\n"
+"PO-Revision-Date: 2011-05-06 15:30+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -698,27 +698,27 @@ msgstr ""
 msgid "can't get the SVN status for the configuration dir: %s"
 msgstr "der SVN Status für die Konfiguration dir: %s kann nicht erhalten werden"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:136
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:128
 msgid "Not updating because the 'svnrepository' configuration parameter is empty"
 msgstr ""
 "Kann nicht aktualisiert werden, da der Konfigurationsparameter "
 "'svnrepository' leer ist"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:154
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:146
 msgid "Error while syncing the SVN directory"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:171
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:163
 #, python-format
 msgid "Can't add %(path)s in repository: %(error)s"
 msgstr "%(path)s kann dem Repository nicht hinzugefügt werden: %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:194
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:186
 #, python-format
 msgid "can't remove %(path)s from repository: %(error)s"
 msgstr "%(path)s kann nicht aus dem Repository entfernt werden: %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:205
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:197
 msgid ""
 "Not committing because the 'svnrepository' configuration parameter is "
 "empty"
@@ -726,16 +726,16 @@ msgstr ""
 "Commit wird nicht ausgeführt, das der Konfigurationsparameter "
 "'svnrepository' leer ist"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:217
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:209
 #, python-format
 msgid "can't commit the configuration dir in SVN: %s"
 msgstr "Commit kann für die Konfiguration dir in SVN nicht ausgeführt werden: %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:222
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:214
 msgid "SVN commit successful"
 msgstr "SVN commit erfolgreich"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:236
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:228
 #, python-format
 msgid ""
 "can't execute the request to update the local copy. COMMAND %(cmd)s "
@@ -744,14 +744,14 @@ msgstr ""
 "die Anforderung der Aktualisierung der lokalen Kopie kann nicht "
 "ausgeführt werden. BEFEHL %(cmd)s FEHLGESCHLAGEN. URSACHE: %(reason)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:276
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:268
 #, python-format
 msgid "can't execute the request to get the current revision: %s"
 msgstr ""
 "die Anforderung die aktuelle Revision: %s zu erhalten kann nicht "
 "ausgeführt werden"
 
-#: src/vigilo/vigiconf/lib/generators/base.py:79
+#: src/vigilo/vigiconf/lib/generators/base.py:86
 msgid "Generators must define the generate_host() method"
 msgstr "Generatoren müssen die generate_host() methode definieren"
 
@@ -760,47 +760,54 @@ msgstr "Generatoren müssen die generate_host() methode definieren"
 msgid "No such template: %s"
 msgstr "Vorlage nicht vorhanden: %s"
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:100
-#: src/vigilo/vigiconf/lib/generators/manager.py:317
+#: src/vigilo/vigiconf/lib/generators/manager.py:103
+#: src/vigilo/vigiconf/lib/generators/manager.py:184
+#: src/vigilo/vigiconf/lib/generators/manager.py:331
+#, python-format
+msgid "Skipping %s generator"
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/generators/manager.py:106
+#: src/vigilo/vigiconf/lib/generators/manager.py:335
 #, python-format
 msgid "Generated configuration for %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:134
+#: src/vigilo/vigiconf/lib/generators/manager.py:140
 msgid "Computing ventilation"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:149
+#: src/vigilo/vigiconf/lib/generators/manager.py:155
 msgid "Running generators"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:171
+#: src/vigilo/vigiconf/lib/generators/manager.py:177
 #, python-format
 msgid "Generating configuration for %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:177
+#: src/vigilo/vigiconf/lib/generators/manager.py:189
 msgid "Running database generators"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:191
+#: src/vigilo/vigiconf/lib/generators/manager.py:203
 #, python-format
 msgid "%(errtype)s in application %(app)s: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:214
+#: src/vigilo/vigiconf/lib/generators/manager.py:226
 msgid "Can't find the metro server for the RRD-based services"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/manager.py:226
-#: src/vigilo/vigiconf/lib/generators/manager.py:236
+#: src/vigilo/vigiconf/lib/generators/manager.py:238
+#: src/vigilo/vigiconf/lib/generators/manager.py:248
 #, python-format
 msgid ""
 "The metrology server %s must be supervised for the RRD-based services to "
 "work"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/generators/map.py:80
+#: src/vigilo/vigiconf/lib/generators/map.py:81
 #, python-format
 msgid "The map group %s has not been added by the install procedure"
 msgstr "Die Mapgruppe %s wurde nicht vom Installationsverfahren hinzugefügt"
@@ -907,11 +914,11 @@ msgstr ""
 "Tar-Archiv kann für Server %(server)s: %(error)s nicht bereitgestellt "
 "werden"
 
-#: src/vigilo/vigiconf/lib/server/manager.py:129
+#: src/vigilo/vigiconf/lib/server/manager.py:132
 msgid "All servers are up-to-date, no deployment needed."
 msgstr "Alle Server sind aktualisiert. Kein Bereitstellung erforderlich."
 
-#: src/vigilo/vigiconf/lib/server/manager.py:135
+#: src/vigilo/vigiconf/lib/server/manager.py:138
 msgid ""
 "The configurations files have not been transfered on every server. See "
 "above for more information."
@@ -919,7 +926,7 @@ msgstr ""
 "Die Konfigurationsdatein wurden nicht auf alle Server übertragen. Weitere"
 " Informationen siehe oben."
 
-#: src/vigilo/vigiconf/lib/server/manager.py:151
+#: src/vigilo/vigiconf/lib/server/manager.py:154
 msgid "Switch directories was not successful on each server."
 msgstr "Wechseln der Verzeichnisse war nicht auf jedem Server erfolgreich."
 
@@ -927,30 +934,30 @@ msgstr "Wechseln der Verzeichnisse war nicht auf jedem Server erfolgreich."
 msgid "Loading groups"
 msgstr "Gruppe werden geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:73
+#: src/vigilo/vigiconf/loaders/host.py:75
 #, python-format
 msgid "Deleting leftover config file from database: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:79
+#: src/vigilo/vigiconf/loaders/host.py:81
 msgid "Loading hosts"
 msgstr "Hosts werden geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:125
+#: src/vigilo/vigiconf/loaders/host.py:127
 #, python-format
 msgid "Loading host %s"
 msgstr "Host %s wird geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:268
+#: src/vigilo/vigiconf/loaders/host.py:274
 msgid "Done loading hosts"
 msgstr "Hosts sind geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:291
+#: src/vigilo/vigiconf/loaders/host.py:297
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Unbekannte Gruppe \"%(group)s\" in Host \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:318
+#: src/vigilo/vigiconf/loaders/host.py:324
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
