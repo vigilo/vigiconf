@@ -24,7 +24,8 @@ following command::
   svn propset svn:keywords Rev conf.d/general/apps.py
 
 Then update the ``svnrepository`` parameter accordingly in the
-``settings.ini`` configuration file.
+``settings.ini`` configuration file (set it to
+``file:///var/lib/svn/vigiconf``).
 
 Then, you must add some ``sudo`` rights to the ``vigiconf`` user, to let it
 restart managed services. Add the following lines to ``/etc/sudoers``::
