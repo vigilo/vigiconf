@@ -61,8 +61,14 @@ class VigiRRDGen(Generator):
             self._all_ds_graph.update(set(graphvalues["ds"]))
         # add human-readable labels
         for dsid in h["dataSources"]:
-            cursor.execute("UPDATE perfdatasource SET label = ? WHERE name = ?",
-                           (h["dataSources"][dsid]["label"], dsid))
+            cursor.execute(
+                "UPDATE perfdatasource SET label = ?, "
+                "max = ? WHERE name = ?", (
+                    h["dataSources"][dsid]["label"],
+                    h["dataSources"][dsid]["max"],
+                    dsid
+                )
+            )
         for dsid in h["dataSources"]:
             self._all_ds_metro.add(dsid)
 
@@ -93,42 +99,42 @@ class VigiRRDGen(Generator):
         self.connections[vserver] = {"db": db, "cursor": c}
         # host
         c.execute("""CREATE TABLE host (
-                         idhost INTEGER NOT NULL, 
-                         name VARCHAR(255) NOT NULL, 
-                         grid VARCHAR(64) NOT NULL, 
-                         height INTEGER NOT NULL, 
-                         width INTEGER NOT NULL, 
-                         step INTEGER NOT NULL, 
-                         PRIMARY KEY (idhost), 
+                         idhost INTEGER NOT NULL,
+                         name VARCHAR(255) NOT NULL,
+                         grid VARCHAR(64) NOT NULL,
+                         height INTEGER NOT NULL,
+                         width INTEGER NOT NULL,
+                         step INTEGER NOT NULL,
+                         PRIMARY KEY (idhost),
                           UNIQUE (name)
                      )""")
         # perfdatasource
         c.execute("""CREATE TABLE perfdatasource (
-                         idperfdatasource INTEGER NOT NULL, 
-                         name TEXT NOT NULL, 
-                         label TEXT, 
-                         factor FLOAT NOT NULL, 
-                         max FLOAT, 
+                         idperfdatasource INTEGER NOT NULL,
+                         name TEXT NOT NULL,
+                         label TEXT,
+                         factor FLOAT NOT NULL,
+                         max FLOAT,
                          PRIMARY KEY (idperfdatasource)
                      )""")
         # graph
         c.execute("""CREATE TABLE graph (
-                         idgraph INTEGER NOT NULL, 
-                         idhost INTEGER, 
-                         name VARCHAR(255) NOT NULL, 
-                         template VARCHAR(255) NOT NULL, 
-                         vlabel VARCHAR(255) NOT NULL, 
-                         lastismax BOOLEAN, 
-                         PRIMARY KEY (idgraph), 
+                         idgraph INTEGER NOT NULL,
+                         idhost INTEGER,
+                         name VARCHAR(255) NOT NULL,
+                         template VARCHAR(255) NOT NULL,
+                         vlabel VARCHAR(255) NOT NULL,
+                         lastismax BOOLEAN,
+                         PRIMARY KEY (idgraph),
                           FOREIGN KEY(idhost) REFERENCES host (idhost)
                      )""")
         # liaison
         c.execute("""CREATE TABLE graphperfdatasource (
-                         idperfdatasource INTEGER NOT NULL, 
-                         idgraph INTEGER NOT NULL, 
-                         `order` INTEGER NOT NULL, 
-                         PRIMARY KEY (idperfdatasource, idgraph), 
-                          FOREIGN KEY(idperfdatasource) REFERENCES perfdatasource (idperfdatasource) ON DELETE CASCADE ON UPDATE CASCADE, 
+                         idperfdatasource INTEGER NOT NULL,
+                         idgraph INTEGER NOT NULL,
+                         `order` INTEGER NOT NULL,
+                         PRIMARY KEY (idperfdatasource, idgraph),
+                          FOREIGN KEY(idperfdatasource) REFERENCES perfdatasource (idperfdatasource) ON DELETE CASCADE ON UPDATE CASCADE,
                           FOREIGN KEY(idgraph) REFERENCES graph (idgraph) ON DELETE CASCADE ON UPDATE CASCADE
                      )""")
 
