@@ -221,4 +221,20 @@ class HostTemplates(unittest.TestCase):
         self.assertRaises(ParsingError, self.hosttemplatefactory.apply,
                           self.host, "testtpl1")
 
+    def test_prefer_attributes_from_host(self):
+        """
+        Les attributs de l'hôte ont la priorité sur ceux du template (#640).
+        """
+        self.host.set_attribute("snmpCommunity", "foobar")
+        self.hosttemplatefactory.templates["default"]["attributes"] = {
+            "snmpCommunity": "public",
+        }
+        self.hosttemplatefactory.apply(self.host, "default")
+
+        # La communauté SNMP doit être celle de l'hôte (foobar)
+        # et pas celle du template "default" (public).
+        self.assertEquals(
+            conf.hostsConf['testserver1']['snmpCommunity'],
+            "foobar"
+        )
 

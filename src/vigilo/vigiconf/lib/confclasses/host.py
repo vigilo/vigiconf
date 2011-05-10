@@ -147,11 +147,15 @@ class Host(object):
         """
         A very simple wrapper to set many attributes at once in the host's
         entry in the hashmap.
+        This is used by the hosttemplate factory to apply attributes from
+        a host template.
 
         @param attributes: the attributes to set
         @type  attributes: C{dict}
         """
-        self.hosts[self.name].update(attributes)
+        host_attr = self.hosts[self.name].copy()
+        self.hosts[self.name] = attributes.copy()
+        self.hosts[self.name].update(host_attr)
 
     def add_tests(self, test_list, args=None, weight=None, directives=None):
         """
