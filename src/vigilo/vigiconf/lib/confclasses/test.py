@@ -203,7 +203,8 @@ class TestFactory(object):
                             # This is an import statement, re-bind it here
                             globals()[current_test_name] = current_test_class
                             continue
-                        if not issubclass(current_test_class, Test):
+                        if (not isinstance(current_test_class, Test)) or \
+                            (not issubclass(current_test_class, Test)):
                             continue
                         if not self.tests.has_key(current_test_name):
                             self.tests[current_test_name] = {}
