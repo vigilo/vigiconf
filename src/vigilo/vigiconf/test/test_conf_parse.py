@@ -406,6 +406,23 @@ class ParseHost(unittest.TestCase):
         self.assertTrue("RAID" in self.hostsConf["testserver1"]["services"],
                         "L'ordre des balises class et template est important")
 
+    def test_attributes_before_template(self):
+        """Les attributs doivent pouvoir être déclarés avant les templates"""
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <attribute name="snmpCommunity">new_community</attribute>
+            <template>linux</template> <!-- should not reset to public -->
+        </host>""")
+        self.host.close()
+        htpl = HostTemplate("linux")
+        htpl.add_attribute("snmpCommunity", "public")
+        htpl.add_group("Linux servers")
+        self.hosttemplatefactory.register(htpl)
+        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
+        self.assertEqual(self.hostsConf['testserver1']['snmpCommunity'],
+                         "new_community")
+
 
 class ParseHostTemplate(unittest.TestCase):
 

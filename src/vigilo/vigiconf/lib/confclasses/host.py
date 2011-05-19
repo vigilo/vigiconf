@@ -153,9 +153,7 @@ class Host(object):
         @param attributes: the attributes to set
         @type  attributes: C{dict}
         """
-        host_attr = self.hosts[self.name].copy()
-        self.hosts[self.name] = attributes.copy()
-        self.hosts[self.name].update(host_attr)
+        self.hosts[self.name].update(attributes)
 
     def add_tests(self, test_list, args=None, weight=None, directives=None):
         """
@@ -854,6 +852,7 @@ class HostFactory(object):
                     tags = []
                     weight = None
                     templates = []
+                    attributes = {}
 
                     name = get_attrib(elem, 'name')
 
@@ -927,7 +926,7 @@ class HostFactory(object):
                               if i.tag == "item" ]
                     if items:
                         value = items
-                    cur_host.set_attribute(get_attrib(elem, 'name'), value)
+                    attributes[get_attrib(elem, 'name')] = value
 
                 elif elem.tag == "tag":
                     service = None
@@ -978,6 +977,9 @@ class HostFactory(object):
                 elif elem.tag == "host":
                     for template in templates:
                         self.hosttemplatefactory.apply(cur_host, template)
+
+                    for attr_name, attr_value in attributes.iteritems():
+                        cur_host.set_attribute(attr_name, attr_value)
 
                     if not len(cur_host.get_attribute('otherGroups')):
                         raise ParsingError(_('You must associate host "%s" '

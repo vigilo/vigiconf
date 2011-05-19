@@ -221,20 +221,13 @@ class HostTemplates(unittest.TestCase):
         self.assertRaises(ParsingError, self.hosttemplatefactory.apply,
                           self.host, "testtpl1")
 
-    def test_prefer_attributes_from_host(self):
+    def test_attributes_hierarchy_order(self):
         """
-        Les attributs de l'hôte ont la priorité sur ceux du template (#640).
+        Les attributs doivent se faire surcharger dans l'ordre d'héritage
         """
-        self.host.set_attribute("snmpCommunity", "foobar")
-        self.hosttemplatefactory.templates["default"]["attributes"] = {
-            "snmpCommunity": "public",
-        }
-        self.hosttemplatefactory.apply(self.host, "default")
-
-        # La communauté SNMP doit être celle de l'hôte (foobar)
-        # et pas celle du template "default" (public).
-        self.assertEquals(
-            conf.hostsConf['testserver1']['snmpCommunity'],
-            "foobar"
-        )
+        self.tpl.add_attribute("snmpCommunity", "comm1")
+        self.hosttemplatefactory.apply(self.host, "testtpl1")
+        self.assertEquals(conf.hostsConf['testserver1']['snmpCommunity'],
+                "comm1", "La communauté SNMP doit être celle du dernier "
+                "template et pas celle d'un de ses parents")
 
