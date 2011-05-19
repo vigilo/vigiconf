@@ -86,16 +86,12 @@ class LoaderManager(object):
         # deux boucles parce qu'on veut forcer le tri des loaders par leur nom
         # dans une distribution donnée. Par défaut, il n'y a pas de tri à
         # l'intérieur d'une même distribution (voir doc de pkg_resources)
-        specific_loaders = {}
-        for entry in working_set.iter_entry_points("vigilo.vigiconf.loaders"):
-            dist = entry.dist.key
-            specific_loaders.setdefault(dist, []).append(entry)
-        for dist, loaders in specific_loaders.iteritems():
-            loaders.sort(cmp=lambda x, y: cmp(x.name, y.name))
-            for loader_entry in loaders:
-                loadclass = loader_entry.load()
-                loader_instance = loadclass(grouploader, self.rev_mgr)
-                loader_instance.load()
+        loaders = list(working_set.iter_entry_points("vigilo.vigiconf.loaders"))
+        loaders.sort(cmp=lambda x, y: cmp(x.name, y.name))
+        for loader_entry in loaders:
+            loadclass = loader_entry.load()
+            loader_instance = loadclass(grouploader, self.rev_mgr)
+            loader_instance.load()
         DBSession.flush()
 
     def load_vigilo_servers_db(self): # pylint: disable-msg=R0201
