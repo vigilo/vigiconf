@@ -141,6 +141,13 @@ class Host(object):
         if attribute in self.attr_types \
                 and not isinstance(value, self.attr_types[attribute]):
             value = self.attr_types[attribute](value)
+        if (attribute in self.hosts[self.name]
+                and type(value) != type(self.hosts[self.name][attribute])):
+            # On vient d'essayer d'ajouter un attribut sur une valeur réservée
+            # comme dataSources ou services
+            raise ParsingError(_("In host %(host)s: attribute name "
+                                 "%(attribute)s is reserved")
+                                 % {"host": self.name, "attribute": attribute})
         self.hosts[self.name][attribute] = value
 
     def update_attributes(self, attributes):
@@ -153,7 +160,8 @@ class Host(object):
         @param attributes: the attributes to set
         @type  attributes: C{dict}
         """
-        self.hosts[self.name].update(attributes)
+        for attr_name, attr_value in attributes.iteritems():
+            self.set_attribute(attr_name, attr_value)
 
     def add_tests(self, test_list, args=None, weight=None, directives=None):
         """

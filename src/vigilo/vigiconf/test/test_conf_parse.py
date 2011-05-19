@@ -423,6 +423,19 @@ class ParseHost(unittest.TestCase):
         self.assertEqual(self.hostsConf['testserver1']['snmpCommunity'],
                          "new_community")
 
+    def test_attributes_reserved_value(self):
+        """
+        Les attributs ne doivent pas pouvoir utiliser un attribut réservé
+        """
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1">
+            <attribute name="dataSources">essai</attribute>
+            <group>/Servers</group>
+        </host>""")
+        self.host.close()
+        path = os.path.join(self.tmpdir, "hosts", "host.xml")
+        self.assertRaises(ParsingError, self.hostfactory._loadhosts, path)
+
 
 class ParseHostTemplate(unittest.TestCase):
 
