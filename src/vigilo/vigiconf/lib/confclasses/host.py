@@ -983,9 +983,17 @@ class HostFactory(object):
                     process_nagios = False
 
                 elif elem.tag == "host":
+                    # On applique les attributs avant les templates, pour
+                    # qu'ils soient dispo dans les tests des templates
+                    for attr_name, attr_value in attributes.iteritems():
+                        cur_host.set_attribute(attr_name, attr_value)
+
                     for template in templates:
                         self.hosttemplatefactory.apply(cur_host, template)
 
+                    # On ré-applique les attributs après les templates, au cas
+                    # où ces derniers les auraient écrasés (c'est la définition
+                    # dans l'hôte qui prime sur celle dans le template)
                     for attr_name, attr_value in attributes.iteritems():
                         cur_host.set_attribute(attr_name, attr_value)
 
