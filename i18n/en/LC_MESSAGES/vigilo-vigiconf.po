@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vigilo-vigiconf 2.0.0\n"
+"Project-Id-Version: vigilo-vigiconf 2.0.1\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2011-05-06 15:30+0200\n"
-"PO-Revision-Date: 2011-05-06 15:30+0200\n"
+"POT-Creation-Date: 2011-05-20 16:55+0200\n"
+"PO-Revision-Date: 2011-05-20 16:55+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -298,7 +298,7 @@ msgstr ""
 "%(msg)s\n"
 "The command was: %(cmd)s"
 
-#: src/vigilo/vigiconf/applications/vigirrd/generator.py:83
+#: src/vigilo/vigiconf/applications/vigirrd/generator.py:89
 #, python-format
 msgid "Some datasources are not on a graph: %s"
 msgstr "Some datasources are not on a graph: %s"
@@ -534,7 +534,12 @@ msgstr ""
 "The \"%(old_attribute)s\" attribute has been deprecated. Please use "
 "\"%(replacement)s\" instead."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:187
+#: src/vigilo/vigiconf/lib/confclasses/host.py:148
+#, python-format
+msgid "In host %(host)s: attribute name %(attribute)s is reserved"
+msgstr "In host %(host)s: attribute name %(attribute)s is reserved"
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:197
 #, python-format
 msgid ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
@@ -543,20 +548,20 @@ msgstr ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
 "%(args)s (and only those)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:547
+#: src/vigilo/vigiconf/lib/confclasses/host.py:557
 #, python-format
 msgid "Wrong datasource in graph '%(graph)s': %(ds)s"
 msgstr "Wrong datasource in graph '%(graph)s': %(ds)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:780
+#: src/vigilo/vigiconf/lib/confclasses/host.py:790
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:283
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:97
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr "Invalid XML validation schema %(schema)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:786
-#: src/vigilo/vigiconf/lib/confclasses/host.py:806
+#: src/vigilo/vigiconf/lib/confclasses/host.py:796
+#: src/vigilo/vigiconf/lib/confclasses/host.py:816
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:289
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:309
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:103
@@ -569,47 +574,47 @@ msgstr ""
 "Error reading %(file)s, make sure the permissions are set "
 "correctly.Message: %(error)s."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:803
+#: src/vigilo/vigiconf/lib/confclasses/host.py:813
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:306
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:120
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "XML syntax error in %(file)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:814
+#: src/vigilo/vigiconf/lib/confclasses/host.py:824
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:317
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr "XML validation failed: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:869
+#: src/vigilo/vigiconf/lib/confclasses/host.py:880
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Invalid ventilation group: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:903
+#: src/vigilo/vigiconf/lib/confclasses/host.py:914
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:953
+#: src/vigilo/vigiconf/lib/confclasses/host.py:964
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:121
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Invalid group name (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:962
+#: src/vigilo/vigiconf/lib/confclasses/host.py:973
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr "Invalid weight value for host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:979
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1001
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "You must associate host \"%s\" with at least one group."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:989
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1011
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
