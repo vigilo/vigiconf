@@ -31,8 +31,9 @@ from lxml import etree
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
-from vigilo.common.gettext import translate
+from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
+N_ = translate_narrow(__name__)
 
 from . import get_text, get_attrib, parse_path
 from .graph import Graph
@@ -130,7 +131,7 @@ class Host(object):
         """
         if attribute in self.deprecated_attr:
             import warnings
-            warnings.warn(DeprecationWarning(_(
+            warnings.warn(DeprecationWarning(N_(
                 'The "%(old_attribute)s" attribute has been deprecated. '
                 'Please use "%(replacement)s" instead.'
             ) % {
