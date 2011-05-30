@@ -48,7 +48,8 @@ class TestDiscoveratorBasics(unittest.TestCase):
         walkfile = open(tmpfile, "w")
         walkfile.write(".1.3.6.1.2.1.2.2.1.6.1 = \n")
         walkfile.close()
-        self.disc.snmpcommand = "cat %s" % tmpfile
+        #self.disc.snmpcommand = "cat %s" % tmpfile
+        self.disc._get_snmp_command = lambda c, v, h: ["cat", tmpfile]
         try:
             self.disc.scanhost("test", "public", "v2c")
         except ValueError:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (C) 2007-2011 CS-SI
@@ -40,18 +40,16 @@ _ = translate(__name__)
 class DiscoveratorError(VigiConfError):
     """Error during the Discoverator process"""
     pass
+class SnmpwalkNotInstalled(DiscoveratorError):
+    """The snmpwalk command is not installed"""
+    pass
 
 class Discoverator(object):
     """
     Scan a host or file containing the hosts' SNMP walk to find the host
     classes and the available tests.
     Also extract information about the host (number of CPUs, etc...)
-    @ivar snmpcommand: The system command to scan a host
-    @type snmpcommand: C{str}
     """
-
-    snmpcommand = "snmpwalk -OnQe -c %(community)s -v %(version)s" \
-                 +" \"%(host)s\" .1"
 
     def __init__(self, testfactory, group=None):
         self.group = group
@@ -63,6 +61,13 @@ class Discoverator(object):
         self.attributes = {}
         self.testfactory = testfactory
         self.testfactory.load_hclasses_checks()
+
+    def _get_snmp_command(self, community, version, host):
+        """
+        @return: La commande système à utiliser pour scanner un hôte
+        @rtype: C{list}
+        """
+        return ["snmpwalk", "-OnQe", "-c", community, "-v", version, host, ".1"]
 
     def scan(self, target, community="public", version="2c"):
         if community != "public":
@@ -113,10 +118,7 @@ class Discoverator(object):
         @type  version: C{str}
         """
         self.hostname = host
-        snmpcommand = self.snmpcommand % {"community": community,
-                                          "version": version,
-                                          "host": host,
-                                         }
+        snmpcommand = self._get_snmp_command(community, version, host)
         newenv = os.environ.copy()
         newenv["LANGUAGE"] = "C"
         newenv["LANG"] = "C"
@@ -126,22 +128,13 @@ class Discoverator(object):
         #    - /etc/snmp/snmp.conf
         newenv["SNMPCONFPATH"] = "/dev/null"
         walkprocess = subprocess.Popen(snmpcommand,
-                                       shell=True,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE,
                                        env=newenv)
         pout, perr = walkprocess.communicate()
         if walkprocess.returncode == 127:
             message = _('The "snmpwalk" command is not installed.')
-            raise DiscoveratorError(message)
-        elif walkprocess.returncode != 0:
-            message = _("SNMP walk command failed with error status %(status)s "
-                        "and message:\n%(msg)s\nThe command was: %(cmd)s") % {
-                'status': walkprocess.returncode,
-                'msg': perr,
-                'cmd': snmpcommand,
-            }
-            raise DiscoveratorError(message)
+            raise SnmpwalkNotInstalled(message)
         for line in pout.split("\n"): # pylint: disable-msg=E1103
             if line.count("=") != 1:
                 continue
@@ -150,6 +143,14 @@ class Discoverator(object):
                 continue
             oid, value = linetuple
             self.oids[oid] = value.strip("\n\r")
+        if walkprocess.returncode != 0:
+            message = _("SNMP walk command failed with error status %(status)s "
+                        "and message:\n  %(msg)s\nThe command was: %(cmd)s") % {
+                'status': walkprocess.returncode,
+                'msg': perr.strip(),
+                'cmd': " ".join(snmpcommand),
+            }
+            raise DiscoveratorError(message)
 
     def detect(self):
         """Start the detection on this host"""
@@ -196,7 +197,7 @@ class Discoverator(object):
             if not self.testfactory.hclasschecks.has_key(hclass):
                 continue
             sysdescrre = self.testfactory.hclasschecks[hclass]["sysdescr"]
-            if sysdescrre is None:
+            if sysdescrre is None or ".1.3.6.1.2.1.1.1.0" not in self.oids:
                 continue
             if re.match(sysdescrre, self.oids[".1.3.6.1.2.1.1.1.0"]):
                 self.hclasses.add(hclass)

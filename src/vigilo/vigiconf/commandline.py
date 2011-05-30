@@ -144,6 +144,8 @@ def info(args):
 def discover(args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory
     from vigilo.vigiconf.discoverator import Discoverator, indent
+    from vigilo.vigiconf.discoverator import DiscoveratorError
+    from vigilo.vigiconf.discoverator import SnmpwalkNotInstalled
     testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
     discoverator = Discoverator(testfactory, args.group)
     discoverator.testfactory.load_hclasses_checks()
@@ -151,7 +153,14 @@ def discover(args):
     if len(args.target) > 1:
         args.output.write("<hosts>\n")
     for target in args.target:
-        discoverator.scan(target, args.community, args.version)
+        try:
+            discoverator.scan(target, args.community, args.version)
+        except SnmpwalkNotInstalled:
+            raise
+        except DiscoveratorError, e:
+            # On ne fait que logguer l'erreur pour générer quand même ce
+            # qu'on a pu détecter jusqu'ici (cas du timeout)
+            LOGGER.error(e.value)
         discoverator.detect()
         elements = discoverator.declaration()
         indent(elements)
