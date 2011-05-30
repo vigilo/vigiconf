@@ -79,6 +79,23 @@ class Discoverator(object):
         else:
             self.scanhost(target, community, version)
 
+    def read_output(self, iterator):
+        """
+        Lis la sortie du snmpwalk (en direct ou par fichier) en re-fusionnant
+        les lignes contenant un retour à la ligne
+        """
+        line_re = re.compile("^((?:\.\d+)+) =\s?(.*)$")
+        cur_oid = None
+        cur_value = None
+        for line in iterator:
+            line_mo = line_re.match(line)
+            if line_mo is None:
+                cur_value = cur_value + "\n" + line
+            else:
+                cur_oid = line_mo.group(1)
+                cur_value = line_mo.group(2).strip("\n\r")
+            self.oids[cur_oid] = cur_value
+
     def scanfile(self, filename):
         """
         Use the stored SNMP walk.
@@ -93,14 +110,11 @@ class Discoverator(object):
         if not os.path.exists(filename):
             raise DiscoveratorError(_("%s: No such file") % filename)
         walk = open(filename)
-        for line in walk:
-            if line.count("=") != 1:
-                continue
-            lineparts = line.split(" = ")
-            if len(lineparts) == 1:
-                lineparts.append("")
-            self.oids[ lineparts[0] ] = lineparts[1].strip("\n\r")
+        self.read_output(walk)
         # Find the hostname using SNMPv2-MIB::sysName.0
+        if ".1.3.6.1.2.1.1.5.0" not in self.oids:
+            raise DiscoveratorError(_("Can't find the hostname using "
+                                      "SNMPv2-MIB::sysName.0"))
         self.hostname = self.oids[".1.3.6.1.2.1.1.5.0"].strip()
         if re.search('\s', self.hostname):
             raise DiscoveratorError(_("Invalid HOSTNAME detected in "
@@ -131,23 +145,16 @@ class Discoverator(object):
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE,
                                        env=newenv)
-        pout, perr = walkprocess.communicate()
+        out, err = walkprocess.communicate()
         if walkprocess.returncode == 127:
             message = _('The "snmpwalk" command is not installed.')
             raise SnmpwalkNotInstalled(message)
-        for line in pout.split("\n"): # pylint: disable-msg=E1103
-            if line.count("=") != 1:
-                continue
-            linetuple = line.strip().split(" = ")
-            if len(linetuple) != 2:
-                continue
-            oid, value = linetuple
-            self.oids[oid] = value.strip("\n\r")
+        self.read_output(out.split("\n")) # pylint: disable-msg=E1103
         if walkprocess.returncode != 0:
             message = _("SNMP walk command failed with error status %(status)s "
                         "and message:\n  %(msg)s\nThe command was: %(cmd)s") % {
                 'status': walkprocess.returncode,
-                'msg': perr.strip(),
+                'msg': err.strip(), # pylint: disable-msg=E1103
                 'cmd': " ".join(snmpcommand),
             }
             raise DiscoveratorError(message)
@@ -199,7 +206,7 @@ class Discoverator(object):
             sysdescrre = self.testfactory.hclasschecks[hclass]["sysdescr"]
             if sysdescrre is None or ".1.3.6.1.2.1.1.1.0" not in self.oids:
                 continue
-            if re.match(sysdescrre, self.oids[".1.3.6.1.2.1.1.1.0"]):
+            if re.match(sysdescrre, self.oids[".1.3.6.1.2.1.1.1.0"], re.S):
                 self.hclasses.add(hclass)
 
     def find_hclasses_oid(self):

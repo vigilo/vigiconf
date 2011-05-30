@@ -14,7 +14,6 @@ from helpers import setup_tmpdir, setup_db, teardown_db, TESTDATADIR
 
 
 class TestDiscoveratorBasics(unittest.TestCase):
-    testmib = None
 
     def setUp(self):
         setup_db()
@@ -22,26 +21,11 @@ class TestDiscoveratorBasics(unittest.TestCase):
         testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
         self.disc = Discoverator(testfactory, group="Test")
         self.disc.testfactory.load_hclasses_checks()
-        if self.testmib:
-            walkfile = os.path.join(TESTDATADIR, "discoverator", self.testmib)
-            self.disc.scanfile(walkfile)
-            self.disc.detect()
         self.testnames = [ t["name"] for t in self.disc.tests ]
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
         teardown_db()
-
-    def test_hostname(self):
-        if self.testmib:
-            expected = socket.getfqdn("localhost")
-            self.assertEqual(self.disc.hostname, expected,
-                "Hostname not detected correctly (got %s)" % self.disc.hostname)
-
-    def test_ipaddr(self):
-        if self.testmib:
-            self.assertEqual(self.disc.ipaddr, "127.0.0.1",
-                "IP not detected correcty (got %s)" % self.disc.ipaddr)
 
     def test_snmp_novalue(self):
         tmpfile = os.path.join(self.tmpdir, "test.walk")
@@ -55,8 +39,55 @@ class TestDiscoveratorBasics(unittest.TestCase):
         except ValueError:
             self.fail("Discoverator chokes on empty SNMP values")
 
+    def test_wrapped_line(self):
+        tmpfile = os.path.join(self.tmpdir, "test.walk")
+        walkfile = open(tmpfile, "w")
+        walkfile.write(".1.42 = First line\nSecond line\nThird line\n")
+        walkfile.close()
+        self.disc._get_snmp_command = lambda c, v, h: ["cat", tmpfile]
+        self.disc.scanhost("test", "public", "v2c")
+        self.assertEqual(self.disc.oids[".1.42"],
+                    "First line\nSecond line\nThird line\n")
 
-class DiscoveratorLinux(TestDiscoveratorBasics):
+    def test_detect_hclasses_wrapped_line(self):
+        self.disc.oids[".1.3.6.1.2.1.1.1.0"] = "l1\nTest HClass\nl3\n"
+        self.disc.testfactory.tests["faketest"] = {"test_hclass": None}
+        self.disc.testfactory.hclasschecks["test_hclass"] = {
+                "sysdescr": ".*Test HClass.*"}
+        self.disc.find_hclasses_sysdescr()
+        print self.disc.hclasses
+        self.assertTrue("test_hclass" in self.disc.hclasses)
+
+
+class DiscoveratorBaseTest(object):
+    testmib = None
+
+    def setUp(self):
+        setup_db()
+        self.tmpdir = setup_tmpdir()
+        testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
+        self.disc = Discoverator(testfactory, group="Test")
+        self.disc.testfactory.load_hclasses_checks()
+        walkfile = os.path.join(TESTDATADIR, "discoverator", self.testmib)
+        self.disc.scanfile(walkfile)
+        self.disc.detect()
+        self.testnames = [ t["name"] for t in self.disc.tests ]
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+        teardown_db()
+
+    def test_hostname(self):
+        expected = socket.getfqdn("localhost")
+        self.assertEqual(self.disc.hostname, expected,
+            "Hostname not detected correctly (got %s)" % self.disc.hostname)
+
+    def test_ipaddr(self):
+        self.assertEqual(self.disc.ipaddr, "127.0.0.1",
+            "IP not detected correcty (got %s)" % self.disc.ipaddr)
+
+
+class DiscoveratorLinux(DiscoveratorBaseTest, unittest.TestCase):
     testmib = "linux.walk"
 
     def test_classes(self):
