@@ -247,13 +247,16 @@ class Discoverator(object):
         """Find the hostname. If given an IP address, resolve the hostname"""
         if re.match(r"^\d+\.\d+\.\d+\.\d+$", self.hostname):
             self.ipaddr = self.hostname
-            self.hostname = socket.gethostbyaddr(self.hostname)[0]
+            try:
+                self.hostname = socket.gethostbyaddr(self.hostname)[0]
+            except socket.error:
+                pass
         if self.hostname.count(".") == 0:
             self.hostname = socket.getfqdn(self.hostname)
         if self.ipaddr is None:
             try:
                 self.ipaddr = socket.gethostbyname(self.hostname)
-            except socket.gaierror:
+            except socket.error:
                 pass
 
     def declaration(self):
