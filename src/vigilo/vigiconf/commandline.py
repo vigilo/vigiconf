@@ -147,18 +147,17 @@ def discover(args):
     testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
     discoverator = Discoverator(testfactory, args.group)
     discoverator.testfactory.load_hclasses_checks()
-    for target in args.target:
-        if os.path.exists(target):
-            discoverator.scanfile(target)
-        else:
-            discoverator.scanhost(target,
-                                  args.community,
-                                  args.version)
-    discoverator.detect()
-    elements = discoverator.declaration()
-    indent(elements)
     args.output.write("""<?xml version="1.0"?>\n""")
-    args.output.write(ET.tostring(elements))
+    if len(args.target) > 1:
+        args.output.write("<hosts>\n")
+    for target in args.target:
+        discoverator.scan(target, args.community, args.version)
+        discoverator.detect()
+        elements = discoverator.declaration()
+        indent(elements)
+        args.output.write(ET.tostring(elements))
+    if len(args.target) > 1:
+        args.output.write("</hosts>\n")
 
 def server(args):
     dispatchator = get_dispatchator(args, restrict=False)

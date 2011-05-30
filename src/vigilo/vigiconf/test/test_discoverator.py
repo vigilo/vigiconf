@@ -50,7 +50,7 @@ class TestDiscoveratorBasics(unittest.TestCase):
         walkfile.close()
         self.disc.snmpcommand = "cat %s" % tmpfile
         try:
-            self.disc.scanhost("test")
+            self.disc.scanhost("test", "public", "v2c")
         except ValueError:
             self.fail("Discoverator chokes on empty SNMP values")
 

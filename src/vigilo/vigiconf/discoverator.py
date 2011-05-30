@@ -64,6 +64,16 @@ class Discoverator(object):
         self.testfactory = testfactory
         self.testfactory.load_hclasses_checks()
 
+    def scan(self, target, community="public", version="2c"):
+        if community != "public":
+            self.attributes["snmpCommunity"] = community
+        if version != "2c":
+            self.attributes["snmpVersion"] = version
+        if os.path.exists(target):
+            self.scanfile(target)
+        else:
+            self.scanhost(target, community, version)
+
     def scanfile(self, filename):
         """
         Use the stored SNMP walk.
@@ -92,7 +102,7 @@ class Discoverator(object):
                     "SNMPv2-MIB::sysName.0: \"%s\" (blank character "
                     "not allowed)") % self.hostname)
 
-    def scanhost(self, host, community="public", version="2c"):
+    def scanhost(self, host, community, version):
         """
         Get a full SNMP walk on the host using the snmpwalk system command.
         @param host: the host name
@@ -103,15 +113,12 @@ class Discoverator(object):
         @type  version: C{str}
         """
         self.hostname = host
-        if community != "public":
-            self.attributes["community"] = community
-        if version != "2c":
-            self.attributes["snmpVersion"] = version
         snmpcommand = self.snmpcommand % {"community": community,
                                           "version": version,
                                           "host": host,
                                          }
         newenv = os.environ.copy()
+        newenv["LANGUAGE"] = "C"
         newenv["LANG"] = "C"
         newenv["LC_ALL"] = "C"
         #SNMPCONFPATH=/dev/null permit to avoid unwanted setup from
