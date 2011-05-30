@@ -157,8 +157,8 @@ def discover(args):
     discoverator.detect()
     elements = discoverator.declaration()
     indent(elements)
-    print """<?xml version="1.0"?>"""
-    print(ET.tostring(elements))
+    args.output.write("""<?xml version="1.0"?>\n""")
+    args.output.write(ET.tostring(elements))
 
 def server(args):
     dispatchator = get_dispatchator(args, restrict=False)
