@@ -27,7 +27,6 @@ from __future__ import absolute_import
 import fcntl
 import sys
 import os
-import pwd
 import atexit
 
 import argparse
@@ -332,8 +331,11 @@ def parse_args():
     return parser.parse_args()
 
 
-def change_user(username="vigiconf", os=os, pwd=pwd):
-    # pylint: disable-msg=W0621
+def change_user(username="vigiconf"):
+    # Ne pas remonter les deux imports suivants, nécessaires pour les tests
+    # unitaires (mock)
+    # pylint: disable-msg=W0621,W0404
+    import os, pwd
     uid = os.getuid()
     # Vigiconf est lancé en tant que "root",
     # on bascule sur un compte utilisateur
