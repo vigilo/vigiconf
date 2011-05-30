@@ -32,12 +32,23 @@ class TestDiscoveratorBasics(unittest.TestCase):
         walkfile = open(tmpfile, "w")
         walkfile.write(".1.3.6.1.2.1.2.2.1.6.1 = \n")
         walkfile.close()
-        #self.disc.snmpcommand = "cat %s" % tmpfile
         self.disc._get_snmp_command = lambda c, v, h: ["cat", tmpfile]
         try:
             self.disc.scanhost("test", "public", "v2c")
         except ValueError:
             self.fail("Discoverator chokes on empty SNMP values")
+
+    def test_snmp_empty(self):
+        """Discoverator should handle empty walks"""
+        tmpfile = os.path.join(self.tmpdir, "test.walk")
+        open(tmpfile, "w").close()
+        self.disc._get_snmp_command = lambda c, v, h: ["cat", tmpfile]
+        try:
+            self.disc.scanhost("test", "public", "v2c")
+        except (ValueError, TypeError):
+            self.fail("Discoverator chokes on empty SNMP walks")
+        print self.disc.oids
+        self.assertEqual(len(self.disc.oids), 0)
 
     def test_wrapped_line(self):
         tmpfile = os.path.join(self.tmpdir, "test.walk")

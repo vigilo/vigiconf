@@ -86,7 +86,7 @@ class Discoverator(object):
         """
         line_re = re.compile("^((?:\.\d+)+) =\s?(.*)$")
         cur_oid = None
-        cur_value = None
+        cur_value = ""
         for line in iterator:
             line_mo = line_re.match(line)
             if line_mo is None:
@@ -94,7 +94,8 @@ class Discoverator(object):
             else:
                 cur_oid = line_mo.group(1)
                 cur_value = line_mo.group(2).strip("\n\r")
-            self.oids[cur_oid] = cur_value
+            if cur_oid is not None:
+                self.oids[cur_oid] = cur_value
 
     def scanfile(self, filename):
         """
