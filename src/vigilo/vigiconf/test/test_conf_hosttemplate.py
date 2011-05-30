@@ -113,6 +113,20 @@ class HostTemplates(unittest.TestCase):
         self.assertEqual(tpldata["attributes"]["TestAttr"], "TestVal",
                 "inheritance does not work with attributes")
 
+    def test_inherit_redefine_attribute(self):
+        self.tpl.add_attribute("TestAttr", "TestVal1")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        self.tpl.add_attribute("TestAttr", "TestVal2")
+        self.hosttemplatefactory.register(tpl2)
+        # Reload the templates
+        self.hosttemplatefactory.load_templates()
+        tpldata = self.hosttemplatefactory.templates["testtpl2"]
+        self.assertTrue(tpldata["attributes"].has_key("TestAttr"))
+        self.assertEqual(tpldata["attributes"]["TestAttr"], "TestVal2")
+        self.hosttemplatefactory.apply(self.host, "testtpl2")
+        self.assertEqual(conf.hostsConf["testserver1"]["TestAttr"], "TestVal2")
+
     def test_inherit_redefine_test(self):
         self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label1"})
         tpl2 = HostTemplate("testtpl2")
