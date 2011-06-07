@@ -894,7 +894,7 @@ msgstr "Impossible d'archiver la configuration du serveur %(server)s: %(error)s"
 
 #: src/vigilo/vigiconf/lib/server/base.py:178
 #, python-format
-msgid "%s : deployement successful."
+msgid "%s : deployment successful."
 msgstr "%s : déploiement réussi."
 
 #: src/vigilo/vigiconf/lib/server/base.py:195

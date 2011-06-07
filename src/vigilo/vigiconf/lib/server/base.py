@@ -175,7 +175,7 @@ class Server(object):
         """
         self.tarConf()
         self.deployTar()
-        LOGGER.info(_("%s : deployement successful."), self.getName())
+        LOGGER.info(_("%s : deployment successful."), self.getName())
 
     def _copy(self, source, destination):
         """

@@ -866,8 +866,8 @@ msgstr "Can't tar config for server %(server)s: %(error)s"
 
 #: src/vigilo/vigiconf/lib/server/base.py:178
 #, python-format
-msgid "%s : deployement successful."
-msgstr "%s : deployement successful."
+msgid "%s : deployment successful."
+msgstr "%s : deployment successful."
 
 #: src/vigilo/vigiconf/lib/server/base.py:195
 #, python-format

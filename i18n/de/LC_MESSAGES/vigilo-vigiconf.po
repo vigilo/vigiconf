@@ -865,7 +865,7 @@ msgstr "Konfig kann für Server %(server)s nicht archiviert werden: %(error)s"
 
 #: src/vigilo/vigiconf/lib/server/base.py:178
 #, python-format
-msgid "%s : deployement successful."
+msgid "%s : deployment successful."
 msgstr "%s : erfolgreich bereitgestellt."
 
 #: src/vigilo/vigiconf/lib/server/base.py:195
