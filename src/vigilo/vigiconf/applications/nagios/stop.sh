@@ -1,8 +1,9 @@
 #!/bin/sh
 
 sudo /etc/init.d/%(initname)s stop
-while i in `seq 30`; do
-    pgrep nagios >/dev/null || break
+for i in `seq 20`; do
+    pgrep %(nagios_bin)s >/dev/null || exit 0
     sleep 1
 done
+pkill %(nagios_bin)s
 
