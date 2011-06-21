@@ -37,12 +37,12 @@ class VigiloServerLoader(DBLoader):
     Exemple:
     >>> appsGroupsByServer = {
     ...     'collect' : {
-    ...         'P-F'             : ['srv1.vigilo'],
+    ...         'Vigilo'          : ['srv1.vigilo'],
     ...         'Servers'         : ['srv2.vigilo'],
     ...         'Telecom'         : ['srv3.vigilo', 'srv4.vigilo'],
     ...     },
     ...     'metrology' : {
-    ...         'P-F'             : ['srv1.vigilo'],
+    ...         'Vigilo'          : ['srv1.vigilo'],
     ...         'Servers'         : ['srv2.vigilo'],
     ...         'Telecom'         : ['srv5.vigilo'],
     ...     },

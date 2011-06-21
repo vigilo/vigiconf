@@ -2,7 +2,7 @@
 
 <groups>
 
-    <group name="P-F"/>
+    <group name="Vigilo"/>
 
     <group name="Servers">
         <group name="Linux servers"/>

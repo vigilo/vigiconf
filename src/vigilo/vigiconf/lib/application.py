@@ -560,10 +560,12 @@ class ApplicationManager(object):
                               "(see conf.d/general/apps.py)") % app.name)
                 continue
             if app.name in [ a.name for a in self.applications ]:
-                msg = _("application %s is not unique.") % app.name
-                msg += _(" Providing modules: %s") \
-                        % ", ".join(list(working_set.iter_entry_points(
+                msg = _("application %s is not unique. "
+                        "Providing modules: %s") % (
+                            app.name,
+                            ", ".join(list(working_set.iter_entry_points(
                                 "vigilo.vigiconf.applications", entry.name)))
+                        )
                 raise DispatchatorError(msg)
             self.applications.append(app)
         # Vérification : a-t-on déclaré une application non installée ?

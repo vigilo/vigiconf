@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <hosts>
-	<host name="testhost2" address="127.0.0.2" ventilation="P-F">
+	<host name="testhost2" address="127.0.0.2" ventilation="Vigilo">
 	    <class>linux</class>
 	    <class>ucd</class>
 	    <template>linux</template>

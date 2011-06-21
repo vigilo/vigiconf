@@ -278,7 +278,7 @@ class ParseHost(unittest.TestCase):
         """Ventilation en utilisant un groupe explicitement nommé."""
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
-        <host name="foo" address="127.0.0.1" ventilation="P-F">
+        <host name="foo" address="127.0.0.1" ventilation="Vigilo">
             <arg name="label">eth0</arg>
             <arg name="ifname">eth0</arg>
             <group>/Servers/Linux servers</group>
@@ -289,12 +289,12 @@ class ParseHost(unittest.TestCase):
                                     "host.xml"))
         print self.hostsConf
         # L'attribut ventilation a été donné explicitement.
-        self.assertEqual(self.hostsConf['foo']['serverGroup'], 'P-F')
+        self.assertEqual(self.hostsConf['foo']['serverGroup'], 'Vigilo')
 
     def test_missing_group_association(self):
         """Hôte associé à aucun groupe opérationnel."""
         self.host.write("""<?xml version="1.0"?>
-        <host name="foo" address="127.0.0.1" ventilation="P-F">
+        <host name="foo" address="127.0.0.1" ventilation="Vigilo">
             <arg name="label">eth0</arg>
             <arg name="ifname">eth0</arg>
         </host>
