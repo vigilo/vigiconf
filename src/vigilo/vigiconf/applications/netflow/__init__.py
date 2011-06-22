@@ -13,7 +13,7 @@ class Netflow(Application):
     name = "netflow"
     priority = 3
     validation = "validate.sh"
-    start_command = "sudo /etc/init.d/nfacctd start"
+    start_command = "sudo /etc/init.d/nfacctd start && sudo /etc/init.d/snmpd reload"
     stop_command = "sudo /etc/init.d/nfacctd stop"
     generator = generator.NetflowGen
     group = "collect"
