@@ -51,7 +51,9 @@ class NetflowGen(FileGenerator):
         for ip in h["netflow"]["IPs"]:
             ip_list += "%s\n" % ip
             ip_, mask = ip.split("/")
-            mask = str(2**(32-int(mask))-1)
+            # voir ticket: #748 (problème pmacct selon L. Boisneau)
+            #mask = str(2**(32-int(mask))-1)
+            mask = "255"
             ip_list_net += "hosts: %(ip)s/%(mask)s\n" % {
                 "ip": ip_,
                 "mask": mask
