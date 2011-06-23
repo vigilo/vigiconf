@@ -71,12 +71,13 @@ class DeprecateStopAfterXAction(argparse._StoreConstAction):
         super(DeprecateStopAfterXAction, self).__call__(
             parser, namespace, values, option_string)
         if option_string:
-            warnings.warn(DeprecationWarning(_(
+        if option_string:
+            warnings.warn(DeprecationWarning((_(
                 "%(option)s has been deprecated. Please use "
                 "--stop-after=%(value)s instead.") % {
                     'option': option_string,
                     'value': option_string[13:],
-                }))
+                }).encode('utf-8')))
 
 def flatten(lst):
     """
