@@ -71,7 +71,6 @@ class DeprecateStopAfterXAction(argparse._StoreConstAction):
         super(DeprecateStopAfterXAction, self).__call__(
             parser, namespace, values, option_string)
         if option_string:
-        if option_string:
             warnings.warn(DeprecationWarning((_(
                 "%(option)s has been deprecated. Please use "
                 "--stop-after=%(value)s instead.") % {
