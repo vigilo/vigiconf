@@ -35,6 +35,11 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
+# Inutilisée dans ce fichier, mais obligatoire pour pouvoir
+# l'utiliser dans les tests de supervision (cf. #723).
+# Ceci est nécessaire tant que execfile() est utilisé pour
+# charger les tests de supervision (voir aussi le ticket #219).
+from vigilo.vigiconf.lib import VigiConfError
 
 class Test(object):
     """
@@ -208,7 +213,7 @@ class TestFactory(object):
                             continue
                         if not self.tests.has_key(current_test_name):
                             self.tests[current_test_name] = {}
-                        self.tests[current_test_name]\
+                        self.tests[current_test_name] \
                                              [hclass] = current_test_class
 
     def get_testnames(self, hclasses=None):

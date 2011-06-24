@@ -13,14 +13,21 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
 
 from helpers import setup_db, teardown_db
+from vigilo.vigiconf.lib import VigiConfError
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
 class TestFactoryTest(unittest.TestCase):
 
     def setUp(self):
         setup_db()
         self.testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
-        self.host = Host(conf.hostsConf, "dummy", "testserver1", "192.168.1.1", "Servers")
+        self.host = Host(
+            conf.hostsConf,
+            "dummy", "testserver1",
+            "192.168.1.1", "Servers",
+        )
 
     def tearDown(self):
         teardown_db()
@@ -48,4 +55,40 @@ class TestFactoryTest(unittest.TestCase):
         self.assertEqual(self.testfactory.path[0], default_path)
         self.assertEqual(self.testfactory.path[-1], sysadmin_path)
 
+
+class TestFactoryImportsTest(unittest.TestCase):
+    def setUp(self):
+        setup_db()
+        tests_path = os.path.normpath(os.path.join(
+                        os.path.dirname(__file__), "testdata"))
+        self.testfactory = TestFactory(confdir=tests_path)
+        self.host = Host(
+            conf.hostsConf,
+            "dummy", "testserver1",
+            "192.168.1.1", "Servers",
+        )
+
+    def tearDown(self):
+        teardown_db()
+
+    def test_import(self):
+        """
+        Les imports doivent correctement être gérés par la TestFactory.
+        """
+        print self.testfactory.path
+        self.testfactory.load_tests()
+        testclasses = self.testfactory.get_test('Error', 'imports')
+        self.assertEquals(1, len(testclasses))
+        test = testclasses[0]()
+
+        # On ne peut pas utiliser self.assertRaises à cause du rebinding
+        # des classes dans TestFactory.
+        try:
+            test.add_test(self.host)
+        except VigiConfError, e:
+            self.assertEquals(_("Import test was successful"), e.message)
+        except Exception, e:
+            self.fail("Unexpected exception of type %r", type(e))
+        else:
+            self.fail("Expected VigiConfError exception")
 

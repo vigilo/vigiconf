@@ -355,6 +355,8 @@ class XMLLoader(DBLoader):
             host = self.get_uattrib("host", elem)
         if "service" in elem.attrib:
             service = self.get_uattrib("service", elem)
+
+        # @TODO: il faudrait fusionner le get_supitem() et la requête d'après.
         supitem = SupItem.get_supitem(host, service)
         if supitem is None:
             raise ParsingError(_("Can't find an item matching %s") %
