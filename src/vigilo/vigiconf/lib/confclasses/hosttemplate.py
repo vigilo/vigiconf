@@ -544,6 +544,10 @@ class HostTemplateFactory(object):
             for class_ in tpl["classes"]:
                 host.add_class(class_)
 
+        # attributes
+        if tpl.has_key("attributes"):
+            host.update_attributes(tpl["attributes"])
+
         # tests
         if tpl.has_key("tests"):
             for testdict in tpl["tests"]:
@@ -565,9 +569,7 @@ class HostTemplateFactory(object):
                     test_weight = testdict["weight"]
                 host.add_tests(test_list, args=test_args,
                                weight=test_weight)
-        # attributes
-        if tpl.has_key("attributes"):
-            host.update_attributes(tpl["attributes"])
+
         # weight
         if "weight" in tpl and tpl["weight"] is not None and tpl["weight"] != 1:
             host.set_attribute("weight", tpl["weight"])

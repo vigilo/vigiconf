@@ -460,6 +460,29 @@ class ParseHost(unittest.TestCase):
         self.assertEqual(self.hostsConf['testserver1']['attribute_in_test'],
                          "right_value")
 
+    def test_attributes_in_template(self):
+        """Un test dans un template a accès aux attributs définis dans ce template."""
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <template>linux</template>
+        </host>""")
+        self.host.close()
+        from vigilo.vigiconf.lib.confclasses.test import Test
+        class AttributeUsingTest(Test):
+            def add_test(self, host):
+                host.set_attribute("attribute_in_test",
+                       host.get_attribute("attribute_in_conf", "wrong_value"))
+        self.hosttemplatefactory.testfactory.tests["AttributeUsingTest"] = {
+                "all": AttributeUsingTest}
+        htpl = HostTemplate("linux")
+        htpl.add_group("Linux servers")
+        htpl.add_attribute("attribute_in_conf", "right_value")
+        htpl.add_test("AttributeUsingTest")
+        self.hosttemplatefactory.register(htpl)
+        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
+        self.assertEqual(self.hostsConf['testserver1']['attribute_in_test'],
+                         "right_value")
 
 class ParseHostTemplate(unittest.TestCase):
 
