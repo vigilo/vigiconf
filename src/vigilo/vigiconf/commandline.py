@@ -376,8 +376,37 @@ def change_user(username="vigiconf"):
         sys.exit(2)
 
 def delete_lock(f):
+    """
+    Supprime le verrou posé par VigiConf lors de son démarrage
+    lorsque l'application se termine.
+
+    @param f: Descripteur de fichier représentant le verrou.
+    """
     LOGGER.debug("Removing the lock.")
     fcntl.flock(f, fcntl.LOCK_UN)
+
+def grab_lock():
+    """
+    Ajoute un verrou pour empêcher l'exécution simultanée
+    de plusieurs instances de VigiConf.
+
+    @note: Le verrou ainsi posé est automatiquement détruit
+        lorsque l'exécution de VigiConf se termine.
+    """
+    f = open(settings["vigiconf"].get("lockfile",
+        "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
+    try:
+        LOGGER.debug("Acquiring the lock.")
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except IOError, e:
+        LOGGER.error(_("Can't obtain lock on lockfile (%(lockfile)s). "
+                       "VigiConf already running ? REASON : %(error)s"),
+                     { 'lockfile': f.name, 'error': e })
+        sys.exit(1)
+
+    # On veut être sûr que le verrou sera supprimé
+    # à l'arrêt de vigiconf.
+    atexit.register(delete_lock, f)
 
 def main():
     # Évite des problèmes d'accès aux fichiers ensuite
@@ -394,24 +423,16 @@ def main():
         import logging
         LOGGER.parent.setLevel(logging.DEBUG)
 
-    if not args.nochuid:
+    # Pour la commande discover, il n'est pas nécessaire de poser un verrou
+    # ou de changer d'utilisateur car la commande ne se connecte pas en SSH
+    # aux autres machines (voir #705).
+    if args.func != discover and not args.nochuid:
         change_user()
 
     LOGGER.debug("VigiConf starting...")
-    f = open(settings["vigiconf"].get("lockfile",
-        "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
-    try:
-        LOGGER.debug("Acquiring the lock.")
-        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except IOError, e:
-        LOGGER.error(_("Can't obtain lock on lockfile (%(lockfile)s). "
-                       "VigiConf already running ? REASON : %(error)s"),
-                     { 'lockfile': f.name, 'error': e })
-        sys.exit(1)
 
-    # On veut être sûr que le verrou sera supprimé
-    # à l'arrêt de vigiconf.
-    atexit.register(delete_lock, f)
+    if args.func != discover:
+        grab_lock()
 
     try:
         args.func(args)
