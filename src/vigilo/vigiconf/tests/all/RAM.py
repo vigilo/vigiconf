@@ -20,13 +20,14 @@ class RAM(Test):
             **kw: unused (compatibility layer for other RAM tests)
         """
         # These classes have better RAM tests :
-        skipclasses = [ "cisco", "windows2000", "rapidcity", "xmperf", "netware", "alcatel" ]
+        skipclasses = [ "cisco", "windows2000", "rapidcity", "xmperf",
+                "netware", "alcatel", "expand" ]
         for skipclass in skipclasses:
             if skipclass in host.classes:
                 return # don't use this tests, use the class' test
 
         # Search for "hrStorageRam" type
-        host.add_collector_metro("Used RAM", "m_table_mult", [".1.3.6.1.2.1.25.2.1.2"], 
+        host.add_collector_metro("Used RAM", "m_table_mult", [".1.3.6.1.2.1.25.2.1.2"],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6",
                     "WALK/.1.3.6.1.2.1.25.2.3.1.2"], "GAUGE")
         host.add_graph("RAM", [ "Used RAM" ], "lines", "bytes", group="Performance")
