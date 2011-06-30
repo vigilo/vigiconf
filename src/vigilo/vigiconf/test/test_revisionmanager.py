@@ -100,7 +100,7 @@ class RevisionManagerTest(unittest.TestCase):
         self.assertEqual(status["toadd"], [newdir, ])
 
     def test_status_added(self):
-        """RevMan: dichier déjà ajouté dans SVN"""
+        """RevMan: fichier déjà ajouté dans SVN"""
         newfile = os.path.join(self.confdir, "dummy.xml")
         open(newfile, "w").close()
         self._run_svn(["add", newfile])
@@ -226,7 +226,7 @@ class RevisionManagerTest(unittest.TestCase):
             ["svn", "remove", test1],
             ["svn", "status", "--xml", self.confdir],
         ]
-        print cmdlogger.executed 
+        print cmdlogger.executed
         # On ne peut pas comparer directement les listes parce que l'ordre des
         # "svn add" peut être différent
         self.assertEqual(len(cmdlogger.executed), len(expected))
