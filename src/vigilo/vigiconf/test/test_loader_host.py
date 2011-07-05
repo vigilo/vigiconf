@@ -23,6 +23,7 @@ from vigilo.models.tables import Host, ConfItem, ConfFile
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.vigiconf.loaders.host import HostLoader
 from vigilo.vigiconf.lib.confclasses.host import Host as ConfHost
+from vigilo.vigiconf.lib import ParsingError
 
 from helpers import setup_db, teardown_db, DummyRevMan, setup_tmpdir
 
@@ -47,6 +48,23 @@ class TestLoader(unittest.TestCase):
         teardown_db()
         shutil.rmtree(self.tmpdir)
         settings["vigiconf"]["confdir"] = self.old_conf_dir
+
+    def test_inexistent_group(self):
+        host_dict = conf.hostsConf[u'testserver1']
+        host_dict['otherGroups'].add(u'Inexistent group')
+        error = None
+        try:
+            self.hostloader.load()
+        except ParsingError, e:
+            error = str(e)
+        except Exception, e:
+            self.fail("Excepted a ParsingError, got %s", type(e))
+        else:
+            self.fail("Expected a ParsingError")
+        self.assertEquals(
+            'Unknown group "Inexistent group" in host "testserver1".',
+            error
+        )
 
     def test_export_hosts_db(self):
         self.hostloader.load()

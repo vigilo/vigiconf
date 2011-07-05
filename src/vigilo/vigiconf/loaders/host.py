@@ -155,13 +155,7 @@ class HostLoader(DBLoader):
 
             # groupes
             LOGGER.debug("Loading groups for host %s", hostname)
-            try:
-                self._load_groups(host, hostdata)
-            except ParsingError, e:
-                LOGGER.error(e)
-                self.delete(host)
-                del conf.hostsConf[hostname]
-                continue
+            self._load_groups(host, hostdata)
 
             # services
             LOGGER.debug("Loading services for host %s", hostname)
