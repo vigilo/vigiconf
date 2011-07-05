@@ -31,6 +31,7 @@ from vigilo.common.gettext import translate
 _ = translate(__name__)
 
 from vigilo.models.session import DBSession
+from vigilo.vigiconf.lib import ParsingError
 
 
 class DBLoader(object):
@@ -125,7 +126,15 @@ class DBLoader(object):
         @param data: un dictionnaire des données à mettre à jour
         @type  data: C{dict}
         """
+        # @TODO: il faudrait mutualiser ce code avec insert dans add.
         key = self.get_key(data)
+        if key in self._in_conf:
+            raise ParsingError(_(
+                'Trying to override configuration for '
+                'already-defined entity "%(entity)s"') % {
+                    'entity': key,
+                })
+
         LOGGER.debug("Updating: %(key)s (%(class)s)", {
             'key': key,
             'class': self._class.__name__,
@@ -158,7 +167,14 @@ class DBLoader(object):
         return instance
 
     def insert(self, data):
+        # @TODO: il faudrait mutualiser ce code avec update dans add.
         key = self.get_key(data)
+        if key in self._in_conf:
+            raise ParsingError(_(
+                'Trying to override configuration for '
+                'already-defined entity "%(entity)s"') % {
+                    'entity': key,
+                })
         LOGGER.debug("Inserting: %s", key)
         instance = self._class(**data) # pylint: disable-msg=W0142
         DBSession.add(instance)
