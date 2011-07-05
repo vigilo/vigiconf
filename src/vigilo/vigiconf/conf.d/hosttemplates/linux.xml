@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <templates>
 <template name="linux">
+    <class>linux</class>
     <attribute name="snmpOIDsPerPDU">10</attribute>
     <group>Linux servers</group>
     <test name="Interface">
