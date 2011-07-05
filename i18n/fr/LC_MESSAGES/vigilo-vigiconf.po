@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2011-06-21 10:29+0200\n"
+"PO-Revision-Date: 2011-07-05 16:42+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -248,7 +248,7 @@ msgstr "Impossible de basculer vers le compte '%s'. Abandon."
 msgid "VigiConf was not launched as user '%s'. Aborting."
 msgstr "VigiConf n'a pas été lancé en utilisant le compte '%s'. Abandon."
 
-#: src/vigilo/vigiconf/commandline.py:407
+#: src/vigilo/vigiconf/commandline.py:402
 #, python-format
 msgid ""
 "Can't obtain lock on lockfile (%(lockfile)s). VigiConf already running ? "
@@ -257,13 +257,13 @@ msgstr ""
 "Impossible d'obtenir un verrou sur le fichier %(lockfile)s. VigiConf est-"
 "il déjà lancé ? Raison : %(error)s"
 
-#: src/vigilo/vigiconf/commandline.py:420
-#: src/vigilo/vigiconf/commandline.py:422
+#: src/vigilo/vigiconf/commandline.py:441
+#: src/vigilo/vigiconf/commandline.py:443
 #, python-format
 msgid "VigiConf error: %s"
 msgstr "Erreur dans VigiConf : %s"
 
-#: src/vigilo/vigiconf/commandline.py:426
+#: src/vigilo/vigiconf/commandline.py:447
 msgid "VigiConf is done."
 msgstr "VigiConf se termine"
 
@@ -397,7 +397,7 @@ msgstr ""
 "conf.d/general/apps.py)"
 
 #: src/vigilo/vigiconf/lib/application.py:563
-#| msgid "application %s is not unique."
+#, python-format
 msgid "application %s is not unique. Providing modules: %s"
 msgstr "le nom d'application %s n'est pas unique. Modules fournisseurs : %s"
 
@@ -651,7 +651,7 @@ msgstr ""
 msgid "Invalid weight value for template %(tpl)s: %(weight)r"
 msgstr "Valeur du poids non valide dans le patron %(tpl)s : %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:553
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:557
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s (added by template "
@@ -660,7 +660,7 @@ msgstr ""
 "Impossible d'ajouter le test %(testname)s à l'hôte %(hostname)s (ajouté "
 "par le modèle %(tplname)s). Peut-être une classe d'hôte manquante ?"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:156
+#: src/vigilo/vigiconf/lib/confclasses/test.py:162
 #, python-format
 msgid "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 msgstr ""
@@ -845,17 +845,25 @@ msgstr ""
 msgid "The map group %s has not been added by the install procedure"
 msgstr "Le groupe de cartes %s n'a pas été ajouté par la procédure d'installation"
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:61
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:62
 msgid "The 'load' method must be redefined"
 msgstr "La méthode 'load' doit être redéfinie"
 
-#: src/vigilo/vigiconf/lib/loaders/dbloader.py:115
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:116
 msgid ""
 "The key attribute must be defined, or the get_key() method must be "
 "redefined"
 msgstr ""
 "L'attribut key doit être défini, ou la méthode get_key() doit être "
 "rédéfinie"
+
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:132
+#: src/vigilo/vigiconf/lib/loaders/dbloader.py:173
+#, python-format
+msgid "Trying to override configuration for already-defined entity \"%(entity)s\""
+msgstr ""
+"Tentative d'écrasement de la configuration d'une entité déjà définie "
+"\"%(entity)s\""
 
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:92
 #, python-format
@@ -872,7 +880,7 @@ msgstr "Balises de début/fin différentes : %(start)s/%(end)s"
 msgid "Syntax error in \"%(path)s\": %(error)s"
 msgstr "Erreur de syntaxe dans \"%(path)s\" : %(error)s"
 
-#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:360
+#: src/vigilo/vigiconf/lib/loaders/xmlloader.py:358
 #, python-format
 msgid "Can't find an item matching %s"
 msgstr "Impossible de trouver un élément correspondant à %s"
@@ -985,16 +993,16 @@ msgstr "Chargement des hôtes"
 msgid "Loading host %s"
 msgstr "Chargement de l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:274
+#: src/vigilo/vigiconf/loaders/host.py:268
 msgid "Done loading hosts"
 msgstr "Chargement des hôtes terminé"
 
-#: src/vigilo/vigiconf/loaders/host.py:297
+#: src/vigilo/vigiconf/loaders/host.py:291
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Groupe inconnu \"%(group)s\" sur l'hôte \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:324
+#: src/vigilo/vigiconf/loaders/host.py:318
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
@@ -1018,4 +1026,9 @@ msgid ""
 msgstr ""
 "L'application %s a été retirée de la configuration, elle doit être "
 "arrêtée manuellement"
+
+#: src/vigilo/vigiconf/test/test_conf_testfactory.py:89
+#: src/vigilo/vigiconf/test/testdata/tests/imports/Error.py:17
+msgid "Import test was successful"
+msgstr "Le test d'import a fonctionné"
 
