@@ -5,5 +5,5 @@ for i in `seq 20`; do
     pgrep %(nagios_bin)s >/dev/null || exit 0
     sleep 1
 done
-pkill %(nagios_bin)s
+sudo -u nagios pkill -9 %(nagios_bin)s
 
