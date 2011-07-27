@@ -595,8 +595,7 @@ class Host(object):
         for (dname, dvalue) in directives.iteritems():
             self.add_nagios_service_directive(name, dname, dvalue)
 
-        definition =  {'type': type,
-                       'command': command,
+        definition =  {'command': command,
                        'cti': cti,
                        'weight': weight,
                        'directives': directives,
@@ -664,13 +663,6 @@ class Host(object):
         @param factor: the factor to use, if any
         @type  factor: C{int} or C{float}
         """
-        oid = [".1.3.6.1.4.1", str(SNMP_ENTERPRISE_OID)]
-        for char in self.name:
-            oid.append(str(ord(char)))
-        oid.append(str(ord("/")))
-        for char in metroname:
-            oid.append(str(ord(char)))
-
         # Ajout du service Nagios
         definition = {
             'type': 'passive',
@@ -681,13 +673,13 @@ class Host(object):
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, "services", servicename, key, value)
 
-        # Ajout du service Collector sur le serveur de métro
-        self.add(self.name, "metro_services", (servicename, 'service'),
-                 {'function': "simple_factor",
-                  'params': [warn, crit, factor],
-                  'vars': [ "GET/%s" % ".".join(oid) ],
-                  'reRouteFor': None,
-                  })
+        # Ajout des seuils pour le connector-metro.
+        self.add(self.name, "metro_services", metroname, {
+            'servicename': servicename,
+            'warning': warn,
+            'critical': crit,
+            'factor': factor,
+        })
 
     def add_tag(self, service, name, value):
         """

@@ -150,8 +150,6 @@ class GeneratorManager(object):
                 LOGGER.error(errmsg)
             raise GenerationError("prevalidation")
 
-        LOGGER.debug("Moving metro services")
-        self.move_metro_services(validator)
         LOGGER.info(_("Running generators"))
         self.run_all_generators(validator)
 
@@ -208,100 +206,6 @@ class GeneratorManager(object):
         pool.close()
         pool.join()
         LOGGER.debug("Database configuration generated")
-
-    def move_metro_services(self, validator):
-        """
-        On transforme les services sur la métrologie en services reroutés sur
-        le serveur de métro. On ne peut pas le faire plus tôt parce qu'on a pas
-        accès à la ventilation.
-        On règle au passage le reRoutedBy sur le service d'origine.
-        """
-        vba = self.ventilator.ventilation_by_appname(self._ventilation)
-        for hostname in conf.hostsConf.copy():
-            if not conf.hostsConf[hostname]["metro_services"]:
-                continue
-            metro_services = conf.hostsConf[hostname]["metro_services"]
-            if "connector-metro" not in vba[hostname]:
-                validator.addWarning(hostname, "metro services",
-                                        _("Can't find the metro server "
-                                          "for the RRD-based services"))
-                continue
-            metro_server = vba[hostname]["connector-metro"]
-            if isinstance(metro_server, list):
-                metro_server = self._choose_metro_server(hostname, vba)
-            if metro_server not in conf.hostsConf:
-                if metro_server.count(".") and \
-                        metro_server[:metro_server.find(".")] in conf.hostsConf:
-                    metro_server = metro_server[:metro_server.find(".")]
-                else:
-                    validator.addWarning(hostname, "metro services",
-                            _("The metrology server %s must be supervised for "
-                              "the RRD-based services to work") % metro_server)
-                    continue
-            nagios_server = vba[hostname]["nagios"]
-            if isinstance(nagios_server, list):
-                nagios_server = nagios_server[0]
-            try:
-                metro_nagios_server = vba[metro_server]["nagios"]
-            except KeyError:
-                validator.addWarning(hostname, "metro services",
-                        _("The metrology server %s must be supervised for "
-                          "the RRD-based services to work") % metro_server)
-                continue
-            if isinstance(metro_nagios_server, list):
-                metro_nagios_server = metro_nagios_server[0]
-            if metro_nagios_server == nagios_server:
-                # le serveur de metro est supervisé par le même serveur Nagios,
-                # pas besoin d'ajouter un hôte fictif
-                perf_host = metro_server
-            else:
-                # on doit créer un pseudo-hôte sur ce serveur Nagios
-                perf_host = "_perfservices_%s_" % metro_server
-                if perf_host not in conf.hostsConf:
-                    conf.hostsConf[perf_host] = {
-                            "name": perf_host,
-                            "otherGroups": ["perf-services"],
-                            "weight": 1,
-                            "checkHostCMD": "check_dummy",
-                            "services": {},
-                            "SNMPJobs": {},
-                            }
-                    for attr in ["address", "serverGroup", "hostTPL",
-                                 "snmpVersion", "snmpCommunity", "snmpPort",
-                                 "snmpOIDsPerPDU"]:
-                        conf.hostsConf[perf_host][attr] = \
-                                conf.hostsConf[metro_server][attr]
-            # Réglage du reRouteFor et du reRoutedBy
-            for servicetuple in metro_services:
-                servicename = servicetuple[0]
-                metro_services[servicetuple]["reRouteFor"] = {
-                                "host": hostname,
-                                "service": servicename}
-                conf.hostsConf[hostname]["services"][
-                        servicename]["reRoutedBy"] = {
-                                "host": perf_host,
-                                "service": servicename,
-                                }
-                # On ne le fait pas en base parce que c'est compliqué et que ça
-                # n'a pas vraiment de sens pour ce genre de services : les RRDs
-                # on un step fixe.
-
-                # On met les services Collector sur le serveur de métro
-                jobname = "PERFSERVICE:%s:%s" % (hostname, servicename)
-                conf.hostsConf[perf_host]["SNMPJobs"] \
-                    [(jobname, "service")] = metro_services[servicetuple].copy()
-                # Ajout dans la ventilation
-                if perf_host not in vba:
-                    vba[perf_host] = {}
-                vba[perf_host]["nagios"] = nagios_server
-                vba[perf_host]["collector"] = nagios_server
-                if perf_host not in self._ventilation:
-                    self._ventilation[perf_host] = {}
-                for app, vserver in self._ventilation[hostname].iteritems():
-                    if app.name == "nagios":
-                        self._ventilation[perf_host][app] = vserver
-                    if app.name == "collector":
-                        self._ventilation[perf_host][app] = vserver
 
     def _choose_metro_server(self, hostname, vba): # pylint: disable-msg=R0201
         """On choisit le même serveur que nagios si possible"""

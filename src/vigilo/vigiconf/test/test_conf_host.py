@@ -38,8 +38,16 @@ class HostMethods(unittest.TestCase):
         self.assertEqual(
             conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]
                 ["type"], "passive")
-        self.assert_( ('Traffic in eth1', 'service') in
-                      conf.hostsConf["testserver1"]["metro_services"] )
+        self.assert_('ineth1' in conf.hostsConf["testserver1"]["metro_services"])
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["metro_services"]['ineth1'],
+            {
+                'servicename': 'Traffic in eth1',
+                'warning': 10,
+                'critical': 20,
+                'factor': 1.0,
+            }
+        )
 
     def test_priority_host_hosttemplate(self):
         """Test priorite du parametrage des hosts sur les hosttemplates"""
@@ -58,14 +66,30 @@ class HostMethods(unittest.TestCase):
         self.assertEqual(
             conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]
                 ["type"], "passive")
-        self.assert_( ('Traffic in eth0', 'service') in
-                      conf.hostsConf["testserver1"]["metro_services"] )
+        self.assert_('ineth0' in conf.hostsConf["testserver1"]["metro_services"])
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["metro_services"]['ineth0'],
+            {
+                'servicename': 'Traffic in eth0',
+                'warning': '10',
+                'critical': '30',
+                'factor': 8,
+            }
+        )
 
         self.assertEqual(
             conf.hostsConf["testserver1"]["services"]["Traffic out eth0"]
                 ["type"], "passive")
-        self.assert_( ('Traffic out eth0', 'service') in
-                      conf.hostsConf["testserver1"]["metro_services"] )
+        self.assert_('outeth0' in conf.hostsConf["testserver1"]["metro_services"])
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["metro_services"]['outeth0'],
+            {
+                'servicename': 'Traffic out eth0',
+                'warning': '20',
+                'critical': '40',
+                'factor': 8,
+            }
+        )
 
     def test_add_tag_hosts(self):
         """Test for the add_tag method on hosts"""

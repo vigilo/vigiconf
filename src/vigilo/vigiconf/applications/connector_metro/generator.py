@@ -72,21 +72,30 @@ class ConnectorMetroGen(Generator):
             ds_data = h['dataSources'][datasource]
             if datasource in netflow_datasources:
                 datasource = "/".join(i for i in datasource.split("/")[:-1])
+            metro_data = h['metro_services'].get(datasource, {})
+
             tplvars = {
                 'host': hostname,
                 'dsType': ds_data['dsType'],
                 'dsName': datasource,
+                'factor': metro_data.get("factor", 1),
+                'nagiosName': metro_data.get("servicename"),
+                'vserver': vserver,
+                'warningThreshold': metro_data.get('warning'),
+                'criticalThreshold': metro_data.get('critical'),
             }
-            if "max" in ds_data and ds_data["max"] is not None:
+
+            if ds_data.get("max") is not None:
                 # toute valeur supérieure collectée sera ignorée
                 tplvars["max"] = float(ds_data["max"]) * 100 # marge de sécurité
             else:
                 tplvars["max"] = None
-            if "min" in ds_data and ds_data["min"] is not None:
+            if ds_data.get("min") is not None:
                 # toute valeur inférieure collectée sera ignorée
                 tplvars["min"] = float(ds_data["min"])
             else:
                 tplvars["min"] = None
+
             if not datasource in netflow_datasources:
                 self.db_add_ds(cursor, tplvars, is_netflow=False)
             else:
@@ -113,6 +122,11 @@ class ConnectorMetroGen(Generator):
                          heartbeat INTEGER NOT NULL,
                          min FLOAT,
                          max FLOAT,
+                         factor FLOAT NOT NULL,
+                         warning_threshold VARCHAR(32),
+                         critical_threshold VARCHAR(32),
+                         nagiosname VARCHAR(255),
+                         jid VARCHAR(255),
                          PRIMARY KEY (idperfdatasource)
                      )""")
         #c.execute("CREATE INDEX ix_perfdatasource_name "
@@ -146,11 +160,14 @@ class ConnectorMetroGen(Generator):
 
     def db_add_ds(self, cursor, data, is_netflow=False):
         config = self.application.getConfig()
+        jids = getattr(conf, 'jids', {})
         cursor.execute("INSERT INTO perfdatasource VALUES ("
-                       "NULL, ?, ?, ?, ?, ?, ?, ?)",
+                       "NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                        (data["dsName"], data["host"], data["dsType"],
                         config["step"], config["heartbeat"],
-                        data["min"], data["max"]))
+                        data["min"], data["max"], data["factor"],
+                        data["warningThreshold"], data["criticalThreshold"],
+                        data["nagiosName"], jids.get(data['vserver'], None)))
         ds_id = cursor.lastrowid
         if is_netflow:
             rras = config["rra_netflow"]
