@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # VigiRRD configuration file generator
@@ -52,10 +53,10 @@ class VigiRRDGen(Generator):
         if vserver not in self.connections:
             self.init_db(db_path, vserver)
             os.chmod(db_path, # chmod 644
-                     stat.S_IRUSR | stat.S_IWUSR | \
+                     stat.S_IRUSR | stat.S_IWUSR |
                      stat.S_IRGRP | stat.S_IROTH )
         cursor = self.connections[vserver]["cursor"]
-        self.db_add_graphs(cursor, hostname, h["graphItems"])
+        dses = self.db_add_graphs(cursor, hostname, h["graphItems"])
         # list all ds for validation
         for graphvalues in h["graphItems"].values():
             self._all_ds_graph.update(set(graphvalues["ds"]))
@@ -63,10 +64,10 @@ class VigiRRDGen(Generator):
         for dsid in h["dataSources"]:
             cursor.execute(
                 "UPDATE perfdatasource SET label = ?, "
-                "max = ? WHERE name = ?", (
+                "max = ? WHERE idperfdatasource = ?", (
                     h["dataSources"][dsid]["label"],
                     h["dataSources"][dsid]["max"],
-                    dsid
+                    dses[dsid]
                 )
             )
         for dsid in h["dataSources"]:
@@ -140,8 +141,13 @@ class VigiRRDGen(Generator):
 
     def db_add_graphs(self, cursor, hostname, graphs):
         idhost = self.db_add_host(cursor, hostname)
+        dses = {}
         for graphname, graphdata in graphs.iteritems():
-            self.db_add_graph(cursor, idhost, graphname, graphdata)
+            subdses = self.db_add_graph(cursor, idhost, graphname, graphdata)
+            # Possible car le nom des datasources est unique
+            # par hôte et pas uniquement par graphe.
+            dses.update(subdses)
+        return dses
 
     def db_add_host(self, cursor, hostname):
         cursor.execute("SELECT idhost FROM host WHERE name = ?", (hostname, ))
@@ -155,26 +161,40 @@ class VigiRRDGen(Generator):
         return cursor.lastrowid
 
     def db_add_graph(self, cursor, idhost, graphname, graphdata):
-        cursor.execute("INSERT INTO graph VALUES (NULL, ?, ?, ?, ?, ?)",
-                   (idhost, graphname, graphdata["template"],
-                    graphdata["vlabel"], graphdata.get("last_is_max", False)))
-        idgraph = cursor.lastrowid
+        cursor.execute("SELECT idgraph FROM graph WHERE idhost = ? "
+                       "AND name = ?", (idhost, graphname))
+        idgraph = cursor.fetchone()
+        if idgraph is None:
+            cursor.execute("INSERT INTO graph VALUES (NULL, ?, ?, ?, ?, ?)",
+                       (idhost, graphname, graphdata["template"],
+                        graphdata["vlabel"],
+                        graphdata.get("last_is_max", False)))
+            idgraph = cursor.lastrowid
+
+        dses = {}
         for index, dsname in enumerate(graphdata["ds"]):
             factor = graphdata["factors"].get(dsname, 1)
-            idpds = self.db_add_pds(cursor, dsname, factor)
-            cursor.execute("INSERT INTO graphperfdatasource VALUES "
-                           "(?, ?, ?)", (idpds, idgraph, index))
+            dses[dsname] = self.db_add_pds(cursor, idgraph, dsname,
+                                           factor, index)
+        return dses
 
-    def db_add_pds(self, cursor, name, factor): # pylint: disable-msg=R0201
-        cursor.execute("SELECT idperfdatasource FROM perfdatasource "
-                       "WHERE name = ?", (name, ))
+    def db_add_pds(self, cursor, idgraph, name, factor, index): # pylint: disable-msg=R0201
+        cursor.execute("SELECT idperfdatasource "
+                       "FROM perfdatasource "
+                       "NATURAL JOIN graphperfdatasource "
+                       "WHERE name = ? "
+                       "AND idgraph = ?",
+                       (name, idgraph))
         idpds = cursor.fetchone()
         if idpds is not None:
             return idpds[0]
-        #config = self.application.getConfig()
-        cursor.execute("INSERT INTO perfdatasource VALUES "
-                       "(NULL, ?, NULL, ?, NULL)", (name, factor))
-        return cursor.lastrowid
+
+        cursor.execute("INSERT INTO perfdatasource(name, factor) "
+                       "VALUES (?, ?)", (name, factor))
+        idpds = cursor.lastrowid
+        cursor.execute("INSERT INTO graphperfdatasource "
+                       "VALUES (?, ?, ?)", (idpds, idgraph, index))
+        return idpds
 
     def finalize_databases(self):
         for vserver in self.connections:
