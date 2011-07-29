@@ -36,9 +36,6 @@ import warnings
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 
-from vigilo.models.configure import configure_db
-configure_db(settings['database'], 'sqlalchemy_')
-
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -52,7 +49,6 @@ setup_plugins_path(settings["vigiconf"].get("pluginsdir",
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.exceptions import VigiConfError
-from vigilo.vigiconf.lib.dispatchator import make_dispatchator
 
 from xml.etree import ElementTree as ET # Python 2.5
 
@@ -92,6 +88,9 @@ def flatten(lst):
     return res
 
 def get_dispatchator(args, restrict=True):
+    # L'import se trouve ici car il force un chargement des tables du modèle.
+    # Or, on a peut-être envie d'ajouter un préfixe avant (cf. deploy()).
+    from vigilo.vigiconf.lib.dispatchator import make_dispatchator
     conf.load_general_conf()
     dispatchator = make_dispatchator()
     if restrict and args.server:
@@ -108,6 +107,13 @@ def get_dispatchator(args, restrict=True):
     return dispatchator
 
 def deploy(args):
+    # On modifie le préfixe, afin de pouvoir travailler
+    # sur des données temporaires.
+    settings['database']['db_basename'] += 'tmp_'
+
+    from vigilo.models.configure import configure_db
+    configure_db(settings['database'], 'sqlalchemy_')
+
     dispatchator = get_dispatchator(args)
     conf.load_xml_conf()
     if args.simulate:
@@ -121,6 +127,9 @@ def deploy(args):
     dispatchator.run(stop_after=args.stop_after)
 
 def apps(args):
+    from vigilo.models.configure import configure_db
+    configure_db(settings['database'], 'sqlalchemy_')
+
     dispatchator = get_dispatchator(args)
     if args.stop or args.restart:
         dispatchator.apps_mgr.start_or_stop("stop")
@@ -134,6 +143,9 @@ def apps(args):
 #    #dispatchator.undo()
 
 def info(args):
+    from vigilo.models.configure import configure_db
+    configure_db(settings['database'], 'sqlalchemy_')
+
     dispatchator = get_dispatchator(args)
     state = dispatchator.getState()
     encoding = sys.getfilesystemencoding() or "ISO-8859-1"
@@ -168,6 +180,9 @@ def discover(args):
         args.output.write("</hosts>\n")
 
 def server(args):
+    from vigilo.models.configure import configure_db
+    configure_db(settings['database'], 'sqlalchemy_')
+
     dispatchator = get_dispatchator(args, restrict=False)
     conf.load_xml_conf() # les générateurs (nagios) en ont besoin
     dispatchator.server_status(args.server, args.status, args.no_deploy)
