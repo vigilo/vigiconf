@@ -232,47 +232,6 @@ class Host(object):
         if self.classes.count(class_name) == 0:
             self.classes.append(class_name)
 
-    def add_dependency(self, service="Host", deps=None, options=None, cti=1):
-        """
-        Add a topological dependency, from "origin" to "target".
-
-        @param service: the origin service. If the value is the string "Host",
-            then the host itself is the origin.
-        @type  service: C{str}
-        @param deps: the target dependencies. If deps is a C{str}, then it is
-            considered as a hostname. If deps is a C{dict}, then it may be of the
-            following form::
-                {
-                    "and": [(host1, "Host"), (host2, "Service1")]
-                    "or": [(host3, "Host")]
-                }
-        @type  deps: C{str} or C{dict}
-        @param options: TODO:
-        @type  options: C{list}
-        @param cti: alert reference (Category - Type - Item)
-        @type  cti: C{int}
-        @todo: finish agument description
-        @todo: deprecated (database management)
-        """
-        if deps is None:
-            return
-        if options is None:
-            options = []
-        if isinstance(deps, str) and deps != "":
-            # target argument given as string
-            deps = { "and": [(deps, "Host")] }
-        import vigilo.vigiconf.conf as conf
-        conf.dependencies[(self.name, service)] = {"deps": {"and": [],
-                                                            "or": []},
-                                                   "options": options,
-                                                   'cti': cti}
-        for dep_type, dep_list in deps.iteritems():
-            for dep in dep_list:
-                if isinstance(dep, str):
-                    dep = (dep, "Host")
-                conf.dependencies[(self.name, service)]["deps"]\
-                                                       [dep_type].append(dep)
-
 #### Access the hosts dict ####
 
     def get(self, prop):

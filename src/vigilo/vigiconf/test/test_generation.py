@@ -10,7 +10,9 @@ import re
 
 from vigilo.common.conf import settings
 from vigilo.models.tables import ConfFile
-from vigilo.models.demo.functions import add_host
+from vigilo.models.demo.functions import add_host, add_dependency_group, \
+                                            add_dependency, add_vigiloserver, \
+                                            add_application, add_ventilation
 from vigilo.models.session import DBSession
 
 import vigilo.vigiconf.conf as conf
@@ -139,8 +141,7 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         setup_db()
         self.host = Host(conf.hostsConf, "dummy.xml", "testserver1",
                          "192.168.1.1", "Servers")
-        conffile = ConfFile.get_or_create("dummy.xml")
-        add_host("testserver1", conffile)
+        add_host("testserver1", ConfFile.get_or_create("dummy.xml"))
         self.apps = {"nagios": Nagios(), "vigimap": VigiMap(),
                      "connector-metro": ConnectorMetro()}
         self.ventilation = {"testserver1": {}}
@@ -165,13 +166,13 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         nagiosconf = open(nagiosconffile).read()
         print nagiosconf
 
-        self.assertTrue(nagiosconf.find("max_check_attempts    5") >= 0,
+        self.assertTrue("max_check_attempts    5" in nagiosconf,
             "nagios generator generates max_check_attempts=5")
 
-        self.assertTrue(nagiosconf.find("check_interval    10") >= 0,
+        self.assertTrue("check_interval    10" in nagiosconf,
             "nagios generator generates check_interval=10")
 
-        self.assertTrue(nagiosconf.find("retry_interval    1") >= 0,
+        self.assertTrue("retry_interval    1" in nagiosconf,
             "nagios generator generates retry_interval=1")
 
     def test_nagios_service_directives(self):
@@ -191,12 +192,39 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
         nagiosconf = open(nagiosconffile).read()
         print nagiosconf
 
-        self.assertTrue(nagiosconf.find("max_check_attempts    6") >= 0,
+        self.assertTrue("max_check_attempts    6" in nagiosconf,
             "nagios generator generates max_check_attempts=6")
 
-        self.assertTrue(nagiosconf.find("check_interval    11") >= 0,
+        self.assertTrue("check_interval    11" in nagiosconf,
             "nagios generator generates check_interval=11")
 
-        self.assertTrue(nagiosconf.find("retry_interval    2") >= 0,
+        self.assertTrue("retry_interval    2" in nagiosconf,
             "nagios generator generates retry_interval=2")
+
+    def test_parents_directive(self):
+        # On ajoute un 2ème hôte et on génère une dépendance topologique
+        # de "testserver1" sur "testserver2".
+        add_host("testserver2", ConfFile.get_or_create("dummy.xml"))
+        self.ventilation.update({"testserver2": {}})
+        for appname in self.apps:
+            self.ventilation["testserver2"][appname] = "sup.example.com"
+        dep_group = add_dependency_group('testserver1', None, 'topology')
+        add_dependency(dep_group, ("testserver2", None))
+        vserver = add_vigiloserver("sup.example.com")
+        nagios = add_application("nagios")
+        add_ventilation("testserver1", vserver, nagios)
+        add_ventilation("testserver2", vserver, nagios)
+
+        # "testserver2" doit apparaître comme parent de "testserver1"
+        # dans le fichier de configuration généré pour Nagios.
+        self.apps["nagios"].generate(self.ventilation)
+        nagiosconffile = os.path.join(self.basedir, "sup.example.com",
+                                      "nagios", "nagios.cfg")
+        self.assert_(os.path.exists(nagiosconffile),
+                     "Nagios conf file was not generated")
+        nagiosconf = open(nagiosconffile).read()
+        print nagiosconf
+
+        self.assertTrue("parents    testserver2" in nagiosconf,
+            "nagios generator generates did not add the proper parents")
 

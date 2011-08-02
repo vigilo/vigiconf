@@ -28,6 +28,10 @@ import os.path
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.generators import FileGenerator
 
+from sqlalchemy.orm import aliased
+from vigilo.models.session import DBSession
+from vigilo.models.tables import Host, Ventilation, VigiloServer, Dependency, \
+                                    DependencyGroup, Application
 
 class NagiosGen(FileGenerator):
     """
@@ -151,26 +155,31 @@ class NagiosGen(FileGenerator):
 
     def __getdeps(self, hostname):
         """Extract the parents list"""
-        h = conf.hostsConf[hostname]
-        parents = []
-        # looks for the dependencies defined into VigiConf
-        # (addDependency(...)) and extract a subset of them, only the ones
-        # that can be written into Nagios dependancy system, which is
-        # too limited for our use
-        for (hostname, hosttype) in conf.dependencies.keys():
-            if hostname != h['name'] or hosttype != "Host":
-                continue # not us
-            d = conf.dependencies[(hostname, hosttype)]["deps"]
-            if len(d["and"]) >= 2:
-                continue # we only deal with "or"-type dependencies
-            for (parenthost, parenttype) in d["or"] + d["and"]:
-                parent_ventilation = self.ventilation[parenthost]["nagios"]
-                if (parenttype != "Host" or
-                        self.ventilation[hostname]['nagios']
-                        != parent_ventilation):
-                    continue # only host-to-host dependencies
-                parents.append(parenthost)
-        return parents
+        host1 = aliased(Host)
+        host2 = aliased(Host)
+
+        vserver = self.ventilation[hostname]["nagios"]
+        if isinstance(vserver, list):
+            vserver = vserver[0]
+
+        # On cherche tous les parents définis dans la topologie
+        # qui sont des hôtes ventilés sur le même serveur Nagios.
+        parents = DBSession.query(
+            host1.name
+        ).distinct(
+        ).join(
+            (Ventilation, Ventilation.idhost == host1.idhost),
+            (VigiloServer, VigiloServer.idvigiloserver == Ventilation.idvigiloserver),
+            (Application, Application.idapp == Ventilation.idapp),
+            (Dependency, Dependency.idsupitem == host1.idhost),
+            (DependencyGroup, DependencyGroup.idgroup == Dependency.idgroup),
+            (host2, host2.idhost == DependencyGroup.iddependent),
+        ).filter(Application.name == u'nagios'
+        ).filter(DependencyGroup.role == u'topology'
+        ).filter(VigiloServer.name == unicode(vserver)
+        ).filter(host2.name == unicode(hostname)
+        ).all()
+        return [p.name for p in parents]
 
     def __fillservices(self, hostname, newhash):
         """Fill the services section in the configuration file"""
