@@ -194,6 +194,10 @@ class ConnectorMetroGen(Generator):
                            "ON perfdatasource (name)")
             cursor.execute("CREATE INDEX ix_perfdatasource_hostname "
                            "ON perfdatasource (hostname)")
+            cursor.execute("CREATE INDEX ix_perfdatasource_warning_threshold "
+                           "ON perfdatasource (warning_threshold)")
+            cursor.execute("CREATE INDEX ix_perfdatasource_critical_threshold "
+                           "ON perfdatasource (critical_threshold)")
             db.commit()
             cursor.close()
             db.close()
