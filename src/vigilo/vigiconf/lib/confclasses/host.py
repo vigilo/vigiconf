@@ -624,13 +624,21 @@ class Host(object):
         """
         # Ajout du service Nagios
         definition = {
-            'type': 'passive',
+            'type': 'active',
             'weight': weight,
-            'directives': {},
+            'command': 'report_stale_data',
+            'directives': {
+                "check_freshness": 1,
+                "freshness_threshold": 1500, # 5 collectes
+                "passive_checks_enabled": 1,
+                "active_checks_enabled": 0,
+            },
             'reRoutedBy': None,
         }
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, "services", servicename, key, value)
+        for (dname, dvalue) in definition["directives"].iteritems():
+            self.add_nagios_service_directive(servicename, dname, dvalue)
 
         # Ajout des seuils pour le connector-metro.
         self.add(self.name, "metro_services", metroname, {
