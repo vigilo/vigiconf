@@ -629,7 +629,11 @@ class Host(object):
             'command': 'report_stale_data',
             'directives': {
                 "check_freshness": 1,
-                "freshness_threshold": 1500, # 5 collectes
+                # On laisse 30s de marge pour que la collecte arrive. Ça a
+                # l'air peu mais il y a les soft states pour éviter le
+                # flapping (3 par défaut).
+                # TODO: utiliser le step / l'intervalle de collecte
+                "freshness_threshold": 330,
                 "passive_checks_enabled": 1,
                 "active_checks_enabled": 0,
             },

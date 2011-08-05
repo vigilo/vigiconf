@@ -33,7 +33,7 @@ class HostMethods(unittest.TestCase):
                 "command": "report_stale_data",
                 "directives": {
                     "check_freshness": 1,
-                    "freshness_threshold": 1500,
+                    "freshness_threshold": 330,
                     "passive_checks_enabled": 1,
                     "active_checks_enabled": 0,
                 },
