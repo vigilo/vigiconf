@@ -687,7 +687,7 @@ class Host(object):
             @param value: the directive value
             @type  value: C{str}
         """
-        self.add_sub(self.name, "nagiosSrvDirs", service, name, str(value))
+        self.add_sub(self.name, "nagiosSrvDirs", service, name, value)
 
 
 class HostFactory(object):

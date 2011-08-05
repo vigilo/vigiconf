@@ -26,6 +26,20 @@ class HostMethods(unittest.TestCase):
         self.testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
         self.host = Host(conf.hostsConf, "dummy", u"testserver1",
                          u"192.168.1.1", u"Servers")
+        self.expected = {
+            "metrosrv": {
+                "type": "active",
+                "weight": 1,
+                "command": "report_stale_data",
+                "directives": {
+                    "check_freshness": 1,
+                    "freshness_threshold": 1500,
+                    "passive_checks_enabled": 1,
+                    "active_checks_enabled": 0,
+                },
+                "reRoutedBy": None,
+            },
+        }
 
     def tearDown(self):
         teardown_db()
@@ -36,8 +50,11 @@ class HostMethods(unittest.TestCase):
         self.host.add_tests(test_list, {"label":"eth1", "ifname":"eth1"})
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         self.assertEqual(
-            conf.hostsConf["testserver1"]["services"]["Traffic in eth1"]
-                ["type"], "passive")
+            conf.hostsConf["testserver1"]["services"]["Traffic in eth1"],
+            self.expected["metrosrv"])
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["nagiosSrvDirs"]["Traffic in eth1"],
+            self.expected["metrosrv"]["directives"])
         self.assert_('ineth1' in conf.hostsConf["testserver1"]["metro_services"])
         self.assertEqual(
             conf.hostsConf["testserver1"]["metro_services"]['ineth1'],
@@ -55,8 +72,11 @@ class HostMethods(unittest.TestCase):
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"})
         self.host.add_metro_service("Traffic in eth0", "ineth0", 10, 20)
         self.assertEqual(
-            conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]
-                ["type"], "passive")
+            conf.hostsConf["testserver1"]["services"]["Traffic in eth0"],
+            self.expected["metrosrv"])
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["nagiosSrvDirs"]["Traffic in eth0"],
+            self.expected["metrosrv"]["directives"])
 
     def test_add_metro_service_INTF(self):
         """Test for the add_metro_service function in the Interface test"""
@@ -64,8 +84,11 @@ class HostMethods(unittest.TestCase):
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0",
                                         "warn":"10,20", "crit":"30,40"})
         self.assertEqual(
-            conf.hostsConf["testserver1"]["services"]["Traffic in eth0"]
-                ["type"], "passive")
+            conf.hostsConf["testserver1"]["services"]["Traffic in eth0"],
+            self.expected["metrosrv"])
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["nagiosSrvDirs"]["Traffic in eth0"],
+            self.expected["metrosrv"]["directives"])
         self.assert_('ineth0' in conf.hostsConf["testserver1"]["metro_services"])
         self.assertEqual(
             conf.hostsConf["testserver1"]["metro_services"]['ineth0'],
@@ -78,8 +101,11 @@ class HostMethods(unittest.TestCase):
         )
 
         self.assertEqual(
-            conf.hostsConf["testserver1"]["services"]["Traffic out eth0"]
-                ["type"], "passive")
+            conf.hostsConf["testserver1"]["services"]["Traffic out eth0"],
+            self.expected["metrosrv"])
+        self.assertEqual(
+            conf.hostsConf["testserver1"]["nagiosSrvDirs"]["Traffic out eth0"],
+            self.expected["metrosrv"]["directives"])
         self.assert_('outeth0' in conf.hostsConf["testserver1"]["metro_services"])
         self.assertEqual(
             conf.hostsConf["testserver1"]["metro_services"]['outeth0'],
