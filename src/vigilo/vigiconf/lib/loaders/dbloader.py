@@ -144,7 +144,7 @@ class DBLoader(object):
             old_value = getattr(instance, attr)
             if type(old_value) != type(value):
                 LOGGER.debug("WARNING: Different types between old and new "
-                             "value, comparasion will always fail. "
+                             "value, comparison will always fail. "
                              "Old is %(old_value)s (%(old_type)r), "
                              "new is %(new_value)s (%(new_type)r).", {
                                     'old_value': old_value,
