@@ -130,9 +130,9 @@ def prepare_tmp_tables():
                     },
                 ).execute(metadata.bind, table)
 
-                # Recommandé sur les forums pour mettre à jour la stratégie
-                # du plannificateur de requêtes de PostgreSQL. Pas standard.
-                DDL("ANALYZE %(fullname)s;").execute(metadata.bind, table)
+        # Recommandé sur les forums pour mettre à jour la stratégie
+        # du plannificateur de requêtes de PostgreSQL. Pas standard.
+        DDL("ANALYZE %(fullname)s;").execute(metadata.bind, table)
     transaction.commit()
 
 def finalize_tmp_tables():
@@ -212,11 +212,17 @@ def finalize_tmp_tables():
                     },
                 ).execute(connection, table)
 
-                # Recommandé sur les forums pour mettre à jour la stratégie
-                # du plannificateur de requêtes de PostgreSQL. Pas standard.
-                DDL("ANALYZE %(fullname)s;").execute(connection, table)
+        # Recommandé sur les forums pour mettre à jour la stratégie
+        # du plannificateur de requêtes de PostgreSQL. Pas standard.
+        DDL("ANALYZE %(fullname)s;").execute(connection, table)
 
+    # Sans ce COMMIT manuel, les modifications sont perdues
+    # avant qu'on arrive à l'étape de validation du chargement,
+    # et ce même si on appelle transaction.commit() ...
+    DDL("COMMIT;").execute(connection, table)
+    # ... qui DOIT également être appelé !
     transaction.commit()
+
     # On supprime les tables temporaires.
     mapped_tables = metadata.tables.copy()
     del mapped_tables[tables.GroupPath.__tablename__]
@@ -232,6 +238,8 @@ def finalize_tmp_tables():
 
     # On supprime l'infixe temporaire.
     configure.DB_BASENAME = configure.DB_BASENAME[:-4]
+    settings['database']['db_basename'] = \
+        settings['database']['db_basename'][:-4]
 
     # On bascule les traitements sur les tables finales.
     for table in metadata.sorted_tables:
