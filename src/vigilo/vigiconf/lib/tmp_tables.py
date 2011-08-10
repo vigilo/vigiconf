@@ -133,6 +133,7 @@ def prepare_tmp_tables():
         # Recommandé sur les forums pour mettre à jour la stratégie
         # du plannificateur de requêtes de PostgreSQL. Pas standard.
         DDL("ANALYZE %(fullname)s;").execute(metadata.bind, table)
+    LOGGER.info(_("Done copying data"))
     transaction.commit()
 
 def finalize_tmp_tables():
