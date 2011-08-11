@@ -56,22 +56,15 @@ class VigiRRDGen(Generator):
                      stat.S_IRUSR | stat.S_IWUSR |
                      stat.S_IRGRP | stat.S_IROTH )
         cursor = self.connections[vserver]["cursor"]
-        dses = self.db_add_graphs(cursor, hostname, h["graphItems"])
+
+        idhost = self.db_add_host(cursor, hostname)
+        for graphname, graphdata in h["graphItems"].iteritems():
+            self.db_add_graph(cursor, idhost, graphname, graphdata, h["dataSources"])
+
         # list all ds for validation
         for graphvalues in h["graphItems"].values():
             self._all_ds_graph.update(set(graphvalues["ds"]))
-        # add human-readable labels
-        for dsid in h["dataSources"]:
-            cursor.execute(
-                "UPDATE perfdatasource SET label = ?, "
-                "max = ? WHERE idperfdatasource = ?", (
-                    h["dataSources"][dsid]["label"],
-                    h["dataSources"][dsid]["max"],
-                    dses[dsid]
-                )
-            )
-        for dsid in h["dataSources"]:
-            self._all_ds_metro.add(dsid)
+        self._all_ds_metro.update(set(h["dataSources"].iterkeys()))
 
     def validate_ds_list(self):
         # compare the DS lists for validation
@@ -139,58 +132,29 @@ class VigiRRDGen(Generator):
                           FOREIGN KEY(idgraph) REFERENCES graph (idgraph) ON DELETE CASCADE ON UPDATE CASCADE
                      )""")
 
-    def db_add_graphs(self, cursor, hostname, graphs):
-        idhost = self.db_add_host(cursor, hostname)
-        dses = {}
-        for graphname, graphdata in graphs.iteritems():
-            subdses = self.db_add_graph(cursor, idhost, graphname, graphdata)
-            # Possible car le nom des datasources est unique
-            # par hôte et pas uniquement par graphe.
-            dses.update(subdses)
-        return dses
-
     def db_add_host(self, cursor, hostname):
-        cursor.execute("SELECT idhost FROM host WHERE name = ?", (hostname, ))
-        idhost = cursor.fetchone()
-        if idhost is not None:
-            return idhost[0]
         config = self.application.getConfig()
         cursor.execute("INSERT INTO host VALUES (NULL, ?, ?, ?, ?, ?)",
                        (hostname, config["grid"], config["height"],
                         config["width"], config["step"]))
         return cursor.lastrowid
 
-    def db_add_graph(self, cursor, idhost, graphname, graphdata):
-        cursor.execute("SELECT idgraph FROM graph WHERE idhost = ? "
-                       "AND name = ?", (idhost, graphname))
-        idgraph = cursor.fetchone()
-        if idgraph is None:
-            cursor.execute("INSERT INTO graph VALUES (NULL, ?, ?, ?, ?, ?)",
-                       (idhost, graphname, graphdata["template"],
-                        graphdata["vlabel"],
-                        graphdata.get("last_is_max", False)))
-            idgraph = cursor.lastrowid
+    def db_add_graph(self, cursor, idhost, graphname, graphdata, dses):
+        cursor.execute("INSERT INTO graph VALUES (NULL, ?, ?, ?, ?, ?)",
+                   (idhost, graphname, graphdata["template"],
+                    graphdata["vlabel"],
+                    graphdata.get("last_is_max", False)))
+        idgraph = cursor.lastrowid
 
-        dses = {}
         for index, dsname in enumerate(graphdata["ds"]):
             factor = graphdata["factors"].get(dsname, 1)
-            dses[dsname] = self.db_add_pds(cursor, idgraph, dsname,
-                                           factor, index)
-        return dses
+            self.db_add_pds(cursor, idgraph, dsname, factor, index, dses)
+        return idgraph
 
-    def db_add_pds(self, cursor, idgraph, name, factor, index): # pylint: disable-msg=R0201
-        cursor.execute("SELECT idperfdatasource "
-                       "FROM perfdatasource "
-                       "NATURAL JOIN graphperfdatasource "
-                       "WHERE name = ? "
-                       "AND idgraph = ?",
-                       (name, idgraph))
-        idpds = cursor.fetchone()
-        if idpds is not None:
-            return idpds[0]
-
-        cursor.execute("INSERT INTO perfdatasource(name, factor) "
-                       "VALUES (?, ?)", (name, factor))
+    def db_add_pds(self, cursor, idgraph, name, factor, index, dses): # pylint: disable-msg=R0201
+        cursor.execute("INSERT INTO perfdatasource(name, factor, label, max) "
+                       "VALUES (?, ?, ?, ?)",
+                       (name, factor, dses[name]['label'], dses[name]['max']))
         idpds = cursor.lastrowid
         cursor.execute("INSERT INTO graphperfdatasource "
                        "VALUES (?, ?, ?)", (idpds, idgraph, index))
