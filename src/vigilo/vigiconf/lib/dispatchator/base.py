@@ -37,8 +37,6 @@ _ = translate(__name__)
 from vigilo.vigiconf.lib.generators import GenerationError
 from vigilo.vigiconf.lib.exceptions import DispatchatorError
 
-# Doit avoir lieu APRÈS un appel à configure_db().
-from vigilo.vigiconf.lib import tmp_tables
 
 class Dispatchator(object):
     """
@@ -142,6 +140,7 @@ class Dispatchator(object):
         """
         try:
             transaction.commit()
+            LOGGER.info(_("Database commit successful"))
         except Exception, e:
             transaction.abort()
             LOGGER.debug("Transaction rollbacked: %s", e)
@@ -191,13 +190,8 @@ class Dispatchator(object):
             la totalité du processus.
         @type  stop_after: C{bool}
         """
-        tmp_tables.prepare_tmp_tables()
         self.rev_mgr.prepare()
         self.generate()
-        self.commit()
-        LOGGER.info(_("Temporary commit successful"))
-        tmp_tables.finalize_tmp_tables()
-
         if stop_after == "generation":
             self.gen_mgr.generate_dbonly()
             return
@@ -206,8 +200,6 @@ class Dispatchator(object):
         if stop_after == "push":
             self.gen_mgr.generate_dbonly()
             return
-
-        LOGGER.info(_("Database commit successful"))
         self.commit()
         self.restart()
         self.gen_mgr.generate_dbonly()
