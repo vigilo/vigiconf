@@ -33,15 +33,15 @@ from vigilo.models.session import DBSession
 from vigilo.models.tables import Host, SupItemGroup, LowLevelService
 from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import ConfFile, ConfItem, Change, Tag
-from vigilo.models.tables import SupItem, HighLevelService
+from vigilo.models.tables import SupItem, HighLevelService, GroupPath
 from vigilo.models.tables import MapLink, MapServiceLink, MapSegment
 from vigilo.models.tables import MapNode, MapNodeHost, MapNodeService
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE
 
 from vigilo.vigiconf.lib.loaders import DBLoader
 from vigilo.vigiconf.lib import ParsingError
-
 from vigilo.vigiconf import conf
+from vigilo.common import parse_path
 
 __docformat__ = "epytext"
 
@@ -167,6 +167,13 @@ class HostLoader(DBLoader):
             # Synchronisation des tags de l'hôte.
             tag_loader = TagLoader(host, hostdata.get('tags', {}))
             tag_loader.load()
+
+        if hostnames:
+            LOGGER.debug("Preparing group cache")
+            groups = DBSession.query(GroupPath).all()
+            for g in groups:
+                self.group_cache[g.idgroup] = g.path
+                self.group_cache[g.path] = g.idgroup
 
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
@@ -304,35 +311,47 @@ class HostLoader(DBLoader):
             if old_group.startswith('/'):
                 hostdata["otherGroups"].add(old_group)
                 continue
-            groups = DBSession.query(
-                            SupItemGroup
-                        ).filter(SupItemGroup.name == old_group
-                        ).all()
+
+            groups = filter(
+                lambda path: old_group in parse_path(path),
+                self.group_cache.itervalues()
+            )
+
             if not groups:
                 raise ParsingError(_('Unknown group "%(group)s" in host '
                                      '"%(host)s".')
                                    % {"group": old_group, "host": host.name})
-            for group in groups:
-                hostdata["otherGroups"].add(group.path)
+            hostdata["otherGroups"].update(set(groups))
 
     def _load_groups(self, host, hostdata):
         self._absolutize_groups(host, hostdata)
+
         # Rempli à mesure que des groupes sont ajoutés (sorte de cache).
         hostgroups_cache = {}
         for g in host.groups:
-            hostgroups_cache[g.path] = g
+            hostgroups_cache[g.idgroup] = g
 
         # Suppression des anciens groupes
         # qui ne sont plus associés à l'hôte.
-        for path in hostgroups_cache.copy():
+        for idgroup in hostgroups_cache.copy():
+            path = self.group_cache[idgroup]
             if path not in hostdata['otherGroups']:
-                host.groups.remove(hostgroups_cache[path])
-                del hostgroups_cache[path]
+                host.groups.remove(hostgroups_cache[idgroup])
+                del hostgroups_cache[idgroup]
 
         # Ajout des nouveaux groupes associés à l'hôte.
         hierarchy = self.grouploader.get_hierarchy()
         for path in hostdata['otherGroups']:
-            if path in hostgroups_cache:
+            if path not in self.group_cache:
+                msg = _("syntax error in host %(host)s: could not find a group "
+                        "matching path \"%(path)s\"")
+                raise ParsingError(msg % {
+                    'host': host.name,
+                    'path': path,
+                })
+
+            idgroup = self.group_cache[path]
+            if idgroup in hostgroups_cache:
                 continue
 
             if path not in hierarchy:
@@ -344,7 +363,7 @@ class HostLoader(DBLoader):
                 })
 
             host.groups.append(hierarchy[path])
-            hostgroups_cache[path] = hierarchy[path]
+            hostgroups_cache[idgroup] = hierarchy[path]
 
 class ServiceLoader(DBLoader):
     """
