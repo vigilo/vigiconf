@@ -137,42 +137,13 @@ def prepare_tmp_tables():
     transaction.commit()
 
 def finalize_tmp_tables():
+    LOGGER.info(_("Copying temporary tables to their final destination"))
+
     views = [
         tables.GroupPath.__tablename__,
         tables.UserSupItem.__tablename__,
     ]
     base_len = len(configure.DB_BASENAME)
-
-    raw_dbms_version = DBSession.execute(
-        'SELECT character_value '
-        'FROM information_schema.sql_implementation_info '
-        'WHERE implementation_info_name = :info;',
-        params={
-            'info': "DBMS VERSION",
-            'table': tables.SupItem.__tablename__,
-        }
-    ).fetchone().character_value
-    dbms_version = map(int, raw_dbms_version.split('.'))
-
-    # Si on tourne sous PostgreSQL 8.4+, on peut utiliser TRUNCATE pour vider
-    # les tables; les triggers de Slony seront correctement déclenchés.
-    if dbms_version[0] > 8 or \
-        (dbms_version[0] == 8 and dbms_version[1] >= 4):
-        purge_cmd = "TRUNCATE TABLE ONLY %(original)s CASCADE;"
-        strategy = "TRUNCATE"
-
-    # Sinon, on est forcés d'utiliser un DELETE (beaucoup plus lent).
-    else:
-        purge_cmd = "DELETE FROM %(original)s;"
-        strategy = "DELETE"
-
-    LOGGER.info(_("Copying temporary tables to their final destination using "
-                "%(strategy)s strategy for PostgreSQL %(major)d.%(minor)d.%(patch)d"), {
-                    'strategy': strategy,
-                    'major': dbms_version[0],
-                    'minor': dbms_version[1],
-                    'patch': dbms_version[2],
-                })
 
     transaction.begin()
     connection = DBSession.connection()
@@ -193,10 +164,12 @@ def finalize_tmp_tables():
         if table.name in views:
             continue
 
-        # On vide la table d'origine à l'aide de la commande appropriée.
         orig_name = table.name[:base_len - 4] + table.name[base_len:]
+
+        # On ne peut pas faire un TRUNCATE car ça casserait la réplication
+        # (les TRUNCATE n'ont pas de trigger avant PostgreSQL 8.4).
         DDL(
-            purge_cmd,
+            "DELETE FROM %(original)s;",
             context={'original': orig_name}
         ).execute(connection, table)
 
