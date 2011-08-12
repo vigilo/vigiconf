@@ -144,9 +144,8 @@ class Validator(object):
                 % {"db": hosts_db, "conf": self._stats["nbHosts"]})
             hosts_db = set([h.name for h in DBSession.query(tables.Host).all()])
             hosts_conf = set([ unicode(h) for h in conf.hostsConf.keys() ])
-            difference = sorted(hosts_db ^ hosts_conf, key=lambda x: x.lower())
             LOGGER.debug("Hosts: difference between conf and DB: %s",
-                         ", ".join(difference))
+                         " ".join(hosts_db ^ hosts_conf))
 
     def prevalidate_services(self):
         svc_db = DBSession.query(tables.LowLevelService).count()
@@ -174,12 +173,8 @@ class Validator(object):
             svc_db_detail = ["%s::%s" % (s.host.name, s.servicename)
                     for s in DBSession.query(tables.LowLevelService).all()]
             svc_conf_detail = [ unicode(s) for s in svc_conf_detail ]
-            difference = sorted(
-                set(svc_db_detail) ^ set(svc_conf_detail),
-                key=lambda x: x.lower()
-            )
             LOGGER.debug("Services: difference between conf and DB: %s",
-                         ", ".join(difference))
+                         ", ".join(set(svc_db_detail) ^ set(svc_conf_detail)))
 
     def prevalidate_applications(self):
         apps_db = DBSession.query(tables.Application).count()
@@ -196,9 +191,8 @@ class Validator(object):
             for hostVentilation in self.ventilation.values():
                 for app in hostVentilation:
                     apps_conf.add(app.name)
-            difference = sorted(apps_db ^ apps_conf, key=lambda x: x.lower())
             LOGGER.debug("Applications: difference between conf and DB: %s",
-                         ", ".join(difference))
+                         " ".join(apps_db ^ apps_conf))
 
     def prevalidate_ventilation(self, apps):
         ventilation_db = DBSession.query(tables.Ventilation).count()
@@ -216,12 +210,8 @@ class Validator(object):
             for a in apps:
                 for h in conf.hostsConf.keys():
                     ventilation_conf.add("%s:%s" % (h, a))
-            difference = sorted(
-                ventilation_db ^ ventilation_conf,
-                key=lambda x: x.lower()
-            )
             LOGGER.debug("Ventilation: difference between conf and DB: %s",
-                         ", ".join(difference))
+                         " ".join(ventilation_db ^ ventilation_conf))
 
     def hasErrors(self):
         """
