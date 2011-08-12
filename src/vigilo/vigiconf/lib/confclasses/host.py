@@ -634,6 +634,9 @@ class Host(object):
                 # flapping (3 par défaut).
                 # TODO: utiliser le step / l'intervalle de collecte
                 "freshness_threshold": 330,
+                # On force le max_check_attempts au cas où il aurait été
+                # personnalisé. Assure la cohérence avec freshness_threshold.
+                "max_check_attempts": 3,
                 "passive_checks_enabled": 1,
                 "active_checks_enabled": 0,
             },

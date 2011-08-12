@@ -108,6 +108,7 @@ class Generator(unittest.TestCase):
                 host_name\s+testserver1\s*          # Working on the testserver1 host
                 service_description\s+Traffic[ ]in[ ]eth1\s*
                 check_command\s+report_stale_data\s*
+                max_check_attempts\s+3\s*
                 freshness_threshold\s+\d+\s*
                 check_freshness\s+1\s*
                 active_checks_enabled\s+0\s*
@@ -116,6 +117,7 @@ class Generator(unittest.TestCase):
                 \}                                  # End of the host definition
             """,
             re.MULTILINE | re.VERBOSE)
+        print nagios
         self.assert_(regexp_coll.search(nagios) is not None,
             "add_metro_service does not generate proper nagios conf "
             "(Collector service)")

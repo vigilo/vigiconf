@@ -36,6 +36,7 @@ class HostMethods(unittest.TestCase):
                     "freshness_threshold": 330,
                     "passive_checks_enabled": 1,
                     "active_checks_enabled": 0,
+                    "max_check_attempts": 3,
                 },
                 "reRoutedBy": None,
             },
