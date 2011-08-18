@@ -38,8 +38,13 @@ class TestLoader(unittest.TestCase):
         self.old_conf_dir = settings["vigiconf"]["confdir"]
         settings["vigiconf"]["confdir"] = self.tmpdir
         open(os.path.join(self.tmpdir, "dummy.xml"), "w").close() # == touch
-        self.host = ConfHost(conf.hostsConf, "dummy.xml", "testserver1",
-                             "192.168.1.1", "Servers")
+        self.host = ConfHost(
+            conf.hostsConf,
+            os.path.join(self.tmpdir, "dummy.xml"),
+            "testserver1",
+            "192.168.1.1",
+            "Servers",
+        )
         self.rm = DummyRevMan()
         grouploader = GroupLoader()
         self.hostloader = HostLoader(grouploader, self.rm)
@@ -58,7 +63,7 @@ class TestLoader(unittest.TestCase):
         except ParsingError, e:
             error = str(e)
         except Exception, e:
-            self.fail("Excepted a ParsingError, got %s", type(e))
+            self.fail("Excepted a ParsingError, got %s" % type(e))
         else:
             self.fail("Expected a ParsingError")
         self.assertEquals(

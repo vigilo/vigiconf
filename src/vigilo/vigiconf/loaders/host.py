@@ -57,6 +57,8 @@ class HostLoader(DBLoader):
         super(HostLoader, self).__init__(Host, "name")
         self.grouploader = grouploader
         self.rev_mgr = rev_mgr
+        self.conffiles = dict()
+        self.group_cache = dict()
 
     def cleanup(self):
         # Presque rien à faire ici : la fin du load_conf se charge déjà
@@ -68,13 +70,18 @@ class HostLoader(DBLoader):
         # fichiers qui auraient disparu du disque (modif SVN manuelle par
         # exemple)
         LOGGER.debug("Checking for leftover ConfFiles")
-        for conffile in DBSession.query(ConfFile).all():
+        for conffilename in self.conffiles:
+            # self.conffiles indexe les objets par leur ID, mais aussi
+            # pas leur nom de fichier, on ne s'intéresse qu'à ces derniers.
+            if not isinstance(conffilename, basestring):
+                continue
+
             filename = os.path.join(settings["vigiconf"].get("confdir"),
-                                    conffile.name)
+                                    conffilename)
             if not os.path.exists(filename):
                 LOGGER.warning(_("Deleting leftover config file from "
-                                 "database: %s"), conffile.name)
-                DBSession.delete(conffile)
+                                 "database: %s"), conffilename)
+                DBSession.delete(self.conffiles[conffilename])
         DBSession.flush()
 
     def load_conf(self):
@@ -83,18 +90,19 @@ class HostLoader(DBLoader):
         # précédemment définis en base et le fichier XML
         # auquels ils appartiennent.
         previous_hosts = {}
+
+        for conffile in DBSession.query(ConfFile).all():
+            self.conffiles[conffile.idconffile] = conffile
+            self.conffiles[conffile.name] = conffile
+
         db_hosts = DBSession.query(
                 Host.name,
-                ConfFile.name.label('conffile')
-            ).outerjoin(
-                (ConfFile, Host.idconffile == ConfFile.idconffile),
+                Host.idconffile,
             ).all()
         for db_host in db_hosts:
-            previous_hosts[db_host.name] = db_host.conffile
+            previous_hosts[db_host.name] = self.conffiles[db_host.idconffile]
 
         hostnames = []
-        conffiles = {}
-
         # On ne s'interresse qu'à ceux sur lesquels une modification
         # a eu lieu (ajout ou modification). On génère en même temps
         # un cache des instances des fichiers de configuration.
@@ -107,7 +115,16 @@ class HostLoader(DBLoader):
 
             # Peuple le cache en créant les instances à la volée si
             # nécessaire.
-            conffiles.setdefault(filename, ConfFile.get_or_create(relfilename))
+            if relfilename not in self.conffiles:
+                LOGGER.debug(_("Registering new configuration file "
+                                "'%(relative)s' (from %(absolute)s)"), {
+                                    'relative': relfilename,
+                                    'absolute': filename,
+                                })
+                conffile = ConfFile(name=unicode(relfilename))
+                DBSession.flush()
+                self.conffiles[unicode(relfilename)] = conffile
+                self.conffiles[conffile.idconffile] = conffile
 
         # Utile pendant la migration des données :
         # les hôtes pour lesquels on ne possédait pas d'informations
@@ -124,6 +141,8 @@ class HostLoader(DBLoader):
         hostnames = sorted(list(set(hostnames)))
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
+            relfilename = hostdata['filename'] \
+                [len(settings["vigiconf"].get("confdir"))+1:]
             LOGGER.debug(_("Loading host %s"), hostname)
             hostname = unicode(hostname)
             host = dict(name=hostname,
@@ -135,7 +154,7 @@ class HostLoader(DBLoader):
                         snmpoidsperpdu=hostdata['snmpOIDsPerPDU'],
                         weight=hostdata['weight'],
                         snmpversion=unicode(hostdata['snmpVersion']),
-                        conffile=conffiles[unicode(hostdata['filename'])],
+                        conffile=self.conffiles[unicode(relfilename)],
                     )
             host = self.add(host)
             hosts[hostname] = host
@@ -247,12 +266,14 @@ class HostLoader(DBLoader):
         # Suppression des hôtes qui ont été supprimés dans les fichiers
         # modifiés
         deleted_hosts = []
-        for conffile in DBSession.query(ConfFile).all():
+        for conffilename in self.conffiles:
+            if not isinstance(conffilename, basestring):
+                continue
             filename = os.path.join(settings["vigiconf"].get("confdir"),
-                                    conffile.name)
+                                    conffilename)
             if not self.rev_mgr.file_changed(filename):
                 continue # ce fichier n'a pas bougé
-            for host in conffile.hosts:
+            for host in self.conffiles[conffilename].hosts:
                 if host.name not in hostnames:
                     LOGGER.debug("Deleting '%s'", host.name)
                     deleted_hosts.append(host)

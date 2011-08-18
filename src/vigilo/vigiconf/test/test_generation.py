@@ -75,7 +75,8 @@ class Generator(unittest.TestCase):
                 ["fake arg 1"], ["GET/.1.3.6.1.2.1.1.3.0"],
                 reroutefor={'host': "testserver1",
                             "service": u"TestAddCSReRoute"} )
-        add_host("testserver2")
+        conffile = ConfFile.get_or_create("dummy.xml")
+        add_host("testserver2", conffile)
         # Try the generation
         self.genmanager.generate(DummyRevMan())
 
