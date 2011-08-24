@@ -105,15 +105,14 @@ class Generator(unittest.TestCase):
 
         regexp_svc = re.compile(r"""
             define\s+service\s*\{\s*                # Inside an service definition
-                use\s+generic-active-service\s*
+                use\s+generic-passive-service\s*
                 host_name\s+testserver1\s*          # Working on the testserver1 host
                 service_description\s+Traffic[ ]in[ ]eth1\s*
                 check_command\s+report_stale_data\s*
-                max_check_attempts\s+3\s*
-                freshness_threshold\s+\d+\s*
                 check_freshness\s+1\s*
-                active_checks_enabled\s+0\s*
-                passive_checks_enabled\s+1\s*
+                (;[^\}]+ \s*)*                      # comments
+                freshness_threshold\s+\d+\s*
+                max_check_attempts\s+3\s*(;[^\n]+\s*)?
                 [^\}]+                              # Any following declaration
                 \}                                  # End of the host definition
             """,

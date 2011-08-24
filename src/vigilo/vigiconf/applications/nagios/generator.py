@@ -216,9 +216,9 @@ class NagiosGen(FileGenerator):
                          'perfDataOrNot': perfdata,
                          "notification_period": scopy["notification_period"],
                          "generic_sdirectives": generic_directives})
-            else:
-                # append an active service, nammed external, as "not handled by
-                # Collector"
+            elif scopy['type'] == 'active':
+                # append an active service, named external, as in "not handled
+                # by Collector"
                 self.templateAppend(self.fileName, self.templates["ext"],
                         {'name': h['name'],
                          'desc': srvname,
@@ -226,6 +226,11 @@ class NagiosGen(FileGenerator):
                          'quietOrNot': newhash['quietOrNot'],
                          'perfDataOrNot': perfdata,
                          "notification_period": scopy["notification_period"],
+                         "generic_sdirectives": generic_directives})
+            else:
+                self.templateAppend(self.fileName, self.templates[ scopy['type'] ],
+                        {'name': h['name'],
+                         'desc': srvname,
                          "generic_sdirectives": generic_directives})
 
 

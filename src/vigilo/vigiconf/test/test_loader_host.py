@@ -61,15 +61,14 @@ class TestLoader(unittest.TestCase):
         try:
             self.hostloader.load()
         except ParsingError, e:
-            error = str(e)
+            error = e.args[0]
         except Exception, e:
             self.fail("Excepted a ParsingError, got %s" % type(e))
         else:
             self.fail("Expected a ParsingError")
-        self.assertEquals(
-            'Unknown group "Inexistent group" in host "testserver1".',
-            error
-        )
+        # On ne peut pas tester toute la chaîne à cause des traductions
+        self.assertTrue("Inexistent group" in error)
+        self.assertTrue("testserver1" in error)
 
     def test_export_hosts_db(self):
         self.hostloader.load()

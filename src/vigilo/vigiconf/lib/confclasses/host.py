@@ -637,30 +637,7 @@ class Host(object):
         @type  factor: C{int} or C{float}
         """
         # Ajout du service Nagios
-        definition = {
-            'type': 'active',
-            'weight': weight,
-            'command': 'report_stale_data',
-            'directives': {
-                "check_freshness": 1,
-                # On laisse 30s de marge pour que la collecte arrive. Ça a
-                # l'air peu mais il y a les soft states pour éviter le
-                # flapping (3 par défaut).
-                # TODO: utiliser le step / l'intervalle de collecte
-                "freshness_threshold": 330,
-                # On force le max_check_attempts au cas où il aurait été
-                # personnalisé. Assure la cohérence avec freshness_threshold.
-                "max_check_attempts": 3,
-                "passive_checks_enabled": 1,
-                "active_checks_enabled": 0,
-            },
-            'reRoutedBy': None,
-        }
-        for (key, value) in definition.iteritems():
-            self.add_sub(self.name, "services", servicename, key, value)
-        for (dname, dvalue) in definition["directives"].iteritems():
-            self.add_nagios_service_directive(servicename, dname, dvalue)
-
+        self.add_custom_service(servicename, "metro", weight=weight)
         # Ajout des seuils pour le connector-metro.
         self.add(self.name, "metro_services", metroname, {
             'servicename': servicename,
