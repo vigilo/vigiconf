@@ -84,7 +84,6 @@ class Host(object):
                 "netflow"        : {},
                 "graphGroups"    : {},
                 "reports"        : {},
-                "cti"            : 1,
                 "hostTPL"        : "generic-active-host",
                 "checkHostCMD"   : "check-host-alive",
                 "snmpVersion"    : "2",
@@ -320,9 +319,8 @@ class Host(object):
 
 #### Collector-related functions ####
 
-    def add_collector_service(self, label, function, params, variables, cti=1,
-                                    reroutefor=None, weight=1,
-                                    directives=None):
+    def add_collector_service(self, label, function, params, variables,
+                              reroutefor=None, weight=1, directives=None):
         """
         Add a supervision service to the Collector
         @param label: the service display label
@@ -333,8 +331,6 @@ class Host(object):
         @type  params: C{list}
         @param variables: the variables for the Collector function
         @type  variables: C{list}
-        @param cti: alert reference (Category - Type - Item)
-        @type  cti: C{int}
         @param reroutefor: Service routing information.
             This parameter indicates that the given service receives
             information for another service, whose host and label are
@@ -368,7 +364,6 @@ class Host(object):
         # ont été définis pour ce service.
         definition = {
             'type': 'passive',
-            'cti': cti,
             'weight': weight,
             'directives': directives,
             'reRoutedBy': reroutedby,
@@ -433,8 +428,7 @@ class Host(object):
 
     def add_collector_service_and_metro(self, name, label, supfunction,
                     supparams, supvars, metrofunction, metroparams, metrovars,
-                    dstype, cti=1, reroutefor=None, weight=1,
-                    directives=None):
+                    dstype, reroutefor=None, weight=1, directives=None):
         """
         Helper function for L{add_collector_service}() and
         L{add_collector_metro}().
@@ -456,15 +450,13 @@ class Host(object):
         @type  metrovars: C{list}
         @param dstype: datasource type
         @type  dstype: "GAUGE" or "COUNTER", see RRDtool documentation
-        @param cti: alert reference (Category - Type - Item)
-        @type  cti: C{int}
         @param reroutefor: service routing information
         @type  reroutefor: C{dict} with "host" and "service" as keys
         @param weight: service weight
         @type  weight: C{int}
         """
         self.add_collector_service(name, supfunction, supparams, supvars,
-                        cti=cti, reroutefor=reroutefor, weight=weight,
+                        reroutefor=reroutefor, weight=weight,
                         directives=directives)
         self.add_collector_metro(name, metrofunction, metroparams, metrovars,
                                  dstype, label=label, reroutefor=reroutefor)
@@ -472,7 +464,7 @@ class Host(object):
     def add_collector_service_and_metro_and_graph(self, name, label, oid,
             th1, th2, dstype, template, vlabel, supcaption=None,
             supfunction="thresholds_OID_simple", metrofunction="directValue",
-            group="General", cti=1, reroutefor=None, weight=1, directives=None):
+            group="General", reroutefor=None, weight=1, directives=None):
         """
         Helper function for L{add_collector_service}(),
         L{add_collector_metro}() and L{add_graph}(). See those methods for
@@ -484,7 +476,7 @@ class Host(object):
             supcaption = "%s: %%s" % label
         self.add_collector_service_and_metro(name, label, supfunction,
                     [th1, th2, supcaption], ["GET/%s"%oid], metrofunction,
-                    [], [ "GET/%s"%oid ], dstype, cti=cti,
+                    [], [ "GET/%s"%oid ], dstype,
                     reroutefor=reroutefor, weight=weight, directives=directives)
         if reroutefor != None:
             target = reroutefor['host']
@@ -536,16 +528,14 @@ class Host(object):
             self.add(self.name, "reports", title, {"reportName": reportname,
                                                    "dateSetting": datesetting})
 
-    def add_external_sup_service(self, name, command=None, cti=1,
-                                weight=1, directives=None):
+    def add_external_sup_service(self, name, command=None,
+                                 weight=1, directives=None):
         """
         Add a standard Nagios service
         @param name: the service name
         @type  name: C{str}
         @param command: the command to use
         @type  command: C{str}
-        @param cti: alert reference (Category - Type - Item)
-        @type  cti: C{int}
         @param weight: service weight
         @type  weight: C{int}
         """
@@ -555,7 +545,6 @@ class Host(object):
             self.add_nagios_service_directive(name, dname, dvalue)
 
         definition =  {'command': command,
-                       'cti': cti,
                        'weight': weight,
                        'directives': directives,
                        'reRoutedBy': None,
@@ -565,6 +554,31 @@ class Host(object):
         else:
             definition["type"] = "active"
             definition["command"] = command
+        for (key, value) in definition.iteritems():
+            self.add_sub(self.name, 'services', name, key, value)
+
+    def add_custom_service(self, name, stype, weight=1, directives=None):
+        """
+        Ajoute un service Nagios quasiment entièrement défini par un des
+        modèles fournis dans le générateur Nagios.
+        Exemples: metro, connector.
+        @param name: the service name
+        @type  name: C{str}
+        @param stype: the service type
+        @type  stype: C{str}
+        @param weight: service weight
+        @type  weight: C{int}
+        """
+        if directives is None:
+            directives = {}
+        for (dname, dvalue) in directives.iteritems():
+            self.add_nagios_service_directive(name, dname, dvalue)
+
+        definition =  {'type': stype,
+                       'weight': weight,
+                       'directives': directives,
+                       'reRoutedBy': None,
+                      }
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, 'services', name, key, value)
 
