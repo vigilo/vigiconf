@@ -28,6 +28,7 @@ import fcntl
 import sys
 import os
 import atexit
+import textwrap
 
 import argparse
 import gettext
@@ -140,6 +141,38 @@ def info(args):
     encoding = encoding.lower()
     print "\n".join([s.encode(encoding) for s in state])
 
+def list_tests(args):
+    from vigilo.vigiconf.lib.confclasses.test import TestFactory
+    testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
+    available_hclasses = sorted(testfactory.get_hclasses())
+    wrapper = textwrap.TextWrapper(
+        initial_indent=' ' * 4,
+        subsequent_indent=' ' * 4,
+        break_long_words=False,
+    )
+    print _("Available host classes:")
+    for line in wrapper.wrap(", ".join(available_hclasses) + "."):
+        print line
+
+    if not args.classes:
+        hclasses = available_hclasses
+    else:
+        hclasses = set()
+        for hclass in args.classes:
+            if hclass not in available_hclasses:
+                LOGGER.warning(_("No such host class '%s'"), hclass)
+            else:
+                hclasses.add(hclass)
+
+    if not hclasses:
+        return
+
+    for hclass in hclasses:
+        testnames = sorted(testfactory.get_testnames([hclass]))
+        print "\n" + (_("Tests for host class '%s':") % hclass)
+        for line in wrapper.wrap(", ".join(testnames) + "."):
+            print line
+
 def discover(args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory
     from vigilo.vigiconf.discoverator import Discoverator, indent
@@ -216,6 +249,15 @@ def parse_args():
     parser_info.add_argument('server', nargs='*',
                     help=N_("Supervision servers to query, all of them if "
                             "not specified."))
+
+    # LIST-TESTS
+    parser_list_tests = subparsers.add_parser("list-tests",
+                    add_help=False,
+                    parents=[common_args_parser],
+                    help=N_("Lists tests available for certain host classes."))
+    parser_list_tests.add_argument('classes', nargs='*',
+                    help=N_("Host classes to query."))
+    parser_list_tests.set_defaults(func=list_tests)
 
     # @deprecated: la commande 'apps' n'est pas utilisée en v2
     # et correspond surtout à du debugging (reste de la v1).
