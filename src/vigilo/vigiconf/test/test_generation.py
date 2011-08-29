@@ -108,12 +108,6 @@ class Generator(unittest.TestCase):
                 use\s+generic-passive-service\s*
                 host_name\s+testserver1\s*          # Working on the testserver1 host
                 service_description\s+Traffic[ ]in[ ]eth1\s*
-                check_command\s+report_stale_data\s*
-                check_freshness\s+1\s*
-                (;[^\}]+ \s*)*                      # comments
-                freshness_threshold\s+\d+\s*
-                max_check_attempts\s+3\s*(;[^\n]+\s*)?
-                [^\}]+                              # Any following declaration
                 \}                                  # End of the host definition
             """,
             re.MULTILINE | re.VERBOSE)
