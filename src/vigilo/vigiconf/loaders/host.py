@@ -36,6 +36,7 @@ from vigilo.models.tables import ConfFile, ConfItem, Change, Tag
 from vigilo.models.tables import SupItem, HighLevelService, GroupPath
 from vigilo.models.tables import MapLink, MapServiceLink, MapSegment
 from vigilo.models.tables import MapNode, MapNodeHost, MapNodeService
+from vigilo.models.tables.group import Group
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE
 
 from vigilo.vigiconf.lib.loaders import DBLoader
@@ -59,6 +60,7 @@ class HostLoader(DBLoader):
         self.rev_mgr = rev_mgr
         self.conffiles = dict()
         self.group_cache = dict()
+        self.group_parts_cache = dict()
 
     def cleanup(self):
         # Presque rien à faire ici : la fin du load_conf se charge déjà
@@ -170,10 +172,14 @@ class HostLoader(DBLoader):
 
         if hostnames:
             LOGGER.debug("Preparing group cache")
-            groups = DBSession.query(GroupPath).all()
+            groups = DBSession.query(GroupPath).join(
+                    (Group, Group.idgroup == GroupPath.idgroup)
+                ).filter(Group._grouptype == u'supitemgroup').all()
             for g in groups:
                 self.group_cache[g.idgroup] = g.path
                 self.group_cache[g.path] = g.idgroup
+                for part in parse_path(g.path):
+                    self.group_parts_cache.setdefault(part, []).append(g.path)
 
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
@@ -307,21 +313,18 @@ class HostLoader(DBLoader):
         """Transformation des chemins relatifs en chemins absolus."""
         old_groups = hostdata['otherGroups'].copy()
         hostdata["otherGroups"] = set()
+
         for old_group in old_groups:
             if old_group.startswith('/'):
                 hostdata["otherGroups"].add(old_group)
                 continue
 
-            groups = filter(
-                lambda path: old_group in parse_path(path),
-                self.group_cache.itervalues()
-            )
-
+            groups = self.group_parts_cache.get(old_group)
             if not groups:
                 raise ParsingError(_('Unknown group "%(group)s" in host '
                                      '"%(host)s".')
                                    % {"group": old_group, "host": host.name})
-            hostdata["otherGroups"].update(set(groups))
+            hostdata["otherGroups"].update(groups)
 
     def _load_groups(self, host, hostdata):
         self._absolutize_groups(host, hostdata)

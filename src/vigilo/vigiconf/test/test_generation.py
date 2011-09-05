@@ -80,6 +80,15 @@ class Generator(unittest.TestCase):
         # Try the generation
         self.genmanager.generate(DummyRevMan())
 
+    def test_generation_relative_group(self):
+        """Les groupes 'relatifs' sont correctement gérés (#829)."""
+        os.mkdir(os.path.join(self.tmpdir, "conf.d", "groups"))
+        f = open(os.path.join(self.tmpdir, "conf.d", "groups", "dummy.xml"), "w")
+        f.write('<?xml version="1.0"?><groups><group name="Vigilo"/></groups>')
+        f.close()
+        self.host.add_group('Vigilo')
+        self.genmanager.generate(DummyRevMan())
+
     def test_add_metro_service_nagios(self):
         """Test for the add_metro_service method"""
         test_list = self.testfactory.get_test("Interface", self.host.classes)
