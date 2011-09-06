@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.6\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2011-09-05 10:12+0200\n"
-"PO-Revision-Date: 2011-09-05 10:12+0200\n"
+"POT-Creation-Date: 2011-09-06 17:21+0200\n"
+"PO-Revision-Date: 2011-09-06 17:23+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -226,6 +226,10 @@ msgid "Main group. Default: %(default)s."
 msgstr "Main group. Default: %(default)s."
 
 #: src/vigilo/vigiconf/commandline.py:355
+msgid "Tests to check."
+msgstr "Tests to check."
+
+#: src/vigilo/vigiconf/commandline.py:357
 msgid ""
 "Hosts or files to scan. The files must be the result of an snmpwalk "
 "command on the '.1' OID with the '-OnQe' options."
@@ -233,38 +237,38 @@ msgstr ""
 "Hosts or files to scan. The files must be the result of an snmpwalk "
 "command on the '.1' OID with the '-OnQe' options."
 
-#: src/vigilo/vigiconf/commandline.py:363
+#: src/vigilo/vigiconf/commandline.py:365
 msgid "Enables or disables a Vigilo server"
 msgstr "Enables or disables a Vigilo server"
 
-#: src/vigilo/vigiconf/commandline.py:366
+#: src/vigilo/vigiconf/commandline.py:368
 msgid "Don't re-deploy the configuration, only set the status."
 msgstr "Don't re-deploy the configuration, only set the status."
 
-#: src/vigilo/vigiconf/commandline.py:369
+#: src/vigilo/vigiconf/commandline.py:371
 msgid "New status"
 msgstr "New status"
 
-#: src/vigilo/vigiconf/commandline.py:371
+#: src/vigilo/vigiconf/commandline.py:373
 msgid "Server name(s) to enable/disable"
 msgstr "Server name(s) to enable/disable"
 
-#: src/vigilo/vigiconf/commandline.py:386
+#: src/vigilo/vigiconf/commandline.py:388
 #, python-format
 msgid "VigiConf was launched as user 'root'. Switching to user '%s' instead."
 msgstr "VigiConf was launched as user 'root'. Switching to user '%s' instead."
 
-#: src/vigilo/vigiconf/commandline.py:391
+#: src/vigilo/vigiconf/commandline.py:393
 #, python-format
 msgid "Unable to switch to user '%s'. Aborting."
 msgstr "Unable to switch to user '%s'. Aborting."
 
-#: src/vigilo/vigiconf/commandline.py:416
+#: src/vigilo/vigiconf/commandline.py:418
 #, python-format
 msgid "VigiConf was not launched as user '%s'. Aborting."
 msgstr "VigiConf was not launched as user '%s'. Aborting."
 
-#: src/vigilo/vigiconf/commandline.py:444
+#: src/vigilo/vigiconf/commandline.py:446
 #, python-format
 msgid ""
 "Can't obtain lock on lockfile (%(lockfile)s). VigiConf already running ? "
@@ -273,13 +277,13 @@ msgstr ""
 "Can't obtain lock on lockfile (%(lockfile)s). VigiConf already running ? "
 "REASON : %(error)s"
 
-#: src/vigilo/vigiconf/commandline.py:483
 #: src/vigilo/vigiconf/commandline.py:485
+#: src/vigilo/vigiconf/commandline.py:487
 #, python-format
 msgid "VigiConf error: %s"
 msgstr "VigiConf error: %s"
 
-#: src/vigilo/vigiconf/commandline.py:489
+#: src/vigilo/vigiconf/commandline.py:491
 msgid "VigiConf is done."
 msgstr "VigiConf is done."
 
@@ -954,36 +958,36 @@ msgstr "Switch directories was not successful on each server."
 msgid "Loading groups"
 msgstr "Loading groups"
 
-#: src/vigilo/vigiconf/loaders/host.py:84
+#: src/vigilo/vigiconf/loaders/host.py:82
 #, python-format
 msgid "Deleting leftover config file from database: %s"
 msgstr "Deleting leftover config file from database: %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:90
+#: src/vigilo/vigiconf/loaders/host.py:88
 msgid "Loading hosts"
 msgstr "Loading hosts"
 
-#: src/vigilo/vigiconf/loaders/host.py:121
+#: src/vigilo/vigiconf/loaders/host.py:119
 #, python-format
 msgid "Registering new configuration file '%(relative)s' (from %(absolute)s)"
 msgstr "Registering new configuration file '%(relative)s' (from %(absolute)s)"
 
-#: src/vigilo/vigiconf/loaders/host.py:148
+#: src/vigilo/vigiconf/loaders/host.py:146
 #, python-format
 msgid "Loading host %s"
 msgstr "Loading host %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:302
+#: src/vigilo/vigiconf/loaders/host.py:296
 msgid "Done loading hosts"
 msgstr "Done loading hosts"
 
-#: src/vigilo/vigiconf/loaders/host.py:324
+#: src/vigilo/vigiconf/loaders/host.py:321
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Unknown group \"%(group)s\" in host \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:349
-#: src/vigilo/vigiconf/loaders/host.py:361
+#: src/vigilo/vigiconf/loaders/host.py:346
+#: src/vigilo/vigiconf/loaders/host.py:358
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "

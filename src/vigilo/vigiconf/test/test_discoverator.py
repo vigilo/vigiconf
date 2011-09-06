@@ -157,3 +157,48 @@ class DiscoveratorLinux(DiscoveratorBaseTest, unittest.TestCase):
                          "Arguments are not properly detected:\n%s\n%s"
                          % (str(args), str(goodargs)))
 
+
+class DiscoveratorSpecificTest(unittest.TestCase):
+    testmib = "linux.walk"
+
+    def setUp(self):
+        setup_db()
+        self.tmpdir = setup_tmpdir()
+        testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
+        self.disc = Discoverator(testfactory, group="Test")
+        self.disc.testfactory.load_hclasses_checks()
+        walkfile = os.path.join(TESTDATADIR, "discoverator", self.testmib)
+        self.disc.scanfile(walkfile)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+        teardown_db()
+
+
+    def test_multiple_test_detection(self):
+        """Test the simple test detection on Linux
+        This uses the test's detect_oid() method"""
+        self.disc.detect(["Swap", "Partition", "Interface"])
+        self.testnames = [ t["name"] for t in self.disc.tests ]
+
+        for test in [ "Swap", "Partition", "Interface" ]:
+            self.assertTrue(test in self.testnames,
+                            "Test %s is not detected" % test)
+
+    def test_single_test_detection(self):
+        """Test the simple test detection on Linux
+        This uses the test's detect_oid() method"""
+        self.disc.detect([ "Partition" ])
+        self.testnames = [ t["name"] for t in self.disc.tests ]
+
+        self.assertTrue("Partition" in self.testnames,
+                "Test %s is not detected" % "Partition")
+
+    def test_single_test_detection(self):
+        """Test the simple test detection on Linux
+        This uses the test's detect_oid() method"""
+        self.disc.detect([ "Partition" ])
+        self.testnames = [ t["name"] for t in self.disc.tests ]
+
+        self.assertFalse("Interface" in self.testnames,
+                "Test %s is detected" % "Interface")

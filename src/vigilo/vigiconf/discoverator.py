@@ -160,17 +160,30 @@ class Discoverator(object):
             }
             raise DiscoveratorError(message)
 
-    def detect(self):
-        """Start the detection on this host"""
-        self.find_tests()
+    def detect(self, tests=None):
+        """
+        Start the detection on this host
+        @param tests: list des tests spécifiques (None si tous les tests
+            doivent être détectés)
+        @type  tests: C{list}
+        """
+        self.find_tests(tests)
         self.find_attributes()
         self.find_hclasses()
 
-    def find_tests(self):
-        """Find the applicable tests using the test's detect() function"""
+    def find_tests(self, tests=None):
+        """
+        Find the applicable tests using the test's detect() function
+        @param tests: list des tests spécifiques (None si tous les tests
+            doivent être détectés)
+        @type  tests: C{list} of C{str}
+        """
         for test in self.testfactory.get_tests():
             # Was it already detected ?
             if test.__name__ in [ t["name"] for t in self.tests ]:
+                continue
+            # is it one of the tests "specifically wanted" to be detected ?
+            if tests and test.__name__ not in tests:
                 continue
             detected = test().detect(self.oids)
             if detected:

@@ -193,7 +193,7 @@ def discover(args):
             # On ne fait que logguer l'erreur pour générer quand même ce
             # qu'on a pu détecter jusqu'ici (cas du timeout)
             LOGGER.error(e.value)
-        discoverator.detect()
+        discoverator.detect(args.tests)
         elements = discoverator.declaration()
         indent(elements)
         args.output.write(ET.tostring(elements))
@@ -351,6 +351,8 @@ def parse_args():
                         help=N_("SNMP version. Default: %(default)s."))
     parser_discover.add_argument("-g", "--group", default="Servers",
                         help=N_("Main group. Default: %(default)s."))
+    parser_discover.add_argument("-t", "--test", default=[], action="append",
+                        help=N_("Tests to check."))
     parser_discover.add_argument('target', nargs='+',
             help=N_("Hosts or files to scan. The files must be the result "
                    "of an snmpwalk command on the '.1' OID with the "
