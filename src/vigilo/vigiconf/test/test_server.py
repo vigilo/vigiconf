@@ -77,3 +77,13 @@ class ServerTest(unittest.TestCase):
         # On ne peut pas tester directement à cause de la traduction
         self.assertEqual(state.count("\n"), 4)
 
+    def test_api_enable_disable(self):
+        """
+        Les fonctions enable et disable doivent être disponibles (#797)
+        """
+        assert isinstance(self.server, ServerLocal)
+        try:
+            self.server.disable()
+            self.server.enable()
+        except AttributeError, e:
+            self.fail(str(e))

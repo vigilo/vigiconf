@@ -285,5 +285,11 @@ class Server(object):
             state += "\n    " + _("disabled").upper()
         return state
 
+    # Disponible dans Vigilo Enterprise Edition
+    def disable(self):
+        LOGGER.warning(_("Server %s cannot be disabled"), self.name)
+    def enable(self):
+        LOGGER.warning(_("Server %s cannot be enabled"), self.name)
+
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
