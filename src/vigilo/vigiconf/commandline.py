@@ -193,7 +193,7 @@ def discover(args):
             # On ne fait que logguer l'erreur pour générer quand même ce
             # qu'on a pu détecter jusqu'ici (cas du timeout)
             LOGGER.error(e.value)
-        discoverator.detect(args.tests)
+        discoverator.detect(args.test)
         elements = discoverator.declaration()
         indent(elements)
         args.output.write(ET.tostring(elements))
