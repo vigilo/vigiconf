@@ -2,6 +2,9 @@
 #pylint: disable-msg=C0301,C0111,W0232,R0201,R0903,W0221
 
 from vigilo.vigiconf.lib.confclasses.test import Test
+import warnings
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
 
 
@@ -12,7 +15,11 @@ class NTP(Test):
         """Arguments:
             host: the Host object to add the test to
         """
-        host.add_external_sup_service("NTP", "check_ntp", weight=self.weight,
+        warnings.warn(DeprecationWarning(_(
+            "Test NTP has been deprecated. Please use NagiosPlugin instead")
+            ).encode('utf-8'))
+
+        host.add_external_sup_service("NTP", "check_ntp_ntpq", weight=self.weight,
                                         directives=self.directives)
 
 
