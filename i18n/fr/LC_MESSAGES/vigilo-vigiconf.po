@@ -495,7 +495,7 @@ msgid ""
 "%(conf)d"
 msgstr ""
 "Le nombre de services dans la base de données ne correspond pas au nombre"
-" d'hôtes dans la configuration. Base: %(db)d, conf: %(conf)d."
+" de services dans la configuration. Base: %(db)d, conf: %(conf)d."
 
 #: src/vigilo/vigiconf/lib/validator.py:183
 #, python-format
@@ -1049,4 +1049,3 @@ msgstr ""
 #: src/vigilo/vigiconf/test/testdata/tests/imports/Error.py:17
 msgid "Import test was successful"
 msgstr "Le test d'import a fonctionné"
-
