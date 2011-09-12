@@ -19,6 +19,7 @@ Buildarch:  noarch
 
 Buildrequires: python26-distribute
 #Buildrequires: graphviz # Documentation generation
+BuildRequires:   python26-babel
 
 Requires:   python26-distribute
 Requires:   python26-lxml
@@ -92,5 +93,5 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Apr 07 2011 Aurelien Bompard <aurelien.bompard@c-s.fr> 
+* Thu Apr 07 2011 Aurelien Bompard <aurelien.bompard@c-s.fr>
 - Adapt to Vigilo V2

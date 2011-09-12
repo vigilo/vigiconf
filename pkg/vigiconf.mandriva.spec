@@ -11,6 +11,9 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-build
 License:    GPLv2
 Buildarch:  noarch
 
+#Buildrequires: graphviz # Documentation generation
+BuildRequires:   python-babel
+
 Requires:   python >= 2.5
 Requires:   python-setuptools
 Requires:   python-lxml
@@ -43,7 +46,6 @@ Requires:   vigilo-vigiconf
 Requires:   python-zope-interface
 Requires:   python-zope.sqlalchemy
 Requires:   python-lxml
-#Buildrequires: graphviz # Documentation generation
 
 Requires(pre): rpm-helper
 
@@ -100,5 +102,5 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Apr 07 2011 Aurelien Bompard <aurelien.bompard@c-s.fr> 
+* Thu Apr 07 2011 Aurelien Bompard <aurelien.bompard@c-s.fr>
 - Adapt to Vigilo V2

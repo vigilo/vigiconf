@@ -13,6 +13,7 @@ Buildarch:  noarch
 
 Buildrequires: python-distribute
 #Buildrequires: graphviz # Documentation generation
+BuildRequires:   python-babel
 
 Requires:   python-distribute
 Requires:   python-lxml
