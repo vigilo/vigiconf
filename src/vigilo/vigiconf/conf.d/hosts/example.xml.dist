@@ -24,7 +24,6 @@
     <test name="UpTime"/>
     <tag service="UpTime" name="security">1</tag>
     <tag service="Host" name="important">2</tag>
-    <trap service="test.add_trap" key="test.name">test.label</trap>
     <group>Linux servers</group>
 </host>
 <host name="switchalcatel0S6400" address="192.168.1.2" ventilation="Telecom">
