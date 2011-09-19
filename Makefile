@@ -45,6 +45,7 @@ install_permissions:
 
 lint: lint_pylint
 tests: tests_nose
+doc: apidoc
 clean: clean_python
 	rm -f $(INFILES)
 
