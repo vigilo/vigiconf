@@ -147,6 +147,7 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["commit", "-m", "test", self.confdir])
         self._run_svn(["rm", testdir])
         status = self.rev_mgr.status()
+        print status
         self.assertEqual(status["removed"], [testdir, testfile])
         self.assertEqual(status["toremove"], [])
 
@@ -187,6 +188,7 @@ class RevisionManagerTest(unittest.TestCase):
         f.write("dummy\n")
         f.close()
         status = self.rev_mgr.status()
+        print status
         self.assertEqual(status["modified"], [testfile, ])
 
     def test_sync_no_svnrepository(self):
@@ -243,6 +245,7 @@ class RevisionManagerTest(unittest.TestCase):
                     'added': [test2, test3, test4],
                     'toadd': [],
                     'modified': []}
+        expected["added"].sort()
         self.assertEqual(status, expected)
 
     def test_sync_manually_deleted_dir(self):

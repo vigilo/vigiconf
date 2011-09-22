@@ -193,12 +193,6 @@ class DiscoveratorSpecificTest(unittest.TestCase):
 
         self.assertTrue("Partition" in self.testnames,
                 "Test %s is not detected" % "Partition")
-
-    def test_single_test_detection(self):
-        """Test the simple test detection on Linux
-        This uses the test's detect_oid() method"""
-        self.disc.detect([ "Partition" ])
-        self.testnames = [ t["name"] for t in self.disc.tests ]
-
         self.assertFalse("Interface" in self.testnames,
                 "Test %s is detected" % "Interface")
+
