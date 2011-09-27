@@ -299,15 +299,15 @@ class HostLoader(DBLoader):
         for graph in empty_graphs:
             DBSession.delete(graph)
 
-        LOGGER.info(_("Done loading hosts"))
-        DBSession.flush()
-
         # Si on a changé quelquechose, on le note en base
         if hostnames or removed or ghost_hosts or deleted_hosts \
                 or empty_graphs:
             Change.mark_as_modified(u"Host")
             Change.mark_as_modified(u"Service")
             Change.mark_as_modified(u"Graph")
+
+        DBSession.flush()
+        LOGGER.info(_("Done loading hosts"))
 
     def _absolutize_groups(self, host, hostdata):
         """Transformation des chemins relatifs en chemins absolus."""

@@ -20,10 +20,11 @@
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
+from vigilo.common.gettext import translate
+_ = translate(__name__)
+
 from vigilo.models.tables import VigiloServer
-
 from vigilo.vigiconf.lib.loaders import DBLoader
-
 from vigilo.vigiconf import conf
 
 __docformat__ = "epytext"
@@ -53,6 +54,7 @@ class VigiloServerLoader(DBLoader):
         super(VigiloServerLoader, self).__init__(VigiloServer, "name")
 
     def load_conf(self):
+        LOGGER.info(_("Loading Vigilo servers"))
         servers = set()
         if hasattr(conf, "appsGroupsByServer"):
             configured_servers = conf.appsGroupsByServer.values()
@@ -66,3 +68,4 @@ class VigiloServerLoader(DBLoader):
                     servers.add(vserver)
         for servername in servers:
             self.add({"name": unicode(servername)})
+        LOGGER.info(_("Done loading Vigilo servers"))

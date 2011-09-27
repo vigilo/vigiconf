@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vigilo-vigiconf 2.0.6\n"
+"Project-Id-Version: vigilo-vigiconf 2.0.7\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2011-09-06 17:21+0200\n"
-"PO-Revision-Date: 2011-09-06 17:23+0200\n"
+"POT-Creation-Date: 2011-09-27 15:58+0200\n"
+"PO-Revision-Date: 2011-09-27 15:58+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -921,6 +921,16 @@ msgstr "should restart"
 msgid "disabled"
 msgstr "disabled"
 
+#: src/vigilo/vigiconf/lib/server/base.py:290
+#, python-format
+msgid "Server %s cannot be disabled"
+msgstr "Server %s cannot be disabled"
+
+#: src/vigilo/vigiconf/lib/server/base.py:292
+#, python-format
+msgid "Server %s cannot be enabled"
+msgstr "Server %s cannot be enabled"
+
 #: src/vigilo/vigiconf/lib/server/factory.py:75
 msgid "On the Community Edition, you can only use localhost"
 msgstr "On the Community Edition, you can only use localhost"
@@ -954,40 +964,60 @@ msgstr ""
 msgid "Switch directories was not successful on each server."
 msgstr "Switch directories was not successful on each server."
 
+#: src/vigilo/vigiconf/loaders/application.py:44
+msgid "Loading applications"
+msgstr "Loading applications"
+
+#: src/vigilo/vigiconf/loaders/application.py:48
+msgid "Done loading applications"
+msgstr "Done loading applications"
+
+#: src/vigilo/vigiconf/loaders/graphgroup.py:45
+msgid "Loading graph groups"
+msgstr "Loading graph groups"
+
+#: src/vigilo/vigiconf/loaders/graphgroup.py:52
+msgid "Done loading graph groups"
+msgstr "Done loading graph groups"
+
 #: src/vigilo/vigiconf/loaders/group.py:122
 msgid "Loading groups"
 msgstr "Loading groups"
 
-#: src/vigilo/vigiconf/loaders/host.py:82
+#: src/vigilo/vigiconf/loaders/group.py:126
+msgid "Done loading groups"
+msgstr "Done loading groups"
+
+#: src/vigilo/vigiconf/loaders/host.py:84
 #, python-format
 msgid "Deleting leftover config file from database: %s"
 msgstr "Deleting leftover config file from database: %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:88
+#: src/vigilo/vigiconf/loaders/host.py:90
 msgid "Loading hosts"
 msgstr "Loading hosts"
 
-#: src/vigilo/vigiconf/loaders/host.py:119
+#: src/vigilo/vigiconf/loaders/host.py:121
 #, python-format
 msgid "Registering new configuration file '%(relative)s' (from %(absolute)s)"
 msgstr "Registering new configuration file '%(relative)s' (from %(absolute)s)"
 
-#: src/vigilo/vigiconf/loaders/host.py:146
+#: src/vigilo/vigiconf/loaders/host.py:148
 #, python-format
 msgid "Loading host %s"
 msgstr "Loading host %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:296
+#: src/vigilo/vigiconf/loaders/host.py:309
 msgid "Done loading hosts"
 msgstr "Done loading hosts"
 
-#: src/vigilo/vigiconf/loaders/host.py:321
+#: src/vigilo/vigiconf/loaders/host.py:324
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Unknown group \"%(group)s\" in host \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:346
-#: src/vigilo/vigiconf/loaders/host.py:358
+#: src/vigilo/vigiconf/loaders/host.py:349
+#: src/vigilo/vigiconf/loaders/host.py:361
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
@@ -996,12 +1026,16 @@ msgstr ""
 "syntax error in host %(host)s: could not find a group matching path "
 "\"%(path)s\""
 
-#: src/vigilo/vigiconf/loaders/ventilation.py:115
+#: src/vigilo/vigiconf/loaders/ventilation.py:83
+msgid "Loading ventilation"
+msgstr "Loading ventilation"
+
+#: src/vigilo/vigiconf/loaders/ventilation.py:111
 #, python-format
 msgid "Can't load the ventilation in database: the host %s is not in database yet"
 msgstr "Can't load the ventilation in database: the host %s is not in database yet"
 
-#: src/vigilo/vigiconf/loaders/ventilation.py:151
+#: src/vigilo/vigiconf/loaders/ventilation.py:147
 #, python-format
 msgid ""
 "The application %s has been removed from the configuration, it needs to "
@@ -1009,9 +1043,25 @@ msgid ""
 msgstr ""
 "The application %s has been removed from the configuration, it needs to "
 "be stopped manually"
+
+#: src/vigilo/vigiconf/loaders/ventilation.py:158
+msgid "Done loading ventilation"
+msgstr "Done loading ventilation"
+
+#: src/vigilo/vigiconf/loaders/vigiloserver.py:57
+msgid "Loading Vigilo servers"
+msgstr "Loading Vigilo servers"
+
+#: src/vigilo/vigiconf/loaders/vigiloserver.py:71
+msgid "Done loading Vigilo servers"
+msgstr "Done loading Vigilo servers"
 
 #: src/vigilo/vigiconf/test/test_conf_testfactory.py:89
 #: src/vigilo/vigiconf/test/testdata/tests/imports/Error.py:17
 msgid "Import test was successful"
 msgstr "Import test was successful"
+
+#: src/vigilo/vigiconf/tests/all/NTP.py:18
+msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
+msgstr "Test NTP has been deprecated. Please use NagiosPlugin instead"
 

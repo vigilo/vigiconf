@@ -123,6 +123,7 @@ class GroupLoader(XMLLoader):
         self._in_conf = {}
         confdir = settings['vigiconf'].get('confdir')
         self.load_dir(os.path.join(confdir, 'groups'))
+        LOGGER.info(_("Done loading groups"))
 
     def cleanup(self):
         for data in self._hierarchy.itervalues():

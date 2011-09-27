@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2011-09-06 17:22+0200\n"
+"PO-Revision-Date: 2011-09-27 15:58+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -949,6 +949,16 @@ msgstr "devrait être redémarré"
 msgid "disabled"
 msgstr "désactivé"
 
+#: src/vigilo/vigiconf/lib/server/base.py:290
+#, python-format
+msgid "Server %s cannot be disabled"
+msgstr "Le serveur %s ne peut pas être désactivé"
+
+#: src/vigilo/vigiconf/lib/server/base.py:292
+#, python-format
+msgid "Server %s cannot be enabled"
+msgstr "Le serveur %s ne peut pas être activé"
+
 #: src/vigilo/vigiconf/lib/server/factory.py:75
 msgid "On the Community Edition, you can only use localhost"
 msgstr "Dans l'Édition Communauté, seul localhost est utilisable"
@@ -983,11 +993,31 @@ msgstr ""
 msgid "Switch directories was not successful on each server."
 msgstr "La permutation de dossier a échoué sur certains serveurs."
 
+#: src/vigilo/vigiconf/loaders/application.py:44
+msgid "Loading applications"
+msgstr "Chargement des applications"
+
+#: src/vigilo/vigiconf/loaders/application.py:48
+msgid "Done loading applications"
+msgstr "Chargement des applications terminé"
+
+#: src/vigilo/vigiconf/loaders/graphgroup.py:45
+msgid "Loading graph groups"
+msgstr "Chargement des groupes de graphes"
+
+#: src/vigilo/vigiconf/loaders/graphgroup.py:52
+msgid "Done loading graph groups"
+msgstr "Chargement des groupes de graphes terminé"
+
 #: src/vigilo/vigiconf/loaders/group.py:122
 msgid "Loading groups"
 msgstr "Chargement des groupes"
 
-#: src/vigilo/vigiconf/loaders/host.py:82
+#: src/vigilo/vigiconf/loaders/group.py:126
+msgid "Done loading groups"
+msgstr "Chargement des groupes terminé"
+
+#: src/vigilo/vigiconf/loaders/host.py:84
 #, python-format
 msgid "Deleting leftover config file from database: %s"
 msgstr ""
@@ -1010,17 +1040,17 @@ msgstr ""
 msgid "Loading host %s"
 msgstr "Chargement de l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:296
+#: src/vigilo/vigiconf/loaders/host.py:309
 msgid "Done loading hosts"
 msgstr "Chargement des hôtes terminé"
 
-#: src/vigilo/vigiconf/loaders/host.py:321
+#: src/vigilo/vigiconf/loaders/host.py:324
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Groupe inconnu \"%(group)s\" sur l'hôte \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:346
-#: src/vigilo/vigiconf/loaders/host.py:358
+#: src/vigilo/vigiconf/loaders/host.py:349
+#: src/vigilo/vigiconf/loaders/host.py:361
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
@@ -1029,14 +1059,18 @@ msgstr ""
 "erreur de syntaxe sur l'hôte %(host)s : impossible de trouver un groupe "
 "correspondant au chemin \"%(path)s\""
 
-#: src/vigilo/vigiconf/loaders/ventilation.py:115
+#: src/vigilo/vigiconf/loaders/ventilation.py:83
+msgid "Loading ventilation"
+msgstr "Chargement de la ventilation"
+
+#: src/vigilo/vigiconf/loaders/ventilation.py:111
 #, python-format
 msgid "Can't load the ventilation in database: the host %s is not in database yet"
 msgstr ""
 "Impossible de charger la ventilation en base de données : l'hôte %s "
 "n'existe pas encore dans la base de données"
 
-#: src/vigilo/vigiconf/loaders/ventilation.py:151
+#: src/vigilo/vigiconf/loaders/ventilation.py:147
 #, python-format
 msgid ""
 "The application %s has been removed from the configuration, it needs to "
@@ -1045,7 +1079,26 @@ msgstr ""
 "L'application %s a été retirée de la configuration, elle doit être "
 "arrêtée manuellement"
 
+#: src/vigilo/vigiconf/loaders/ventilation.py:158
+msgid "Done loading ventilation"
+msgstr "Chargement de la ventilation terminé"
+
+#: src/vigilo/vigiconf/loaders/vigiloserver.py:57
+msgid "Loading Vigilo servers"
+msgstr "Chargement des serveurs Vigilo"
+
+#: src/vigilo/vigiconf/loaders/vigiloserver.py:71
+msgid "Done loading Vigilo servers"
+msgstr "Chargement des serveurs Vigilo terminé"
+
 #: src/vigilo/vigiconf/test/test_conf_testfactory.py:89
 #: src/vigilo/vigiconf/test/testdata/tests/imports/Error.py:17
 msgid "Import test was successful"
 msgstr "Le test d'import a fonctionné"
+
+#: src/vigilo/vigiconf/tests/all/NTP.py:18
+msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
+msgstr ""
+"Le test NTP a été rendu obsolète. Veuillez utiliser le test NagiosPlugin "
+"à la place."
+

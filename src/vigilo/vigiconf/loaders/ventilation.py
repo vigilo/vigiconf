@@ -21,18 +21,13 @@
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
-from vigilo.models.session import DBSession
-
-from vigilo.models.tables import Host, Application, Ventilation, VigiloServer
-
-from vigilo.vigiconf.lib.loaders import DBLoader
-
-from vigilo.common.logging import get_logger
-LOGGER = get_logger(__name__)
-
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
+from vigilo.models.session import DBSession
+from vigilo.models.tables import Host, Application, Ventilation, VigiloServer
+
+from vigilo.vigiconf.lib.loaders import DBLoader
 
 __docformat__ = "epytext"
 
@@ -85,6 +80,7 @@ class VentilationLoader(DBLoader):
         DBSession.flush()
 
     def load_conf(self):
+        LOGGER.info(_("Loading ventilation"))
         current = {}
         apps_location = {}
         for v in DBSession.query(Ventilation).all():
@@ -159,3 +155,4 @@ class VentilationLoader(DBLoader):
                 vserver = vigiloservers[idvserver]
                 app.add_server(vserver.name, ["stop", ])
 
+        LOGGER.info(_("Done loading ventilation"))
