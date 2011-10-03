@@ -141,10 +141,10 @@ class Server(object):
             _command.execute()
         except SystemCommandError, e:
             raise ServerError(_("Can't activate the configuration on "
-                                "%(server)s. COMMAND %(cmd)s FAILED. "
+                                "%(server)s. COMMAND \"%(cmd)s\" FAILED. "
                                 "REASON: %(reason)s") % {
                 'server': self.getName(),
-                'cmd': cmd,
+                'cmd': " ".join(cmd),
                 'reason': e.value,
             }, self.getName())
         LOGGER.debug("Switched directories on %s", self.name)

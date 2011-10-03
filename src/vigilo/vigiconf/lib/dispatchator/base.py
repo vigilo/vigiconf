@@ -121,8 +121,9 @@ class Dispatchator(object):
         Prépare la liste des serveurs sur lesquels travailler
         """
         self.filter_disabled()
-        if "deploy" in self.force:
-            return
+        # Si on a self.force == "deploy" c'est techniquement inutile, mais on
+        # le fait quand même pour détecter l'indisponibilité d'un serveur de
+        # collecte (#867, #870)
         self.srv_mgr.prepare(self.rev_mgr.deploy_revision)
 
     def deploy(self):
@@ -190,12 +191,14 @@ class Dispatchator(object):
             la totalité du processus.
         @type  stop_after: C{bool}
         """
+        # On le fait au début pour gérer le cas où un serveur serait
+        # indisponible (#867)
+        self.prepareServers()
         self.rev_mgr.prepare()
         self.generate()
         if stop_after == "generation":
             self.gen_mgr.generate_dbonly()
             return
-        self.prepareServers()
         self.deploy()
         if stop_after == "push":
             self.gen_mgr.generate_dbonly()
