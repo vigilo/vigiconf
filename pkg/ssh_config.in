@@ -1,7 +1,0 @@
-# SSH config file for remote deployment
-# This file is part of the Enterprise Edition
-StrictHostKeyChecking no
-IdentityFile @CONFDIR@/ssh/vigiconf.key
-UserKnownHostsFile @CONFDIR@/ssh/known_hosts
-HashKnownHosts yes
-ConnectTimeout 10

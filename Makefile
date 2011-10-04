@@ -1,6 +1,6 @@
 NAME := vigiconf
 
-INFILES = pkg/ssh_config pkg/$(PKGNAME).cron settings.ini
+INFILES = pkg/$(PKGNAME).cron settings.ini
 
 all: build
 
@@ -9,9 +9,6 @@ CONFDIR := $(SYSCONFDIR)/vigilo/$(NAME)
 VARDIR := $(LOCALSTATEDIR)/lib/vigilo/$(NAME)
 
 build: $(INFILES)
-
-pkg/ssh_config: pkg/ssh_config.in
-	sed -e 's,@CONFDIR@,$(CONFDIR),' $^ > $@
 
 pkg/$(PKGNAME).cron: pkg/cronjobs.in
 	sed -e 's,@BINDIR@,$(PREFIX)/bin,' $^ > $@
@@ -32,10 +29,6 @@ install_users:
 	@echo "Creating the $(NAME) user..."
 	-/usr/sbin/groupadd $(NAME)
 	-/usr/sbin/useradd -s /bin/bash -M -d $(VARDIR) -g $(NAME) -c 'Vigilo VigiConf user' $(NAME)
-	if [ ! -f $(DESTIDR)$(CONFDIR)/ssh/vigiconf.key ]; then \
-	    ssh-keygen -t rsa -f $(DESTIDR)$(CONFDIR)/ssh/vigiconf.key -N "" ;\
-	fi
-	chown $(NAME):$(NAME) $(DESTIDR)$(CONFDIR)/ssh/vigiconf.key
 
 install_permissions:
 	chmod 755 $(DESTDIR)$(VARDIR)

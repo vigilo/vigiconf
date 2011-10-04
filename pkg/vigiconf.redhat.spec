@@ -25,7 +25,6 @@ Requires:   python26-distribute
 Requires:   python26-lxml
 Requires:   perl
 Requires:   subversion
-Requires:   openssh-clients
 Requires:   tar
 Requires:   libxml2
 Requires:   python26-argparse
@@ -36,7 +35,6 @@ Requires:   sqlite >= 3
 Requires:   python26-initgroups
 
 Requires(pre): shadow-utils
-Requires(post): openssh
 
 %description
 @DESCRIPTION@
@@ -64,12 +62,6 @@ getent passwd %{module} >/dev/null || \
     useradd -r -g %{module} -d %{_localstatedir}/lib/vigilo/%{module} -s /bin/bash %{module}
 exit 0
 
-%post
-if [ ! -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key ]; then
-    ssh-keygen -t rsa -f %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key -N "" > /dev/null 2>&1 || :
-fi
-chown %{module}:%{module} %{_sysconfdir}/vigilo/%{module}/ssh/vigiconf.key
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -80,7 +72,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/
 %config(noreplace) %attr(640,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/settings.ini
 %config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/conf.d
-%config(noreplace) %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/ssh
 %dir %attr(-,%{module},%{module}) %{_sysconfdir}/vigilo/%{module}/plugins
 %{_sysconfdir}/vigilo/%{module}/conf.d.example
 %{_sysconfdir}/vigilo/%{module}/README.post-install
