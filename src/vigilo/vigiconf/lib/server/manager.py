@@ -114,31 +114,46 @@ class ServerManager(object):
                     servers.remove(server)
         return servers
 
-    def deploy(self, revision, servers=None, force=None):
+    def deploy(self, servers=None, force=None):
         """
         Déploie les fichiers de configuration des serveurs, avec un thread par
         serveur.
         @param servers: Liste de noms de serveurs
         @type  servers: C{list} of C{str}
-        @param revision: Numéro de révision SVN
-        @type  revision: C{int}
-        @return: Nombre de serveurs déployés
-        @rtype:  C{int}
+        @return: Liste des serveurs déployés
+        @rtype:  C{list}
         """
         if force is None:
             force = ()
         servers = self.filter_servers("needsDeployment", servers, force)
         if not servers:
             LOGGER.info(_("All servers are up-to-date, no deployment needed."))
-            return 0
+            return []
         for server in servers:
             LOGGER.debug("Server %s should be deployed.", server)
-        result = self.run_in_thread(servers, "deploy", args=[revision])
+        result = self.run_in_thread(servers, "deploy")
         if not result:
             raise DispatchatorError(_("The configurations files have not "
                     "been transfered on every server. See above for "
                     "more information."))
-        return len(servers)
+        return servers
+
+    def set_revision(self, revision, servers):
+        """
+        Affecte le numéro de révision dans les fichiers de configuration des
+        serveurs, avec un thread par serveur.
+        @param revision: Numéro de révision SVN
+        @type  revision: C{int}
+        @param servers: Liste de noms de serveurs
+        @type  servers: C{list} of C{str}
+        """
+        if not servers:
+            return
+        result = self.run_in_thread(servers, "set_revision", args=[revision])
+        if not result:
+            raise DispatchatorError(_("The revision has not "
+                    "been set on every server. See above for "
+                    "more information."))
 
     def switch_directories(self, servers=None):
         """

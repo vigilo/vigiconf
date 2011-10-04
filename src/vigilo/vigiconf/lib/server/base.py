@@ -213,23 +213,19 @@ class Server(object):
         for validation_script in glob.glob(validation_scripts):
             shutil.copy(validation_script, validation_dir)
 
-    def deploy(self, rev):
-        # update local revision files
-        self.revisions["conf"] = rev
-        self.revisions["deployed"] = rev
-        self.write_revisions()
-        # copy the revision file to the deployment directory
-        dest_rev_filename = os.path.join(self.getBaseDir(), self.name,
-                                         "revisions.txt")
-        try:
-            os.makedirs(os.path.dirname(dest_rev_filename))
-        except OSError:
-            pass
-        shutil.copyfile(self._rev_filename, dest_rev_filename)
+    def deploy(self):
         # insert the "validation" directory in the deployment directory
         self.insertValidationDir()
         # now, the deployment directory is complete.
         self.deployFiles()
+
+    def set_revision(self, rev):
+        # update local revision files
+        self.revisions["conf"] = rev
+        self.revisions["deployed"] = rev
+        self.write_revisions()
+        cmd = self.createCommand(["vigiconf-local", "set-revision", str(rev)])
+        cmd.execute()
 
     def update_revisions(self):
         cmd = self.createCommand(["vigiconf-local", "get-revisions"])
@@ -256,7 +252,7 @@ class Server(object):
             os.makedirs(directory)
         try:
             _file = open(self._rev_filename, 'wb')
-            _file.write("Revision: %d" % self.revisions["conf"])
+            _file.write("Revision: %d\n" % self.revisions["conf"])
             _file.close()
         except Exception, e: # pylint: disable-msg=W0703
             LOGGER.exception(_("Cannot write the revision file: %s"), e)

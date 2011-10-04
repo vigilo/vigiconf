@@ -113,8 +113,6 @@ class Dispatchator(object):
             LOGGER.info(_("Generation successful"))
         # Validation de la génération
         self.apps_mgr.validate()
-        # Commit de la configuration dans SVN
-        self.rev_mgr.commit()
 
     def prepareServers(self):
         """
@@ -130,12 +128,12 @@ class Dispatchator(object):
         """
         Déploie et qualifie la configuration sur les serveurs concernés.
         """
-        deployed = self.srv_mgr.deploy(self.rev_mgr.deploy_revision,
-                                       force=self.force)
+        deployed = self.srv_mgr.deploy(force=self.force)
         if deployed:
             self.apps_mgr.qualify()
+        return deployed
 
-    def commit(self): # pylint: disable-msg=R0201
+    def commit(self, servers): # pylint: disable-msg=R0201
         """
         Enregistre la configuration en base de données
         """
@@ -146,6 +144,10 @@ class Dispatchator(object):
             transaction.abort()
             LOGGER.debug("Transaction rollbacked: %s", e)
             raise DispatchatorError(_("Database commit failed"))
+        # Commit de la configuration dans SVN
+        self.rev_mgr.commit()
+        # Envoi de la révision sur les serveurs
+        self.srv_mgr.set_revision(self.rev_mgr.deploy_revision, servers)
 
     def restart(self):
         """
@@ -199,11 +201,11 @@ class Dispatchator(object):
         if stop_after == "generation":
             self.gen_mgr.generate_dbonly()
             return
-        self.deploy()
+        deployed = self.deploy()
         if stop_after == "push":
             self.gen_mgr.generate_dbonly()
             return
-        self.commit()
+        self.commit(deployed)
         self.restart()
         self.gen_mgr.generate_dbonly()
 
