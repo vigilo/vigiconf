@@ -353,6 +353,9 @@ class HostTemplateFactory(object):
 
 
             else: # Évenement de type "end"
+                if elem.tag == "force-passive":
+                    cur_tpl.add_attribute("force-passive", True)
+
                 if elem.tag == "parent":
                     cur_tpl.add_parent(get_text(elem))
 
@@ -525,6 +528,9 @@ class HostTemplateFactory(object):
         if not self.templates:
             self.load_templates()
         tpl = self.templates[tplname]
+        # force-passive
+        if tpl.has_key("force-passive"):
+            host.set_attribute("force-passive", True)
         # groups
         if tpl.has_key("groups"):
             for group in tpl["groups"]:

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<templates>
+<template name="force-passive">
+    <force-passive/>
+</template>
+</templates>

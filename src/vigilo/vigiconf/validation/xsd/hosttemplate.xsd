@@ -25,6 +25,8 @@
                     <xs:choice maxOccurs="unbounded" minOccurs="0">
                         <xs:element name="parent" type="xs:string"/>
 
+                        <xs:element name="force-passive" />
+
                         <xs:element name="attribute">
                             <xs:complexType mixed="true">
                                 <xs:sequence>

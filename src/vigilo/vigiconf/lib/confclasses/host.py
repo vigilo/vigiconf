@@ -93,6 +93,7 @@ class Host(object):
                 "nagiosDirectives": {},
                 "nagiosSrvDirs"  : {},
                 "weight"         : 1,
+                "force-passive"  : False,
             }
         self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
@@ -552,7 +553,10 @@ class Host(object):
         if command is None:
             definition["type"] = "passive"
         else:
-            definition["type"] = "active"
+            if self.get_attribute("force-passive"):
+                definition["type"] = "passive"
+            else:
+                definition["type"] = "active"
             definition["command"] = command
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, 'services', name, key, value)
@@ -579,6 +583,8 @@ class Host(object):
                        'directives': directives,
                        'reRoutedBy': None,
                       }
+        if self.get_attribute("force-passive"):
+            definition["type"] = "passive"
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, 'services', name, key, value)
 
@@ -857,6 +863,9 @@ class HostFactory(object):
                     test_directives = {}
 
             else: # Événement de type "end"
+                if elem.tag == "force-passive":
+                    cur_host.set_attribute("force-passive", True)
+
                 if elem.tag == "template":
                     templates.append(get_text(elem))
 
@@ -979,6 +988,8 @@ class HostFactory(object):
                     for (service, tagname, tagvalue) in tags:
                         cur_host.add_tag(service, tagname, tagvalue)
 
+                    if cur_host.get_attribute("force-passive"):
+                        cur_host.set_attribute("hostTPL", "generic-passive-host")
                     LOGGER.debug("Loaded host %(host)s, address %(address)s" %
                                  {'host': cur_host.name,
                                   'address': cur_host.get_attribute('address'),

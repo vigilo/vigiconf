@@ -101,6 +101,21 @@ class ParseHost(unittest.TestCase):
         self.assert_(self.hostsConf["testserver1"]["serverGroup"] == "Servers",
                 "host main group is not properly parsed")
 
+    def test_host_passive(self):
+        """Parsing d'un hôte passif"""
+        GroupLoader().load()
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <force-passive/>
+            <group>/Servers/Linux servers</group>
+        </host>""")
+        self.host.close()
+        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
+        print self.hostsConf
+        self.assertTrue(self.hostsConf["testserver1"]["force-passive"],
+                "L'attribut force-passive n'est pas correctement parsé")
+
     def test_template(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
@@ -116,6 +131,23 @@ class ParseHost(unittest.TestCase):
         self.assertTrue("Linux servers" in
                         self.hostsConf["testserver1"]["otherGroups"],
                         "The \"template\" tag is not properly parsed")
+
+    def test_template_passive(self):
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <force-passive/>
+            <template>linux</template>
+        </host>""")
+        self.host.close()
+        htpl = HostTemplate("linux")
+        htpl.add_group("Linux servers")
+        self.hosttemplatefactory.register(htpl)
+        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
+        print self.hostsConf
+        self.assertTrue(self.hostsConf["testserver1"]["force-passive"],
+                "L'attribut force-passive n'est pas conservé après "
+                "application d'un template")
 
     def test_attribute(self):
         self.host.write("""<?xml version="1.0"?>

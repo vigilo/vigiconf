@@ -107,10 +107,19 @@ class NagiosGen(FileGenerator):
 
         # Add the service item into the Nagios configuration file
         if len(h['SNMPJobs']):
-            # add a static actif service calling Collector if needed
-            self.templateAppend(self.fileName,
-                                self.templates["collector_main"],
-                                newhash)
+            # add a static active or passive service calling Collector if needed
+            if h["force-passive"]:
+                self.templateAppend(self.fileName,
+                                    self.templates["collector"],
+                                    {'name' :  hostname,
+                                     'serviceName' : "Collector",
+                                     'quietOrNot': "",
+                                     'notification_period': "",
+                                     'generic_sdirectives': "",})
+            else:
+                self.templateAppend(self.fileName,
+                                    self.templates["collector_main"],
+                                    newhash)
         self.__fillservices(hostname, newhash)
 
         ## WARNING: ugly hack to handle routes (GCE based, must disappear)!!
@@ -217,21 +226,42 @@ class NagiosGen(FileGenerator):
                          "notification_period": scopy["notification_period"],
                          "generic_sdirectives": generic_directives})
             elif scopy['type'] == 'active':
-                # append an active service, named external, as in "not handled
-                # by Collector"
-                self.templateAppend(self.fileName, self.templates["ext"],
-                        {'name': h['name'],
-                         'desc': srvname,
-                         'command': scopy['command'],
-                         'quietOrNot': newhash['quietOrNot'],
-                         'perfDataOrNot': perfdata,
-                         "notification_period": scopy["notification_period"],
-                         "generic_sdirectives": generic_directives})
+                # force a passive service because host is defined as passive
+                if h["force-passive"]:
+                    self.templateAppend(self.fileName,
+                                        self.templates["collector"],
+                                        {'name' :  h['name'],
+                                         'serviceName' : srvname,
+                                         'quietOrNot': newhash['quietOrNot'],
+                                         'perfDataOrNot': perfdata,
+                                         'notification_period': scopy["notification_period"],
+                                         'generic_sdirectives': generic_directives,})
+                else:
+                    # append an active service, named external, as in "not handled
+                    # by Collector"
+                    self.templateAppend(self.fileName, self.templates["ext"],
+                            {'name': h['name'],
+                             'desc': srvname,
+                             'command': scopy['command'],
+                             'quietOrNot': newhash['quietOrNot'],
+                             'perfDataOrNot': perfdata,
+                             "notification_period": scopy["notification_period"],
+                             "generic_sdirectives": generic_directives})
+
             else:
-                self.templateAppend(self.fileName, self.templates[ scopy['type'] ],
-                        {'name': h['name'],
-                         'desc': srvname,
-                         "generic_sdirectives": generic_directives})
+                # force a passive service because host is defined as passive
+                if h["force-passive"]:
+                    self.templateAppend(self.fileName,
+                            self.templates["collector"],
+                            {'name' :  h['name'],
+                             'serviceName' : srvname,
+                             'generic_sdirectives': generic_directives,})
+                else:
+                    self.templateAppend(self.fileName,
+                            self.templates[ scopy['type'] ],
+                            {'name': h['name'],
+                             'desc': srvname,
+                             "generic_sdirectives": generic_directives})
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

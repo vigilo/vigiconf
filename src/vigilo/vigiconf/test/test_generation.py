@@ -128,6 +128,33 @@ class Generator(unittest.TestCase):
             "add_metro_service does not generate proper nagios conf "
             "(passive service)")
 
+    def test_force_passive(self):
+        """Influence de l'attribut force-passive"""
+        self.host.set_attribute("force-passive", True)
+        self.host.add_external_sup_service("testservice", command="/bin/true")
+
+        self.genmanager.generate(DummyRevMan())
+        nagiosconffile = os.path.join(self.basedir, "localhost",
+                                      "nagios", "nagios.cfg")
+        nagiosconf = open(nagiosconffile).read()
+        print nagiosconf
+
+        self.assertTrue(re.search("^\s*use\s+generic-passive-service\s*$",
+                                  nagiosconf, re.M))
+
+    def test_passive_host(self):
+        """Génération d'un hôte passif"""
+        self.host.set_attribute("hostTPL", "generic-passive-host")
+
+        self.genmanager.generate(DummyRevMan())
+        nagiosconffile = os.path.join(self.basedir, "localhost",
+                                      "nagios", "nagios.cfg")
+        nagiosconf = open(nagiosconffile).read()
+        print nagiosconf
+
+        self.assertTrue(re.search("^\s*use\s+generic-passive-host\s*$",
+                                  nagiosconf, re.M))
+
 
 class NagiosGeneratorForTest(NagiosGen):
     def templateAppend(self, filename, template, args):
@@ -237,4 +264,3 @@ class TestGenericDirNagiosGeneration(unittest.TestCase):
 
         self.assertTrue("parents    testserver2" in nagiosconf,
             "nagios generator generates did not add the proper parents")
-

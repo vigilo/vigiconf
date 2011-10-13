@@ -245,3 +245,25 @@ class HostTemplates(unittest.TestCase):
                 "comm1", "La communauté SNMP doit être celle du dernier "
                 "template et pas celle d'un de ses parents")
 
+    def test_add_test_simple_active(self):
+        """Ajout d'un service actif sur un hôte avec force-passive"""
+        self.host.set_attribute("force-passive", True)
+        self.tpl.add_test("HTTP")
+        self.hosttemplatefactory.apply(self.host, "testtpl1")
+        self.assertEqual("passive",
+                conf.hostsConf["testserver1"]["services"]["HTTP"]["type"])
+
+    def test_inherit_attribute_passive(self):
+        """Héritage de l'attribut force-passive"""
+        self.tpl.add_attribute("force-passive", "True")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        self.hosttemplatefactory.register(tpl2)
+        # Reload the templates
+        self.hosttemplatefactory.load_templates()
+        tpldata = self.hosttemplatefactory.templates["testtpl2"]
+        self.assertTrue(tpldata["attributes"].has_key("force-passive"),
+                "inheritance does not work with attributes force-passive")
+        self.assertEqual(tpldata["attributes"]["force-passive"], "True",
+                "inheritance does not work with attributes force-passive")
+

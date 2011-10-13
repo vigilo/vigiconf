@@ -18,6 +18,7 @@ class HostXSD(XSDTest):
             "no_secondary_groups.xml",
             "interleaved_tags.xml",
             "localhost1.xml",
+            "localhost_passive.xml",
         ],
         "../../../conf.d/hosts": [
             "localhost.xml",

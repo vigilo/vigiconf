@@ -14,6 +14,7 @@ class HosttemplateXSD(XSDTest):
     xml_ok_files = {
         "hosttemplates/ok": [
             "interleaved_tags.xml",
+            "passive_tags.xml",
         ],
         "../../../conf.d/hosttemplates": ["*.xml"],
    }
