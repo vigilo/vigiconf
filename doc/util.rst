@@ -2,10 +2,6 @@
 Manuel utilisateur
 ******************
 
-Ce document a pour objectif de présenter l'installation, la configuration et
-l'utilisation de l'application VigiConf de Vigilo aux administrateurs d'un parc
-informatique.
-
 
 Installation
 ============
@@ -220,6 +216,7 @@ Cette option est destinée uniquement au débogage de l'application lors de la
 phase de développement et doit être positionnée à "``False``" en production.
 
 
+
 .. _confparc:
 
 Configuration du parc à superviser
@@ -240,12 +237,14 @@ Afin d'éviter les erreurs de saisie dans les fichiers de configuration de
 VigiConf, ceux-ci font systématiquement l'objet d'une validation à l'aide de
 schémas XML.
 
-Ces schémas sont stockés dans :
-``<Python>/site-packages/vigilo/vigiconf/validation/xsd/``.
+Ces schémas sont stockés dans::
+
+    ``<Python>/site-packages/vigilo/vigiconf/validation/xsd/``.
 
 Par exemple, pour une installation standard de Python 2.5 sur une machine
-équipée d'une architecture x86 :
-``/usr/lib/python2.5/site-packages/vigilo/vigiconf/validation/xsd/``.
+équipée d'une architecture x86::
+
+    ``/usr/lib/python2.5/site-packages/vigilo/vigiconf/validation/xsd/``.
 
 Dans la suite de ce document, on considère qu'un fichier ``<fichier>.xml`` de
 la configuration de VigiConf est valide s'il respecte le schéma défini dans le
@@ -583,7 +582,7 @@ appartenant à la liste suivante:
 - ``retry_interval``
 
 Cette liste est un sous-ensemble des directives "``host``" de Nagios. La
-documentation sur ces directives est disponible dans `La documentation Nagios
+documentation sur ces directives est disponible dans `la documentation Nagios
 <http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#host>`_.
 Exemple::
 
@@ -701,7 +700,7 @@ encore, pour organiser les informations.
 Exemple::
 
     <group name="group1" />
-    
+
     <group name="group2" >
       <group name="group21"/>
       ...
@@ -882,10 +881,10 @@ Balise "``group``"
 Le bloc de données ``depends`` correspond à la description d'une dépendance de
 ce service de haut niveau. Il possède deux attributs :
 
-- ``host`` : (optionnel) le nom de l'hôte dont dépend ce service de haut
+- ``host`` : (optionnel) le nom de l'hôte dont dépend ce service de haut
   niveau. Si omis, alors ce service de haut niveau dépend d'un autre service de
   haut niveau dont le nom est donné par l'attribut ``service``.
-- ``service`` : (optionnel) le nom du service dont dépend ce service de haut
+- ``service`` : (optionnel) le nom du service dont dépend ce service de haut
   niveau. Si omis, alors ce service de haut niveau dépend directement de l'hôte
   dont le nom est donné par l'attribut ``host``.
 
