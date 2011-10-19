@@ -2,7 +2,9 @@
 # Copyright (C) 2006-2011 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-import os, shutil
+import os
+import sys
+import shutil
 import tempfile
 
 from vigilo.common.conf import settings
@@ -159,14 +161,67 @@ class LoggingCommandFactory(object):
             result = None
         return LoggingCommand(command, self.executed, result)
 
-#from vigilo.vigiconf.lib.dispatchator.base import Dispatchator
-#class DummyDispatchator(Dispatchator):
-#    def __init__(self):
-#        self.force = True
-#
-#    def get_svn_status(self):
-#        # On indique qu'aucun changement n'a eu lieu,
-#        # car le fait de positionner le flag "force"
-#        # force de toutes façons les opérations.
-#        return {'toadd': [], 'added': [],
-#                'toremove': [], 'removed': [], 'modified': []}
+
+
+from unittest import TestCase
+from subprocess import Popen, PIPE, STDOUT
+from vigilo.models.tables import ConfFile
+from vigilo.vigiconf.lib.confclasses.test import TestFactory
+from vigilo.vigiconf.lib.confclasses.host import Host
+from vigilo.vigiconf.lib.generators import GeneratorManager
+from vigilo.models.demo.functions import add_host
+
+class GeneratorBaseTestCase(TestCase):
+    """Classe de base pour les tests de génération"""
+
+    def setUp(self):
+        setup_db()
+        conf.hostsConf = {}
+        # Prepare temporary directory
+        self.tmpdir = setup_tmpdir()
+        self.basedir = os.path.join(self.tmpdir, "deploy")
+        self.old_conf_path = settings["vigiconf"]["confdir"]
+        settings["vigiconf"]["confdir"] = os.path.join(self.tmpdir, "conf.d")
+        os.mkdir(settings["vigiconf"]["confdir"])
+        self.testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
+        self.host = Host(conf.hostsConf, "dummy.xml", "testserver1",
+                         "192.168.1.1", "Servers")
+        # attention, le fichier dummy.xml doit exister ou l'hôte sera supprimé
+        # juste après avoir été inséré
+        open(os.path.join(self.tmpdir, "conf.d", "dummy.xml"), "w").close()
+        conffile = ConfFile.get_or_create("dummy.xml")
+        add_host("testserver1", conffile)
+        self.apps = self._get_apps()
+        self.genmanager = GeneratorManager(self.apps.values())
+
+    def tearDown(self):
+        DBSession.expunge_all()
+        teardown_db()
+        shutil.rmtree(self.tmpdir)
+        settings["vigiconf"]["confdir"] = self.old_conf_path
+        conf.hostsConf = {}
+
+    def _get_apps(self):
+        """
+        Dictionnaire des instances d'applications à tester.
+        Exemple: {"nagios": Nagios(), "vigimap": VigiMap()}
+        """
+        return {}
+
+    def _generate(self):
+        self.genmanager.generate(DummyRevMan())
+
+    def _validate(self):
+        deploydir = os.path.join(self.basedir, "localhost")
+        for appname, app in self.apps.iteritems():
+            __import__(app.__module__)
+            module = sys.modules[app.__module__]
+            validation_script = os.path.join(
+                    os.path.dirname(module.__file__),
+                    "validate.sh")
+            proc = Popen(["sh", validation_script, deploydir],
+                        stdout=PIPE, stderr=STDOUT)
+            print appname
+            print proc.communicate()[0]
+            self.assertEqual(proc.returncode, 0)
+
