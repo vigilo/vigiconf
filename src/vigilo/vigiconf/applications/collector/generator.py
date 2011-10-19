@@ -74,6 +74,10 @@ class CollectorGen(FileGenerator):
         keys.sort()
         for jobname, jobtype in keys:
             jobdata = h['SNMPJobs'][(jobname, jobtype)]
+            # protection contre l'unicode (#882)
+            for index, param in enumerate(jobdata['params'][:]):
+                if isinstance(param, unicode):
+                    jobdata['params'][index] = param.encode("utf8")
             tplvars = {'function': jobdata['function'],
                        'params': str(jobdata['params']),
                        'vars': str(jobdata['vars']),
