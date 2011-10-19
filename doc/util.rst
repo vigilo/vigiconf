@@ -8,10 +8,10 @@ Installation
 
 Pré-requis logiciels
 --------------------
-Afin de pouvoir faire fonctionner VigiConf, l'installation
-préalable des logiciels suivants est requise :
+Afin de pouvoir faire fonctionner VigiConf, l'installation préalable des
+logiciels suivants est requise :
 
-* python (>= 2.5), sur la machine où le connecteur est installé
+* python (>= 2.5), sur la machine où VigiConf est installé
 * postgresql-server (>= 8.2), éventuellement sur une machine distante
 
 Reportez-vous aux manuels de ces différents logiciels pour savoir comment
@@ -23,7 +23,7 @@ VigiConf.
 
 Installation du paquet RPM
 --------------------------
-L'installation du connecteur se fait en installant simplement le paquet RPM
+L'installation de VigiConf se fait en installant simplement le paquet RPM
 "``vigilo-vigiconf``". La procédure exacte d'installation dépend du gestionnaire
 de paquets utilisé. Les instructions suivantes décrivent la procédure pour les
 gestionnaires de paquets RPM les plus fréquemment rencontrés.
