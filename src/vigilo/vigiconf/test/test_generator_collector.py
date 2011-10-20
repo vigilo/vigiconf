@@ -3,6 +3,7 @@
 # Copyright (C) 2011-2011 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+import os
 from vigilo.vigiconf.applications.collector import Collector
 from helpers import GeneratorBaseTestCase
 
@@ -25,4 +26,9 @@ class CollectorGeneratorTestCase(GeneratorBaseTestCase):
                                         "ifname":u"aàeéècç"})
         self._generate()
         self._validate()
+        cfgfile = os.path.join(self.basedir, "localhost", "collector",
+                               "testserver1.pm")
+        cfg = open(cfgfile).read()
+        print cfg
+        self.assertFalse("\\" in cfg)
 

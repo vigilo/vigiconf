@@ -74,13 +74,10 @@ class CollectorGen(FileGenerator):
         keys.sort()
         for jobname, jobtype in keys:
             jobdata = h['SNMPJobs'][(jobname, jobtype)]
-            # protection contre l'unicode (#882)
-            for index, param in enumerate(jobdata['params'][:]):
-                if isinstance(param, unicode):
-                    jobdata['params'][index] = param.encode("utf8")
+            jobdata['params'] = self._convert_list(jobdata['params'])
             tplvars = {'function': jobdata['function'],
-                       'params': str(jobdata['params']),
-                       'vars': str(jobdata['vars']),
+                       'params': jobdata['params'],
+                       'vars': jobdata['vars'],
                        'name': jobname,
                        'dsname': "",
                        'reRouteFor': 'undef',
@@ -107,5 +104,15 @@ class CollectorGen(FileGenerator):
                 self.templateAppend(fileName, self.templates["service"],
                                     tplvars)
 
+    def _convert_list(self, l):
+        """Convertit en syntaxe Perl en protégeat contre l'unicode (#882)"""
+        result = []
+        for index, param in enumerate(l):
+            if isinstance(param, unicode):
+                result.append('"%s"' % param.replace('"', '\\"'))
+            else:
+                result.append(repr(param))
+        result = "[%s]" % ", ".join(result)
+        return result
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
