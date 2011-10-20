@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2011-09-27 15:58+0200\n"
+"PO-Revision-Date: 2011-10-20 15:49+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -330,6 +330,13 @@ msgstr ""
 " %(msg)s\n"
 "Befehl war: %(cmd)s"
 
+#: src/vigilo/vigiconf/applications/nagios/generator.py:207
+#, python-format
+msgid ""
+"forbidden character \"%(char)s\" in service \"%(srv)s\" on host "
+"\"%(host)s\""
+msgstr ""
+
 #: src/vigilo/vigiconf/applications/vigirrd/generator.py:83
 #, python-format
 msgid "Some datasources are not on a graph: %s"
@@ -548,7 +555,7 @@ msgstr ""
 msgid "%(filesWritten)d files have been generated in %(dirsCreated)d directories"
 msgstr "%(filesWritten)d Datein wurden in %(dirsCreated)d Verzeichnissen erstellt"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:133
+#: src/vigilo/vigiconf/lib/confclasses/host.py:134
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:161
 #, python-format
 msgid ""
@@ -556,12 +563,12 @@ msgid ""
 "\"%(replacement)s\" instead."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:148
+#: src/vigilo/vigiconf/lib/confclasses/host.py:149
 #, python-format
 msgid "In host %(host)s: attribute name %(attribute)s is reserved"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:197
+#: src/vigilo/vigiconf/lib/confclasses/host.py:198
 #, python-format
 msgid ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
@@ -570,20 +577,20 @@ msgstr ""
 "Test \"%(test_name)s\" auf \"%(host)s\" benötigt die folgenden Argumente:"
 " %(args)s (and only those)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:509
+#: src/vigilo/vigiconf/lib/confclasses/host.py:510
 #, python-format
 msgid "Wrong datasource in graph '%(graph)s': %(ds)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:748
+#: src/vigilo/vigiconf/lib/confclasses/host.py:754
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:283
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:97
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:754
-#: src/vigilo/vigiconf/lib/confclasses/host.py:774
+#: src/vigilo/vigiconf/lib/confclasses/host.py:760
+#: src/vigilo/vigiconf/lib/confclasses/host.py:780
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:289
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:309
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:103
@@ -594,66 +601,66 @@ msgid ""
 "correctly.Message: %(error)s."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:771
+#: src/vigilo/vigiconf/lib/confclasses/host.py:777
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:306
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:120
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "XML Syntaxfehler in \"%(file)s\": %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:782
+#: src/vigilo/vigiconf/lib/confclasses/host.py:788
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:317
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:838
+#: src/vigilo/vigiconf/lib/confclasses/host.py:844
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Ungültige Aufteilungsgruppe: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:872
+#: src/vigilo/vigiconf/lib/confclasses/host.py:881
 #, python-format
 msgid "Invalid weight value for test %(test)s on host %(host)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Test %(test)s auf Host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:922
+#: src/vigilo/vigiconf/lib/confclasses/host.py:931
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:121
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Ungültiger Gruppenname (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:931
+#: src/vigilo/vigiconf/lib/confclasses/host.py:940
 #, python-format
 msgid "Invalid weight value for host %(host)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Host %(host)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:959
+#: src/vigilo/vigiconf/lib/confclasses/host.py:968
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "Host \"%s\" muss mindestens einer Gruppe zugeordnet werden."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:969
+#: src/vigilo/vigiconf/lib/confclasses/host.py:978
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
 "class ?"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:396
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:399
 #, python-format
 msgid "Invalid weight value for test %(test)s in template %(tpl)s: %(weight)r"
 msgstr ""
 "Ungültiger Gewichtungswert für Test %(test)s in Vorlage %(tpl)s: "
 "%(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:421
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:424
 #, python-format
 msgid "Invalid weight value for template %(tpl)s: %(weight)r"
 msgstr "Ungültiger Gewichtungswert für Vorlage %(tpl)s: %(weight)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:557
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:563
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s (added by template "
@@ -673,24 +680,24 @@ msgstr "Generierung fehlgeschlagen!"
 msgid "Generation successful"
 msgstr "Generierung erfolgreich"
 
-#: src/vigilo/vigiconf/lib/dispatchator/base.py:143
+#: src/vigilo/vigiconf/lib/dispatchator/base.py:142
 msgid "Database commit successful"
 msgstr "Datenbank commit erfolgreich"
 
-#: src/vigilo/vigiconf/lib/dispatchator/base.py:147
+#: src/vigilo/vigiconf/lib/dispatchator/base.py:146
 msgid "Database commit failed"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/dispatchator/base.py:156
+#: src/vigilo/vigiconf/lib/dispatchator/base.py:159
 msgid "All servers are up-to-date. No restart needed."
 msgstr "Alle Server sind aktualisiert. Kein Neustart erforderlich."
 
-#: src/vigilo/vigiconf/lib/dispatchator/base.py:171
+#: src/vigilo/vigiconf/lib/dispatchator/base.py:174
 #, python-format
 msgid "Current revision in the repository : %d"
 msgstr "Aktuelle Revision im Repository : %d"
 
-#: src/vigilo/vigiconf/lib/dispatchator/base.py:176
+#: src/vigilo/vigiconf/lib/dispatchator/base.py:179
 #, python-format
 msgid "Cannot get revision for server: %(server)s. REASON : %(reason)s"
 msgstr ""
@@ -867,10 +874,10 @@ msgid "Can't find an item matching %s"
 msgstr "Es kann kein zu %s passendes Element gefunden werden"
 
 #: src/vigilo/vigiconf/lib/server/base.py:143
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Can't activate the configuration on %(server)s. COMMAND %(cmd)s FAILED. "
-"REASON: %(reason)s"
+"Can't activate the configuration on %(server)s. COMMAND \"%(cmd)s\" "
+"FAILED. REASON: %(reason)s"
 msgstr ""
 "Die Konfiguration auf %(server)s kann nicht aktiviert werden. BEFEHL "
 "%(cmd)s FEHLGESCHLAGEN. URSACHE: %(reason)s"
@@ -890,12 +897,12 @@ msgstr "%s : erfolgreich bereitgestellt."
 msgid "Cannot copy files (%(from)s to %(to)s): %(error)s."
 msgstr "Datein (%(from)s können nicht in %(to)s) kopiert werden: %(error)s."
 
-#: src/vigilo/vigiconf/lib/server/base.py:262
+#: src/vigilo/vigiconf/lib/server/base.py:258
 #, python-format
 msgid "Cannot write the revision file: %s"
 msgstr "Revisionsdatei: %s kann nicht beschrieben werden"
 
-#: src/vigilo/vigiconf/lib/server/base.py:267
+#: src/vigilo/vigiconf/lib/server/base.py:263
 #, python-format
 msgid ""
 "Server %(server)s:\n"
@@ -904,24 +911,24 @@ msgid ""
 "    previous: %(previous)d"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/server/base.py:280
+#: src/vigilo/vigiconf/lib/server/base.py:276
 msgid "should be deployed"
 msgstr "sollte bereitgestellt werden"
 
-#: src/vigilo/vigiconf/lib/server/base.py:282
+#: src/vigilo/vigiconf/lib/server/base.py:278
 msgid "should restart"
 msgstr "sollte neustarten"
 
-#: src/vigilo/vigiconf/lib/server/base.py:285
+#: src/vigilo/vigiconf/lib/server/base.py:281
 msgid "disabled"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/server/base.py:290
+#: src/vigilo/vigiconf/lib/server/base.py:286
 #, python-format
 msgid "Server %s cannot be disabled"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/server/base.py:292
+#: src/vigilo/vigiconf/lib/server/base.py:288
 #, python-format
 msgid "Server %s cannot be enabled"
 msgstr ""
@@ -946,11 +953,11 @@ msgstr ""
 "Tar-Archiv kann für Server %(server)s: %(error)s nicht bereitgestellt "
 "werden"
 
-#: src/vigilo/vigiconf/lib/server/manager.py:132
+#: src/vigilo/vigiconf/lib/server/manager.py:130
 msgid "All servers are up-to-date, no deployment needed."
 msgstr "Alle Server sind aktualisiert. Kein Bereitstellung erforderlich."
 
-#: src/vigilo/vigiconf/lib/server/manager.py:138
+#: src/vigilo/vigiconf/lib/server/manager.py:136
 msgid ""
 "The configurations files have not been transfered on every server. See "
 "above for more information."
@@ -959,6 +966,15 @@ msgstr ""
 " Informationen siehe oben."
 
 #: src/vigilo/vigiconf/lib/server/manager.py:154
+#, fuzzy
+msgid ""
+"The revision has not been set on every server. See above for more "
+"information."
+msgstr ""
+"Die Konfigurationsdatein wurden nicht auf alle Server übertragen. Weitere"
+" Informationen siehe oben."
+
+#: src/vigilo/vigiconf/lib/server/manager.py:169
 msgid "Switch directories was not successful on each server."
 msgstr "Wechseln der Verzeichnisse war nicht auf jedem Server erfolgreich."
 
@@ -1005,7 +1021,7 @@ msgstr ""
 msgid "Loading host %s"
 msgstr "Host %s wird geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:309
+#: src/vigilo/vigiconf/loaders/host.py:310
 msgid "Done loading hosts"
 msgstr "Hosts sind geladen"
 
@@ -1060,3 +1076,4 @@ msgstr ""
 #: src/vigilo/vigiconf/tests/all/NTP.py:18
 msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
 msgstr ""
+
