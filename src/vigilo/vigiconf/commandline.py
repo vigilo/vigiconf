@@ -29,7 +29,6 @@ import sys
 import os
 import atexit
 import textwrap
-
 import argparse
 import gettext
 import warnings
@@ -181,7 +180,6 @@ def discover(args):
     testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
     discoverator = Discoverator(testfactory, args.group)
     discoverator.testfactory.load_hclasses_checks()
-    args.output.write("""<?xml version="1.0"?>\n""")
     if len(args.target) > 1:
         args.output.write("<hosts>\n")
     for target in args.target:
@@ -196,7 +194,7 @@ def discover(args):
         discoverator.detect(args.test)
         elements = discoverator.declaration()
         indent(elements)
-        args.output.write(ET.tostring(elements))
+        args.output.write(ET.tostring(elements, encoding="utf8"))
     if len(args.target) > 1:
         args.output.write("</hosts>\n")
 

@@ -166,6 +166,20 @@ class Interface(Test):
             label = label.strip()
             label = label.replace("GigabitEthernet", "GE")
             label = label.replace("FastEthernet", "FE")
+            # Protection contre les accents (#882)
+            ifname = ifname.decode("ascii", "replace"
+                          ).encode("ascii", "replace").replace("?", ".")
+            try:
+                label.decode("ascii")
+            except UnicodeDecodeError:
+                # On essaye utf8 et latin1, sinon on remplace par des "?".
+                try:
+                    label = label.decode("utf8")
+                except UnicodeDecodeError:
+                    try:
+                        label = label.decode("iso8859-1")
+                    except UnicodeDecodeError:
+                        label = label.decode("ascii", "replace")
             tests.append({"label": label, "ifname": ifname})
         return tests
 
