@@ -27,16 +27,11 @@ import os.path
 
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.generators import FileGenerator
-from vigilo.vigiconf.lib.exceptions import ParsingError
 
 from sqlalchemy.orm import aliased
 from vigilo.models.session import DBSession
 from vigilo.models.tables import Host, Ventilation, VigiloServer, Dependency, \
                                     DependencyGroup, Application
-
-from vigilo.common.gettext import translate
-_ = translate(__name__)
-
 
 class NagiosGen(FileGenerator):
     """
@@ -199,15 +194,6 @@ class NagiosGen(FileGenerator):
         """Fill the services section in the configuration file"""
         h = conf.hostsConf[hostname]
         for (srvname, srvdata) in h['services'].iteritems():
-
-            # caractères interdits (#882)
-            forbidden_chars = self.application.getConfig()["forbidden_chars"]
-            for fchar in forbidden_chars:
-                if fchar in srvname:
-                    raise ParsingError(_("forbidden character \"%(char)s\" "
-                            "in service \"%(srv)s\" on host \"%(host)s\"")
-                            % {"char": fchar, "srv": srvname, "host": hostname})
-
             scopy = srvdata.copy()
 
             #   directives generiques

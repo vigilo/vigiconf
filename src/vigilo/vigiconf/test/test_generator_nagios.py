@@ -12,8 +12,6 @@ from vigilo.vigiconf.applications.nagios import Nagios
 from vigilo.models.demo.functions import add_host, add_dependency_group, \
                                          add_dependency
 from vigilo.models.tables import ConfFile
-from vigilo.vigiconf.lib.exceptions import ParsingError
-
 from helpers import GeneratorBaseTestCase
 
 
@@ -44,13 +42,6 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         self.assert_(os.path.exists(nagiosconf),
                      "Nagios conf file was not generated")
         self._validate()
-
-    def test_forbidden(self):
-        """Nagios: caractères interdits"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
-        self.host.add_tests(test_list, {"label":u"a'b",
-                                        "ifname":u"dummy"})
-        self.assertRaises(ParsingError, self._generate)
 
     def test_add_metro_service(self):
         """Nagios: add_metro_service"""
