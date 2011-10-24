@@ -3,43 +3,28 @@
 
     <start>
         <!--
-            Chaque fichier peut contenir la configuration d'un seul hôte
-            ou de plusieurs hôtes (listés dans une balise "hosts").
+            Chaque fichier peut contenir la configuration d'un seul
+            patron d'hôtes ou de plusieurs patrons d'hôtes
+            (listés dans une balise "templatess").
         -->
         <choice>
-            <ref name="hosts"/>
-            <ref name="host"/>
+            <ref name="templates"/>
+            <ref name="template"/>
         </choice>
     </start>
 
-    <define name="hosts">
-        <element name="hosts">
+    <define name="templates">
+        <element name="templates">
             <zeroOrMore>
-                <ref name="host"/>
+                <ref name="template"/>
             </zeroOrMore>
         </element>
     </define>
 
-    <define name="host">
-        <element name="host">
-            <!-- Libellé de l'hôte. -->
+    <define name="template">
+        <element name="template">
+            <!-- Libellé du patron. -->
             <attribute name="name"><text/></attribute>
-
-            <!--
-                Adresse de l'hôte (IP ou FQDN).
-                Si cet attribut est omis, la valeur de l'attribut "name" est utilisée.
-                Utilisez de préférence une adresse IP pour éviter une dégradation
-                des performances due aux résolutions DNS.
-            -->
-            <optional><attribute name="address"><text/></attribute></optional>
-
-            <!--
-                Groupe utilisé pour ventiler l'hôte.
-                Si cet attribut est omis, le groupe à utiliser pour ventiler
-                sera déduit à partir des groupes rattachés à l'hôte, sauf s'il
-                y a un conflit (cet attribut permet de résoudre le conflit).
-            -->
-            <optional><attribute name="ventilation"><text/></attribute></optional>
 
             <interleave>
                 <!--
@@ -49,22 +34,19 @@
                     toujours hérité implicitement.
                 -->
                 <zeroOrMore>
-                    <element name="template"><text/></element>
-                </zeroOrMore>
-
-                <zeroOrMore>
-                    <ref name="nagios"/>
+                    <element name="parent"><text/></element>
                 </zeroOrMore>
 
                 <!--
-                    Classes d'équipements auxquelles cet hôte appartient.
-                    Les classes d'équipements permettent de sélectionner les
-                    variantes de tests de supervision les plus pertinentes
-                    pour un type d'équipement.
+                    Si cette balise est présente, alors tous les
+                    services de l'hôte seront automatiquement
+                    configurés comme services passifs.
                 -->
-                <zeroOrMore>
-                    <element name="class"><text/></element>
-                </zeroOrMore>
+                <optional>
+                    <element name="force-passive">
+                        <empty/>
+                    </element>
+                </optional>
 
                 <!--
                     Attributs de l'hôte, généralement déterminés à l'aide de
@@ -79,6 +61,25 @@
                             </zeroOrMore>
                         </mixed>
                     </element>
+                </zeroOrMore>
+
+                <!--
+                    Groupes auxquels l'hôte appartient.
+                    Ces groupes doivent appartenir aux hiérarchies définies
+                    dans le dossier "groups/".
+                -->
+                <zeroOrMore>
+                    <element name="group"><text/></element>
+                </zeroOrMore>
+
+                <!--
+                    Classes d'équipements auxquelles cet hôte appartient.
+                    Les classes d'équipements permettent de sélectionner les
+                    variantes de tests de supervision les plus pertinentes
+                    pour un type d'équipement.
+                -->
+                <zeroOrMore>
+                    <element name="class"><text/></element>
                 </zeroOrMore>
 
                 <!-- Tests de supervision qui seront activés sur cet hôte. -->
@@ -106,25 +107,11 @@
                 </zeroOrMore>
 
                 <!--
-                    Étiquettes attachées à l'hôte ou à l'un de ses services.
-                    Ces étiquettes sont visibles dans VigiMap sous la forme
-                    d'icônes placées au-dessus des éléments.
+                    Directives de configuration Nagios spécifiques
+                    aux hôtes qui héritent de ce patron.
                 -->
                 <zeroOrMore>
-                    <element name="tag">
-                        <optional><attribute name="service"><text/></attribute></optional>
-                        <attribute name="name"><text/></attribute>
-                        <text/>
-                    </element>
-                </zeroOrMore>
-
-                <!--
-                    Groupes auxquels l'hôte appartient.
-                    Ces groupes doivent appartenir aux hiérarchies définies
-                    dans le dossier "groups/".
-                -->
-                <zeroOrMore>
-                    <element name="group"><text/></element>
+                    <ref name="nagios"/>
                 </zeroOrMore>
 
                 <!-- Poids accordé à l'hôte (entier strictement positif). -->
