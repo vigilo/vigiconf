@@ -312,165 +312,193 @@ ventilation
 
 La balise *host* peut contenir les balises suivantes :
 
-class
-    (un ou plus). Syntaxe : ``<class>nom de la classe</class>``.
+- ``class`` (0 ou plus)
+- ``template`` (0 ou plus)
+- ``attribute`` (0 ou plus)
+- ``nagios`` (0 ou 1)
+- ``test`` (0 ou plus)
+- ``tag`` (0 ou plus)
+- ``group`` (1 ou plus)
 
-    Indique la ou les classes d'équipements auxquelles l'hôte appartient. En
-    fonction de ces classes, des tests spécifiques peuvent être disponibles
-    afin d'obtenir des informations plus précises sur l'état de l'équipement.
 
-template
-    (un ou plus). Syntaxe : ``<template>nom du modèle</template>``.
+Balise "``class``"
+^^^^^^^^^^^^^^^^^^
+Syntaxe : ``<class>nom de la classe</class>``.
 
-    Précise le nom du modèle d'hôtes duquel cet hôte hérite une partie de ses
-    propriétés. L'utilisation de l'héritage est pratique lorsque votre parc est
-    composé d'éléments (serveurs, routeurs, etc.) homogènes. Vous pouvez alors
-    définir un modèle (template) pour chaque type d'équipement avec tous les
-    tests associés et créer ensuite simplement une définition d'hôte pour
-    chaque équipement.
+Indique la ou les classes d'équipements auxquelles l'hôte appartient. En
+fonction de ces classes, des tests spécifiques peuvent être disponibles afin
+d'obtenir des informations plus précises sur l'état de l'équipement.
 
-    Les valeurs définies au niveau d'un hôte écrase toujours les valeurs
-    définies au niveau d'un modèle hérité (en particulier, les paramètres des
-    tests).
+Balise "``template``"
+^^^^^^^^^^^^^^^^^^^^^
+Syntaxe : ``<template>nom du modèle</template>``.
 
-    **Note :** le modèle doit avoir été défini à l'aide de la balise
-    *hosttemplate* (voir :ref:`hosttemplate`).
+Précise le nom du modèle d'hôtes duquel cet hôte hérite une partie de ses
+propriétés. L'utilisation de l'héritage est pratique lorsque votre parc est
+composé d'éléments (serveurs, routeurs, etc.) homogènes. Vous pouvez alors
+définir un modèle (template) pour chaque type d'équipement avec tous les tests
+associés et créer ensuite simplement une définition d'hôte pour chaque
+équipement.
 
-attribute
-    (0 ou plus). Syntaxes::
+Les valeurs définies au niveau d'un hôte écrase toujours les valeurs définies
+au niveau d'un modèle hérité (en particulier, les paramètres des tests).
 
-        <attribute name="nom de l'attribut">valeur de l'attribut</attribute>
+**Note :** le modèle doit avoir été défini à l'aide de la balise *hosttemplate*
+(voir :ref:`hosttemplate`).
 
-        <attribute name="nom de l'attribut">
-          <item>valeur 1</item>
-          <item>valeur 2</item>
-        </attribute>
+Balise "``attribute``"
+^^^^^^^^^^^^^^^^^^^^^^
+Syntaxes::
 
-    Cette balise permet de fixer certains des attributs de l'hôte, comme par
-    exemple le nombre de processeurs présents sur la machine. En général, ces
-    informations sont extraites automatiquement des équipements par une
-    interrogation SNMP (voir à ce sujet le chapitre « TODO »).
+    <attribute name="nom de l'attribut">valeur de l'attribut</attribute>
 
-    Les noms d'attributs utilisables dépendent des tests de supervision
-    installés avec VigiConf. Par défaut, les attributs suivants sont
-    disponibles :
+    <attribute name="nom de l'attribut">
+      <item>valeur 1</item>
+      <item>valeur 2</item>
+    </attribute>
 
-    - "``fans``" : la liste des identifiants des ventilateurs sur
-      l'équipement ;
-    - "``tempsensors``" : la liste des noms des sondes de température présentes
-      sur l'équipement ;
-    - "``cpulist``" : la liste des identifiants des processeurs sur
-      l'équipement ;
-    - "``snmpCommunity``" : la communauté pour l'accès SNMP à l'équipement
-      (pour assurer la rétro-compatibilité, "``community``" est également
-      utilisable mais émettra un avertissement).
-    - "``snmpVersion``" : la version SNMP à utiliser (par défaut, la version 2
-      est utilisée).
-    - "``snmpPort``" : le port SNMP à utiliser (par défaut, le port 161 est
-      utilisé).
-    - "``oxe_login``": le nom d'utilisateur permettant de se connecter en
-      Telnet à l'hôte.
-    - "``oxe_password``": le mot de passe allant de pair avec le nom
-      d'utilisateur permettant de se connecter en Telnet à l'hôte.
-    - "``timeout``": timeout utilisé lors de la connexion Telnet à l'hôte.
+Cette balise permet de fixer certains des attributs de l'hôte, comme par
+exemple le nombre de processeurs présents sur la machine. En général, ces
+informations sont extraites automatiquement des équipements par une
+interrogation SNMP (voir à ce sujet le chapitre « TODO »).
 
-test
-    (0 ou plus). Syntaxe::
+Les noms d'attributs utilisables dépendent des tests de supervision installés
+avec VigiConf. Par défaut, les attributs suivants sont disponibles :
 
-        <test name="nom du test">
-          <arg name="nom_argument_1">valeur argument 1</arg>
-          <arg name="nom_argument_2">valeur argument 2</arg>
-          ...
-          <arg name="nom_argument_n">valeur argument n</arg>
-          <nagios>
-            <directive name="nom_directive_1">valeur directive 1</directive>
-            <directive name="nom_directive_2">valeur directive 2</directive>
-            ...
-            <directive name="nom_directive_3">valeur directive 3</directive>
-          </nagios>
-        </test>
+- "``fans``" : la liste des identifiants des ventilateurs sur l'équipement ;
+- "``tempsensors``" : la liste des noms des sondes de température présentes
+  sur l'équipement ;
+- "``cpulist``" : la liste des identifiants des processeurs sur
+  l'équipement ;
+- "``snmpCommunity``" : la communauté pour l'accès SNMP à l'équipement (pour
+  assurer la rétro-compatibilité, "``community``" est également utilisable mais
+  émettra un avertissement).
+- "``snmpVersion``" : la version SNMP à utiliser (par défaut, la version 2 est
+  utilisée).
+- "``snmpPort``" : le port SNMP à utiliser (par défaut, le port 161 est
+  utilisé).
+- "``oxe_login``": le nom d'utilisateur permettant de se connecter en Telnet à
+  l'hôte.
+- "``oxe_password``": le mot de passe allant de pair avec le nom d'utilisateur
+  permettant de se connecter en Telnet à l'hôte.
+- "``timeout``": timeout utilisé lors de la connexion Telnet à l'hôte.
 
-    La balise ``test`` permet d'ajouter un test de supervision à l'hôte. Un
-    test accepte généralement zéro ou plusieurs arguments, qui doivent être
-    passés dans l'ordre lors de la déclaration du test, à l'aide de la balise
-    ``arg``. Chaque argument dispose d'un nom (attribut ``name``) et d'une
-    valeur.
+Balise "``test``"
+^^^^^^^^^^^^^^^^^
+Syntaxe::
 
-    Vous pouvez également, de façon optionnelle, définir des paramètres
-    spécifiques pour la supervision à l'aide de la balise ``nagios``, qui
-    contiendra une ou plusieurs directives adressées au moteur de supervision
-    Nagios.
+    <test name="nom du test">
+      <arg name="nom_argument_1">valeur argument 1</arg>
+      <arg name="nom_argument_2">valeur argument 2</arg>
+      ...
+      <arg name="nom_argument_n">valeur argument n</arg>
+      <nagios>
+        <directive name="nom_directive_1">valeur directive 1</directive>
+        ...
+        <directive name="nom_directive_n">valeur directive n</directive>
+      </nagios>
+    </test>
 
-    **Note :** si le même argument ou la même directive est défini deux fois,
-    la dernière valeur est celle qui sera utilisée.
+La balise ``test`` permet d'ajouter un test de supervision à l'hôte. Un test
+accepte généralement zéro ou plusieurs arguments, qui doivent être passés dans
+l'ordre lors de la déclaration du test, à l'aide de la balise ``arg``. Chaque
+argument dispose d'un nom (attribut ``name``) et d'une valeur.
 
-    **Note :** toutes les directives proposées par Nagios sont utilisables ici.
-    Néanmoins, un mauvais réglage des directives peut dégrader sérieusement les
-    performances de la supervision, voire entraine un dysfonctionnement.
-    L'utilisation des directives est donc à laisser à des utilisateurs avertis.
-    La liste complète des directives supportées par Nagios v3 est disponible
-    dans `la documentation Nagios
-    <http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#host>`_.
+Vous pouvez également, de façon optionnelle, définir des paramètres spécifiques
+pour la supervision à l'aide de la balise ``nagios``, qui contiendra une ou
+plusieurs directives adressées au moteur de supervision Nagios. Voir la section
+ci-dessous pour plus d'informations.
 
-tag
-    (0 ou plus). Syntaxes::
+**Note :** si le même argument est défini deux fois, la dernière valeur est
+celle qui sera utilisée.
+
+.. _nagiostag:
+
+Balise "``nagios``"
+^^^^^^^^^^^^^^^^^^^
+Un bloc de données ``nagios`` contient des blocs ``directive`` dont l'attribut
+``name`` appartient à la liste des directives "``host``" de Nagios. La
+documentation sur ces directives est disponible dans `la documentation Nagios
+<http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#host>`_.
+
+Exemple::
+
+    <nagios>
+      <directive name="max_check_attempts">5</directive>
+      <directive name="check_interval>10</directive>
+      <directive name="retry_interval>1</directive>
+    </nagios>
+
+Toutes les directives proposées par Nagios sont utilisables ici.  Néanmoins, un
+mauvais réglage des directives peut dégrader sérieusement les performances de
+la supervision, voire entrainer un dysfonctionnement.  L'utilisation des
+directives est donc à laisser à des utilisateurs avertis.
+
+Un bloc ``nagios`` peut se trouver au sein d'un bloc ``host``/``hosttemplate``
+ou d'un bloc ``test``. 
+
+Si la même directive est défini deux fois, la dernière valeur est celle qui
+sera utilisée.
+
+
+Balise "``tag``"
+^^^^^^^^^^^^^^^^
+Syntaxes::
 
         <tag service="service" name="étiquette"/>
 
         <tag service="service" name="étiquette">valeur</tag>
 
-    La balise ``tag`` permet d'affecter une étiquette à un hôte ou un service.
-    L'attribut ``name`` permet de préciser le nom de l'étiquette à ajouter. Il
-    doit correspondre au nom d'une image (**privé de son extension**) à
-    afficher dans VigiMap. Cette image doit se trouver dans
-    ``<Python>/site-packages/vigilo/themes/public/vigimap/images/tags``, où
-    ``<Python>`` vaut par exemple ``/usr/lib/python2.5`` pour une installation
-    standard de Python 2.5.
+La balise ``tag`` permet d'affecter une étiquette à un hôte ou un service.
+L'attribut ``name`` permet de préciser le nom de l'étiquette à ajouter. Il doit
+correspondre au nom d'une image (**privé de son extension**) à afficher dans
+VigiMap. Cette image doit se trouver dans
+``<Python>/site-packages/vigilo/themes/public/vigimap/images/tags``, où
+``<Python>`` vaut par exemple ``/usr/lib/python2.5`` pour une installation
+standard de Python 2.5.
 
-    L'attribut ``service`` permet, quant à lui, d'indiquer le nom du service
-    auquel cette étiquette sera affectée. Utilisez la valeur "``host``" si
-    l'étiquette doit porter sur l'hôte en lui-même et non pas sur l'un de ses
-    services.
+L'attribut ``service`` permet, quant à lui, d'indiquer le nom du service auquel
+cette étiquette sera affectée. Utilisez la valeur "``host``" si l'étiquette
+doit porter sur l'hôte en lui-même et non pas sur l'un de ses services.
 
-    Enfin, la valeur de l'étiquette est facultative et fait office de
-    méta-donnée. Exemple, pour associer à un hôte l'étiquette de MCO (l'image
-    ``mco.png`` est fournie dans toute installation standard de Vigilo)::
-    ``<tag service="host" name="mco"/>``
+Enfin, la valeur de l'étiquette est facultative et fait office de méta-donnée.
+Exemple, pour associer à un hôte l'étiquette de MCO (l'image ``mco.png`` est
+fournie dans toute installation standard de Vigilo) :
+``<tag service="host" name="mco"/>``
 
-group
-    (1 ou plus). Syntaxes::
+Balise "``group``"
+^^^^^^^^^^^^^^^^^^
+Syntaxes::
 
-        <group>/Chemin complet/vers le/Groupe</group>
+    <group>/Chemin complet/vers le/Groupe</group>
 
-        <group>Nom de groupe</group>
+    <group>Nom de groupe</group>
 
-    La balise ``group`` permet d'indiquer les groupes métiers auxquels cet
-    équipement appartient. Les groupes sont organisés de manière hiérarchique
-    (sous la forme d'un arbre).
+La balise ``group`` permet d'indiquer les groupes métiers auxquels cet
+équipement appartient. Les groupes sont organisés de manière hiérarchique (sous
+la forme d'un arbre).
 
-    La première forme (chemin absolu) permet de se déplacer dans cette
-    hiérarchie en donnant le chemin complet jusqu'au groupe, de la racine de
-    l'arbre vers les feuilles. Chaque élément du chemin est précédé du symbole
-    "``/``". Si le nom de l'élément contient un "``/``" ou un "``\``", vous
-    devez le faire précéder du caractère d'échappement "``\``". Ainsi,
-    l'élément "``Serveurs Linux/Unix``" sera écrit dans les chemins comme
-    "``Serveurs Linux\/Unix``".
+La première forme (chemin absolu) permet de se déplacer dans cette hiérarchie
+en donnant le chemin complet jusqu'au groupe, de la racine de l'arbre vers les
+feuilles. Chaque élément du chemin est précédé du symbole "``/``". Si le nom de
+l'élément contient un "``/``" ou un "``\``", vous devez le faire précéder du
+caractère d'échappement "``\``". Ainsi, l'élément "``Serveurs Linux/Unix``"
+sera écrit dans les chemins comme "``Serveurs Linux\/Unix``".
 
-    La seconde forme (chemin relatif) permet d'ajouter l'équipement à tous les
-    groupes dont le nom vaut celui indiqué, quelque soit leur position dans
-    l'arbre. Il n'est pas possible de préciser plusieurs éléments (par exemple
-    "``A/B``") lorsque cette forme est utilisée. Les règles d'échappement de la
-    première forme s'appliquent également ici.
+La seconde forme (chemin relatif) permet d'ajouter l'équipement à tous les
+groupes dont le nom vaut celui indiqué, quelque soit leur position dans
+l'arbre. Il n'est pas possible de préciser plusieurs éléments (par exemple
+"``A/B``") lorsque cette forme est utilisée. Les règles d'échappement de la
+première forme s'appliquent également ici.
 
-    **Note :** les groupes sont utilisés pour décider de la ventilation des
-    équipements sur les différents groupes de supervision. Une fois tous les
-    groupes exprimés sous la forme d'un chemin absolu, VigiConf suppose que le
-    premier élément du chemin correspond au groupe à utiliser pour la
-    ventilation. En cas de conflit, ou pour placer l'équipement dans un autre
-    groupe de ventilation que celui déterminé automatiquement, vous devez
-    utiliser l'attribut *ventilation* de la balise *host* afin de spécifier
-    manuellement le groupe de ventilation à utiliser.
-
+**Note :** les groupes sont utilisés pour décider de la ventilation des
+équipements sur les différents groupes de supervision. Une fois tous les
+groupes exprimés sous la forme d'un chemin absolu, VigiConf suppose que le
+premier élément du chemin correspond au groupe à utiliser pour la ventilation.
+En cas de conflit, ou pour placer l'équipement dans un autre groupe de
+ventilation que celui déterminé automatiquement, vous devez utiliser l'attribut
+*ventilation* de la balise *host* afin de spécifier manuellement le groupe de
+ventilation à utiliser.
 
 Remarques
 ^^^^^^^^^
@@ -574,26 +602,7 @@ Exemple::
 
 Balise "``nagios``"
 ^^^^^^^^^^^^^^^^^^^
-Un bloc de données ``nagios`` contient des blocs ``directive`` avec un attribut
-appartenant à la liste suivante:
-
-- ``max_check_attempts``
-- ``check_interval``
-- ``retry_interval``
-
-Cette liste est un sous-ensemble des directives "``host``" de Nagios. La
-documentation sur ces directives est disponible dans `la documentation Nagios
-<http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#host>`_.
-Exemple::
-
-    <nagios>
-      <directive name="max_check_attempts">5</directive>
-      <directive name="check_interval>10</directive>
-      <directive name="retry_interval>1</directive>
-    </nagios>
-
-Remarque : Un bloc ``nagios`` peut se trouver au sein d'un bloc
-``hosttemplate`` ou d'un bloc ``test``. 
+Voir la définition utilisée pour la balise ``host`` : :ref:`nagiostag`.
 
 Balise "``item``"
 ^^^^^^^^^^^^^^^^^
