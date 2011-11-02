@@ -203,14 +203,6 @@ class HostTemplates(unittest.TestCase):
 
 
 
-    def test_add_nagios_service_directive(self):
-        """Test for the add_nagios_service_directive method"""
-        self.tpl.add_nagios_service_directive("Interface eth1",
-                "retry_interval", "10")
-        tpldata = self.hosttemplatefactory.templates["testtpl1"]
-        self.assertEquals(tpldata["nagiosSrvDirs"]["Interface eth1"]
-                          ["retry_interval"], "10")
-
     def test_nagiosdirs_apply_on_host(self):
         self.tpl.add_nagios_directive("retry_interval", "8")
         self.hosttemplatefactory.apply(self.host, "testtpl1")
@@ -220,12 +212,14 @@ class HostTemplates(unittest.TestCase):
                           "retry_interval=8")
 
     def test_nagios_srvdirs_apply_on_host(self):
-        self.tpl.add_nagios_service_directive("Interface eth0", "retry_interval", "6")
+        """Nagios directives for tests"""
+        self.tpl.add_test("UpTime", directives={"testdir": "testdirvalue"})
         self.hosttemplatefactory.apply(self.host, "testtpl1")
-        testserver1 = conf.hostsConf['testserver1']
-        nagiosdirs = testserver1.get('nagiosSrvDirs')
-        self.assertEquals(nagiosdirs['Interface eth0']['retry_interval'], "6",
-                          "retry_interval=6")
+        ndirs = conf.hostsConf["testserver1"]["nagiosSrvDirs"]
+        self.assertTrue("UpTime" in ndirs)
+        self.assertTrue("testdir" in ndirs["UpTime"])
+        self.assertEqual(ndirs["UpTime"]["testdir"], "testdirvalue")
+
 
     def test_nonexistant_test(self):
         """

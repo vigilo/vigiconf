@@ -225,13 +225,14 @@ class HostMethods(unittest.TestCase):
         nagios_dirs = conf.hostsConf["testserver2"]["nagiosDirectives"]
         self.assertEquals(nagios_dirs["max_check_attempts"], "5")
 
-    def test_add_nagios_service_directive(self):
-        """Test for the add_nagios_service_directive method"""
-        host = Host(conf.hostsConf, "dummy", u"testserver2",
-                    u"192.168.1.2", "Servers")
-        host.add_nagios_service_directive("Interface", "retry_interval", "10")
-        nsd = conf.hostsConf["testserver2"]["nagiosSrvDirs"]
-        self.assertEquals(nsd["Interface"]["retry_interval"], "10")
+    def test_add_nagios_service_directive_INTF(self):
+        """Nagios directives for tests"""
+        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"},
+                            directives={"testdirective": "testdirvalue"})
+        nsd = conf.hostsConf["testserver1"]["nagiosSrvDirs"]
+        self.assertEquals(nsd["Interface eth0"]["testdirective"],
+                          "testdirvalue")
 
 
 class HostFactoryMethods(unittest.TestCase):

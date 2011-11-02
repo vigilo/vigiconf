@@ -543,7 +543,7 @@ class Host(object):
         if directives is None:
             directives = {}
         for (dname, dvalue) in directives.iteritems():
-            self.add_nagios_service_directive(name, dname, dvalue)
+            self.add_sub(self.name, "nagiosSrvDirs", name, dname, dvalue)
 
         definition =  {'command': command,
                        'weight': weight,
@@ -576,7 +576,7 @@ class Host(object):
         if directives is None:
             directives = {}
         for (dname, dvalue) in directives.iteritems():
-            self.add_nagios_service_directive(name, dname, dvalue)
+            self.add_sub(self.name, "nagiosSrvDirs", name, dname, dvalue)
 
         definition =  {'type': stype,
                        'weight': weight,
@@ -681,17 +681,6 @@ class Host(object):
         """
         self.add(self.name, "nagiosDirectives", name, str(value))
 
-    def add_nagios_service_directive(self, service, name, value):
-        """ Add a generic nagios directive for a service
-
-            @param service: the service, ie 'Interface eth0'
-            @type  service: C{str}
-            @param name: the directive name
-            @type  name: C{str}
-            @param value: the directive value
-            @type  value: C{str}
-        """
-        self.add_sub(self.name, "nagiosSrvDirs", service, name, value)
 
 
 class HostFactory(object):
@@ -799,6 +788,7 @@ class HostFactory(object):
 
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}
+        @todo: mettre en commun avec le parsing dans hosttemplate.py
         """
         test_name = None
         cur_host = None

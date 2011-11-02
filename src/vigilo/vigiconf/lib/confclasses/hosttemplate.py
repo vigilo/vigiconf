@@ -58,7 +58,6 @@ class HostTemplate(object):
                 "attributes": {},
                 "weight": 1,
                 "nagiosDirectives": {},
-                "nagiosSrvDirs": {},
             }
         self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
@@ -88,16 +87,20 @@ class HostTemplate(object):
             p = [ p, ]
         self.data["parent"].extend(p)
 
-    def add_test(self, testname, args=None, weight=None):
+    def add_test(self, testname, args=None, weight=None, directives=None):
         """
         Add a test to this host template
         @param testname: the test name
         @type  testname: C{str}
         @param args: the test arguments
         @type  args: C{dict}
+        @param directives: associated Nagios directives
+        @type  directives: C{dict}
         """
         if args is None:
             args = {}
+        if directives is None:
+            directives = {}
         if not self.data.has_key("tests"):
             self.data["tests"] = []
         t_dict = {"name": testname}
@@ -106,6 +109,7 @@ class HostTemplate(object):
         if weight is None:
             weight = 1
         t_dict["weight"] = weight
+        t_dict["directives"] = directives
         self.data["tests"].append(t_dict)
 
     def add_group(self, *args):
@@ -202,17 +206,6 @@ class HostTemplate(object):
         """
         self.add("nagiosDirectives", name, value)
 
-    def add_nagios_service_directive(self, service, name, value):
-        """ Add a generic nagios directive for a service
-
-            @param service: the service, ie 'Interface eth0'
-            @type  service: C{str}
-            @param name: the directive name
-            @type  name: C{str}
-            @param value: the directive value
-            @type  value: C{str}
-        """
-        self.add_sub("nagiosSrvDirs", service, name, value)
 
 
 class HostTemplateFactory(object):
@@ -324,9 +317,11 @@ class HostTemplateFactory(object):
         Load a template from XML
         @param source: an XML file (or stream)
         @type  source: C{str} or C{file}
+        @todo: mettre en commun avec le parsing dans host.py
         """
         test_name = None
         cur_tpl = None
+        test_directives = {}
         process_nagios = False
 
         for event, elem in etree.iterparse(source, events=("start", "end")):
@@ -337,20 +332,12 @@ class HostTemplateFactory(object):
                     name = get_attrib(elem, 'name')
                     cur_tpl = HostTemplate(name)
 
-                elif elem.tag == "test":
-                    test_name = get_attrib(elem, 'name')
-
-                    for arg in elem.getchildren():
-                        if arg.tag != 'arg':
-                            continue
-                        tname = get_attrib(arg, 'name')
-                        if tname == "label":
-                            test_name = "%s %s" % (test_name, get_text(arg))
-                            break
-
                 elif elem.tag == "nagios":
                     process_nagios = True
 
+                elif elem.tag == "test":
+                    test_name = get_attrib(elem, "name")
+                    test_directives = {}
 
             else: # Évenement de type "end"
                 if elem.tag == "force-passive":
@@ -365,19 +352,16 @@ class HostTemplateFactory(object):
                 elif elem.tag == "directive":
                     if not process_nagios:
                         continue
-
                     dvalue = get_text(elem).strip()
                     dname = get_attrib(elem, 'name').strip()
                     if not dname:
                         continue
-
+                    # directive nagios
                     if test_name is None:
-                        # directive host nagios
                         cur_tpl.add_nagios_directive(dname, dvalue)
                     else:
-                        # directive de service nagios
-                        cur_tpl.add_nagios_service_directive(test_name, dname,
-                                                             dvalue)
+                        test_directives[dname] = dvalue
+
 
                 elif elem.tag == "attribute":
                     value = get_text(elem)
@@ -410,7 +394,8 @@ class HostTemplateFactory(object):
                         if arg.tag != "arg":
                             continue
                         args[get_attrib(arg, 'name')] = get_text(arg)
-                    cur_tpl.add_test(test_name, args, test_weight)
+                    cur_tpl.add_test(test_name, args, test_weight,
+                                     test_directives)
                     test_name = None
 
                 elif elem.tag == "nagios":
@@ -496,8 +481,6 @@ class HostTemplateFactory(object):
                 self.templates[tplname]["weight"] = self.templates[p]["weight"]
                 self.templates[tplname]["nagiosDirectives"].update(
                                     self.templates[p]["nagiosDirectives"])
-                self.templates[tplname]["nagiosSrvDirs"].update(
-                                    self.templates[p]["nagiosSrvDirs"])
             # Finally, re-add the template-specific data
             self.templates[tplname]["groups"].extend(
                             templates_save[tplname]["groups"])
@@ -511,8 +494,6 @@ class HostTemplateFactory(object):
                             templates_save[tplname]["weight"]
             self.templates[tplname]["nagiosDirectives"].update(
                             templates_save[tplname]["nagiosDirectives"])
-            self.templates[tplname]["nagiosSrvDirs"].update(
-                            templates_save[tplname]["nagiosSrvDirs"])
             # Copy the parent list back too, it's not used except by unit tests
             self.templates[tplname]["parent"].extend(
                             templates_save[tplname]["parent"])
@@ -540,11 +521,6 @@ class HostTemplateFactory(object):
         if tpl.has_key("nagiosDirectives"):
             for name, value in tpl["nagiosDirectives"].iteritems():
                 host.add_nagios_directive(name, value)
-
-        if tpl.has_key("nagiosSrvDirs"):
-            for srv, data in tpl["nagiosSrvDirs"].iteritems():
-                for name, value in data.iteritems():
-                    host.add_nagios_service_directive(srv, name, value)
         # class
         if tpl.has_key("classes"):
             for class_ in tpl["classes"]:
@@ -573,8 +549,8 @@ class HostTemplateFactory(object):
                 if "weight" in testdict and testdict["weight"] is not None \
                             and testdict["weight"] != 1:
                     test_weight = testdict["weight"]
-                host.add_tests(test_list, args=test_args,
-                               weight=test_weight)
+                host.add_tests(test_list, args=test_args, weight=test_weight,
+                               directives=testdict["directives"])
 
         # weight
         if "weight" in tpl and tpl["weight"] is not None and tpl["weight"] != 1:
