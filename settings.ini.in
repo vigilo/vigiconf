@@ -37,7 +37,6 @@ simulate = False
 [database]
 sqlalchemy_url = postgres://vigilo:vigilo@127.0.0.1/vigilo
 db_basename = vigilo_
-external_auth = False
 
 ; affichage des requetes SQL (debug)
 ;sqlalchemy_echo = false
