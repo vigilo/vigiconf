@@ -435,7 +435,7 @@ la supervision, voire entrainer un dysfonctionnement.  L'utilisation des
 directives est donc à laisser à des utilisateurs avertis.
 
 Un bloc ``nagios`` peut se trouver au sein d'un bloc ``host``/``hosttemplate``
-ou d'un bloc ``test``. 
+ou d'un bloc ``test``.
 
 Si la même directive est défini deux fois, la dernière valeur est celle qui
 sera utilisée.
@@ -769,13 +769,15 @@ Un bloc de données ``hlservice`` possède un attribut: ``name``.
 
 Un bloc de données ``hlservice`` contient les blocs de données suivants, dans l'ordre :
 
-- message (1 exactement) 
-- warning_threshold (1 exactement) 
-- critical_threshold (1 exactement) 
-- priority value (1 exactement) 
-- operator value (1 exactement)
+- message (1 exactement)
+- warning_threshold (1 exactement)
+- critical_threshold (1 exactement)
+- unknown_priority (0 ou 1 exactement)
+- warning_priority (0 ou 1 exactement)
+- critical_priority (0 ou 1 exactement)
+- operator (1 exactement)
 - group (0 ou plus)
-- depends (0 ou plus) 
+- depends (0 ou plus)
 
 Exemple::
 
@@ -783,7 +785,9 @@ Exemple::
       <message>Message à afficher</message>
       <warning_threshold>20</warning_threshold>
       <critical_threshold>10</critical_threshold>
-      <priority>5</priority>
+      <unknown_priority>8</unknown_priority>
+      <warning_priority>6</warning_priority>
+      <critical_priority>10</critical_priority>
       <operator>PLUS</operator>
       <group>hlsgroup1</group>
       <group>hlsgroup2</group>
@@ -808,6 +812,7 @@ Vous pouvez également utiliser l'une des variables de substitution suivante :
 
 %(priority)d
     La priorité des alertes qui impactent ce service de haut niveau, sous forme d'entier.
+
 %(weight)r
     Le poids courant associé a service de haut niveau sous forme d'entier ou
     "``None``" s'il est inconnu.
@@ -845,12 +850,44 @@ Exemple::
 
     <critical_threshold>1</critical_threshold>
 
-Balise "``priority``"
-^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``priority`` contient un entier, correspondant à la priorité
-associée aux alertes qui impactent ce service de haut niveau. Exemple::
+Balise "``unknown_priority``"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Le bloc de données ``unknown_priority`` contient un entier, correspondant
+à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
+l'état ``UNKNOWN``.
+Exemple::
 
-    <priority>4<priority/>
+    <unknown_priority>4<unknown_priority/>
+
+Cette valeur est utilisée pour déterminer la priorités des alertes et
+influencer l'ordre d'apparition des alertes dans le bac à événements
+(VigiBoard).
+
+Balise "``warning_priority``"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Le bloc de données ``unknown_priority`` contient un entier, correspondant
+à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
+l'état ``WARNING``.
+Exemple::
+
+    <warning_priority>4<warning_priority/>
+
+Cette valeur est utilisée pour déterminer la priorités des alertes et
+influencer l'ordre d'apparition des alertes dans le bac à événements
+(VigiBoard).
+
+Balise "``critical_priority``"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Le bloc de données ``unknown_priority`` contient un entier, correspondant
+à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
+l'état ``CRITICAL``.
+Exemple::
+
+    <critical_priority>4<critical_priority/>
+
+Cette valeur est utilisée pour déterminer la priorités des alertes et
+influencer l'ordre d'apparition des alertes dans le bac à événements
+(VigiBoard).
 
 Balise "``operator``"
 ^^^^^^^^^^^^^^^^^^^^^
