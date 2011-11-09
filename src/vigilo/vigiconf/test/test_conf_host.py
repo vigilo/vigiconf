@@ -15,6 +15,7 @@ from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplateFactory
 from vigilo.vigiconf.lib.confclasses.host import HostFactory
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
+from vigilo.vigiconf.lib.exceptions import ParsingError
 
 from helpers import setup_db, teardown_db, setup_tmpdir, TESTDATADIR
 
@@ -98,6 +99,42 @@ class HostMethods(unittest.TestCase):
                 'factor': 8,
             }
         )
+
+    def test_invalid_INTF_admin_value(self):
+        """Valeurs autorisées pour le paramètre 'admin' du test Interface."""
+        test_list = self.testfactory.get_test("Interface", self.host.classes)
+
+        # Les valeurs i/w/c doivent être acceptées.
+        for value in ('i', 'w', 'c'):
+            self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0",
+                                            "admin": value})
+            self.assertEqual(
+                conf.hostsConf["testserver1"]["SNMPJobs"]\
+                    [ ("Interface eth0", "service") ]['params'],
+                # 'c' correspond à la valeur par défaut de "dormant".
+                ['eth0', 'eth0', value, 'c'])
+
+        # Les autres valeurs doivent être rejetées.
+        self.assertRaises(ParsingError, self.host.add_tests,
+            test_list, {"label":"eth0", "ifname":"eth0", "admin": ''})
+
+    def test_invalid_INTF_dormant_value(self):
+        """Valeurs autorisées pour le paramètre 'dormant' du test Interface."""
+        test_list = self.testfactory.get_test("Interface", self.host.classes)
+
+        # Les valeurs i/w/c doivent être acceptées.
+        for value in ('i', 'w', 'c'):
+            self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0",
+                                            "dormant": value})
+            self.assertEqual(
+                conf.hostsConf["testserver1"]["SNMPJobs"]\
+                    [ ("Interface eth0", "service") ]['params'],
+                # 'i' correspond à la valeur par défaut de "admin".
+                ['eth0', 'eth0', 'i', value])
+
+        # Les autres valeurs doivent être rejetées.
+        self.assertRaises(ParsingError, self.host.add_tests,
+            test_list, {"label":"eth0", "ifname":"eth0", "dormant": ''})
 
     def test_add_tag_hosts(self):
         """Test for the add_tag method on hosts"""
@@ -299,4 +336,3 @@ class HostFactoryMethods(unittest.TestCase):
                           "10")
         self.assertEquals(nagios_sdirs['Interface eth0']['retry_interval'],
                           "1")
-

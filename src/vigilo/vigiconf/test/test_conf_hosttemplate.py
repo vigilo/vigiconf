@@ -48,7 +48,7 @@ class HostTemplates(unittest.TestCase):
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertTrue(conf.hostsConf["testserver1"]["SNMPJobs"]
                 [('Interface Loopback', 'service')]["params"]
-                == ["lo", "Loopback", "i"],
+                == ["lo", "Loopback", "i", "c"],
                 "add_test does not work with test args")
 
     def test_add_group_simple(self):
@@ -260,4 +260,3 @@ class HostTemplates(unittest.TestCase):
                 "inheritance does not work with attributes force-passive")
         self.assertEqual(tpldata["attributes"]["force-passive"], "True",
                 "inheritance does not work with attributes force-passive")
-

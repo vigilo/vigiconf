@@ -5,7 +5,9 @@
 
 import re # for the detect_snmp function
 from vigilo.vigiconf.lib.confclasses.test import Test
-
+from vigilo.vigiconf.lib.exceptions import ParsingError
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
 
 class Interface(Test):
@@ -15,7 +17,7 @@ class Interface(Test):
 
     def add_test(self, host, label, ifname, max=None,
                  errors=True, staticindex=False, warn=None, crit=None,
-                 counter32=False, teststate=True ):
+                 counter32=False, teststate=True, admin="i", dormant="c" ):
         """
         The parameters L{warn} and L{crit} must be tuples in the form of
         strings separated by commas, for example: C{max_in,max_out} (in
@@ -41,7 +43,18 @@ class Interface(Test):
         @param counter32: to use Counter32bits specifically for this interface.
         @param teststate: Used to deactivate the interface state control. (When
             you only need statistics.)
-
+        @param admin: Indique l'état à retourner pour une interface
+            marquée comme "désactivée par l'administrateur". Les valeurs
+            possibles sont "i" (ignorer / l'interface est vue comme étant
+            dans l'état "OK"), "w" (l'interface est vue comme étant dans
+            l'état "WARNING") ou bien "c" (l'interface est vue comme étant
+            dans l'état "CRITICAL"). La valeur par défaut est "i".
+        @param dormant: Indique l'état à retourner pour une interface
+            marquée comme "dormante". Les valeurs possibles sont "i"
+            (ignorer / l'interface est vue comme étant dans l'état "OK"),
+            "w" (l'interface est vue comme étant dans l'état "WARNING")
+            ou bien "c" (l'interface est vue comme étant dans l'état
+            "CRITICAL"). La valeur par défaut est "c".
         """
         snmp_oids = {
             # using by default High Capacity (64Bits) COUNTER for in and out
@@ -61,6 +74,24 @@ class Interface(Test):
                 "inErrs": "Input errors",
                 "outErrs": "Output errors",
                 }
+
+        special_states = ('i', 'w', 'c')
+
+        if admin not in special_states:
+            raise ParsingError(_('Invalid value "%(value)s" for %(param)s. '
+                                 'Expected one of: %(candidates)s.') % {
+                                     'value': admin,
+                                     'param': 'admin',
+                                     'candidates': ', '.join(special_states),
+                                })
+
+        if dormant not in special_states:
+            raise ParsingError(_('Invalid value "%(value)s" for %(param)s. '
+                                 'Expected one of: %(candidates)s.') % {
+                                     'value': dormant,
+                                     'param': 'dormant',
+                                     'candidates': ', '.join(special_states),
+                                })
 
         HCIf = host.get_attribute("DisableHighCapacityInterface", True)
         if HCIf is not True or counter32 is not False:
@@ -96,7 +127,7 @@ class Interface(Test):
 
         if teststate is True:
             host.add_collector_service("Interface %s" % label, collector_function,
-                [ifname, label, "i"],
+                [ifname, label, admin, dormant],
                 ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
                  "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
                 weight=self.weight, directives=self.directives)

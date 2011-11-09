@@ -40,7 +40,7 @@ _ = translate(__name__)
 # l'utiliser dans les tests de supervision (cf. #723).
 # Ceci est nécessaire tant que execfile() est utilisé pour
 # charger les tests de supervision (voir aussi le ticket #219).
-from vigilo.vigiconf.lib import VigiConfError
+from vigilo.vigiconf.lib import VigiConfError, ParsingError
 
 class Test(object):
     """
@@ -349,5 +349,3 @@ class TestFactory(object):
                 if "__doc__" in hccheck:
                     del hccheck["__doc__"] # small cleanup
                 self.hclasschecks[hclass] = hccheck
-
-
