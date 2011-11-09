@@ -23,6 +23,8 @@ class Interface(Test):
 
         If warn and crit contain 4 or 6 values, the next values will be applied
         in order to Discards and Errors if they are not None.
+        Please note that sub-interfaces (VLANs) do not support SNMP queries
+        for the discard and error counters.
 
         @param host: the Host object to add the test to
         @param label: Label to display
@@ -118,6 +120,7 @@ class Interface(Test):
             if warn[1] and crit[1]:
                 host.add_metro_service("Traffic out %s"%label, "out"+label,
                                        warn[1], crit[1], 8, weight=self.weight)
+
             if len(warn) >= 4 and len(crit) >= 4:
                 if warn[2] and crit[2]:
                     host.add_metro_service("Discards in %s"%label, "inDisc"+label,
@@ -125,6 +128,7 @@ class Interface(Test):
                 if warn[3] and crit[3]:
                     host.add_metro_service("Discards out %s"%label, "outDisc"+label,
                                            warn[3], crit[3], 8, weight=self.weight)
+
                 if len(warn) == 6 and len(crit) == 6 and errors:
                     if warn[4] and crit[4]:
                         host.add_metro_service("Errors in %s"%label, "inErrs"+label,
@@ -145,10 +149,11 @@ class Interface(Test):
             # Select the types
             # 6   => ethernetCsmacd
             # 53  => propVirtual
+            # 135 => l2vlan
             # 136 => l3ipvlan
             # 22 => propPointToPointSerial
             # 23 => ppp
-            allowed_types = [ "6", "22", "23", "53", "136" ]
+            allowed_types = [ "6", "22", "23", "53", "135", "136" ]
             if oids[oid] not in allowed_types:
                 continue
             # Extract the SNMP id
