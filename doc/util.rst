@@ -370,18 +370,16 @@ avec VigiConf. Par défaut, les attributs suivants sont disponibles :
   sur l'équipement ;
 - "``cpulist``" : la liste des identifiants des processeurs sur
   l'équipement ;
-- "``snmpCommunity``" : la communauté pour l'accès SNMP à l'équipement (pour
-  assurer la rétro-compatibilité, "``community``" est également utilisable mais
-  émettra un avertissement).
+- "``snmpCommunity``" : la communauté pour l'accès SNMP à l'équipement ;
 - "``snmpVersion``" : la version SNMP à utiliser (par défaut, la version 2 est
-  utilisée).
+  utilisée) ;
 - "``snmpPort``" : le port SNMP à utiliser (par défaut, le port 161 est
-  utilisé).
+  utilisé) ;
 - "``oxe_login``": le nom d'utilisateur permettant de se connecter en Telnet à
-  l'hôte.
+  l'hôte ;
 - "``oxe_password``": le mot de passe allant de pair avec le nom d'utilisateur
-  permettant de se connecter en Telnet à l'hôte.
-- "``timeout``": timeout utilisé lors de la connexion Telnet à l'hôte.
+  permettant de se connecter en Telnet à l'hôte ;
+- "``timeout``": délai d'attente utilisé lors de la connexion Telnet à l'hôte.
 
 Balise "``test``"
 ^^^^^^^^^^^^^^^^^
@@ -922,8 +920,8 @@ haut niveau appartient. Exemple::
 
     <group>hlsgroup1</group>
 
-Balise "``group``"
-^^^^^^^^^^^^^^^^^^
+Balise "``depends``"
+^^^^^^^^^^^^^^^^^^^^
 Le bloc de données ``depends`` correspond à la description d'une dépendance de
 ce service de haut niveau. Il possède deux attributs :
 
@@ -1155,26 +1153,37 @@ Affichage des informations
 L'affichage des informations concernant la configuration actuelle se fait en
 exécutant la commande "``vigiconf info``".
 
-La commande renvoie deux séries d'informations, comme dans l'exemple
+La commande renvoie plusieurs informations, comme dans l'exemple
 d'exécution suivant::
 
-    Révision actuelle dans le dépôt : 0
-    Révisions pour le serveur localhost : Revision<DEP : 0, INS : 0, PRE : 0>
+    VigiConf a été lancé depuis le compte 'root'. Utilisation du compte 'vigiconf' à la place.
+    Révision actuelle dans le dépôt : 358
+    Serveur supserver1.example.com:
+        déployé: 358
+        installé: 358
+        précédent: 358
+    Serveur supserver2.example.com:
+        déployé: 358
+        installé: 358
+        précédent: 358
+        DÉSACTIVÉ
+    VigiConf se termine
 
-La première ligne affiche le numéro de la révision courante dans le dépôt
-assurant la gestion de la configuration. Il s'agit donc du numéro de la
-dernière modification effectuée, tous fichiers confondus.
+La révision actuelle correspond à la dernière version de la configuration
+validée sur la machine qui héberge VigiConf.
 
 Les lignes suivantes affichent, pour chaque serveur de supervision : son nom,
-ainsi que les numéros de la révision déployée, installée et de la précédente
-révision.
+éventuellement son état (lorsque le serveur est désactivé), ainsi que les
+numéros de la révision de la configuration actuellement déployée (donc en
+production), de la dernière révision installée et de la précédente révision
+installée.
 
 Vous pouvez préciser les noms des serveurs de supervision dont les informations
 doivent être affichés en passant simplement leur nom comme argument de la
 commande.
 
-**Note :** toutes les valeurs sont à 0 lors d'une nouvelle installation (pas
-encore d'éléments configurés).
+**Note :** toutes les valeurs sont à 0 lors d'une nouvelle installation (car
+aucun des serveurs n'a encore été configuré).
 
 Déploiement de la configuration
 -------------------------------
@@ -1238,7 +1247,9 @@ présente le résultat d'une telle analyse::
     </host>
 
 Le résultat de cette commande peut être enregistré directement dans un fichier
-de configuration XML afin d'être relu ensuite par VigiConf.
+de configuration XML afin d'être lu ensuite par VigiConf en utilisant l'option
+"``-o``" suivie de l'emplacement du fichier dans lequel le résultat doit être
+sauvegardé.
 
 La découverte peut-être limitée à un test en particulier via l'option "``-t``".
 
@@ -1277,7 +1288,7 @@ VigiConf n'a pas été lancé en utilisant le compte 'vigiconf'. Abandon.
 
 VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilisation du compte 'vigiconf' à la place.
     Ce message d'avertissement est affiché lorsque VigiConf est exécuté depuis
-    le compte 'root'.
+    le compte "``root``".
 
 Exemples de configuration d'hôtes
 ---------------------------------
