@@ -24,10 +24,8 @@ Ce module contient l'interface ligne de commande de VigiConf
 
 from __future__ import absolute_import
 
-import fcntl
 import sys
 import os
-import atexit
 import textwrap
 import argparse
 import gettext
@@ -46,6 +44,7 @@ from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
 N_ = translate_narrow(__name__)
 
+from vigilo.common.lock import grab_lock
 from vigilo.common.conf import setup_plugins_path
 setup_plugins_path(settings["vigiconf"].get("pluginsdir",
                    "/etc/vigilo/vigiconf/plugins"))
@@ -417,39 +416,6 @@ def change_user(username="vigiconf"):
                        "Aborting."), username)
         sys.exit(2)
 
-def delete_lock(f):
-    """
-    Supprime le verrou posé par VigiConf lors de son démarrage
-    lorsque l'application se termine.
-
-    @param f: Descripteur de fichier représentant le verrou.
-    """
-    LOGGER.debug("Removing the lock.")
-    fcntl.flock(f, fcntl.LOCK_UN)
-
-def grab_lock():
-    """
-    Ajoute un verrou pour empêcher l'exécution simultanée
-    de plusieurs instances de VigiConf.
-
-    @note: Le verrou ainsi posé est automatiquement détruit
-        lorsque l'exécution de VigiConf se termine.
-    """
-    f = open(settings["vigiconf"].get("lockfile",
-        "/var/lock/vigilo-vigiconf/vigiconf.token"),'a+')
-    try:
-        LOGGER.debug("Acquiring the lock.")
-        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except IOError, e:
-        LOGGER.error(_("Can't obtain lock on lockfile (%(lockfile)s). "
-                       "VigiConf already running ? REASON : %(error)s"),
-                     { 'lockfile': f.name, 'error': e })
-        sys.exit(1)
-
-    # On veut être sûr que le verrou sera supprimé
-    # à l'arrêt de vigiconf.
-    atexit.register(delete_lock, f)
-
 def main():
     # Évite des problèmes d'accès aux fichiers ensuite
     # sur les machines durcies avec un UMASK en 077 (#324).
@@ -474,7 +440,9 @@ def main():
     LOGGER.debug("VigiConf starting...")
 
     if args.func != discover:
-        grab_lock()
+        lockfile = settings["vigiconf"].get("lockfile",
+                            "/var/lock/vigilo-vigiconf/vigiconf.token")
+        grab_lock(lockfile)
 
     try:
         args.func(args)
