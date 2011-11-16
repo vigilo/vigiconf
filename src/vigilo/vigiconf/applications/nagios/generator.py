@@ -25,6 +25,8 @@ from vigilo.common.conf import settings
 
 import os.path
 
+import networkx as nx
+
 from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.generators import FileGenerator
 
@@ -44,6 +46,7 @@ class NagiosGen(FileGenerator):
     def generate(self):
         # pylint: disable-msg=W0201
         self._files = {}
+        self._graph = None
         super(NagiosGen, self).generate()
 
     def generate_host(self, hostname, vserver):
@@ -70,9 +73,9 @@ class NagiosGen(FileGenerator):
         else:
             newhash["notification_period"] = ""
         # Dependencies
-        parents = self.__getdeps(hostname)
+        parents = self._getdeps(hostname)
         if parents:
-            newhash['parents'] = "	parents    "+",".join(parents)
+            newhash['parents'] = "parents" + " "*17 + ",".join(parents)
         else:
             newhash['parents'] = ""
 
@@ -162,33 +165,62 @@ class NagiosGen(FileGenerator):
             newhash['hostGroups'] = "# no hostgroups defined"
         newhash['quietOrNot'] = ""
 
-    def __getdeps(self, hostname):
-        """Extract the parents list"""
-        host1 = aliased(Host)
-        host2 = aliased(Host)
+    def _build_topology(self):
+        """
+        Construit la topologie dans un graphe NetworkX, accessible par
+        self.L{_graph}.
+        """
+        self._graph = nx.DiGraph()
+
+        # On récupère dans la BDD la liste des dépendances.
+        # note: l'argument alias évite la création d'une sous-requête inutile
+        host1 = aliased(Host, alias=Host.__table__.alias())
+        host2 = aliased(Host, alias=Host.__table__.alias())
+        dependencies = DBSession.query(
+                            host1.name.label("host1"),
+                            host2.name.label("host2"),
+                            VigiloServer.name.label("vserver"),
+                        ).join(
+                            (Dependency, Dependency.idsupitem == host1.idhost),
+                            (DependencyGroup, DependencyGroup.idgroup ==
+                                Dependency.idgroup),
+                            (host2, host2.idhost == DependencyGroup.iddependent),
+                            (Ventilation, Ventilation.idhost ==
+                                Dependency.idsupitem),
+                            (VigiloServer, VigiloServer.idvigiloserver ==
+                                Ventilation.idvigiloserver),
+                            (Application, Application.idapp ==
+                                Ventilation.idapp),
+                        ).filter(DependencyGroup.role == u'topology'
+                        ).filter(Application.name == u'nagios'
+                        ).all()
+
+        # On ajoute ces dépendances dans le graphe en tant qu'arcs.
+        for dependency in dependencies:
+            self._graph.add_edge(dependency.host1, dependency.host2,
+                                 vserver=dependency.vserver)
+
+
+    def _getdeps(self, hostname):
+        """
+        @param hostname: hôte à considérer
+        @type  hostname: C{str}
+        @return: Parents topologiques de l'hôte
+        @rtype: C{list}
+        """
+        if self._graph is None:
+            self._build_topology()
+
+        if hostname not in self._graph.node:
+            return []
 
         vserver = self.ventilation[hostname]["nagios"]
         if isinstance(vserver, list):
             vserver = vserver[0]
 
-        # On cherche tous les parents définis dans la topologie
-        # qui sont des hôtes ventilés sur le même serveur Nagios.
-        parents = DBSession.query(
-            host1.name
-        ).distinct(
-        ).join(
-            (Ventilation, Ventilation.idhost == host1.idhost),
-            (VigiloServer, VigiloServer.idvigiloserver == Ventilation.idvigiloserver),
-            (Application, Application.idapp == Ventilation.idapp),
-            (Dependency, Dependency.idsupitem == host1.idhost),
-            (DependencyGroup, DependencyGroup.idgroup == Dependency.idgroup),
-            (host2, host2.idhost == DependencyGroup.iddependent),
-        ).filter(Application.name == u'nagios'
-        ).filter(DependencyGroup.role == u'topology'
-        ).filter(VigiloServer.name == unicode(vserver)
-        ).filter(host2.name == unicode(hostname)
-        ).all()
-        return [p.name for p in parents]
+        deps = [ p for p in self._graph.predecessors(hostname)
+                 if self._graph.edge[p][hostname]["vserver"] == vserver ]
+        return deps
 
     def __fillservices(self, hostname, newhash):
         """Fill the services section in the configuration file"""

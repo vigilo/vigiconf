@@ -6,6 +6,7 @@ import os
 import sys
 import shutil
 import tempfile
+import stat
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -41,6 +42,10 @@ def setup_path(subdir=None):
 def setup_tmpdir():
     """Prepare the temporary directory"""
     tmpdir = tempfile.mkdtemp(prefix="tests-vigiconf-")
+    mode755 = (stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+               stat.S_IRGRP | stat.S_IXGRP |
+               stat.S_IROTH | stat.S_IXOTH)
+    os.chmod(tmpdir, mode755) # accès utilisateur nagios
     settings["vigiconf"]["libdir"] = tmpdir
     conf.LIBDIR = tmpdir
     return tmpdir

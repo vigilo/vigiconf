@@ -18,6 +18,7 @@ install_requires=[
     "lxml",
     "vigilo-common",
     "vigilo-models",
+    "networkx",
     ]
 if tuple(python_version_tuple()) < ('2', '6'):
     install_requires.append("multiprocessing")

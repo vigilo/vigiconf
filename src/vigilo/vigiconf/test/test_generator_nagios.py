@@ -172,5 +172,5 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
                      "Nagios conf file was not generated")
         nagiosconf = open(nagiosconffile).read()
         print nagiosconf
-        self.assertTrue("parents    testserver2" in nagiosconf,
-            "nagios generator generates did not add the proper parents")
+        self.assertTrue(re.search("^\s*parents\s+testserver2\s*$",
+                        nagiosconf, re.M))
