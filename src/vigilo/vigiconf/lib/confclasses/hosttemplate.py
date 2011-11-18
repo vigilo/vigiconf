@@ -57,7 +57,10 @@ class HostTemplate(object):
                 "groups": [],
                 "attributes": {},
                 "weight": 1,
-                "nagiosDirectives": {},
+                "nagiosDirectives": {
+                    "host": {},
+                    "services": {},
+                },
             }
         self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
@@ -196,15 +199,19 @@ class HostTemplate(object):
             self.data[prop][subprop] = {}
         self.data[prop][subprop].update({key: value})
 
-    def add_nagios_directive(self, name, value):
+    def add_nagios_directive(self, name, value, target="host"):
         """ Add a generic nagios directive
 
             @param name: the directive name
             @type  name: C{str}
             @param value: the directive value
             @type  value: C{str}
+            @param target: the directive target (ie: where does it apply)
+            @type target: C{str}
         """
-        self.add("nagiosDirectives", name, value)
+        if target is None:
+            target = "host"
+        self.add_sub("nagiosDirectives", target, name, value)
 
 
 
@@ -352,15 +359,23 @@ class HostTemplateFactory(object):
                 elif elem.tag == "directive":
                     if not process_nagios:
                         continue
-                    dvalue = get_text(elem).strip()
                     dname = get_attrib(elem, 'name').strip()
                     if not dname:
                         continue
-                    # directive nagios
+
+                    dtarget = get_attrib(elem, 'target')
+                    if dtarget is not None:
+                        dtarget= dtarget.strip()
+                    dvalue = get_text(elem).strip()
+
+                    # directive nagios générique pour un hôte ou sur
+                    # l'ensemble des services (suivant la target)
                     if test_name is None:
-                        cur_tpl.add_nagios_directive(dname, dvalue)
-                    else:
-                        test_directives[dname] = dvalue
+                        cur_tpl.add_nagios_directive(dname, dvalue, target=dtarget)
+                        continue
+
+                    # directive nagios spécifique à un service
+                    test_directives[dname] = dvalue
 
 
                 elif elem.tag == "attribute":
@@ -479,8 +494,12 @@ class HostTemplateFactory(object):
                 self.templates[tplname]["attributes"].update(
                                     self.templates[p]["attributes"])
                 self.templates[tplname]["weight"] = self.templates[p]["weight"]
-                self.templates[tplname]["nagiosDirectives"].update(
-                                    self.templates[p]["nagiosDirectives"])
+                for target in self.templates[p]["nagiosDirectives"]:
+                    if (target not in
+                                self.templates[tplname]["nagiosDirectives"]):
+                        self.templates[tplname]["nagiosDirectives"][target] = {}
+                    self.templates[tplname]["nagiosDirectives"][target].update(
+                                  self.templates[p]["nagiosDirectives"][target])
             # Finally, re-add the template-specific data
             self.templates[tplname]["groups"].extend(
                             templates_save[tplname]["groups"])
@@ -492,8 +511,10 @@ class HostTemplateFactory(object):
                             templates_save[tplname]["attributes"])
             self.templates[tplname]["weight"] = \
                             templates_save[tplname]["weight"]
-            self.templates[tplname]["nagiosDirectives"].update(
-                            templates_save[tplname]["nagiosDirectives"])
+            self.templates[tplname]["nagiosDirectives"]["host"].update(
+                            templates_save[tplname]["nagiosDirectives"]["host"])
+            self.templates[tplname]["nagiosDirectives"]["services"].update(
+                            templates_save[tplname]["nagiosDirectives"]["services"])
             # Copy the parent list back too, it's not used except by unit tests
             self.templates[tplname]["parent"].extend(
                             templates_save[tplname]["parent"])
@@ -518,9 +539,10 @@ class HostTemplateFactory(object):
                 host.add_group(group)
 
         # nagios generics
-        if tpl.has_key("nagiosDirectives"):
-            for name, value in tpl["nagiosDirectives"].iteritems():
-                host.add_nagios_directive(name, value)
+        for target in tpl["nagiosDirectives"]:
+            for name, value in tpl["nagiosDirectives"][target].iteritems():
+                host.add_nagios_directive(name, value, target=target)
+
         # class
         if tpl.has_key("classes"):
             for class_ in tpl["classes"]:

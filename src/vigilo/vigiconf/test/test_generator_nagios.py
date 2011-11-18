@@ -127,6 +127,21 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         self.assertTrue("check_interval    10" in nagiosconf)
         self.assertTrue("retry_interval    1" in nagiosconf)
 
+    def test_nagios_services_directives(self):
+        """Nagios: host directives"""
+        self.host.add_nagios_directive("obsess_over_service", "1", target="services")
+        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"},)
+        self._generate()
+        nagiosconffile = os.path.join(self.basedir, "localhost",
+                                      "nagios", "nagios.cfg")
+        self.assert_(os.path.exists(nagiosconffile),
+                     "Nagios conf file was not generated")
+        nagiosconf = open(nagiosconffile).read()
+        print nagiosconf
+
+        self.assertTrue("obsess_over_service    1" in nagiosconf)
+
     def test_nagios_service_directives_collector(self):
         """Nagios: service directives"""
         test_list = self.testfactory.get_test("Interface", self.host.classes)

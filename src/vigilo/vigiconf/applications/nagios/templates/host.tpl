@@ -8,6 +8,6 @@ define host{
     %(quietOrNot)s
     %(parents)s
     %(notification_period)s
-    %(generic_directives)s
+    %(generic_hdirectives)s
 }
 

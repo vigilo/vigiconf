@@ -178,6 +178,42 @@ class ParseHost(unittest.TestCase):
                 self.hostsConf["testserver1"]["tags"]["important"] == "2",
                 "The \"tag\" tag for hosts is not properly parsed")
 
+    def test_nagios_directive_host(self):
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <nagios>
+                <directive name="obsess_over_host">1</directive>
+            </nagios>
+            <test name="UpTime"/>
+            <group>/Servers</group>
+        </host>""")
+        self.host.close()
+        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
+        print self.hostsConf
+        self.assert_("host" in self.hostsConf["testserver1"]["nagiosDirectives"] and
+               "obsess_over_host" in self.hostsConf["testserver1"]["nagiosDirectives"]["host"] and
+                self.hostsConf["testserver1"]["nagiosDirectives"]["host"]["obsess_over_host"] == "1",
+                "The \"directive\" for hosts is not properly parsed")
+
+    def test_nagios_directive_service(self):
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <nagios>
+                <directive target="services" name="obsess_over_service">1</directive>
+            </nagios>
+            <test name="UpTime"/>
+            <group>/Servers</group>
+        </host>""")
+        self.host.close()
+        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
+        print self.hostsConf
+        self.assert_("host" in self.hostsConf["testserver1"]["nagiosDirectives"] and
+               "obsess_over_service" in self.hostsConf["testserver1"]["nagiosDirectives"]["services"] and
+                self.hostsConf["testserver1"]["nagiosDirectives"]["services"]["obsess_over_service"] == "1",
+                "The \"directive\" for services is not properly parsed")
+
     def test_tag_service(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">

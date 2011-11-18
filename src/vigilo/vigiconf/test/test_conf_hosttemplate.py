@@ -194,24 +194,34 @@ class HostTemplates(unittest.TestCase):
                 "parent to other templates")
 
 
-    def test_add_nagios_directive(self):
+    def test_add_nagios_hdirective(self):
         """Test for the add_nagios_directive method"""
         self.tpl.add_nagios_directive("max_check_attempts", "5")
         tpldata = self.hosttemplatefactory.templates["testtpl1"]
-        self.assertEquals(tpldata["nagiosDirectives"]["max_check_attempts"],
-                          "5")
+        self.assertEquals(
+                tpldata["nagiosDirectives"]["host"]["max_check_attempts"],
+                "5")
 
 
-
-    def test_nagiosdirs_apply_on_host(self):
+    def test_nagios_hdirs_apply_on_host(self):
         self.tpl.add_nagios_directive("retry_interval", "8")
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         testserver1 = conf.hostsConf['testserver1']
-        nagiosdirs = testserver1.get('nagiosDirectives')
-        self.assertEquals(nagiosdirs['retry_interval'], "8",
+        nagios_hdirs = testserver1.get('nagiosDirectives')["host"]
+        self.assertEquals(nagios_hdirs['retry_interval'], "8",
                           "retry_interval=8")
 
-    def test_nagios_srvdirs_apply_on_host(self):
+
+    def test_nagios_sdirs_apply_on_all_service(self):
+        """Nagios service directives for tests"""
+        self.tpl.add_nagios_directive("retry_interval", "8", target="services")
+        tpldata = self.hosttemplatefactory.templates["testtpl1"]
+        self.assertEquals(
+                tpldata["nagiosDirectives"]["services"]["retry_interval"],
+                "8")
+
+
+    def test_nagios_srvdirs_apply_on_service(self):
         """Nagios directives for tests"""
         self.tpl.add_test("UpTime", directives={"testdir": "testdirvalue"})
         self.hosttemplatefactory.apply(self.host, "testtpl1")

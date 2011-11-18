@@ -90,7 +90,10 @@ class Host(object):
                 "snmpCommunity"  : "public",
                 "snmpPort"       : 161,
                 "snmpOIDsPerPDU" : 10,
-                "nagiosDirectives": {},
+                "nagiosDirectives": {
+                    "host": {},
+                    "services": {},
+                },
                 "nagiosSrvDirs"  : {},
                 "weight"         : 1,
                 "force-passive"  : False,
@@ -671,15 +674,19 @@ class Host(object):
             target["tags"] = {}
         target["tags"][name] = value
 
-    def add_nagios_directive(self, name, value):
+    def add_nagios_directive(self, name, value, target="host"):
         """ Add a generic nagios directive
 
             @param name: the directive name
             @type  name: C{str}
             @param value: the directive value
             @type  value: C{str}
+            @param target: the directive target (ie: where does it apply)
+            @type target: C{str}
         """
-        self.add(self.name, "nagiosDirectives", name, str(value))
+        if target is None:
+            target = "host"
+        self.add_sub(self.name, "nagiosDirectives", target, name, str(value))
 
 
 
@@ -903,17 +910,23 @@ class HostFactory(object):
                 elif elem.tag == "directive":
                     if not process_nagios:
                         continue
-
-                    dvalue = get_text(elem).strip()
                     dname = get_attrib(elem, 'name').strip()
                     if not dname:
                         continue
 
-                    # directive nagios
+                    dtarget = get_attrib(elem, 'target')
+                    if dtarget is not None:
+                        dtarget= dtarget.strip()
+                    dvalue = get_text(elem).strip()
+
+                    # directive nagios générique pour un hôte ou sur
+                    # l'ensemble des services (suivant la target)
                     if test_name is None:
-                        directives[dname] = dvalue
-                    else:
-                        test_directives[dname] = dvalue
+                        cur_host.add_nagios_directive(dname, dvalue, target=dtarget)
+                        continue
+
+                    # directive nagios spécifique à un service
+                    test_directives[dname] = dvalue
 
                 elif elem.tag == "group":
                     group_name = get_text(elem)

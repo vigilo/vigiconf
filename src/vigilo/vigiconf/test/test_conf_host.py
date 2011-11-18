@@ -254,13 +254,21 @@ class HostMethods(unittest.TestCase):
             "add_collector_service ReRouting does not work with the "
             "SNMPJobs sub-hashmap")
 
-    def test_add_nagios_directive(self):
+    def test_add_nagios_hdirective(self):
         """Test for the add_nagios_directive method"""
         host = Host(conf.hostsConf, "dummy", u"testserver2",
                     u"192.168.1.2", "Servers")
         host.add_nagios_directive("max_check_attempts", "5")
-        nagios_dirs = conf.hostsConf["testserver2"]["nagiosDirectives"]
-        self.assertEquals(nagios_dirs["max_check_attempts"], "5")
+        nagios_hdirs = conf.hostsConf["testserver2"]["nagiosDirectives"]["host"]
+        self.assertEquals(nagios_hdirs["max_check_attempts"], "5")
+
+    def test_add_nagios_sdirective(self):
+        """Test for the add_nagios_directive method"""
+        host = Host(conf.hostsConf, "dummy", u"test2",
+                    u"192.168.1.2", "Servers")
+        host.add_nagios_directive("max_check_attempts", "5", target="services")
+        nagios_sdirs = conf.hostsConf["test2"]["nagiosDirectives"]["services"]
+        self.assertEquals(nagios_sdirs["max_check_attempts"], "5")
 
     def test_add_nagios_service_directive_INTF(self):
         """Nagios directives for tests"""
@@ -322,11 +330,11 @@ class HostFactoryMethods(unittest.TestCase):
         # validation par XSD
         hosts = f.load(validation=True)
         testserver = hosts['example-nagios-spec.xml']
-        nagiosdirs = testserver.get('nagiosDirectives')
-        print nagiosdirs
-        self.assertEquals(nagiosdirs['max_check_attempts'], "5")
-        self.assertEquals(nagiosdirs['check_interval'], "10")
-        self.assertEquals(nagiosdirs['retry_interval'], "1")
+        nagios_hdirs = testserver.get('nagiosDirectives')["host"]
+        print nagios_hdirs
+        self.assertEquals(nagios_hdirs['max_check_attempts'], "5")
+        self.assertEquals(nagios_hdirs['check_interval'], "10")
+        self.assertEquals(nagios_hdirs['retry_interval'], "1")
 
         nagios_sdirs = testserver.get('nagiosSrvDirs')
         print nagios_sdirs
