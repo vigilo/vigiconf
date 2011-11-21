@@ -8,19 +8,8 @@ from vigilo.vigiconf.lib.confclasses.test import Test
 
 class RAM(Test):
     """Check the RAM usage of a host"""
-    #UCD-SNMP-MIB::memTotalSwap.0
-    #.1.3.6.1.4.1.2021.4.3.0
-    #UCD-SNMP-MIB::memAvailSwap.0
-    #.1.3.6.1.4.1.2021.4.4.0
-    #UCD-SNMP-MIB::memTotalReal.0
-    #.1.3.6.1.4.1.2021.4.5.0
-    #UCD-SNMP-MIB::memAvailReal.0
-    #.1.3.6.1.4.1.2021.4.6.0
 
-    oids = [".1.3.6.1.4.1.2021.4.3.0",
-            ".1.3.6.1.4.1.2021.4.4.0",
-            ".1.3.6.1.4.1.2021.4.5.0",
-            ".1.3.6.1.4.1.2021.4.6.0"]
+    oids = [".1.3.6.1.4.1.2021.4"]
 
     def add_test(self, host, warn=80, crit=90):
         """
@@ -29,23 +18,36 @@ class RAM(Test):
         @param crit: CRITICAL threshold
         """
 
-        host.add_collector_metro("Total memory Swap", "directValue", [],
-                [ "GET/.1.3.6.1.4.1.2021.4.3.0" ], "GAUGE")
-        host.add_collector_metro("Avail memory Swap", "directValue", [],
-                [ "GET/.1.3.6.1.4.1.2021.4.4.0" ], "GAUGE")
-        host.add_graph("RAM usage (swap)",
-                [ "Avail memory Swap", "Total memory Swap" ],
-                "stacks", "bytes", group="Performance", last_is_max=True,
-                factors={"Total memory Swap": 1024,
-                         "Avail memory Swap": 1024})
+        # Calcul de l'espace réellement utilisé :
+        # memTotalReal - memAvailReal - memBuffer - memCached
+        rpn_formula = [
+            '.1.3.6.1.4.1.2021.4.5.0', '.1.3.6.1.4.1.2021.4.6.0', '-',
+            '.1.3.6.1.4.1.2021.4.15.0', '-', '.1.3.6.1.4.1.2021.4.14.0', '-',
+            ]
+        # Pourcentage de l'espace total :
+        # valeur-precedente / memTotalReal * 100
+        rpn_percent_formula = rpn_formula + [
+                '.1.3.6.1.4.1.2021.4.5.0', '/', '100', '*' ]
 
-        host.add_collector_metro("Total memory Real", "directValue", [],
-                [ "GET/.1.3.6.1.4.1.2021.4.5.0" ], "GAUGE")
-        host.add_collector_metro("Avail memory Real", "directValue", [],
-                [ "GET/.1.3.6.1.4.1.2021.4.6.0" ], "GAUGE")
-        host.add_graph("RAM usage (Real)",
-                ["Avail memory Real", "Total memory Real" ],
+        # Service
+        host.add_collector_service("RAM", "sup_rpn",
+                [ "RAM", warn, crit, "RAM: %2.2f%%" ] + rpn_percent_formula,
+                [ "WALK/.1.3.6.1.4.1.2021.4" ],
+                weight=self.weight, directives=self.directives)
+        # Metro
+        host.add_collector_metro("ram-buffer", "directValue", [],
+                [ "GET/.1.3.6.1.4.1.2021.4.14.0" ], "GAUGE",
+                label="Buffer")
+        host.add_collector_metro("ram-cached", "directValue", [],
+                [ "GET/.1.3.6.1.4.1.2021.4.15.0" ], "GAUGE",
+                label="Cached")
+        host.add_collector_metro("Used RAM", "m_rpn", rpn_formula,
+                [ "WALK/.1.3.6.1.4.1.2021.4" ], "GAUGE",
+                label="Used")
+        host.add_graph("RAM",
+                ["Used RAM", "ram-buffer", "ram-cached", "Total RAM"],
                 "stacks", "bytes", group="Performance", last_is_max=True,
-                factors={"Total memory Real": 1024,
-                         "Avail memory Real": 1024})
+                min=0, factors={"Used RAM":   1024,
+                                "ram-buffer": 1024,
+                                "ram-cached": 1024})
 

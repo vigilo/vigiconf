@@ -36,7 +36,7 @@ _ = translate(__name__)
 N_ = translate_narrow(__name__)
 
 from . import get_text, get_attrib, parse_path
-from .graph import Graph
+from .graph import Graph, Cdef
 from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.lib import SNMP_ENTERPRISE_OID
 
@@ -492,7 +492,7 @@ class Host(object):
         graph.add_to_host(target)
 
     def add_graph(self, title, dslist, template, vlabel, group="General",
-                  factors=None, last_is_max=False):
+                  factors=None, last_is_max=False, min=None, max=None):
         """
         Add a graph to the host
         @param title: The graph title
@@ -509,13 +509,33 @@ class Host(object):
         @type  factors: C{dict}
         """
         for ds in dslist:
+            if isinstance(ds, Cdef):
+                ds = ds.name
             if ds not in self.hosts[self.name]["dataSources"]:
                 raise VigiConfError(_("Wrong datasource in graph "
                     "'%(graph)s': %(ds)s") % {"graph": title, "ds": ds})
-        graph = Graph(self.hosts, unicode(title), map(unicode, dslist),
-                      unicode(template), unicode(vlabel), group=unicode(group),
-                      factors=factors, last_is_max=last_is_max)
+        graph = Graph(self.hosts, title, dslist, template, vlabel,
+                      group=group, factors=factors, last_is_max=last_is_max,
+                      min=min, max=max)
         graph.add_to_host(self.name)
+
+    def make_rrd_cdef(self, name, cdef):
+        self.add(self.name, "dataSources", name, {
+            'dsType': "CDEF",
+            'name': name,
+            'label': name,
+            "max": None,
+            "min": None,
+        })
+        try:
+            return Cdef(name, cdef)
+        except (UnicodeEncodeError, UnicodeDecodeError), e:
+            try:
+                errmsg = unicode(e)
+            except UnicodeDecodeError:
+                errmsg = unicode(str(e), 'utf-8', 'replace')
+            raise VigiConfError(_("CDEF name must be ASCII-only: %s")
+                                % errmsg)
 
     def add_report(self, title, reportname, datesetting=0):
         """

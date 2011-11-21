@@ -64,6 +64,11 @@ class VigiRRDGen(Generator):
         # list all ds for validation
         for graphvalues in h["graphItems"].values():
             self._all_ds_graph.update(set(graphvalues["ds"]))
+            # ajout des cdefs utilisés
+            for cdef in graphvalues["cdefs"]:
+                self._all_ds_graph.update(set(
+                        cmd for cmd in cdef["cdef"].split(",")
+                        if cmd in h["dataSources"]))
         self._all_ds_metro.update(set(h["dataSources"].iterkeys()))
 
     def validate_ds_list(self):
@@ -119,6 +124,8 @@ class VigiRRDGen(Generator):
                          template VARCHAR(255) NOT NULL,
                          vlabel VARCHAR(255) NOT NULL,
                          lastismax BOOLEAN,
+                         min FLOAT,
+                         max FLOAT,
                          PRIMARY KEY (idgraph),
                           FOREIGN KEY(idhost) REFERENCES host (idhost)
                      )""")
@@ -131,6 +138,16 @@ class VigiRRDGen(Generator):
                           FOREIGN KEY(idperfdatasource) REFERENCES perfdatasource (idperfdatasource) ON DELETE CASCADE ON UPDATE CASCADE,
                           FOREIGN KEY(idgraph) REFERENCES graph (idgraph) ON DELETE CASCADE ON UPDATE CASCADE
                      )""")
+        # CDEFs
+        c.execute("""CREATE TABLE cdef (
+                         idcdef INTEGER NOT NULL,
+                         idgraph INTEGER NOT NULL,
+                         name TEXT,
+                         cdef TEXT,
+                         PRIMARY KEY (idcdef),
+                          FOREIGN KEY(idgraph) REFERENCES graph (idgraph) ON DELETE CASCADE ON UPDATE CASCADE,
+                          UNIQUE (idgraph, name)
+                     )""")
 
     def db_add_host(self, cursor, hostname):
         config = self.application.getConfig()
@@ -140,15 +157,20 @@ class VigiRRDGen(Generator):
         return cursor.lastrowid
 
     def db_add_graph(self, cursor, idhost, graphname, graphdata, dses):
-        cursor.execute("INSERT INTO graph VALUES (NULL, ?, ?, ?, ?, ?)",
+        cursor.execute("INSERT INTO graph VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)",
                    (idhost, graphname, graphdata["template"],
                     graphdata["vlabel"],
-                    graphdata.get("last_is_max", False)))
+                    graphdata.get("last_is_max", False),
+                    graphdata["min"], graphdata["max"]))
         idgraph = cursor.lastrowid
 
         for index, dsname in enumerate(graphdata["ds"]):
             factor = graphdata["factors"].get(dsname, 1)
             self.db_add_pds(cursor, idgraph, dsname, factor, index, dses)
+
+        for cdef in graphdata["cdefs"]:
+            self.db_add_cdef(cursor, idgraph, cdef)
+
         return idgraph
 
     def db_add_pds(self, cursor, idgraph, name, factor, index, dses): # pylint: disable-msg=R0201
@@ -159,6 +181,12 @@ class VigiRRDGen(Generator):
         cursor.execute("INSERT INTO graphperfdatasource "
                        "VALUES (?, ?, ?)", (idpds, idgraph, index))
         return idpds
+
+    def db_add_cdef(self, cursor, idgraph, cdef): # pylint: disable-msg=R0201
+        cursor.execute("INSERT INTO cdef (idgraph, name, cdef) "
+                       "VALUES (?, ?, ?)",
+                       (idgraph, cdef["name"], cdef["cdef"]))
+        return cursor.lastrowid
 
     def finalize_databases(self):
         for vserver in self.connections:

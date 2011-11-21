@@ -15,7 +15,8 @@ from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplateFactory
 from vigilo.vigiconf.lib.confclasses.host import HostFactory
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
-from vigilo.vigiconf.lib.exceptions import ParsingError
+from vigilo.vigiconf.lib.confclasses.graph import Graph, Cdef
+from vigilo.vigiconf.lib.exceptions import ParsingError, VigiConfError
 
 from helpers import setup_db, teardown_db, setup_tmpdir, TESTDATADIR
 
@@ -278,6 +279,30 @@ class HostMethods(unittest.TestCase):
         nsd = conf.hostsConf["testserver1"]["nagiosSrvDirs"]
         self.assertEquals(nsd["Interface eth0"]["testdirective"],
                           "testdirvalue")
+
+    def test_add_graph(self):
+        self.host.add(self.host.name, "dataSources", "dummyds", {})
+        graph = self.host.add_graph("testgraph", ["dummyds"], "lines", "test")
+        self.assertTrue("testgraph" in
+                        conf.hostsConf["testserver1"]["graphItems"])
+
+    def test_make_cdef(self):
+        cdef = self.host.make_rrd_cdef("testcdef", "1,1,+")
+        self.assertTrue("testcdef" in
+                        conf.hostsConf["testserver1"]["dataSources"])
+        graph = self.host.add_graph("testgraph", [cdef], "lines", "test")
+        print conf.hostsConf["testserver1"]["graphItems"]["testgraph"]["cdefs"]
+        self.assertEqual(conf.hostsConf["testserver1"]["graphItems"][
+                "testgraph"]["cdefs"], [{"name": "testcdef", "cdef": "1,1,+"}])
+
+    def test_make_cdef_unicode(self):
+        self.assertRaises(VigiConfError, self.host.make_rrd_cdef,
+                          u"test éèçà", "1,1,+")
+
+    def test_make_cdef_8bit(self):
+        self.assertRaises(VigiConfError, self.host.make_rrd_cdef,
+                          "test éèçà", "1,1,+")
+
 
 
 class HostFactoryMethods(unittest.TestCase):

@@ -11,13 +11,19 @@ class Swap(Test):
     oids = [".1.3.6.1.2.1.25.2.3.1.2"]
 
     def add_test(self, host):
-        """Arguments:
-            host:     the Host object to add the test to
         """
-        parttype = ".1.3.6.1.2.1.25.2.1.3" # type: hrStorageVirtualMemory
-        oids = ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6", "WALK/.1.3.6.1.2.1.25.2.3.1.2"]
-        host.add_collector_metro("Swap", "m_table_mult", [parttype], oids, 'GAUGE')
-        host.add_graph("Swap partition", [ "Swap" ], "lines", "bytes", group="Performance")
+        @param host: the Host object to add the test to
+        """
+        host.add_collector_metro("Swap", "m_table_mult",
+                [".1.3.6.1.2.1.25.2.1.3"], # type: hrStorageVirtualMemory
+                ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6",
+                 "WALK/.1.3.6.1.2.1.25.2.3.1.2"], 'GAUGE')
+        host.add_collector_metro("swap-total", "m_table_mult", [".1.3.6.1.2.1.25.2.1.3"],
+                    ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.5",
+                    "WALK/.1.3.6.1.2.1.25.2.3.1.2"], "GAUGE",
+                    label="Total")
+        host.add_graph("Swap", [ "Swap", "swap-total" ], "stacks", "bytes",
+                       last_is_max=True, min=0, group="Performance")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

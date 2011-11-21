@@ -18,10 +18,40 @@
 ################################################################################
 
 """
-This module contains the Graph class
+This module contains the RRD-specific classes
 """
 
-from __future__ import absolute_import
+
+
+class Cdef(object):
+    """
+    Indicateur de type CDEF: il est calculé à partir d'autres indicateurs. Voir
+    la page de manuel "rrdgraph".
+    """
+
+    def __init__(self, name, cdef):
+        """
+        @param name: le nom du CDEF, pour utilisation interne. Attention, seul
+            de l'ASCII est autorisé.
+        @type  name: C{str}
+        @param cdef: la formule de calcul (en notation polonaise inversée).
+            Peut contenir le nom d'autres I{DataSources}, qui seront remplacées
+            par leur valeur à l'affichage.
+        @type  cdef: C{str}
+        """
+        self.name = name.encode("ascii") # ASCII-only
+        if isinstance(cdef, basestring):
+            cdef = cdef.split(",")
+        self.cdef = cdef
+
+    def __str__(self):
+        return self.name
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "cdef": ",".join(self.cdef)
+        }
 
 
 class Graph(object):
@@ -35,7 +65,8 @@ class Graph(object):
     """
 
     def __init__(self, hosts, title, dslist, template, vlabel,
-                 group="General", factors=None, last_is_max=False):
+                 group="General", factors=None, last_is_max=False,
+                 min=None, max=None):
         """
         @param hosts: the main hosts configuration dictionary
         @type  hosts: C{dict}
@@ -55,18 +86,24 @@ class Graph(object):
             ligne horizontale noire (limite supérieure) et ne pas être listé
             dans la légende
         @type  last_is_max: C{bool}
+        @param min: valeur plancher du graphe
+        @type  min: C{float}
+        @param max: valeur plafond du graphe
+        @type  max: C{float}
         """
         self.hosts = hosts
-        self.title = title
+        self.title = unicode(title)
         self.dslist = dslist
-        self.template = template
-        self.vlabel = vlabel
-        self.group = group
+        self.template = unicode(template)
+        self.vlabel = unicode(vlabel)
+        self.group = unicode(group)
         if factors is None:
             self.factors = {}
         else:
             self.factors = factors
         self.last_is_max = last_is_max
+        self.min = min
+        self.max = max
 
     def add_to_host(self, hostname):
         """
@@ -77,13 +114,17 @@ class Graph(object):
         if not self.hosts[hostname].has_key("graphItems"):
             self.hosts[hostname]["graphItems"] = {}
         self.hosts[hostname]["graphItems"].update({
-                        self.title: {'template': self.template,
-                                     'vlabel': self.vlabel,
-                                     'ds': self.dslist,
-                                     'factors': self.factors,
-                                     'last_is_max': self.last_is_max,
-                                     }
-                        })
+                self.title: {'template': self.template,
+                             'vlabel': self.vlabel,
+                             'ds': [ unicode(ds) for ds in self.dslist ],
+                             'factors': self.factors,
+                             'last_is_max': self.last_is_max,
+                             'cdefs': [ cdef.to_dict() for cdef in self.dslist
+                                        if isinstance(cdef, Cdef) ],
+                             'min': self.min,
+                             'max': self.max,
+                             }
+            })
         if not self.hosts[hostname].has_key("graphGroups"):
             self.hosts[hostname]["graphGroups"] = {}
         if self.group not in self.hosts[hostname]["graphGroups"]:
