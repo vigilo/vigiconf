@@ -176,10 +176,14 @@ class Dispatchator(object):
             try:
                 state.append(server.get_state_text(_revision))
             except Exception, e: # pylint: disable-msg=W0703
+                try:
+                    error_msg = unicode(e)
+                except UnicodeDecodeError:
+                    error_msg = unicode(str(e), 'utf-8', 'replace')
                 LOGGER.warning(_("Cannot get revision for server: %(server)s. "
                                  "REASON : %(reason)s"),
                                  {"server": servername,
-                                  "reason": str(e)})
+                                  "reason": error_msg})
         return state
 
     def server_status(self, servernames, status, no_deploy=False):

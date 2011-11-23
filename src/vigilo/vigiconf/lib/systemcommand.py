@@ -118,7 +118,7 @@ class SystemCommandError(VigiConfError):
         self.message = self.value
 
     def __str__(self):
-        return str(unicode(self))
+        return unicode(self).encode('utf-8')
 
     def __unicode__(self):
         cmd = self.command
@@ -142,7 +142,7 @@ class MissingCommand(SystemCommandError):
     def __init__(self, command):
         if isinstance(command, basestring):
             command = command.split()
-        super(MissingCommand, self).__init__(command, 255, 
+        super(MissingCommand, self).__init__(command, 255,
             _("Missing command: %s") % command[0])
 
     def __unicode__(self):
