@@ -419,7 +419,9 @@ def main():
     if args.func != discover:
         lockfile = settings["vigiconf"].get("lockfile",
                             "/var/lock/vigilo-vigiconf/vigiconf.token")
-        grab_lock(lockfile)
+        lock_result = grab_lock(lockfile)
+        if not lock_result:
+            sys.exit(1)
 
     try:
         args.func(args)
