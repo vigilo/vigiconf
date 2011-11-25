@@ -17,7 +17,8 @@ class Swap(Test):
         host.add_collector_metro("Swap", "m_table_mult",
                 [".1.3.6.1.2.1.25.2.1.3"], # type: hrStorageVirtualMemory
                 ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6",
-                 "WALK/.1.3.6.1.2.1.25.2.3.1.2"], 'GAUGE')
+                 "WALK/.1.3.6.1.2.1.25.2.3.1.2"], 'GAUGE',
+                 label='Used')
         host.add_collector_metro("swap-total", "m_table_mult", [".1.3.6.1.2.1.25.2.1.3"],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.5",
                     "WALK/.1.3.6.1.2.1.25.2.3.1.2"], "GAUGE",
