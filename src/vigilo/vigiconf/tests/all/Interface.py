@@ -4,6 +4,7 @@
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 import re # for the detect_snmp function
+import string
 from vigilo.vigiconf.lib.confclasses.test import Test
 from vigilo.vigiconf.lib.exceptions import ParsingError
 from vigilo.common.gettext import translate
@@ -190,6 +191,7 @@ class Interface(Test):
             # Extract the SNMP id
             intfids.append(oid.split(".")[-1])
         tests = []
+        alphanum = string.letters + string.digits
         for intfid in intfids:
             # SNMP name: use IF-MIB::ifDescr and sanitize it
             ifname = oids[ ".1.3.6.1.2.1.2.2.1.2."+intfid ]
@@ -202,9 +204,23 @@ class Interface(Test):
             label = label.strip()
             label = label.replace("GigabitEthernet", "GE")
             label = label.replace("FastEthernet", "FE")
-            # Protection contre les accents (#882)
-            ifname = ifname.decode("ascii", "replace"
-                          ).encode("ascii", "replace").replace("?", ".")
+
+            # Protection contre les accents et
+            # autres caractères spéciaux (#882).
+            ifpattern = []
+            ifname = ifname.decode('ascii', 'replace'
+                            ).encode('ascii', 'replace')
+            for c in ifname:
+                # Les caractères > 127 sont remplacés par un '?'.
+                if c == '?':
+                    ifpattern.append('.')
+                elif c in alphanum:
+                    ifpattern.append(c)
+                # Les autres caractères non-alphanumériques sont échappés.
+                else:
+                    ifpattern.append('\\' + c)
+            ifname = ''.join(ifpattern)
+
             try:
                 label.decode("ascii")
             except UnicodeDecodeError:
