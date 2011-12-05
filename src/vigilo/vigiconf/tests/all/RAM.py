@@ -15,7 +15,7 @@ class RAM(Test):
     def add_test(self, host, **kw):
         """
         @param host: the Host object to add the test to
-        @param **kw: unused (compatibility layer for other RAM tests)
+        @param kw: unused (compatibility layer for other RAM tests)
         """
         # Ces classes ont de meilleurs tests de RAM.
         # Note: on ne met pas ucd dans cette liste car son test se sert des
