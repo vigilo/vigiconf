@@ -24,6 +24,7 @@ les objets qui ne sont plus en conf.
 
 __docformat__ = "epytext"
 
+from sqlalchemy.ext import associationproxy
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -140,17 +141,33 @@ class DBLoader(object):
             'class': self._class.__name__,
         })
         instance = self._in_db[key]
+
+        # Ces types surviennent fréquemment et sont compatibles
+        # (en terme d'interface) même s'ils ne sont pas liés entre
+        # eux en terme d'héritage (cf. #904).
+        compatible_types = {
+            dict: associationproxy._AssociationDict,
+            list: associationproxy._AssociationList,
+            set: associationproxy._AssociationSet,
+            associationproxy._AssociationDict: dict,
+            associationproxy._AssociationList: list,
+            associationproxy._AssociationSet: set,
+        }
+
         for attr, value in data.iteritems():
             old_value = getattr(instance, attr)
-            if type(old_value) != type(value):
+            old_type = type(old_value)
+            new_type = type(value)
+            if old_type != new_type and \
+                compatible_types.get(old_type) != new_type:
                 LOGGER.debug("WARNING: Different types between old and new "
                              "value, comparison will always fail. "
                              "Old is %(old_value)s (%(old_type)r), "
                              "new is %(new_value)s (%(new_type)r).", {
                                     'old_value': old_value,
-                                    'old_type': type(old_value),
+                                    'old_type': old_type,
                                     'new_value': value,
-                                    'new_type': type(value),
+                                    'new_type': new_type,
                              })
             if old_value != value:
                 LOGGER.debug("Updating property %(property)s from "
@@ -158,9 +175,9 @@ class DBLoader(object):
                              "%(new_value)s (%(new_type)r)", {
                                     'property': attr,
                                     'old_value': old_value,
-                                    'old_type': type(old_value),
+                                    'old_type': old_type,
                                     'new_value': value,
-                                    'new_type': type(value),
+                                    'new_type': new_type,
                              })
                 setattr(instance, attr, value)
         self._in_conf[key] = instance

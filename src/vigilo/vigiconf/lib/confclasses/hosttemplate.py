@@ -75,7 +75,7 @@ class HostTemplate(object):
             "authpass": "snmpAuthpass",
             "privproto": "snmpPrivproto",
             "privpass": "snmpPrivpass",
-       }
+        }
         if name != "default":
             self.add_parent("default")
 
