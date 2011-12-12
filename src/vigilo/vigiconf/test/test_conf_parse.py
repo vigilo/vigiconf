@@ -747,7 +747,7 @@ class ParseHostTemplate(unittest.TestCase):
         testdata = self.hosttemplatefactory.templates["test"]
         self.assert_("weight" in testdata,
                      "L'attribut weight n'est pas réglé par défaut")
-        self.assertEquals(testdata["weight"], 1,
+        self.assertEquals(testdata["weight"], None,
                     "L'attribut weight n'a pas la bonne valeur par défaut")
 
     def test_template_weight_invalid(self):
@@ -760,5 +760,3 @@ class ParseHostTemplate(unittest.TestCase):
         self.ht.close()
         self.assertRaises(ParsingError,
                           self.hosttemplatefactory.load_templates)
-
-

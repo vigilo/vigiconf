@@ -26,6 +26,7 @@ from __future__ import absolute_import
 import os
 import inspect
 from lxml import etree
+from vigilo.common.nx import networkx as nx
 
 #from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
@@ -979,7 +980,38 @@ class HostFactory(object):
                     for attr_name, attr_value in attributes.iteritems():
                         cur_host.set_attribute(attr_name, attr_value)
 
+                    # On génère un graphe des dépendances de l'hôte
+                    # en terme de templates.
+                    g = self.hosttemplatefactory.templates_deps.copy()
+                    g.add_node(None) # None représente l'hôte lui-même.
                     for template in templates:
+                        g.add_edge(None, template)
+
+                    try:
+                        # On récupère la liste des templates qui interviennent
+                        # dans la configuration de cet hôte.
+                        nodes = nx.dijkstra_predecessor_and_distance(
+                                    g, None)[1].keys()
+
+                        # Puis on trie la liste par ordre inverse
+                        # d'application des templates à suivre.
+                        nodes = nx.topological_sort(g.subgraph(nodes))
+
+                        if nodes is None: # compatibilité networkx < 1.3
+                            # message non traduit pour être aussi compatible que possible
+                            raise nx.NetworkXUnfeasible("Graph contains a cycle.")
+
+                        # On rétablit le bon ordre.
+                        nodes.reverse()
+                    except nx.NetworkXUnfeasible:
+                        raise ParsingError(_("Unable to load templates for "
+                                            "%(host)s. Possible cycle.") % {
+                                                'host': cur_host.name,
+                                            })
+
+                    # On applique tous les templates dans l'ordre :
+                    # des parents aux enfants (en excluant l'hôte = None).
+                    for template in nodes[:-1]:
                         self.hosttemplatefactory.apply(cur_host, template)
 
                     # On ré-applique les attributs après les templates, au cas

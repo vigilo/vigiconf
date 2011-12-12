@@ -77,56 +77,6 @@ class HostTemplates(unittest.TestCase):
         self.assertEqual(conf.hostsConf["testserver1"]["TestAttr"],
                          "TestVal", "add_attribute does not work")
 
-    def test_inherit_test(self):
-        self.tpl.add_test("UpTime")
-        tpl2 = HostTemplate("testtpl2")
-        tpl2.add_parent("testtpl1")
-        self.hosttemplatefactory.register(tpl2)
-        # Reload the templates
-        self.hosttemplatefactory.load_templates()
-        testnames = [ t["name"] for t in
-                self.hosttemplatefactory.templates["testtpl2"]["tests"] ]
-        self.assertTrue("UpTime" in testnames,
-                        "inheritance does not work with tests")
-
-    def test_inherit_group(self):
-        self.tpl.add_group("Test Group")
-        tpl2 = HostTemplate("testtpl2")
-        tpl2.add_parent("testtpl1")
-        self.hosttemplatefactory.register(tpl2)
-        # Reload the templates
-        self.hosttemplatefactory.load_templates()
-        self.assertTrue("Test Group" in
-                self.hosttemplatefactory.templates["testtpl2"]["groups"],
-                "inheritance does not work with groups")
-
-    def test_inherit_attribute(self):
-        self.tpl.add_attribute("TestAttr", "TestVal")
-        tpl2 = HostTemplate("testtpl2")
-        tpl2.add_parent("testtpl1")
-        self.hosttemplatefactory.register(tpl2)
-        # Reload the templates
-        self.hosttemplatefactory.load_templates()
-        tpldata = self.hosttemplatefactory.templates["testtpl2"]
-        self.assertTrue(tpldata["attributes"].has_key("TestAttr"),
-                "inheritance does not work with attributes")
-        self.assertEqual(tpldata["attributes"]["TestAttr"], "TestVal",
-                "inheritance does not work with attributes")
-
-    def test_inherit_redefine_attribute(self):
-        self.tpl.add_attribute("TestAttr", "TestVal1")
-        tpl2 = HostTemplate("testtpl2")
-        tpl2.add_parent("testtpl1")
-        self.tpl.add_attribute("TestAttr", "TestVal2")
-        self.hosttemplatefactory.register(tpl2)
-        # Reload the templates
-        self.hosttemplatefactory.load_templates()
-        tpldata = self.hosttemplatefactory.templates["testtpl2"]
-        self.assertTrue(tpldata["attributes"].has_key("TestAttr"))
-        self.assertEqual(tpldata["attributes"]["TestAttr"], "TestVal2")
-        self.hosttemplatefactory.apply(self.host, "testtpl2")
-        self.assertEqual(conf.hostsConf["testserver1"]["TestAttr"], "TestVal2")
-
     def test_inherit_redefine_test(self):
         self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label1"})
         tpl2 = HostTemplate("testtpl2")
@@ -143,23 +93,6 @@ class HostTemplates(unittest.TestCase):
                         "inheritance does not work with tests")
         self.assertEqual(intftest["args"]["label"], "Label2",
                 "child templates cannot redefine tests from parent templates")
-
-    def test_inherit_multiple_test(self):
-        self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label0"})
-        tpl2 = HostTemplate("testtpl2")
-        tpl2.add_test("Interface", {"ifname":"eth1", "label":"Label1"})
-        self.hosttemplatefactory.register(tpl2)
-        tpl3 = HostTemplate("testtpl3")
-        tpl3.add_parent(["testtpl1", "testtpl2"])
-        self.hosttemplatefactory.register(tpl3)
-        # Reload the templates
-        self.hosttemplatefactory.load_templates()
-        intftests = []
-        for test in self.hosttemplatefactory.templates["testtpl3"]["tests"]:
-            if test["name"] == "Interface":
-                intftests.append(test["args"]["ifname"])
-        self.assertEqual(intftests, [ "eth0", "eth1"],
-                "multiple inheritance does not work (%s)" % str(intftests))
 
     def test_deepcopy(self):
         """
@@ -256,17 +189,3 @@ class HostTemplates(unittest.TestCase):
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertEqual("passive",
                 conf.hostsConf["testserver1"]["services"]["HTTP"]["type"])
-
-    def test_inherit_attribute_passive(self):
-        """Héritage de l'attribut force-passive"""
-        self.tpl.add_attribute("force-passive", "True")
-        tpl2 = HostTemplate("testtpl2")
-        tpl2.add_parent("testtpl1")
-        self.hosttemplatefactory.register(tpl2)
-        # Reload the templates
-        self.hosttemplatefactory.load_templates()
-        tpldata = self.hosttemplatefactory.templates["testtpl2"]
-        self.assertTrue(tpldata["attributes"].has_key("force-passive"),
-                "inheritance does not work with attributes force-passive")
-        self.assertEqual(tpldata["attributes"]["force-passive"], "True",
-                "inheritance does not work with attributes force-passive")

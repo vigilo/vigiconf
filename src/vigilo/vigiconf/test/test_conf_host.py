@@ -369,3 +369,239 @@ class HostFactoryMethods(unittest.TestCase):
                           "10")
         self.assertEquals(nagios_sdirs['Interface eth0']['retry_interval'],
                           "1")
+
+    def test_diamond_templates(self):
+        """
+        Attribut d'un hôte et héritage en diamant des templates (#921).
+
+        Le template "default" définit la communauté SNMP à "public".
+        Celle-ci est redéfinie dans "testtpl1" comme valant "not-public".
+        Enfin, "testtpl2" est chargé après "testtpl1" et ne redéfinit
+        PAS la communauté.
+
+        Ce test vérifie que "testtpl2" n'écrase pas la communauté
+        définie par "testtpl1" en chargeant à nouveau "default"
+        (et donc, en réinitialisant la valeur à "public").
+        """
+        default = HostTemplate("default")
+        default.add_attribute("snmpCommunity", "public")
+        self.hosttemplatefactory.register(default)
+
+        tpl1 = HostTemplate("testtpl1")
+        tpl1.add_attribute("snmpCommunity", "not-public")
+        self.hosttemplatefactory.register(tpl1)
+
+        tpl2 = HostTemplate("testtpl2")
+        self.hosttemplatefactory.register(tpl2)
+
+        # Recharge les templates.
+        self.hosttemplatefactory.load_templates()
+
+        xmlfile = open(os.path.join(self.tmpdir, "localhost.xml"), "w")
+        xmlfile.write("""
+            <host name="localhost" address="127.0.0.1">
+                <template>testtpl1</template>
+                <template>testtpl2</template>
+                <group>Linux servers</group>
+            </host>
+        """)
+        xmlfile.close()
+
+        f = HostFactory(
+                self.tmpdir,
+                self.hosttemplatefactory,
+                self.testfactory,
+            )
+
+        hosts = f.load()
+        print hosts
+        # La communauté SNMP doit valoir "not-public"
+        # (elle ne doit pas avoir été réinitialisée à "public").
+        self.assertEquals(
+            hosts['localhost'].get('snmpCommunity'),
+            "not-public"
+        )
+
+
+class HostAndHosttemplatesInheritance(unittest.TestCase):
+    """
+    Vérifie le comportement de l'héritage d'informations depuis les
+    modèles d'hôtes à destination des hôtes eux-mêmes.
+    """
+
+    def setUp(self):
+        setup_db()
+        testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
+        self.tmpdir = setup_tmpdir()
+        self.testfactory = TestFactory(confdir=self.tmpdir)
+        self.hosttemplatefactory = HostTemplateFactory(self.testfactory)
+        self.hosttemplatefactory.register(HostTemplate("default"))
+        self.tpl = HostTemplate("testtpl1")
+        self.hosttemplatefactory.register(self.tpl)
+        conf.hostsConf = {}
+        self.hostfactory = HostFactory(
+            self.tmpdir,
+            self.hosttemplatefactory,
+            self.testfactory
+        )
+
+    def tearDown(self):
+        teardown_db()
+        shutil.rmtree(self.tmpdir)
+
+    def test_inherit_test(self):
+        """
+        Héritage d'un test depuis un modèle d'hôte.
+
+        Le template "testtpl1" ajoute le test "UpTime".
+        Le template "testtpl2" hérite de "testtpl1".
+        L'hôte "localhost" importe le template "testtpl2".
+        Le test "UpTime" doit donc être appliqué à "localhost".
+        """
+        self.tpl.add_test("UpTime")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        self.hosttemplatefactory.register(tpl2)
+        # Reload the templates
+        self.hosttemplatefactory.load_templates()
+
+        xmlfile = open(os.path.join(self.tmpdir, "localhost.xml"), "w")
+        xmlfile.write("""
+            <host name="localhost" address="127.0.0.1">
+                <template>testtpl2</template>
+                <group>Linux servers</group>
+            </host>
+        """)
+        xmlfile.close()
+        hosts = self.hostfactory.load()
+        print hosts
+        self.assertTrue("UpTime" in hosts['localhost']['services'],
+                        "inheritance does not work with tests")
+
+    def test_inherit_group(self):
+        """
+        Héritage d'un groupe depuis un modèle d'hôte.
+
+        Le template "testtpl1" s'ajoute au groupe "Test Group".
+        Le template "testtpl2" hérite de "testtpl1".
+        L'hôte "localhost" importe le template "testtpl2".
+        L'hôte "localhost" devrait donc appartenir au groupe "Test Group".
+        """
+        self.tpl.add_group("Test Group")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        self.hosttemplatefactory.register(tpl2)
+        # Reload the templates
+        self.hosttemplatefactory.load_templates()
+
+        xmlfile = open(os.path.join(self.tmpdir, "localhost.xml"), "w")
+        xmlfile.write("""
+            <host name="localhost" address="127.0.0.1">
+                <template>testtpl2</template>
+            </host>
+        """)
+        xmlfile.close()
+        hosts = self.hostfactory.load()
+        print hosts
+        self.assertTrue("Test Group" in
+                hosts["localhost"]["otherGroups"],
+                "inheritance does not work with groups")
+
+    def test_inherit_attribute(self):
+        """
+        Héritage d'un attribut depuis un modèle d'hôte.
+
+        Le template "testtpl1" ajoute l'attribut "TestAttr" valant "TestVal".
+        Le template "testtpl2" hérite de "testtpl1".
+        L'hôte "localhost" importe le template "testtpl2".
+        L'hôte "localhost" devrait donc posséder cet attribut avec
+        la valeur définie dans "testtpl1".
+        """
+        self.tpl.add_attribute("TestAttr", "TestVal")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        self.hosttemplatefactory.register(tpl2)
+        # Reload the templates
+        self.hosttemplatefactory.load_templates()
+
+        xmlfile = open(os.path.join(self.tmpdir, "localhost.xml"), "w")
+        xmlfile.write("""
+            <host name="localhost" address="127.0.0.1">
+                <template>testtpl2</template>
+                <group>Linux servers</group>
+            </host>
+        """)
+        xmlfile.close()
+        hosts = self.hostfactory.load()
+        print hosts
+        self.assertTrue(hosts['localhost'].has_key("TestAttr"),
+                "inheritance does not work with attributes")
+        self.assertEqual(hosts['localhost']["TestAttr"], "TestVal",
+                "inheritance does not work with attributes")
+
+    def test_inherit_redefine_attribute(self):
+        """
+        Héritage d'un attribut redéfini depuis un modèle d'hôte.
+
+        Le template "testtpl1" ajoute l'attribut "TestAttr" valant "TestVal1".
+        Le template "testtpl2" hérite de "testtpl1" et redéfinit "TestAttr"
+        comme valant "TestVal2".
+        L'hôte "localhost" importe le template "testtpl2".
+        L'hôte "localhost" devrait donc posséder cet attribut avec
+        la valeur définie dans "testtpl2".
+        """
+        self.tpl.add_attribute("TestAttr", "TestVal1")
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_parent("testtpl1")
+        self.tpl.add_attribute("TestAttr", "TestVal2")
+        self.hosttemplatefactory.register(tpl2)
+        # Reload the templates
+        self.hosttemplatefactory.load_templates()
+
+        xmlfile = open(os.path.join(self.tmpdir, "localhost.xml"), "w")
+        xmlfile.write("""
+            <host name="localhost" address="127.0.0.1">
+                <template>testtpl2</template>
+                <group>Linux servers</group>
+            </host>
+        """)
+        xmlfile.close()
+        hosts = self.hostfactory.load()
+        print hosts
+        self.assertTrue(hosts['localhost'].has_key("TestAttr"),
+                "inheritance does not work with attributes")
+        self.assertEqual(hosts['localhost']["TestAttr"], "TestVal2",
+                "inheritance does not work with attributes")
+
+    def test_inherit_multiple_test(self):
+        """
+        Héritage de tests issus de modèles d'hôtes multiples.
+
+        L'hôte hérite d'un template qui hérite lui-même de deux templates
+        définissant chacun 1 test. On s'assure que l'hôte hérite correctement
+        des 2 tests.
+        """
+        self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label0"})
+        tpl2 = HostTemplate("testtpl2")
+        tpl2.add_test("Interface", {"ifname":"eth1", "label":"Label1"})
+        self.hosttemplatefactory.register(tpl2)
+        tpl3 = HostTemplate("testtpl3")
+        tpl3.add_parent(["testtpl1", "testtpl2"])
+        self.hosttemplatefactory.register(tpl3)
+        # Reload the templates
+        self.hosttemplatefactory.load_templates()
+
+        xmlfile = open(os.path.join(self.tmpdir, "localhost.xml"), "w")
+        xmlfile.write("""
+            <host name="localhost" address="127.0.0.1">
+                <template>testtpl3</template>
+                <group>Linux servers</group>
+            </host>
+        """)
+        xmlfile.close()
+        hosts = self.hostfactory.load()
+        print hosts
+
+        for svc in ("Interface Label0", "Interface Label1"):
+            self.assertTrue(svc in hosts['localhost']['services'],
+                    "multiple inheritance does not work (%s)" % svc)

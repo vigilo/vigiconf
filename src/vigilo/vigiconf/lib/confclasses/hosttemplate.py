@@ -26,12 +26,12 @@ from __future__ import absolute_import
 import os
 import copy
 from lxml import etree
+import networkx as nx
 
 from vigilo.common.conf import settings
 
 from . import get_text, get_attrib, parse_path
 from .. import ParsingError
-from ..external import topsort
 
 from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
@@ -56,7 +56,7 @@ class HostTemplate(object):
                 "classes": [],
                 "groups": [],
                 "attributes": {},
-                "weight": 1,
+                "weight": None,
                 "nagiosDirectives": {
                     "host": {},
                     "services": {},
@@ -244,6 +244,7 @@ class HostTemplateFactory(object):
     """
 
     templates = {}
+    templates_deps = nx.DiGraph()
 
     def __init__(self, testfactory):
         self.path = [
@@ -271,7 +272,16 @@ class HostTemplateFactory(object):
                     continue
                 self._validate(os.path.join(pathdir, tplfile), xsd)
                 self._load(os.path.join(pathdir, tplfile))
-        self.apply_inheritance()
+        self._resolve_dependencies()
+
+    def _resolve_dependencies(self):
+        self.templates_deps.clear()
+        for (tpl_name, tpl_data) in self.templates.iteritems():
+            self.templates_deps.add_node(tpl_name)
+            for parent in tpl_data['parent']:
+                self.templates_deps.add_edge(tpl_name, parent)
+        if not nx.is_directed_acyclic_graph(self.templates_deps):
+            raise ParsingError(_("A cycle has been detected in templates"))
 
     def _get_xsd(self): # pylint: disable-msg=R0201
         xsd_path = os.path.join(os.path.dirname(__file__), "..", "..",
@@ -445,80 +455,6 @@ class HostTemplateFactory(object):
         """
         self.templates[hosttemplate.name] = hosttemplate.data
 
-    def apply_inheritance(self):
-        """
-        Load the templates inheritance. There are three steps:
-         1. Sort the template dependencies (we can only load parents if they
-            are already defined
-         2. Start from scratch and load the parents in order
-         3. Apply the template-specific data
-        """
-        if self.templates.keys() == ["default", ]:
-            return # pas de tri nécessaire
-        # Sort the dependencies
-        testdeps = []
-        for tplname, tpl in self.templates.iteritems():
-            if not tpl.has_key("parent") or not tpl["parent"]:
-                # the "default" template is removed from self.templates,
-                # all hosts will automatically add it (in Host.__init__())
-                continue
-            if isinstance(tpl["parent"], list):
-                for parent in tpl["parent"]:
-                    testdeps.append( (parent, tplname) )
-            else:
-                testdeps.append( (tpl["parent"], tplname) )
-        testdeps = topsort.topsort(testdeps)
-        # Start fresh
-        templates_save = self.templates.copy()
-        self.templates = {}
-        ## now copy back the templates to self.templates, starting with the
-        ## parent if necessary
-        for tplname in testdeps:
-            if not templates_save[tplname]["parent"]:
-                # No parent, copy it back untouched
-                self.templates[tplname] = copy.deepcopy(templates_save[tplname])
-                continue
-            parent = templates_save[tplname]["parent"]
-            if not isinstance(parent, list): # Convert to list
-                parent = [ parent, ]
-            # Start by copying the first parent
-            self.templates[tplname] = copy.deepcopy(self.templates[parent[0]])
-            # Next, extend with the other parents (if any)
-            for p in parent[1:]:
-                self.templates[tplname]["groups"].extend(
-                                    self.templates[p]["groups"])
-                self.templates[tplname]["classes"].extend(
-                                    self.templates[p]["classes"])
-                self.templates[tplname]["tests"].extend(
-                                    self.templates[p]["tests"])
-                self.templates[tplname]["attributes"].update(
-                                    self.templates[p]["attributes"])
-                self.templates[tplname]["weight"] = self.templates[p]["weight"]
-                for target in self.templates[p]["nagiosDirectives"]:
-                    if (target not in
-                                self.templates[tplname]["nagiosDirectives"]):
-                        self.templates[tplname]["nagiosDirectives"][target] = {}
-                    self.templates[tplname]["nagiosDirectives"][target].update(
-                                  self.templates[p]["nagiosDirectives"][target])
-            # Finally, re-add the template-specific data
-            self.templates[tplname]["groups"].extend(
-                            templates_save[tplname]["groups"])
-            self.templates[tplname]["classes"].extend(
-                            templates_save[tplname]["classes"])
-            self.templates[tplname]["tests"].extend(
-                            templates_save[tplname]["tests"])
-            self.templates[tplname]["attributes"].update(
-                            templates_save[tplname]["attributes"])
-            self.templates[tplname]["weight"] = \
-                            templates_save[tplname]["weight"]
-            self.templates[tplname]["nagiosDirectives"]["host"].update(
-                            templates_save[tplname]["nagiosDirectives"]["host"])
-            self.templates[tplname]["nagiosDirectives"]["services"].update(
-                            templates_save[tplname]["nagiosDirectives"]["services"])
-            # Copy the parent list back too, it's not used except by unit tests
-            self.templates[tplname]["parent"].extend(
-                            templates_save[tplname]["parent"])
-
     def apply(self, host, tplname):
         """
         Applies a template to a host
@@ -530,9 +466,11 @@ class HostTemplateFactory(object):
         if not self.templates:
             self.load_templates()
         tpl = self.templates[tplname]
+
         # force-passive
         if tpl.has_key("force-passive"):
             host.set_attribute("force-passive", True)
+
         # groups
         if tpl.has_key("groups"):
             for group in tpl["groups"]:
@@ -575,8 +513,7 @@ class HostTemplateFactory(object):
                                directives=testdict["directives"])
 
         # weight
-        if "weight" in tpl and tpl["weight"] is not None and tpl["weight"] != 1:
+        if tpl.get("weight") is not None:
             host.set_attribute("weight", tpl["weight"])
-
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
