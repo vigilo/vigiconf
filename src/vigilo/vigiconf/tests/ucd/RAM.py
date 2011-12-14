@@ -44,10 +44,15 @@ class RAM(Test):
         host.add_collector_metro("Used RAM", "m_rpn", rpn_formula,
                 [ "WALK/.1.3.6.1.4.1.2021.4" ], "GAUGE",
                 label="Used")
+        host.add_collector_metro("Total RAM", "directValue", [],
+                [ "GET/.1.3.6.1.4.1.2021.4.5.0" ], "GAUGE",
+                label="Total")
+
         host.add_graph("RAM",
                 ["Used RAM", "ram-buffer", "ram-cached", "Total RAM"],
                 "stacks", "bytes", group="Performance", last_is_max=True,
                 min=0, factors={"Used RAM":   1024,
                                 "ram-buffer": 1024,
-                                "ram-cached": 1024})
+                                "ram-cached": 1024,
+                                "Total RAM":  1024})
 

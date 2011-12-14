@@ -512,8 +512,9 @@ class Host(object):
             if isinstance(ds, Cdef):
                 ds = ds.name
             if ds not in self.hosts[self.name]["dataSources"]:
-                raise VigiConfError(_("Wrong datasource in graph "
-                    "'%(graph)s': %(ds)s") % {"graph": title, "ds": ds})
+                raise VigiConfError(_("host '%(host)s': wrong datasource in "
+                    "graph '%(graph)s': %(ds)s")
+                    % {"graph": title, "ds": ds, "host": self.name})
         graph = Graph(self.hosts, title, dslist, template, vlabel,
                       group=group, factors=factors, last_is_max=last_is_max,
                       min=min, max=max)
