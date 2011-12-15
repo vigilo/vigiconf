@@ -988,18 +988,51 @@ class HostFactory(object):
                         g.add_edge(None, template)
 
                     try:
-                        # On récupère la liste des templates qui interviennent
-                        # dans la configuration de cet hôte.
-                        nodes = nx.dijkstra_predecessor_and_distance(
-                                    g, None)[1].keys()
+                        # On récupère le sous-graphe des dépendances relatives
+                        # aux templates qui interviennent dans la configuration
+                        # de cet hôte.
+                        nodes = g.subgraph(
+                            nx.dijkstra_predecessor_and_distance(g, None)
+                                [1].keys()
+                        )
+
+                        # On ajoute des dépendances au graphe correspondant
+                        # à l'ordre d'apparition des templates dans la
+                        # configuration de l'hôte.
+                        for i in xrange(len(templates) - 1):
+                            try:
+                                nx.shortest_path_length(
+                                    nodes,
+                                    templates[i],
+                                    templates[i + 1]
+                                )
+                            except nx.NetworkXException:
+                                # Il n'y a pas de chemin entre les deux,
+                                # donc pas de risque de créer un cycle.
+                                g.add_edge(templates[i + 1], templates[i])
+                            else:
+                                LOGGER.warning(_(
+                                    "Host '%(host)s' inherits from both the "
+                                    "'%(tpl1)s' and '%(tpl2)s' templates "
+                                    "(in this order), but '%(tpl1)s' already "
+                                    "inherits from '%(tpl2)s'. The templates "
+                                    "will be reordered to satisfy "
+                                    "dependencies.") % {
+                                        'host': cur_host.name,
+                                        'tpl1': templates[i],
+                                        'tpl2': templates[i + 1],
+                                    }
+                                )
 
                         # Puis on trie la liste par ordre inverse
                         # d'application des templates à suivre.
-                        nodes = nx.topological_sort(g.subgraph(nodes))
+                        nodes = nx.topological_sort(nodes)
 
                         if nodes is None: # compatibilité networkx < 1.3
-                            # message non traduit pour être aussi compatible que possible
-                            raise nx.NetworkXUnfeasible("Graph contains a cycle.")
+                            # message non traduit pour être aussi compatible
+                            # que possible.
+                            raise nx.NetworkXUnfeasible(
+                                "Graph contains a cycle.")
 
                         # On rétablit le bon ordre.
                         nodes.reverse()
