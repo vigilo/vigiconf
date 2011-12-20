@@ -1091,6 +1091,38 @@ Les paramètres de ce test sont :
   ). Par défaut, la valeur de l'option "``db_basename``" dans le fichier de
   configuration de VigiConf est utilisée automatiquement.
 
+Mise en place des mails d'alertes pour les problèmes de bus
+-----------------------------------------------------------
+
+- Choisir le destinataire final (ex: ``foo@bar.com``)
+
+- Mise en place dans le fichier ``/etc/nagios/vigilo.d/vigilo-enterprise.cfg``
+  du contact ``last-chance-contact`` il faut remplacer ``root@localhost`` par
+  le mail choisi::
+
+    define contact{
+      contact_name                    last-chance-contact
+      alias                           Contact urgence Vigilo
+      service_notification_period     24x7
+      host_notification_period        24x7
+      service_notification_options    w,u,c,r
+      host_notification_options       u,d,r
+      service_notification_commands   notify-service-by-email
+      host_notification_commands      notify-host-by-email
+      email                           foo@bar.com
+    }
+
+- Vérifier qu'un mail peut-être envoyé via la commande suivante remplaçant
+  l'adresse email par ce qui a été choisi::
+
+    echo testbody | /bin/mail -s testobject foo@bar.com
+
+- Mise en place du template avec le contact pour le bus via les templates
+  suivant ``vigilo_bus`` il faudra importer dans la définition de l'hôte
+  utiliser le template comme ceci::
+
+    <template name="vigilo_bus"/>
+
 
 
 Configuration des journaux
