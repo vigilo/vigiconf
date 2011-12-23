@@ -67,11 +67,11 @@ class NagiosGen(FileGenerator):
         # Groups
         self.__fillgroups(hostname, newhash)
         # Notification periods
-        if h.has_key("notification_period") and h["notification_period"]:
-            newhash["notification_period"] = "notification_period " \
-                                             + h["notification_period"]
+        if h.has_key('notification_period') and h['notification_period']:
+            newhash['notification_period'] = "notification_period " \
+                                             + h['notification_period']
         else:
-            newhash["notification_period"] = ""
+            newhash['notification_period'] = ""
         # Dependencies
         parents = self._getdeps(hostname)
         if parents:
@@ -89,7 +89,7 @@ class NagiosGen(FileGenerator):
                                         (directive, value)
 
         # Add the host definition
-        self.templateAppend(self.fileName, self.templates["host"], newhash)
+        self.templateAppend(self.fileName, self.templates['host'], newhash)
 
        # directives generiques du type services
         newhash['generic_sdirectives'] = ""
@@ -113,25 +113,26 @@ class NagiosGen(FileGenerator):
                 if k in srvnames:
                     continue
                 self.templateAppend(self.fileName,
-                        self.templates["collector"], {
-                        'name' :  hostname,
-                        'serviceName' : k,
-                        'quietOrNot': "",
-                        'notification_period': "",
-                        'generic_sdirectives': newhash['generic_sdirectives'],
-                         })
+                        self.templates["collector"],
+                        {'name' :  hostname,
+                         'serviceName' : k,
+                         'quietOrNot': "",
+                         'notification_period': "",
+                         'generic_sdirectives': newhash['generic_sdirectives'],
+                        })
 
         # Add the service item into the Nagios configuration file
         if len(h['SNMPJobs']):
             # add a static active or passive service calling Collector if needed
             if h["force-passive"]:
                 self.templateAppend(self.fileName,
-                                    self.templates["collector"],
-                                    {'name' :  hostname,
-                                     'serviceName' : "Collector",
-                                     'quietOrNot': "",
-                                     'notification_period': "",
-                                     'generic_sdirectives': newhash['generic_sdirectives'],})
+                        self.templates["collector"],
+                        {'name' :  hostname,
+                         'serviceName' : "Collector",
+                        'quietOrNot': "",
+                        'notification_period': "",
+                        'generic_sdirectives': newhash['generic_sdirectives'],
+                        })
             else:
                 self.templateAppend(self.fileName,
                                     self.templates["collector_main"],
@@ -168,8 +169,8 @@ class NagiosGen(FileGenerator):
                     # L'ancien code a été conservé ci-dessous.
                     self.templateAppend(self.fileName,
                                     self.templates["hostgroup"],
-                                    {"hostgroupName": i,
-                                     "hostgroupAlias": i})
+                                    {'hostgroupName': i,
+                                     'hostgroupAlias': i})
 #                    self.templateAppend(self.fileName,
 #                                    self.templates["hostgroup"],
 #                                    {"hostgroupName": i,
@@ -190,9 +191,9 @@ class NagiosGen(FileGenerator):
         host1 = aliased(Host, alias=Host.__table__.alias())
         host2 = aliased(Host, alias=Host.__table__.alias())
         dependencies = DBSession.query(
-                            host1.name.label("host1"),
-                            host2.name.label("host2"),
-                            VigiloServer.name.label("vserver"),
+                            host1.name.label('host1'),
+                            host2.name.label('host2'),
+                            VigiloServer.name.label('vserver'),
                         ).join(
                             (Dependency, Dependency.idsupitem == host1.idhost),
                             (DependencyGroup, DependencyGroup.idgroup ==
@@ -227,12 +228,12 @@ class NagiosGen(FileGenerator):
         if hostname not in self._graph.node:
             return []
 
-        vserver = self.ventilation[hostname]["nagios"]
+        vserver = self.ventilation[hostname]['nagios']
         if isinstance(vserver, list):
             vserver = vserver[0]
 
         deps = [ p for p in self._graph.predecessors(hostname)
-                 if self._graph.edge[p][hostname]["vserver"] == vserver ]
+                 if self._graph.edge[p][hostname]['vserver'] == vserver ]
         return deps
 
     def __fillservices(self, hostname, newhash):
@@ -262,57 +263,38 @@ class NagiosGen(FileGenerator):
             else:
                 perfdata = ""
             # Handle notification periods
-            if scopy.has_key("notification_period"):
-                scopy["notification_period"] = "notification_period " \
-                                            + scopy["notification_period"]
+            if scopy.has_key('notification_period'):
+                scopy['notification_period'] = "notification_period " \
+                                            + scopy['notification_period']
             else:
-                scopy["notification_period"] = ""
-            if scopy['type'] == 'passive':
-                # append a passive service template
+                scopy['notification_period'] = ""
+            if scopy['type'] == 'passive' or h['force-passive']:
+                # ajout d'un template de service passif
                 self.templateAppend(self.fileName, self.templates["collector"],
                         {'name': h['name'],
                          'serviceName': srvname,
                          'quietOrNot': newhash['quietOrNot'],
                          'perfDataOrNot': perfdata,
-                         "notification_period": scopy["notification_period"],
-                         "generic_sdirectives": generic_sdirectives})
+                         'notification_period': scopy['notification_period'],
+                         'generic_sdirectives': generic_sdirectives})
             elif scopy['type'] == 'active':
-                # force a passive service because host is defined as passive
-                if h["force-passive"]:
-                    self.templateAppend(self.fileName,
-                                        self.templates["collector"],
-                                        {'name' :  h['name'],
-                                         'serviceName' : srvname,
-                                         'quietOrNot': newhash['quietOrNot'],
-                                         'perfDataOrNot': perfdata,
-                                         'notification_period': scopy["notification_period"],
-                                         'generic_sdirectives': generic_sdirectives,})
-                else:
-                    # append an active service, named external, as in "not handled
-                    # by Collector"
-                    self.templateAppend(self.fileName, self.templates["ext"],
-                            {'name': h['name'],
-                             'desc': srvname,
-                             'command': scopy['command'],
-                             'quietOrNot': newhash['quietOrNot'],
-                             'perfDataOrNot': perfdata,
-                             "notification_period": scopy["notification_period"],
-                             "generic_sdirectives": generic_sdirectives})
+                # append an active service, named external, as in "not handled
+                # by Collector"
+                self.templateAppend(self.fileName, self.templates['ext'],
+                        {'name': h['name'],
+                         'desc': srvname,
+                         'command': scopy['command'],
+                         'quietOrNot': newhash['quietOrNot'],
+                         'perfDataOrNot': perfdata,
+                         'notification_period': scopy['notification_period'],
+                         'generic_sdirectives': generic_sdirectives})
 
             else:
-                # force a passive service because host is defined as passive
-                if h["force-passive"]:
-                    self.templateAppend(self.fileName,
-                            self.templates["collector"],
-                            {'name' :  h['name'],
-                             'serviceName' : srvname,
-                             'generic_sdirectives': generic_sdirectives,})
-                else:
-                    self.templateAppend(self.fileName,
-                            self.templates[ scopy['type'] ],
-                            {'name': h['name'],
-                             'desc': srvname,
-                             "generic_sdirectives": generic_sdirectives})
+                self.templateAppend(self.fileName,
+                        self.templates[ scopy['type'] ],
+                        {'name': h['name'],
+                         'desc': srvname,
+                         'generic_sdirectives': generic_sdirectives})
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
