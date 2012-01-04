@@ -80,13 +80,8 @@ class NagiosGen(FileGenerator):
             newhash['parents'] = ""
 
         # directives generiques du type host
-        newhash['generic_hdirectives'] = ""
-        if "nagiosDirectives" in newhash:
-            if "host" in newhash['nagiosDirectives']:
-                for directive, value in \
-                        newhash['nagiosDirectives']['host'].iteritems():
-                    newhash['generic_hdirectives'] += "%s    %s\n    " % \
-                                        (directive, value)
+        newhash['generic_hdirectives'] =  "".join(["%s    %s\n    " % item
+            for item in newhash['nagiosDirectives']['host'].iteritems()])
 
         # Add the host definition
         self.templateAppend(self.fileName, self.templates['host'], newhash)

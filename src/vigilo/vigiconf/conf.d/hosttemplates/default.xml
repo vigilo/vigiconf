@@ -5,7 +5,9 @@
     <!-- Nagios host template -->
     <attribute name="hostTPL">generic-active-host</attribute>
     <!-- Nagios host availablility check -->
-    <attribute name="checkHostCMD">check-host-alive</attribute>
+    <nagios>
+        <directive name="check_command">check-host-alive</directive>
+    </nagios>
     <!-- Default SNMP values -->
     <attribute name="snmpVersion">2</attribute>
     <attribute name="snmpCommunity">public</attribute>

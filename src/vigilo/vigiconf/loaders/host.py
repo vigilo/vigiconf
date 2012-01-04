@@ -148,7 +148,6 @@ class HostLoader(DBLoader):
             LOGGER.debug(_("Loading host %s"), hostname)
             hostname = unicode(hostname)
             host = dict(name=hostname,
-                        checkhostcmd=unicode(hostdata['checkHostCMD']),
                         hosttpl=unicode(hostdata['hostTPL']),
                         snmpcommunity=unicode(hostdata['snmpCommunity']),
                         address=unicode(hostdata['address']),

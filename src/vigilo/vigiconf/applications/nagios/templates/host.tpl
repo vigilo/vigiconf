@@ -3,7 +3,6 @@ define host{
     host_name               %(name)s
     alias                   %(name)s
     address                 %(address)s
-    check_command           %(checkHostCMD)s
     %(hostGroups)s
     %(quietOrNot)s
     %(parents)s
