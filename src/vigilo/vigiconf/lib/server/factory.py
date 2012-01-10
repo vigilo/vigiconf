@@ -73,7 +73,7 @@ class ServerFactory(object):
         else:
             if self.remote_class is None:
                 raise EditionError(_("On the Community Edition, you can "
-                                     "only use localhost"), name)
+                                     "only use localhost"))
             return self.remote_class(name)
 
 

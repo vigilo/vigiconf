@@ -109,6 +109,7 @@ setup(name='vigilo-vigiconf',
             'vigilo.vigiconf.applications': [
                 'collector = vigilo.vigiconf.applications.collector:Collector',
                 'connector-metro = vigilo.vigiconf.applications.connector_metro:ConnectorMetro',
+                'connector-nagios = vigilo.vigiconf.applications.connector_nagios:ConnectorNagios',
                 'nagios = vigilo.vigiconf.applications.nagios:Nagios',
                 'perfdata = vigilo.vigiconf.applications.perfdata:PerfData',
                 'vigirrd = vigilo.vigiconf.applications.vigirrd:VigiRRD',
