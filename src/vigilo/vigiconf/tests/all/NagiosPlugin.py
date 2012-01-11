@@ -9,8 +9,6 @@ from vigilo.vigiconf.lib.confclasses.test import Test
 class NagiosPlugin(Test):
     """Test générique pour utiliser un plugin Nagios indépendant"""
 
-    oids = [".1.3.6.1.4.1.2.6.191.1.2.1.0"]
-
     def add_test(self, host, name, command):
         """
         @param host: Le nom d'hôte pour le test
