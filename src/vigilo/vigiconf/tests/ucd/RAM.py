@@ -33,7 +33,8 @@ class RAM(Test):
         host.add_collector_service("RAM", "sup_rpn",
                 [ "RAM", warn, crit, "RAM: %2.2f%%" ] + rpn_percent_formula,
                 [ "WALK/.1.3.6.1.4.1.2021.4" ],
-                weight=self.weight, directives=self.directives)
+                weight=self.weight, warning_weight=self.warning_weight,
+                directives=self.directives)
         # Metro
         host.add_collector_metro("ram-buffer", "directValue", [],
                 [ "GET/.1.3.6.1.4.1.2021.4.14.0" ], "GAUGE",
@@ -55,4 +56,3 @@ class RAM(Test):
                                 "ram-buffer": 1024,
                                 "ram-cached": 1024,
                                 "Total RAM":  1024})
-

@@ -82,6 +82,7 @@ hosts element contains one ore more host elements
 
                 <xs:attribute name="name" type="xs:string"/>
                 <xs:attribute name="weight" type="xs:positiveInteger" use="optional"/>
+                <xs:attribute name="weight_warning" type="xs:positiveInteger" use="optional"/>
             </xs:complexType>
         </xs:element>
 

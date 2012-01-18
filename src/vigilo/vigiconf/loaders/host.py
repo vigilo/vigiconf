@@ -405,8 +405,11 @@ class ServiceLoader(DBLoader):
             service = unicode(service)
             weight = conf.hostsConf[self.host.name]['services'] \
                 [service]['weight']
+            warning_weight = conf.hostsConf[self.host.name]['services'] \
+                [service]['warning_weight']
             lls = dict(host=self.host, servicename=service,
-                       weight=weight, idcollector=idcollector)
+                       weight=weight, warning_weight=warning_weight,
+                       idcollector=idcollector)
             lls = self.add(lls)
 
             # directives Nagios du service
@@ -432,7 +435,8 @@ class CollectorLoader(ServiceLoader):
         if "SNMPJobs" in hostdata and hostdata['SNMPJobs']:
             LOGGER.debug('Adding "Collector" service on host %s',
                          self.host.name)
-            lls = dict(host=self.host, servicename=u"Collector", weight=1)
+            lls = dict(host=self.host, servicename=u"Collector",
+                        weight=1, warning_weight=1)
             lls = self.add(lls)
 
             # tags

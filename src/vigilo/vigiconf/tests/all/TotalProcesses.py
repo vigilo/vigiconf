@@ -19,10 +19,11 @@ class TotalProcesses(Test):
             crit: CRITICAL threshold
         """
         host.add_collector_service("Processes", "thresholds_OID_simple",
-                    [warn, crit, "%d process(es) running"], 
+                    [warn, crit, "%d process(es) running"],
                     ["GET/.1.3.6.1.2.1.25.1.6.0"], weight=self.weight,
+                    warning_weight=self.warning_weight,
                     directives=self.directives)
-        host.add_collector_metro("Processes", "directValue", [], 
+        host.add_collector_metro("Processes", "directValue", [],
                     ["GET/.1.3.6.1.2.1.25.1.6.0"], "GAUGE")
         host.add_graph("Total processes", [ "Processes" ], "lines",
                     "process(es)", group="Processes")

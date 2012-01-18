@@ -28,8 +28,9 @@ class Proxy(Test):
                 checkname = "check_proxy_ssl_auth"
             else:
                 checkname = "check_proxy_ssl"
-        host.add_external_sup_service( "Proxy %s"%url,
-                    "%s!%s!%s" % (checkname,port,url), weight=self.weight,
+        host.add_external_sup_service( "Proxy %s" % url,
+                    "%s!%s!%s" % (checkname,port,url),
+                    weight=self.weight, warning_weight=self.warning_weight,
                     directives=self.directives)
 
 

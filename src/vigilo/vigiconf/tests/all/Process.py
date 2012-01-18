@@ -28,10 +28,10 @@ class Process(Test):
                 "params": ".1.3.6.1.2.1.25.4.2.1.5",
                 }
         host.add_collector_service("Process %s"%label, "walk_grep_count",
-                [processname, warn, crit, "%%d instances of %s found" % label], 
+                [processname, warn, crit, "%%d instances of %s found" % label],
                 [ "WALK/%s" % oids[section] ], weight=self.weight,
-                directives=self.directives)
-        host.add_collector_metro(label, "m_walk_grep_count", [processname], 
+                warning_weight=self.warning_weight, directives=self.directives)
+        host.add_collector_metro(label, "m_walk_grep_count", [processname],
                 [ "WALK/%s" % oids[section] ], "GAUGE")
         host.add_graph("%s process(es)" % label, [ label ], "lines",
                     "process(es)", group="Processes")

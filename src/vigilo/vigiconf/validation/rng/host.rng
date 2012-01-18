@@ -91,6 +91,12 @@
                             </attribute>
                         </optional>
 
+                        <optional>
+                            <attribute name="warning_weight">
+                                <data type="positiveInteger"/>
+                            </attribute>
+                        </optional>
+
                         <interleave>
                             <zeroOrMore>
                                 <element name="arg">

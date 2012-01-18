@@ -24,6 +24,7 @@ class Ping(Test):
         crit = [ e.strip() for e in crit.split(",") ]
         host.add_external_sup_service("Ping", "check_ping!%s,%s%%!%s,%s%%" %
                         (warn[0],warn[1],crit[0],crit[1]), weight=self.weight,
+                        warning_weight=self.warning_weight,
                         directives=self.directives)
         host.add_perfdata_handler("Ping", 'Ping-loss', 'Loss', 'pl')
         host.add_perfdata_handler("Ping", 'Ping-RTA', 'Round-trip average', 'rta')

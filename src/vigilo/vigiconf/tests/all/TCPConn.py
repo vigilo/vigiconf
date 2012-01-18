@@ -19,10 +19,11 @@ class TCPConn(Test):
             crit: CRITICAL threshold
         """
         host.add_collector_service("TCP connections", "thresholds_OID_simple",
-                    [warn, crit, "%d established TCP connections"], 
+                    [warn, crit, "%d established TCP connections"],
                     ["GET/.1.3.6.1.2.1.6.9.0"], weight=self.weight,
+                    warning_weight=self.warning_weight,
                     directives=self.directives)
-        host.add_collector_metro("TCP connections", "directValue", [], 
+        host.add_collector_metro("TCP connections", "directValue", [],
                     ["GET/.1.3.6.1.2.1.6.9.0"], "GAUGE")
         host.add_graph("TCP connections", [ "TCP connections" ], "lines",
                     "conns", group="Performance")

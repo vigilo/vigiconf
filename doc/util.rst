@@ -417,6 +417,9 @@ avec VigiConf. Par défaut, les attributs suivants sont disponibles :
   permettant de se connecter en Telnet à l'hôte ;
 - "``timeout``": délai d'attente utilisé lors de la connexion Telnet à l'hôte.
 
+
+.. _`configuration des tests d'un hôte`:
+
 Balise "``test``"
 ^^^^^^^^^^^^^^^^^
 Syntaxe:
@@ -440,13 +443,24 @@ possède un attribut ``name`` obligatoire qui désigne le test de supervision
 à appliquer (par exemple : "``CPU``" pour superviser l'état du processeur d'un
 équipement).
 
-Elle accepte un attribut ``weight``, contenant un entier positif et permettant
+Elle accepte un attribut optionnel ``weight``, contenant un entier positif et permettant
 de configurer le poids apporté par les services techniques associés à ce test
 lorsqu'ils se trouvent dans un état supposé nominal (OK ou UNKNOWN).
 Ce poids est utilisé pour le calcul de l'état des
 :ref:`services de haut niveau <hlservices>`.
 Si cet attribut n'est pas configuré, le poids associé aux services techniques
-vaudra 1.
+dans l'état OK ou UNKNOWN vaudra 1.
+
+De même, elle accepte un attribut optionnel ``warning_weight``, contenant
+un entier positif et permettant de configurer le poids apporté par
+les services techniques associés à ce test lorsqu'ils se trouvent
+dans un état dégradé (WARNING).
+Ce poids est utilisé pour le calcul de l'état des
+:ref:`services de haut niveau <hlservices>`.
+Si cet attribut n'est pas configuré, le poids associé aux services techniques
+dans l'état WARNING sera le même que celui configuré par l'attibut ``weight``.
+La valeur configurée dans cette attribut doit toujours être inférieure ou égale
+à celle configurée dans l'attribut ``weight``.
 
 Un test accepte généralement zéro, un ou plusieurs arguments, qui doivent être
 passés dans l'ordre lors de la déclaration du test, à l'aide de la balise
@@ -669,18 +683,25 @@ Exemple:
 
 Balise "``test``"
 ^^^^^^^^^^^^^^^^^
-Un bloc de données ``test`` possède un attributs : ``name``.
+Un bloc de données ``test`` possède les attributs suivants :
+
+- ``name`` (1 exactement)
+- ``weight`` (0 ou 1 exactement)
+- ``warning_weight`` (0 ou 1 exactement)
 
 Un bloc de données ``test`` contient les blocs suivants, dans l'ordre :
 
 - ``arg`` (0 ou plus)
 - ``nagios`` (0 ou 1)
 
+Reportez-vous à la documentation sur la `configuration des tests d'un hôte`_
+pour plus d'information sur les attributs et blocs acceptés par cette balise.
+
 Exemple:
 
 ..  sourcecode:: xml
 
-    <test name="Errpt"/>
+    <test name="Errpt" weight="42"/>
     <test name="Proc">
       <arg name="label">aixmibd</arg>
       <arg name="processname">.*aixmibd .*</arg>
@@ -884,6 +905,7 @@ Un bloc de données ``hlservice`` contient les blocs de données suivants, dans 
 - critical_priority (0 ou 1 exactement)
 - operator (1 exactement)
 - weight (0 ou 1 exactement)
+- warning_weight (0 ou 1 exactement)
 - group (0 ou plus)
 - depends (0 ou plus)
 
@@ -898,6 +920,7 @@ Un bloc de données ``hlservice`` contient les blocs de données suivants, dans 
       <critical_priority>10</critical_priority>
       <operator>PLUS</operator>
       <weight>42</weight>
+      <warning_weight>21</warning_weight>
       <group>hlsgroup1</group>
       <group>hlsgroup2</group>
       <depends host="routeur1.example.com" service="Interface eth0"/>
@@ -1065,6 +1088,19 @@ Exemple:
     valeur est utilisée aussi bien lorsque le service se trouve dans l'état
     OK (état nominal) que lorsqu'il se trouve dans l'état UNKNOWN (état inconnu,
     supposé nominal).
+
+Balise "``warning_weight``"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Le bloc de données ``warning_weight`` contient le poids apporté par ce service
+de haut niveau lorsqu'il se trouve dans un état dégradé (WARNING).
+La valeur indiquée dans cette balise doit être un entier positif, inférieur
+ou égal à celui donné dans la balise ``weight``.
+
+Exemple:
+
+..  sourcecode:: xml
+
+    <warning_weight>42</warning_weight>
 
 Balise "``group``"
 ^^^^^^^^^^^^^^^^^^

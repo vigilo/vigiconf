@@ -167,7 +167,43 @@ class Host(object):
         for attr_name, attr_value in attributes.iteritems():
             self.set_attribute(attr_name, attr_value)
 
-    def add_tests(self, test_list, args=None, weight=None, directives=None):
+    def _get_warning_weight(self, label, weight, warning_weight):
+        """
+        Retourne le poids à utiliser pour un service lorsqu'il passe
+        dans l'état WARNING.
+
+        @param label: Nom du service dans Nagios.
+        @type label: C{str}
+        @param weight: Poids du service lorsqu'il se trouve dans
+            l'état OK ou UNKNOWN.
+        @type weight: C{int}
+        @param warning_weight: Poids indicatif demandé par l'utilisateur
+            pour ce service lorsqu'il se trouve dans l'état WARNING.
+            Si C{None} est passé comme valeur, la valeur par défaut est
+            renvoyée (ie. la valeur de C{weight}).
+        @type warning_weight: C{int} or None
+        @return: Valeur effective du poids de ce service lorsqu'il
+            se trouve dans l'état WARNING.
+        @rtype: C{int}
+        """
+        if warning_weight is None:
+            return weight
+
+        if warning_weight > weight:
+            raise ParsingError(_("warning_weight (%(warning_weight)d) must be "
+                                "less than or equal to weight (%(weight)d) "
+                                "for test '%(test)s' on host '%(host)s'") % {
+                                    'test': label,
+                                    'host': self.name,
+                                    'warning_weight': warning_weight,
+                                    'weight': weight,
+                                })
+        return warning_weight
+
+
+    def add_tests(self, test_list, args=None,
+                    weight=None, warning_weight=None,
+                    directives=None):
         """
         Add a list of tests to this host, with the provided arguments
 
@@ -175,11 +211,16 @@ class Host(object):
         @type  test_list: C{list} of C{Test<.test.Test>}
         @param args: the test arguments
         @type  args: C{dict}
-        @param weight: the test weight
+        @param weight: the test weight when in the OK state
         @type  weight: C{int}
+        @param warning_weight: the test weight when in the WARNING state
+        @type  warning_weight: C{int}
         """
         if weight is None:
             weight = 1
+
+        warning_weight = self._get_warning_weight('', weight, warning_weight)
+
         if directives is None:
             directives = {}
         if args is None:
@@ -189,6 +230,7 @@ class Host(object):
             try:
                 inst.directives = directives
                 inst.weight = weight
+                inst.warning_weight = warning_weight
                 inst.add_test(self, **args)
             except TypeError:
                 spec = inspect.getargspec(inst.add_test)
@@ -324,7 +366,8 @@ class Host(object):
 #### Collector-related functions ####
 
     def add_collector_service(self, label, function, params, variables,
-                              reroutefor=None, weight=1, directives=None):
+                              reroutefor=None, weight=1, warning_weight=None,
+                              directives=None):
         """
         Add a supervision service to the Collector
         @param label: the service display label
@@ -341,8 +384,10 @@ class Host(object):
             given by the "host" and "service" keys of this dict,
             respectively.
         @type  reroutefor: C{dict}
-        @param weight: service weight
+        @param weight: service weight when in the OK state
         @type  weight: C{int}
+        @param warning_weight: service weight when in the WARNING state
+        @type  warning_weight: C{int}
         """
         # Handle rerouting
         if reroutefor == None:
@@ -369,6 +414,8 @@ class Host(object):
         definition = {
             'type': 'passive',
             'weight': weight,
+            'warning_weight': self._get_warning_weight(
+                                service, weight, warning_weight),
             'directives': directives,
             'reRoutedBy': reroutedby,
         }
@@ -432,7 +479,8 @@ class Host(object):
 
     def add_collector_service_and_metro(self, name, label, supfunction,
                     supparams, supvars, metrofunction, metroparams, metrovars,
-                    dstype, reroutefor=None, weight=1, directives=None):
+                    dstype, reroutefor=None, weight=1, warning_weight=None,
+                    directives=None):
         """
         Helper function for L{add_collector_service}() and
         L{add_collector_metro}().
@@ -456,19 +504,22 @@ class Host(object):
         @type  dstype: "GAUGE" or "COUNTER", see RRDtool documentation
         @param reroutefor: service routing information
         @type  reroutefor: C{dict} with "host" and "service" as keys
-        @param weight: service weight
+        @param weight: service weight when in the OK state
         @type  weight: C{int}
+        @param warning_weight: service weight when in the WARNING state
+        @type  warning_weight: C{int}
         """
         self.add_collector_service(name, supfunction, supparams, supvars,
                         reroutefor=reroutefor, weight=weight,
-                        directives=directives)
+                        warning_weight=warning_weight, directives=directives)
         self.add_collector_metro(name, metrofunction, metroparams, metrovars,
                                  dstype, label=label, reroutefor=reroutefor)
 
     def add_collector_service_and_metro_and_graph(self, name, label, oid,
             th1, th2, dstype, template, vlabel, supcaption=None,
             supfunction="thresholds_OID_simple", metrofunction="directValue",
-            group="General", reroutefor=None, weight=1, directives=None):
+            group="General", reroutefor=None, weight=1, warning_weight=None,
+            directives=None):
         """
         Helper function for L{add_collector_service}(),
         L{add_collector_metro}() and L{add_graph}(). See those methods for
@@ -481,7 +532,10 @@ class Host(object):
         self.add_collector_service_and_metro(name, label, supfunction,
                     [th1, th2, supcaption], ["GET/%s"%oid], metrofunction,
                     [], [ "GET/%s"%oid ], dstype,
-                    reroutefor=reroutefor, weight=weight, directives=directives)
+                    reroutefor=reroutefor,
+                    weight=weight,
+                    warning_weight=warning_weight,
+                    directives=directives)
         if reroutefor != None:
             target = reroutefor['host']
             name = reroutefor['service']
@@ -554,15 +608,18 @@ class Host(object):
                                                    "dateSetting": datesetting})
 
     def add_external_sup_service(self, name, command=None,
-                                 weight=1, directives=None):
+                                 weight=1, warning_weight=None,
+                                 directives=None):
         """
         Add a standard Nagios service
         @param name: the service name
         @type  name: C{str}
         @param command: the command to use
         @type  command: C{str}
-        @param weight: service weight
+        @param weight: service weight when in the OK state
         @type  weight: C{int}
+        @param warning_weight: service weight when in the WARNING state
+        @type  warning_weight: C{int}
         """
         if directives is None:
             directives = {}
@@ -571,6 +628,8 @@ class Host(object):
 
         definition =  {'command': command,
                        'weight': weight,
+                       'warning_weight': self._get_warning_weight(
+                                            name, weight, warning_weight),
                        'directives': directives,
                        'reRoutedBy': None,
                       }
@@ -585,7 +644,8 @@ class Host(object):
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, 'services', name, key, value)
 
-    def add_custom_service(self, name, stype, weight=1, directives=None):
+    def add_custom_service(self, name, stype, weight=1, warning_weight=None,
+                            directives=None):
         """
         Ajoute un service Nagios quasiment entièrement défini par un des
         modèles fournis dans le générateur Nagios.
@@ -594,8 +654,10 @@ class Host(object):
         @type  name: C{str}
         @param stype: the service type
         @type  stype: C{str}
-        @param weight: service weight
+        @param weight: service weight when in the OK state
         @type  weight: C{int}
+        @param warning_weight: service weight when in the WARNING state
+        @type  warning_weight: C{int}
         """
         if directives is None:
             directives = {}
@@ -604,6 +666,8 @@ class Host(object):
 
         definition =  {'type': stype,
                        'weight': weight,
+                       'warning_weight': self._get_warning_weight(
+                                            name, weight, warning_weight),
                        'directives': directives,
                        'reRoutedBy': None,
                       }
@@ -652,7 +716,7 @@ class Host(object):
                      'reRouteFor': reroutefor})
 
     def add_metro_service(self, servicename, metroname, warn, crit,
-                          factor=1, weight=1):
+                          factor=1, weight=1, warning_weight=None):
         """
         Add a Nagios test on the values stored in a RRD file
         @param servicename: the name of the Nagios service
@@ -667,7 +731,8 @@ class Host(object):
         @type  factor: C{int} or C{float}
         """
         # Ajout du service Nagios
-        self.add_custom_service(servicename, "metro", weight=weight)
+        self.add_custom_service(servicename, "metro",
+                                weight=weight, warning_weight=warning_weight)
         # Ajout des seuils pour le connector-metro.
         self.add(self.name, "metro_services", metroname, {
             'servicename': servicename,
@@ -896,7 +961,7 @@ class HostFactory(object):
                         test_weight = int(test_weight)
                     except ValueError:
                         raise ParsingError(
-                            _("Invalid weight value for test %(test)s "
+                            _("Invalid value for weight in test %(test)s "
                                 "on host %(host)s: %(weight)r") % {
                                 'test': test_name,
                                 'host': cur_host.name,
@@ -905,12 +970,29 @@ class HostFactory(object):
                     except TypeError:
                         # C'est None, on laisse prendre la valeur par défaut
                         pass
+
+                    test_warn_weight = get_attrib(elem, 'warning_weight')
+                    try:
+                        test_warn_weight = int(test_warn_weight)
+                    except ValueError:
+                        raise ParsingError(
+                            _("Invalid value for warning_weight in test "
+                                "%(test)s on host %(host)s: %(warning_weight)r"
+                              ) % {
+                                'test': test_name,
+                                'host': cur_host.name,
+                                'warning_weight': test_warn_weight,
+                            })
+                    except TypeError:
+                        # C'est None, on laisse prendre la valeur par défaut
+                        pass
+
                     args = {}
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
                             args[get_attrib(arg, 'name')] = get_text(arg)
                     tests.append( (test_name, args, test_weight,
-                                   test_directives) )
+                                   test_warn_weight, test_directives) )
                     test_name = None
 
                 elif elem.tag == "attribute":

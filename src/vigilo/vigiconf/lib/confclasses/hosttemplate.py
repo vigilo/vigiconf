@@ -64,7 +64,6 @@ class HostTemplate(object):
             }
         self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
-                           "weight": int,
                           }
         self.deprecated_attr = {
             "community": "snmpCommunity",
@@ -90,7 +89,8 @@ class HostTemplate(object):
             p = [ p, ]
         self.data["parent"].extend(p)
 
-    def add_test(self, testname, args=None, weight=None, directives=None):
+    def add_test(self, testname, args=None, weight=None, warning_weight=None,
+                 directives=None):
         """
         Add a test to this host template
         @param testname: the test name
@@ -109,9 +109,8 @@ class HostTemplate(object):
         t_dict = {"name": testname}
         if args:
             t_dict["args"] = args
-        if weight is None:
-            weight = 1
         t_dict["weight"] = weight
+        t_dict["warning_weight"] = warning_weight
         t_dict["directives"] = directives
         self.data["tests"].append(t_dict)
 
@@ -139,6 +138,12 @@ class HostTemplate(object):
         self.data["classes"].append(classname)
 
     def add_weight(self, weight):
+        """
+        Ajoute un poids à l'hôte.
+
+        @param weight: Nouveau poids associé à l'hôte.
+        @type weight: C{int}
+        """
         self.data["weight"] = weight
 
     def add(self, prop, key, value):
@@ -405,7 +410,7 @@ class HostTemplateFactory(object):
                     try:
                         test_weight = int(test_weight)
                     except ValueError:
-                        raise ParsingError(_("Invalid weight value for test "
+                        raise ParsingError(_("Invalid value for weight in test "
                             "%(test)s in template %(tpl)s: %(weight)r") % {
                             'test': test_name,
                             'tpl': cur_tpl.name,
@@ -414,13 +419,30 @@ class HostTemplateFactory(object):
                     except TypeError:
                         # C'est None, on laisse prendre la valeur par défaut
                         pass
+
+                    test_warn_weight = get_attrib(elem, 'warning_weight')
+                    try:
+                        test_warn_weight = int(test_warn_weight)
+                    except ValueError:
+                        raise ParsingError(
+                            _("Invalid value for warning_weight in test "
+                              "%(test)s in template %(tpl)s: "
+                              "%(warning_weight)r") % {
+                                'test': test_name,
+                                'tpl': cur_tpl.name,
+                                'warning_weight': test_warn_weight,
+                            })
+                    except TypeError:
+                        # C'est None, on laisse prendre la valeur par défaut
+                        pass
+
                     args = {}
                     for arg in elem.getchildren():
                         if arg.tag != "arg":
                             continue
                         args[get_attrib(arg, 'name')] = get_text(arg)
                     cur_tpl.add_test(test_name, args, test_weight,
-                                     test_directives)
+                                     test_warn_weight, test_directives)
                     test_name = None
 
                 elif elem.tag == "nagios":
@@ -431,7 +453,7 @@ class HostTemplateFactory(object):
                     try:
                         weight = int(weight)
                     except ValueError:
-                        raise ParsingError(_("Invalid weight value for "
+                        raise ParsingError(_("Invalid value for weight in "
                             "template %(tpl)s: %(weight)r") % {
                             'tpl': cur_tpl.name,
                             'weight': weight,
@@ -459,7 +481,7 @@ class HostTemplateFactory(object):
         """
         Applies a template to a host
         @param host: the host to apply to
-        @type  host: L{Server<lib.server.Server>}
+        @type  host: L{Host<vigilo.vigiconf.lib.confclasses.host.Host>}
         @param tplname: the name of the template to apply
         @type  tplname: C{str}
         """
@@ -502,17 +524,16 @@ class HostTemplateFactory(object):
                             % {"tplname": tplname,
                                "hostname": host.name,
                                "testname": testdict["name"]})
-                test_args = {}
-                if testdict.has_key("args"):
-                    test_args = testdict["args"]
-                test_weight = None
-                if "weight" in testdict and testdict["weight"] is not None \
-                            and testdict["weight"] != 1:
-                    test_weight = testdict["weight"]
+
+                test_args = testdict.get("args", {})
+                test_weight = testdict.get("weight")
+                test_warn_weight = testdict.get("warning_weight")
+
                 host.add_tests(test_list, args=test_args, weight=test_weight,
+                               warning_weight=test_warn_weight,
                                directives=testdict["directives"])
 
-        # weight
+        # weight de l'hôte
         if tpl.get("weight") is not None:
             host.set_attribute("weight", tpl["weight"])
 

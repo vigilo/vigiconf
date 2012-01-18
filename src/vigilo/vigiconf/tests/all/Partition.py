@@ -31,7 +31,8 @@ class Partition(Test):
                      "WALK/.1.3.6.1.2.1.25.2.3.1.4",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.5",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.6" ],
-                    weight=self.weight, directives=self.directives)
+                    weight=self.weight, warning_weight=self.warning_weight,
+                    directives=self.directives)
         host.add_collector_metro("%s part"%label, "m_table_mult", [partname],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.6",

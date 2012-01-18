@@ -21,9 +21,9 @@ class InterrCS(Test):
         @param crit: CRITICAL threshold
         """
         # Metrology
-        host.add_collector_metro("Interrupts", "directValue", [], 
+        host.add_collector_metro("Interrupts", "directValue", [],
                     [ "GET/.1.3.6.1.4.1.2021.11.59.0" ], "COUNTER")
-        host.add_collector_metro("Context Switches", "directValue", [], 
+        host.add_collector_metro("Context Switches", "directValue", [],
                     [ "GET/.1.3.6.1.4.1.2021.11.60.0" ], "COUNTER")
         host.add_graph("Interrupts and C.S.", [ "Interrupts","Context Switches" ],
                     "lines", "occurences", group="Performance")
@@ -31,10 +31,10 @@ class InterrCS(Test):
         if warn is not None and crit is not None:
             if warn[0] is not None and crit[0] is not None:
                 host.add_metro_service("Interrupts", "Interrupts", warn[0], crit[0],
-                        weight=self.weight)
+                        weight=self.weight, warning_weight=self.warning_weight)
             if warn[1] is not None and crit[1] is not None:
                 host.add_metro_service("Context Switches", "Context Switches", warn[1], crit[1],
-                        weight=self.weight)
+                        weight=self.weight, warning_weight=self.warning_weight)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

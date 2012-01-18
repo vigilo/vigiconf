@@ -21,9 +21,10 @@ class HTTP_url(Test):
         if url.startswith("http://"):
             url = url[7:]
 
-        host.add_external_sup_service(service, "check_http_url!%s!%s" %
-            (port, url), weight=self.weight, directives=self.directives)
+        host.add_external_sup_service(
+            service, "check_http_url!%s!%s" % (port, url),
+            weight=self.weight, warning_weight=self.warning_weight,
+            directives=self.directives)
 
         host.add_perfdata_handler(service, 'HTTP-time', 'response time', 'time')
         host.add_graph("HTTP response time", [ 'HTTP-time' ], 'lines', 's')
-

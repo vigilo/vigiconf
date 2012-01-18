@@ -28,9 +28,9 @@ class DiskIO(Test):
         if warn is not None and crit is not None:
             if warn[0] is not None and crit[0] is not None:
                 host.add_metro_service("IO Reads", "IO Reads", warn[0],
-                                       crit[0], weight=self.weight)
+                                       crit[0], weight=self.weight,
+                                       warning_weight=self.warning_weight)
             if warn[1] is not None and crit[1] is not None:
                 host.add_metro_service("IO Writes", "IO Writes", warn[1],
-                                       crit[1], weight=self.weight)
-
-
+                                       crit[1], weight=self.weight,
+                                       warning_weight=self.warning_weight)

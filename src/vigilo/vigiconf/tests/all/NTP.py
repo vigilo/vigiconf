@@ -19,7 +19,9 @@ class NTP(Test):
             "Test NTP has been deprecated. Please use NagiosPlugin instead")
             ).encode('utf-8'))
 
-        host.add_external_sup_service("NTP", "check_ntp_ntpq", weight=self.weight,
+        host.add_external_sup_service("NTP", "check_ntp_ntpq",
+                                        weight=self.weight,
+                                        warning_weight=self.warning_weight,
                                         directives=self.directives)
 
 

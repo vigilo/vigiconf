@@ -17,7 +17,8 @@ class NagiosPlugin(Test):
         """
         # Service
         host.add_external_sup_service(name, command,
-                weight=self.weight, directives=self.directives)
+                weight=self.weight, warning_weight=self.warning_weight,
+                directives=self.directives)
         # TODO: ajouter la métrologie
 
 

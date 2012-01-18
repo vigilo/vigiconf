@@ -32,6 +32,7 @@ class HostMethods(unittest.TestCase):
             "metrosrv": {
                 "type": "metro",
                 "weight": 1,
+                "warning_weight": 1,
                 "directives": {},
                 "reRoutedBy": None,
             },

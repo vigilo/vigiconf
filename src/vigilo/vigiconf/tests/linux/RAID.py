@@ -12,7 +12,9 @@ class RAID(Test):
             host:   the Host object to add the test to
         """
         host.add_external_sup_service("RAID", "check_nrpe_1arg!check_raid",
-                              weight=self.weight, directives=self.directives)
+                              weight=self.weight,
+                              warning_weight=self.warning_weight,
+                              directives=self.directives)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
