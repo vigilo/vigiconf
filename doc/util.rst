@@ -28,12 +28,16 @@ L'installation de VigiConf se fait en installant simplement le paquet RPM
 de paquets utilisé. Les instructions suivantes décrivent la procédure pour les
 gestionnaires de paquets RPM les plus fréquemment rencontrés.
 
-Installation à l'aide de urpmi::
+Installation à l'aide de urpmi:
+
+..  sourcecode:: bash
 
     urpmi vigilo-vigiconf        # sur la machine d'administration
     urpmi vigilo-vigiconf-local  # sur les autres machines
 
-Installation à l'aide de yum::
+Installation à l'aide de yum:
+
+..  sourcecode:: bash
 
     yum install vigilo-vigiconf        # sur la machine d'administration
     yum install vigilo-vigiconf-local  # sur les autres machines
@@ -50,31 +54,37 @@ documentation de la configuration du parc informatique supervisé, reportez-vous
 au chapitre :ref:`confparc`.
 
 Par défaut, la configuration de VigiConf se trouve dans
-``/etc/vigilo/vigiconf/settings.ini``. Vous devrez **impérativement** modifier
-ce fichier de configuration avant d'utiliser VigiConf.
+:file:`/etc/vigilo/vigiconf/settings.ini`. Vous devrez **impérativement**
+modifier ce fichier de configuration avant d'utiliser VigiConf.
 
 Si vous le souhaitez, vous pouvez également placer les options de configuration
 communes à tous les modules de Vigilo installés sur la machine dans le fichier
-``/etc/vigilo/settings.ini``. Ce fichier générique sera chargé en premier au
-lancement de VigiConf.
+:file:`/etc/vigilo/settings.ini`. Ce fichier générique sera chargé en premier
+au lancement de VigiConf.
 
 Ces fichiers sont composés de différentes sections permettant de paramétrer des
 aspects divers de VigiConf, chacune de ces sections peut contenir un ensemble
 de valeurs sous la forme ``cle=valeur``. Les lignes commençant par ";" ou "#"
 sont des commentaires et sont par conséquent ignorées.
 
-Le format de ces fichiers peut donc être résumé dans l'extrait suivant::
+Le format de ces fichiers peut donc être résumé dans l'extrait suivant:
+
+..  sourcecode:: ini
 
     # Ceci est un commentaire
     ; Ceci est également un commentaire
+
     [section1]
     option1=valeur1
-    option2=valeur2
-    ...
+    ; ...
+    optionN=valeurN
 
-    [section2]
-    option1=val1
-    ...
+    ; ...
+
+    [sectionN]
+    option1=valeur1
+    ; ...
+    optionN=valeurN
 
 
 Configuration de la base de données
@@ -163,7 +173,7 @@ L'option "``libdir``" permet de spécifier l'emplacement du répertoire de
 travail servant à générer les fichiers de configuration des applications.
 
 La valeur définie dans la configuration initiale est
-``/var/lib/vigilo/vigiconf``.
+:file:`/var/lib/vigilo/vigiconf`.
 
 Emplacement final de la configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -171,7 +181,8 @@ La directive "``targetconfdir``" permet d'indiquer le dossier vers lequel les
 fichiers de configuration finaux seront télé-déployés sur les serveurs de
 supervision.
 
-La valeur définie dans la configuration initiale est ``/etc/vigilo/vigiconf``.
+La valeur définie dans la configuration initiale est
+:file:`/etc/vigilo/vigiconf`.
 Les applications dont dépend Vigilo (ex : Nagios) doivent être configurées pour
 aller chercher leur fichier de configuration dans le sous-dossier "``prod``" de
 ce dossier.
@@ -186,7 +197,7 @@ d'enregistrer des points d'entrée Python afin d'ajouter de nouvelles
 fonctionnalités.
 
 La valeur de cette option dans la configuration initiale fournie avec VigiConf
-est ``/etc/vigilo/vigiconf/plugins``.
+est :file:`/etc/vigilo/vigiconf/plugins`.
 
 Emplacement du socket du connecteur-nagios
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -194,8 +205,8 @@ L'option "``socket_nagios_to_vigilo``" contient le chemin d'accès jusqu'au
 connecteur-nagios sur les machines où une configuration pour Nagios est
 télé-déployée.
 La valeur lors d'une nouvelle installation est
-``/var/lib/vigilo/connector-nagios/send.sock``, ce qui correspond à la valeur
-par défaut dans la configuration du connector-nagios.
+:file:`/var/lib/vigilo/connector-nagios/send.sock`, ce qui correspond à la
+valeur par défaut dans la configuration du connector-nagios.
 
 Emplacement du verrou
 ^^^^^^^^^^^^^^^^^^^^^
@@ -206,7 +217,7 @@ l'arrêt de VigiConf.
 
 La directive "``lockfile``" permet de spécifier l'emplacement du fichier qui
 correspondra au verrou. Dans la configuration fournie par défaut avec VigiConf,
-le verrou est enregistré dans ``/var/lock/vigilo-vigiconf/vigiconf.token``.
+le verrou est enregistré dans :file:`/var/lock/vigilo-vigiconf/vigiconf.token`.
 
 Mode de simulation des opérations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -237,22 +248,23 @@ Afin d'éviter les erreurs de saisie dans les fichiers de configuration de
 VigiConf, ceux-ci font systématiquement l'objet d'une validation à l'aide de
 schémas XML.
 
-Ces schémas sont stockés dans::
+Ces schémas sont stockés dans:
 
-    ``<Python>/site-packages/vigilo/vigiconf/validation/xsd/``.
+    :file:`/usr/lib{arch}/python{version}/site-packages/vigilo/vigiconf/validation/xsd/`
 
 Par exemple, pour une installation standard de Python 2.5 sur une machine
-équipée d'une architecture x86::
+équipée d'une architecture x86:
 
-    ``/usr/lib/python2.5/site-packages/vigilo/vigiconf/validation/xsd/``.
+    :file:`/usr/lib/python2.5/site-packages/vigilo/vigiconf/validation/xsd/`
 
-Dans la suite de ce document, on considère qu'un fichier ``<fichier>.xml`` de
+Dans la suite de ce document, on considère qu'un fichier :samp:`{type}.xml` de
 la configuration de VigiConf est valide s'il respecte le schéma défini dans le
-fichier ``<fichier>.xsd`` situé dans ce répertoire.
+fichier :samp:`{type}.xsd` situé dans ce répertoire correspondant au type
+d'objet manipulé.
 
 Pour le reste des explications de ce chapitre, tous les emplacements de
 fichiers ou dossiers indiqués sont relatifs au dossier de configuration du parc
-(par défaut, ``/etc/vigilo/vigiconf/conf.d/``)
+(par défaut, :file:`/etc/vigilo/vigiconf/conf.d/`)
 
 
 Configuration des hôtes
@@ -265,14 +277,16 @@ la définition d'un ou plusieurs hôtes.
 La balise à la racine de ce document se nomme "``hosts``" et peut contenir un
 ou plusieurs blocs "``host``", correspondant chacun à la définition d'un hôte.
 
-Le fragment de code suivant rappelle la structure générale du fichier::
+Le fragment de code suivant rappelle la structure générale du fichier:
+
+..  sourcecode:: xml
 
     <?xml version="1.0"?>
     <hosts>
-      <host name="host1" ...>
+      <host name="host1" attr1="..." attr2="..." attrN="...">
         ...
       </host>
-      <host name="host2" ...>
+      <host name="host2" attr1="..." attr2="..." attrN="...">
         ...
       </host>
       ...
@@ -280,7 +294,9 @@ Le fragment de code suivant rappelle la structure générale du fichier::
 
 Définition d'un hôte
 ^^^^^^^^^^^^^^^^^^^^
-Un hôte est défini à l'aide d'une balise *host* ayant la forme suivante::
+Un hôte est défini à l'aide d'une balise *host* ayant la forme suivante:
+
+..  sourcecode:: xml
 
     <host name="localhost" address="127.0.0.1" ventilation="P-F">
       ...
@@ -323,7 +339,11 @@ La balise *host* peut contenir les balises suivantes :
 
 Balise "``class``"
 ^^^^^^^^^^^^^^^^^^
-Syntaxe : ``<class>nom de la classe</class>``.
+Syntaxe:
+
+..  sourcecode:: xml
+
+    <class>nom de la classe</class>
 
 Indique la ou les classes d'équipements auxquelles l'hôte appartient. En
 fonction de ces classes, des tests spécifiques peuvent être disponibles afin
@@ -331,7 +351,11 @@ d'obtenir des informations plus précises sur l'état de l'équipement.
 
 Balise "``template``"
 ^^^^^^^^^^^^^^^^^^^^^
-Syntaxe : ``<template>nom du modèle</template>``.
+Syntaxe:
+
+..  sourcecode:: xml
+
+    <template>nom du modèle</template>
 
 Précise le nom du modèle d'hôtes duquel cet hôte hérite une partie de ses
 propriétés. L'utilisation de l'héritage est pratique lorsque votre parc est
@@ -340,15 +364,27 @@ définir un modèle (template) pour chaque type d'équipement avec tous les test
 associés et créer ensuite simplement une définition d'hôte pour chaque
 équipement.
 
-Les valeurs définies au niveau d'un hôte écrase toujours les valeurs définies
-au niveau d'un modèle hérité (en particulier, les paramètres des tests).
+Cette balise peut être utilisée à plusieurs reprises. Les paramètres du dernier
+modèle chargé écrasent ceux des modèles précédents. Les valeurs définies au
+niveau d'un hôte écrase toujours les valeurs définies au niveau d'un modèle
+hérité (en particulier, les paramètres des tests).
 
-**Note :** le modèle doit avoir été défini à l'aide de la balise *hosttemplate*
-(voir :ref:`hosttemplate`).
+..  note::
+    Pour être utilisable via cette balise, le modèle doit avoir été défini
+    à l'aide de la balise *hosttemplate* (voir :ref:`hosttemplate`).
+
+..  warning::
+    En cas de conflits liés aux dépendances des modèles, il se peut que les
+    modèles soient réordonnés (un message d'avertissement est alors émis par
+    VigiConf lors du déploiement). Dans ce cas, l'ordre d'application des
+    paramètres peut être légèrement différent de l'ordre d'affectation des
+    modèles dans le fichier de configuration.
 
 Balise "``attribute``"
 ^^^^^^^^^^^^^^^^^^^^^^
-Syntaxes::
+Syntaxes:
+
+..  sourcecode:: xml
 
     <attribute name="nom de l'attribut">valeur de l'attribut</attribute>
 
@@ -360,7 +396,7 @@ Syntaxes::
 Cette balise permet de fixer certains des attributs de l'hôte, comme par
 exemple le nombre de processeurs présents sur la machine. En général, ces
 informations sont extraites automatiquement des équipements par une
-interrogation SNMP (voir à ce sujet le chapitre « TODO »).
+interrogation SNMP (voir à ce sujet le chapitre « :ref:`discover` »).
 
 Les noms d'attributs utilisables dépendent des tests de supervision installés
 avec VigiConf. Par défaut, les attributs suivants sont disponibles :
@@ -383,7 +419,9 @@ avec VigiConf. Par défaut, les attributs suivants sont disponibles :
 
 Balise "``test``"
 ^^^^^^^^^^^^^^^^^
-Syntaxe::
+Syntaxe:
+
+..  sourcecode:: xml
 
     <test name="nom du test">
       <arg name="nom_argument_1">valeur argument 1</arg>
@@ -397,18 +435,38 @@ Syntaxe::
       </nagios>
     </test>
 
-La balise ``test`` permet d'ajouter un test de supervision à l'hôte. Un test
-accepte généralement zéro ou plusieurs arguments, qui doivent être passés dans
-l'ordre lors de la déclaration du test, à l'aide de la balise ``arg``. Chaque
-argument dispose d'un nom (attribut ``name``) et d'une valeur.
+La balise ``test`` permet d'ajouter un test de supervision à l'hôte. Elle
+possède un attribut ``name`` obligatoire qui désigne le test de supervision
+à appliquer (par exemple : "``CPU``" pour superviser l'état du processeur d'un
+équipement).
+
+Elle accepte un attribut ``weight``, contenant un entier positif et permettant
+de configurer le poids apporté par les services techniques associés à ce test
+lorsqu'ils se trouvent dans un état supposé nominal (OK ou UNKNOWN).
+Ce poids est utilisé pour le calcul de l'état des
+:ref:`services de haut niveau <hlservices>`.
+Si cet attribut n'est pas configuré, le poids associé aux services techniques
+vaudra 1.
+
+Un test accepte généralement zéro, un ou plusieurs arguments, qui doivent être
+passés dans l'ordre lors de la déclaration du test, à l'aide de la balise
+``arg``. Chaque argument dispose d'un nom (attribut ``name``) et d'une valeur.
 
 Vous pouvez également, de façon optionnelle, définir des paramètres spécifiques
 pour la supervision à l'aide de la balise ``nagios``, qui contiendra une ou
 plusieurs directives adressées au moteur de supervision Nagios. Voir la section
 ci-dessous pour plus d'informations.
 
-**Note :** si le même argument est défini deux fois, la dernière valeur est
-celle qui sera utilisée.
+..  note::
+    Si le même argument est défini deux fois, seule la dernière valeur sera
+    utilisée.
+
+..  note::
+    Vigilo est optimiste quant à l'état des éléments du parc. De fait, la
+    valeur de l'attribut "``weight``" est utilisée aussi bien lorsque
+    le service se trouve dans l'état OK (état nominal) que lorsqu'il se trouve
+    dans l'état UNKNOWN (état inconnu, supposé nominal).
+
 
 .. _nagiostag:
 
@@ -419,12 +477,14 @@ Un bloc de données ``nagios`` contient des blocs ``directive`` dont l'attribut
 documentation sur ces directives est disponible dans `la documentation Nagios
 <http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#host>`_.
 
-Exemple::
+Syntaxe:
+
+..  sourcecode:: xml
 
     <nagios>
       <directive name="max_check_attempts">5</directive>
-      <directive name="check_interval>10</directive>
-      <directive name="retry_interval>1</directive>
+      <directive name="check_interval">10</directive>
+      <directive name="retry_interval">1</directive>
     </nagios>
 
 Toutes les directives proposées par Nagios sont utilisables ici.  Néanmoins, un
@@ -441,7 +501,9 @@ sera utilisée.
 
 Balise "``tag``"
 ^^^^^^^^^^^^^^^^
-Syntaxes::
+Syntaxe:
+
+..  sourcecode:: xml
 
         <tag service="service" name="étiquette"/>
 
@@ -449,10 +511,10 @@ Syntaxes::
 
 La balise ``tag`` permet d'affecter une étiquette à un hôte ou un service.
 L'attribut ``name`` permet de préciser le nom de l'étiquette à ajouter. Il doit
-correspondre au nom d'une image (**privé de son extension**) à afficher dans
+correspondre au nom d'une image (**privée de son extension**) à afficher dans
 VigiMap. Cette image doit se trouver dans
-``<Python>/site-packages/vigilo/themes/public/vigimap/images/tags``, où
-``<Python>`` vaut par exemple ``/usr/lib/python2.5`` pour une installation
+:samp:`{Python}/site-packages/vigilo/themes/public/vigimap/images/tags`,
+où *Python* vaut par exemple :file:`/usr/lib/python2.5` pour une installation
 standard de Python 2.5.
 
 L'attribut ``service`` permet, quant à lui, d'indiquer le nom du service auquel
@@ -461,12 +523,18 @@ doit porter sur l'hôte en lui-même et non pas sur l'un de ses services.
 
 Enfin, la valeur de l'étiquette est facultative et fait office de méta-donnée.
 Exemple, pour associer à un hôte l'étiquette de MCO (l'image ``mco.png`` est
-fournie dans toute installation standard de Vigilo) :
-``<tag service="host" name="mco"/>``
+fournie dans toute installation standard de Vigilo):
+
+..  sourcecode:: xml
+
+    <tag service="host" name="mco"/>
+
 
 Balise "``group``"
 ^^^^^^^^^^^^^^^^^^
-Syntaxes::
+Syntaxe:
+
+..  sourcecode:: xml
 
     <group>/Chemin complet/vers le/Groupe</group>
 
@@ -489,14 +557,15 @@ l'arbre. Il n'est pas possible de préciser plusieurs éléments (par exemple
 "``A/B``") lorsque cette forme est utilisée. Les règles d'échappement de la
 première forme s'appliquent également ici.
 
-**Note :** les groupes sont utilisés pour décider de la ventilation des
-équipements sur les différents groupes de supervision. Une fois tous les
-groupes exprimés sous la forme d'un chemin absolu, VigiConf suppose que le
-premier élément du chemin correspond au groupe à utiliser pour la ventilation.
-En cas de conflit, ou pour placer l'équipement dans un autre groupe de
-ventilation que celui déterminé automatiquement, vous devez utiliser l'attribut
-*ventilation* de la balise *host* afin de spécifier manuellement le groupe de
-ventilation à utiliser.
+..  note::
+    Les groupes sont utilisés pour décider de la ventilation des équipements
+    sur les différents groupes de supervision. Une fois tous les groupes
+    exprimés sous la forme d'un chemin absolu, VigiConf suppose que le premier
+    élément du chemin correspond au groupe à utiliser pour la ventilation.
+    En cas de conflit, ou pour placer l'équipement dans un autre groupe de
+    ventilation que celui déterminé automatiquement, vous devez utiliser
+    l'attribut *ventilation* de la balise *host* afin de spécifier manuellement
+    le groupe de ventilation à utiliser.
 
 Remarques
 ^^^^^^^^^
@@ -527,12 +596,14 @@ La balise à la racine de ce document se nomme "``hosttemplates``" et peut
 contenir un ou plusieurs blocs "``hosttemplate``", correspondant chacun à la
 définition d'un hôte.
 
-Le fragment de code suivant rappelle la structure générale du fichier::
+Le fragment de code suivant rappelle la structure générale du fichier:
+
+..  sourcecode:: xml
 
     <?xml version="1.0"?>
     <hosttemplates>
-        <hosttemplate ... > ... </hosttemplate>
-        <hosttemplate ... > ... </hosttemplate>
+        <hosttemplate attr1="..." attr2="..." attrN="..."> ... </hosttemplate>
+        <hosttemplate attr1="..." attr2="..." attrN="..."> ... </hosttemplate>
     ...
     </hosttemplates>
 
@@ -555,7 +626,11 @@ Balise "``parent``"
 Un bloc de données ``parent`` contient une simple chaîne de caractères, le nom
 du template dont ce template hérite. Il est possible de créer autant de niveaux
 d'héritage de templates que souhaité et chaque template peut hériter d'un ou
-plusieurs templates (héritage multiple). Exemple::
+plusieurs templates (héritage multiple).
+
+Exemple:
+
+..  sourcecode:: xml
 
     <parent>generic</parent>
 
@@ -564,19 +639,31 @@ Balise "``attribute``"
 Un bloc de données ``attribute`` possède un attribut : ``name``.
 
 Un bloc de données ``attribute`` contient une valeur de type chaîne de
-caractères. Exemple::
+caractères.
+
+Exemple:
+
+..  sourcecode:: xml
 
     <attribute name="snmpOIDsPerPDU">10</attribute>
 
 Balise "``group``"
 ^^^^^^^^^^^^^^^^^^
-Un bloc de données ``group`` contient une chaîne de caractères. Exemple::
+Un bloc de données ``group`` contient une chaîne de caractères.
+
+Exemple:
+
+..  sourcecode:: xml
 
     <group>AIX servers</group>
 
 Balise "``class``"
 ^^^^^^^^^^^^^^^^^^
-Un bloc de données ``class`` contient une simple chaîne de caractère. Exemple::
+Un bloc de données ``class`` contient une simple chaîne de caractère.
+
+Exemple:
+
+..  sourcecode:: xml
 
     <class>aix</class>
 
@@ -589,7 +676,9 @@ Un bloc de données ``test`` contient les blocs suivants, dans l'ordre :
 - ``arg`` (0 ou plus)
 - ``nagios`` (0 ou 1)
 
-Exemple::
+Exemple:
+
+..  sourcecode:: xml
 
     <test name="Errpt"/>
     <test name="Proc">
@@ -604,7 +693,11 @@ Voir la définition utilisée pour la balise ``host`` : :ref:`nagiostag`.
 
 Balise "``item``"
 ^^^^^^^^^^^^^^^^^
-Un bloc de données ``item`` contient une simple chaîne de caractère. Exemple::
+Un bloc de données ``item`` contient une simple chaîne de caractère.
+
+Exemple:
+
+..  sourcecode:: xml
 
     <item>item1</item>
 
@@ -632,12 +725,14 @@ La balise à la racine de ce document se nomme "``topologies``" et peut contenir
 un ou plusieurs blocs "``topology``", correspondant chacun à la définition d'un
 groupe de dépendances.
 
-Le fragment de code suivant rappelle la structure générale du fichier::
+Le fragment de code suivant rappelle la structure générale du fichier:
+
+..  sourcecode:: xml
 
     <?xml version="1.0"?>
     <topologies>
-      <topology ... > ... </topology>
-      <topology ... > ... </topology>
+      <topology attr1="..." attr2="..." attrN="..."> ... </topology>
+      <topology attr1="..." attr2="..." attrN="..."> ... </topology>
       ...
     </topologies>
 
@@ -658,7 +753,9 @@ quoi cet élément dépend. La balise "``depends``" possède deux attributs :
   attribut est omis, l'élément dépend directement de l'hôte indiqué par
   l'attribut ``host`` de cette balise.
 
-Exemple::
+Exemple:
+
+..  sourcecode:: xml
 
     <topology host="host1" service="service1">
       <depends host="router.example.com" />
@@ -685,12 +782,14 @@ La balise à la racine de ce document se nomme "``groups``" et peut contenir un
 ou plusieurs blocs "``group``", correspondant chacun à la définition d'un
 groupe d'éléments supervisés.
 
-Le fragment de code suivant rappelle la structure générale du fichier::
+Le fragment de code suivant rappelle la structure générale du fichier:
+
+..  sourcecode:: xml
 
     <?xml version="1.0"?>
     <groups>
-      <group ... > ... </group>
-      <group ... > ... </group>
+      <group attr1="..." attr2="..." attrN="..."> ... </group>
+      <group attr1="..." attr2="..." attrN="..."> ... </group>
       ...
     </groups>
 
@@ -704,7 +803,9 @@ permet de construire une hiérarchie de groupes. Cette hiérarchie est ensuite
 utilisée dans les différentes interfaces, pour la gestion des permissions, ou
 encore, pour organiser les informations.
 
-Exemple::
+Exemple:
+
+..  sourcecode:: xml
 
     <group name="group1" />
 
@@ -715,7 +816,9 @@ Exemple::
 
 Le même nom de groupe ne peut pas être utilisé plusieurs fois au même niveau
 dans la hiérarchie des groupes. C'est-à-dire que l'exemple suivant est
-interdit::
+interdit:
+
+..  sourcecode:: xml
 
     <!-- Attention, cet exemple ne fonctionne pas ! -->
     <group name="group1">
@@ -724,7 +827,9 @@ interdit::
     </group>
 
 En revanche, le même nom de groupe peut être utilisé dans des endroits séparés
-de l'arborescence, comme dans l'exemple ci-dessous::
+de l'arborescence, comme dans l'exemple ci-dessous:
+
+..  sourcecode:: xml
 
     <group name="group1">
         <group name="group1">
@@ -734,6 +839,8 @@ de l'arborescence, comme dans l'exemple ci-dessous::
 
 Notez que chacun des "``group1``" correspond à un groupe différent.
 
+
+..  _`hlservices`:
 
 Dossier "``hlservices``"
 ------------------------
@@ -752,12 +859,14 @@ La balise à la racine de ce document se nomme "``hlservice``" et peut contenir
 un ou plusieurs blocs "``hlservice``", correspondant chacun à la définition
 d'un groupe d'éléments supervisés.
 
-Le fragment de code suivant rappelle la structure générale du fichier::
+Le fragment de code suivant rappelle la structure générale du fichier:
+
+..  sourcecode:: xml
 
     <?xml version="1.0"?>
     <hlservices>
-      <hlservice ... > ... </hlservice>
-      <hlservice ... > ... </hlservice>
+      <hlservice attr1="..." attr2="..." attrN="..."> ... </hlservice>
+      <hlservice attr1="..." attr2="..." attrN="..."> ... </hlservice>
       ...
     </hlservices>
 
@@ -774,10 +883,11 @@ Un bloc de données ``hlservice`` contient les blocs de données suivants, dans 
 - warning_priority (0 ou 1 exactement)
 - critical_priority (0 ou 1 exactement)
 - operator (1 exactement)
+- weight (0 ou 1 exactement)
 - group (0 ou plus)
 - depends (0 ou plus)
 
-Exemple::
+.. sourcecode:: xml
 
     <hlservice name="hlservice1">
       <message>Message à afficher</message>
@@ -787,6 +897,7 @@ Exemple::
       <warning_priority>6</warning_priority>
       <critical_priority>10</critical_priority>
       <operator>PLUS</operator>
+      <weight>42</weight>
       <group>hlsgroup1</group>
       <group>hlsgroup2</group>
       <depends host="routeur1.example.com" service="Interface eth0"/>
@@ -796,7 +907,11 @@ Balise "``message``"
 ^^^^^^^^^^^^^^^^^^^^
 Le bloc de données ``message`` contient une chaîne de caractère libre. Il
 s'agit du message à afficher lorsque le service passe dans un état autre que
-OK. Exemple::
+OK.
+
+Exemple:
+
+..  sourcecode:: xml
 
     <message>Le service %(service)s a changé d'état</message>
 
@@ -836,7 +951,10 @@ Balise "``warning_threshold``"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Le bloc de données ``warning_threshold`` contient un entier, correspondant au
 seuil sous lequel le service de haut niveau passe dans l'état WARNING.
-Exemple::
+
+Exemple:
+
+..  sourcecode:: xml
 
     <warning_threshold>2</warning_threshold>
 
@@ -844,7 +962,10 @@ Balise "``critical_threshold``"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Le bloc de données ``critical_threshold`` contient un entier, correspondant au
 seuil sous lequel le service de haut niveau passe dans l'état CRITICAL.
-Exemple::
+
+Exemple:
+
+..  sourcecode:: xml
 
     <critical_threshold>1</critical_threshold>
 
@@ -853,7 +974,10 @@ Balise "``unknown_priority``"
 Le bloc de données ``unknown_priority`` contient un entier, correspondant
 à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
 l'état ``UNKNOWN``.
-Exemple::
+
+Exemple:
+
+..  sourcecode:: xml
 
     <unknown_priority>4<unknown_priority/>
 
@@ -866,7 +990,10 @@ Balise "``warning_priority``"
 Le bloc de données ``unknown_priority`` contient un entier, correspondant
 à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
 l'état ``WARNING``.
-Exemple::
+
+Exemple:
+
+..  sourcecode:: xml
 
     <warning_priority>4<warning_priority/>
 
@@ -879,7 +1006,10 @@ Balise "``critical_priority``"
 Le bloc de données ``unknown_priority`` contient un entier, correspondant
 à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
 l'état ``CRITICAL``.
-Exemple::
+
+Exemple:
+
+..  sourcecode:: xml
 
     <critical_priority>4<critical_priority/>
 
@@ -889,34 +1019,61 @@ influencer l'ordre d'apparition des alertes dans le bac à événements
 
 Balise "``operator``"
 ^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``operator`` contient le type de dépendance de ce service de haut niveau, parmi les valeurs suivantes :
+Le bloc de données ``operator`` décrit le type d'opération appliquée
+aux dépendances de ce service de haut niveau, parmi les valeurs suivantes :
 
 "``PLUS``" ou "``+``"
-    Le poids du service de haut niveau correspond à la somme des poids de ses
-    dépendances actives. Ce type de dépendance permet de représenter une
-    situation de répartition de charge.
+    Le poids courant du service de haut niveau correspond à la somme des poids
+    de ses dépendances actives. Ce type de dépendance permet de représenter
+    une situation de répartition de charge.
 
 "``OR``" ou "``|``"
-    Le poids du service de haut niveau correspond au maximum des poids de ses
-    dépendances actives. Ce type de dépendance permet de représenter une
-    situation de redondance (haute-disponibilité).
+    Le poids courant du service de haut niveau correspond au maximum des poids
+    de ses dépendances actives. Ce type de dépendance permet de représenter
+    une situation de redondance (haute-disponibilité).
 
 "``AND``" ou "``&amp;``"
-    Le poids du service de haut niveau correspond au minimum des poids de ses
-    dépendances actives. Ce type de dépendance permet de décrire des
-    dépendances fonctionnelles et d'être averti rapidement lorsque l'une des
-    dépendances du service de haut niveau tombe en panne.
+    Le poids courant du service de haut niveau correspond au minimum des poids
+    de ses dépendances actives. Ce type de dépendance permet de décrire
+    des dépendances fonctionnelles et d'être averti rapidement lorsque l'une
+    des dépendances du service de haut niveau tombe en panne.
 
-    Note : en interne, ce type de dépendance est représenté par le symbole
-    "``&``". Néanmoins, il s'agit d'un caractère spécial en XML qui doit être
-    échappé (représenté par une entité XML)::
+    ..  note::
+        Cet opérateur est représenté par le symbole "``&``".
+        Néanmoins, ce symbole joue un rôle spécial en XML et doit donc être
+        échappé (représenté par une entité XML) avant d'être utilisé, comme
+        dans l'exemple suivant :
 
-        <operator>&amp;</operator>
+        ..  sourcecode:: xml
+
+            <operator>&amp;</operator>
+
+Balise "``weight``"
+^^^^^^^^^^^^^^^^^^^^^
+Le bloc de données ``weight`` contient le poids apporté par ce service de haut
+niveau lorsqu'il se trouve dans un état supposé nominal. La valeur indiquée
+dans cette balise doit être un entier positif.
+
+Exemple:
+
+..  sourcecode:: xml
+
+    <weight>42</weight>
+
+..  note::
+    Vigilo est optimiste quant à l'état des éléments du parc. De fait, cette
+    valeur est utilisée aussi bien lorsque le service se trouve dans l'état
+    OK (état nominal) que lorsqu'il se trouve dans l'état UNKNOWN (état inconnu,
+    supposé nominal).
 
 Balise "``group``"
 ^^^^^^^^^^^^^^^^^^
 Le bloc de données ``group`` contient le nom du groupe auquel ce service de
-haut niveau appartient. Exemple::
+haut niveau appartient.
+
+Exemple:
+
+..  sourcecode:: xml
 
     <group>hlsgroup1</group>
 
@@ -932,15 +1089,21 @@ ce service de haut niveau. Il possède deux attributs :
   niveau. Si omis, alors ce service de haut niveau dépend directement de l'hôte
   dont le nom est donné par l'attribut ``host``.
 
-Exemple d'une dépendance sur un hôte::
+Exemple d'une dépendance sur un hôte:
+
+..  sourcecode:: xml
 
     <depends host="foo.example.com"/>
 
-Exemple d'une dépendance sur un service technique (de bas niveau)::
+Exemple d'une dépendance sur un service technique (de bas niveau):
+
+..  sourcecode: xml
 
     <depends host="router.example.com" service="Interface eth0"/>
 
-Exemple d'une dépendance sur un autre service de haut niveau::
+Exemple d'une dépendance sur un autre service de haut niveau:
+
+..  sourcecode:: xml
 
     <depends service="hlservice2"/>
 
@@ -967,7 +1130,9 @@ Cependant, des attributs supplémentaires doivent être définis au niveau de la
 configuration de l'équipement fonctionnant avec SNMPv3.
 
 Le listing suivant présente un exemple de configuration d'un hôte devant être
-interrogé en utilisant SNMPv3::
+interrogé en utilisant SNMPv3:
+
+..  sourcecode:: xml
 
     <attribute name="snmpVersion">3</attribute>
     <attribute name="snmpSeclevel">authPriv</attribute>
@@ -1037,7 +1202,9 @@ la base de données. Nous recommandons cependant d'appliquer le test directement
 à la machine qui héberge la base de données, et ce afin de minimiser la durée
 d'exécution du test (latence du réseau).
 
-Le listing suivant présente un exemple de configuration de ce test::
+Le listing suivant présente un exemple de configuration de ce test:
+
+..  sourcecode:: xml
 
     <test name="VigiloDatabase">
       <arg name="command">
@@ -1096,30 +1263,38 @@ Mise en place des mails d'alertes pour les problèmes de bus
 
 - Choisir le destinataire final (ex: ``foo@bar.com``)
 
-- Mise en place dans le fichier ``/etc/nagios/vigilo.d/vigilo-enterprise.cfg``
+- Mise en place dans le fichier
+  :file:`/etc/nagios/vigilo.d/vigilo-enterprise.cfg`
   du contact ``last-chance-contact`` il faut remplacer ``root@localhost`` par
-  le mail choisi::
+  le mail choisi:
+
+..  sourcecode:: nagios
 
     define contact{
-      contact_name                    last-chance-contact
-      alias                           Contact urgence Vigilo
-      service_notification_period     24x7
-      host_notification_period        24x7
-      service_notification_options    w,u,c,r
-      host_notification_options       u,d,r
-      service_notification_commands   notify-service-by-email
-      host_notification_commands      notify-host-by-email
-      email                           foo@bar.com
+        contact_name                    last-chance-contact
+        alias                           Contact urgence Vigilo
+        service_notification_period     24x7
+        host_notification_period        24x7
+        service_notification_options    w,u,c,r
+        host_notification_options       u,d,r
+        service_notification_commands   notify-service-by-email
+        host_notification_commands      notify-host-by-email
+        ; Remplacer "foo@bar.com" par l'adresse email du contact.
+        email                           foo@bar.com
     }
 
 - Vérifier qu'un mail peut-être envoyé via la commande suivante remplaçant
-  l'adresse email par ce qui a été choisi::
+  l'adresse email par ce qui a été choisi:
+
+..  sourcecode:: bash
 
     echo testbody | /bin/mail -s testobject foo@bar.com
 
 - Mise en place du template avec le contact pour le bus via les templates
   suivant ``vigilo_bus`` il faudra importer dans la définition de l'hôte
-  utiliser le template comme ceci::
+  utiliser le template comme ceci:
+
+..  sourcecode:: xml
 
     <template name="vigilo_bus"/>
 
@@ -1154,7 +1329,9 @@ Cet utilitaire permet d'effectuer les opérations suivantes :
 - Découverte des services présents sur le réseau.
 
 La commande "``vigiconf --help``" permet d'obtenir l'aide de l'utilitaire. Elle
-affiche la sortie suivante::
+affiche la sortie suivante:
+
+..  sourcecode:: bash
 
     usage : vigiconf [-h] [--debug] {info,server-status,discover,deploy} ...
 
@@ -1186,7 +1363,9 @@ L'affichage des informations concernant la configuration actuelle se fait en
 exécutant la commande "``vigiconf info``".
 
 La commande renvoie plusieurs informations, comme dans l'exemple
-d'exécution suivant::
+d'exécution suivant:
+
+..  sourcecode:: bash
 
     VigiConf a été lancé depuis le compte 'root'. Utilisation du compte 'vigiconf' à la place.
     Révision actuelle dans le dépôt : 358
@@ -1214,8 +1393,9 @@ Vous pouvez préciser les noms des serveurs de supervision dont les informations
 doivent être affichés en passant simplement leur nom comme argument de la
 commande.
 
-**Note :** toutes les valeurs sont à 0 lors d'une nouvelle installation (car
-aucun des serveurs n'a encore été configuré).
+..  note::
+    Toutes les valeurs sont à 0 lors d'une nouvelle installation (car aucun
+    des serveurs n'a encore été configuré).
 
 Déploiement de la configuration
 -------------------------------
@@ -1226,6 +1406,8 @@ commande "``vigiconf deploy``".
 
 Vous pouvez passer en argument la liste des noms des serveurs de supervision
 pour lesquels une nouvelle version de la configuration doit être déployée.
+
+..  _`discover`:
 
 Découverte des services à superviser sur un hôte
 ------------------------------------------------
@@ -1240,20 +1422,25 @@ les services à superviser. Les fichiers de scan doivent avoir été générés 
 l'aide de la commande "``snmpwalk``" sur l'OID "``.1``" en lui passant les
 options "``-OnQe``".
 
-Exemple de commande pour créer le fichier de scan::
+Exemple de commande pour créer le fichier de scan:
+
+..  sourcecode:: bash
 
     SNMPCONFPATH=/dev/null snmpwalk -OnQe -v2c -c public hostname .1 \
         > hostname-OnQe.walk
 
-Note : "``SNMPCONFPATH=/dev/null``" permet d'éviter d'importer des
-configurations depuis des fichiers tels que :
+..  note::
+    "``SNMPCONFPATH=/dev/null``" permet d'éviter l'import d'options
+    de configuration depuis des fichiers du système tels que :
 
-- /etc/snmp/snmp.local.conf
-- /etc/snmp/snmp.conf
+    - :file:`/etc/snmp/snmp.local.conf`
+    - :file:`/etc/snmp/snmp.conf`
 
 Par défaut, cette commande affiche sur la sortie standard le fichier de
 configuration XML correspondant aux équipements analysés. Le listing suivant
-présente le résultat d'une telle analyse::
+présente le résultat d'une telle analyse:
+
+..  sourcecode:: xml
 
     <?xml version="1.0"?>
     <host address="127.0.0.1" name="localhost.localdomain">
@@ -1325,7 +1512,9 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
 Exemples de configuration d'hôtes
 ---------------------------------
 
-Classes de Service (avec un seul niveau de classe)::
+Classes de Service (avec un seul niveau de classe):
+
+..  sourcecode:: xml
 
     <host name="_HOSTNAME_" address="X.X.X.X">
       <class>cisco</class>
@@ -1348,7 +1537,9 @@ Classes de Service (avec un seul niveau de classe)::
       <group>/Servers/Linux servers</group>
     </host>
 
-Classes de Service (avec 2 niveaux de classe)::
+Classes de Service (avec 2 niveaux de classe):
+
+..  sourcecode:: xml
 
     <host name="_HOSTNAME_" address="X.X.X.X">
       <class>cisco</class>
@@ -1377,7 +1568,9 @@ Classes de Service (avec 2 niveaux de classe)::
       <group>/Servers/Linux servers</group>
     </host>
 
-Toip::
+ToIP:
+
+..  sourcecode:: xml
 
     <host name="_HOSTNAME_" address="X.X.X.X">
       <class>toip</class>
@@ -1419,7 +1612,9 @@ Toip::
       <group>/Servers/Linux servers</group>
     </host>
 
-Traps SNMP::
+Traps SNMP:
+
+..  sourcecode:: xml
 
     <host name="_HOSTNAME_" address="X.X.X.X">
       <class>linux</class>
@@ -1437,7 +1632,9 @@ Traps SNMP::
       </test>
     </host>
 
-Netflow::
+NetFlow:
+
+..  sourcecode:: xml
 
     <host name="_HOSTNAME_" address="X.X.X.X">
       <class>linux</class>
