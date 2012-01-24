@@ -1,7 +1,6 @@
 apps.update([
         "nagios",
         "connector-metro",
-        "connector-nagios",
         "collector",
         "perfdata",
         "vigirrd",
