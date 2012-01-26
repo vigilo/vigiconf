@@ -28,8 +28,6 @@ import sys
 
 from pkg_resources import working_set
 
-from vigilo.common.conf import settings
-
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 

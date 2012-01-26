@@ -1525,6 +1525,13 @@ Le 1er argument indique l'action à effectuer et peut valoir :
 Annexes
 =======
 
+Tests de supervision disponibles dans Vigilo
+--------------------------------------------
+
+Le tableau suivant recense les tests de supervision disponibles dans Vigilo.
+
+..  include:: suptests.rst
+
 Messages d’erreurs/d’alerte/d’informations
 ------------------------------------------
 
@@ -1711,8 +1718,5 @@ et donne une brève définition de chacun de ces termes.
    SVN
        Subversion, système de contrôle de versions. URL :
        http://subversion.apache.org
-
-
-.. TODO: générer la liste des tests disponibles
 
 .. vim: set tw=79 :

@@ -24,9 +24,6 @@ import os
 
 from .exceptions import VigiConfError, EditionError, ParsingError
 
-from vigilo.common.conf import settings
-settings.load_module(__name__)
-
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -38,4 +35,3 @@ __all__ = ("VigiConfError", "EditionError", "ParsingError",
            "SNMP_ENTERPRISE_OID")
 
 SNMP_ENTERPRISE_OID = "14132"
-
