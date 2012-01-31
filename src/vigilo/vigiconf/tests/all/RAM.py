@@ -21,7 +21,8 @@ class RAM(Test):
         # Note: on ne met pas ucd dans cette liste car son test se sert des
         # indicateurs définis ici (et surcharge le graphe)
         skipclasses = [ "cisco", "windows2000", "rapidcity", "xmperf",
-                "netware", "alcatel", "expand" ]
+                        "netware", "alcatel", "expand", "extremenetworks",
+                        "cisco_asa", "bluecoat" ]
         for skipclass in skipclasses:
             if skipclass in host.classes:
                 return

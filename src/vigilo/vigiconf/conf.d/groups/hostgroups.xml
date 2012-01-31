@@ -24,6 +24,8 @@
         <group name="Nortel devices"/>
         <group name="ALCATEL devices"/>
         <group name="Expand devices"/>
+        <group name="Netasq devices"/>
+        <group name="Bluecoat devices"/>
     </group>
 
 </groups>
