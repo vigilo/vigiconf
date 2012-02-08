@@ -27,6 +27,31 @@ def _to_unicode(line):
         return line.decode('utf-8', 'replace')
     raise NotImplementedError()
 
+# Credit for this function goes to Paul Clinch:
+# http://code.activestate.com/recipes/285264-natural-string-sorting/#c6
+def keynat(string):
+    r'''A natural sort helper function for sort() and sorted()
+    without using regular expressions or exceptions.
+
+    >>> items = ('Z', 'a', '10th', '1st', '9')
+    >>> sorted(items)
+    ['10th', '1st', '9', 'Z', 'a']
+    >>> sorted(items, key=keynat)
+    ['1st', '9', '10th', 'a', 'Z']
+    '''
+    it = type(1)
+    r = []
+    for c in string:
+        if c.isdigit():
+            d = int(c)
+            if r and type( r[-1] ) == it:
+                r[-1] = r[-1] * 10 + d
+            else:
+                r.append(d)
+        else:
+            r.append(c.lower())
+    return r
+
 def write_autodoc():
     """
     Génère automatiquement une documentation des tests de supervision
@@ -69,7 +94,19 @@ def write_autodoc():
                         'test': test,
                         'hclass': hclass,
                     }
-            tests_doc[test]['doc'] = test_doc.strip().replace('\n', ' ')
+            errors = []
+            test_doc = epytext.parse_docstring(test_doc, errors)
+            if errors:
+                print   >> sys.stderr, \
+                        "WARNING: impossible de lire la documentation du " \
+                        "test '%(test)s' de la classe d'hôtes '%(hclass)s'" % {
+                            'test': test,
+                            'hclass': hclass,
+                        }
+                tests_doc[test]['doc'] = ""
+            else:
+                tests_doc[test]['doc'] = \
+                    test_doc.to_plaintext(None).strip().replace('\n', ' ')
 
             # Détermine les noms des paramètres
             # obligatoires et optionnels du test
@@ -154,13 +191,13 @@ def write_autodoc():
     # PHASE 2 : transformation de la documentation en tableau
     #           avec les données formatées en reStructuredText.
     cells = [[], [], []]
-    tests = sorted(tests_doc.iterkeys(), key=lambda x: x.lower())
+    tests = sorted(tests_doc.iterkeys(), key=keynat)
     for test in tests:
         # Nom du test (colonne 1).
         cells[0].append('**%s**' % test)
 
         # Classes d'équipements (colonne 2).
-        hclasses = sorted(tests_doc[test]['hclasses'], key=lambda x: x.lower())
+        hclasses = sorted(tests_doc[test]['hclasses'], key=keynat)
         for hclass in hclasses:
             if hclass == 'all':
                 cells[1].append('* %s' % '*Toutes*')
@@ -170,8 +207,7 @@ def write_autodoc():
         # Description du test (colonne 3).
         cells[2].append(tests_doc[test]['doc'])
         # Description des paramètres du test (colonne 3).
-        params = sorted(tests_doc[test]['params'].iterkeys(),
-                        key=lambda x: x.lower())
+        params = sorted(tests_doc[test]['params'].iterkeys(), key=keynat)
         if params:
             cells[2].append("")
             cells[2].append("Paramètres acceptés par le test :")
@@ -183,7 +219,7 @@ def write_autodoc():
                 )
             param_hclasses = sorted(
                                 tests_doc[test]['params'][param]['hclasses'],
-                                key=lambda x: x.lower())
+                                key=keynat)
             if set(param_hclasses) != set(hclasses):
                 param_doc += " (uniquement pour les classes suivantes: %s)" % \
                     ", ".join(param_hclasses)
