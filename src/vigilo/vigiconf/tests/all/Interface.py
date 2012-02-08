@@ -193,12 +193,13 @@ class Interface(Test):
                 continue
             # Select the types
             # 6   => ethernetCsmacd
+            # 7   => iso88023Csmacd
+            # 22  => propPointToPointSerial
+            # 23  => ppp
             # 53  => propVirtual
             # 135 => l2vlan
             # 136 => l3ipvlan
-            # 22 => propPointToPointSerial
-            # 23 => ppp
-            allowed_types = [ "6", "22", "23", "53", "135", "136" ]
+            allowed_types = [ "6", "7", "22", "23", "53", "135", "136" ]
             if oids[oid] not in allowed_types:
                 continue
             # Extract the SNMP id
