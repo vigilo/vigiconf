@@ -177,7 +177,7 @@ class NagiosGen(FileGenerator):
     def _build_topology(self):
         """
         Construit la topologie dans un graphe NetworkX, accessible par
-        self.L{_graph}.
+        C{self._graph}.
         """
         self._graph = nx.DiGraph()
 
