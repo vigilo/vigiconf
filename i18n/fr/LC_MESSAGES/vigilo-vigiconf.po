@@ -48,81 +48,6 @@ msgstr "Classe d'hôtes '%s' introuvable"
 msgid "Tests for host class '%s':"
 msgstr "Tests pour la classe d'hôte '%s' :"
 
-#: src/vigilo/vigiconf/commandline.py:210
-msgid "usage: "
-msgstr "usage : "
-
-#: src/vigilo/vigiconf/commandline.py:211
-#, python-format
-msgid "conflicting option string(s): %s"
-msgstr "conflit entre chaine(s) d'option : %s"
-
-#: src/vigilo/vigiconf/commandline.py:212
-msgid "subcommands"
-msgstr "sous-commandes"
-
-#: src/vigilo/vigiconf/commandline.py:213
-#, python-format
-msgid "unrecognized arguments: %s"
-msgstr "arguments non reconnus : %s"
-
-#: src/vigilo/vigiconf/commandline.py:214
-msgid "expected one argument"
-msgstr "un argument attendu"
-
-#: src/vigilo/vigiconf/commandline.py:215
-msgid "expected at most one argument"
-msgstr "au plus un argument attendu"
-
-#: src/vigilo/vigiconf/commandline.py:216
-msgid "expected at least one argument"
-msgstr "au moins un argument attendu"
-
-#: src/vigilo/vigiconf/commandline.py:217
-#, python-format
-msgid "expected %s argument(s)"
-msgstr "%s argument(s) attendu(s)"
-
-#: src/vigilo/vigiconf/commandline.py:218
-#, python-format
-msgid "invalid choice: %r (choose from %s)"
-msgstr "choix incorrect : %r (choisissez parmis %s)"
-
-#: src/vigilo/vigiconf/commandline.py:219
-msgid "positional arguments"
-msgstr "arguments positionnels"
-
-#: src/vigilo/vigiconf/commandline.py:220
-msgid "optional arguments"
-msgstr "arguments optionnels"
-
-#: src/vigilo/vigiconf/commandline.py:221
-msgid "too few arguments"
-msgstr "pas assez d'arguments"
-
-#: src/vigilo/vigiconf/commandline.py:222
-#, python-format
-msgid "argument %s is required"
-msgstr "l'arguments %s est nécessaire"
-
-#: src/vigilo/vigiconf/commandline.py:223
-#, python-format
-msgid "one of the arguments %s is required"
-msgstr "l'une des arguments %s est nécessaire"
-
-#: src/vigilo/vigiconf/commandline.py:224
-#, python-format
-msgid "%s: error: %s\n"
-msgstr "%s : erreur : %s\n"
-
-#: src/vigilo/vigiconf/commandline.py:225
-msgid "show this help message and exit"
-msgstr "affiche ce message d'aide et quitte"
-
-#: src/vigilo/vigiconf/commandline.py:226
-msgid "show program's version number and exit"
-msgstr "affiche le numéro de version du programme et quitte"
-
 #: src/vigilo/vigiconf/commandline.py:230
 msgid "Debug mode."
 msgstr "Mode de débogage"
@@ -1167,4 +1092,3 @@ msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
 msgstr ""
 "Le test NTP a été rendu obsolète. Veuillez utiliser le test NagiosPlugin "
 "à la place."
-

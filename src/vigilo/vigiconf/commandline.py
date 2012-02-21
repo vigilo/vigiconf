@@ -28,7 +28,6 @@ import sys
 import os
 import textwrap
 import argparse
-import gettext
 import warnings
 
 from vigilo.common.conf import settings
@@ -45,6 +44,7 @@ _ = translate(__name__)
 N_ = translate_narrow(__name__)
 
 from vigilo.common.lock import grab_lock
+from vigilo.common.argparse import prepare_argparse
 from vigilo.common.conf import setup_plugins_path
 setup_plugins_path(settings["vigiconf"].get("pluginsdir",
                    "/etc/vigilo/vigiconf/plugins"))
@@ -205,26 +205,6 @@ def server(args):
 
 def parse_args():
     """Parses the commandline and starts the requested actions"""
-
-    # @FIXME: permet de traduire les textes internes à argparse.
-    N_('usage: ')
-    N_('conflicting option string(s): %s')
-    N_('subcommands')
-    N_('unrecognized arguments: %s')
-    N_('expected one argument')
-    N_('expected at most one argument')
-    N_('expected at least one argument')
-    N_('expected %s argument(s)')
-    N_('invalid choice: %r (choose from %s)')
-    N_('positional arguments')
-    N_('optional arguments')
-    N_('too few arguments')
-    N_('argument %s is required')
-    N_('one of the arguments %s is required')
-    N_('%s: error: %s\n')
-    N_('show this help message and exit')
-    N_("show program's version number and exit")
-
     common_args_parser = argparse.ArgumentParser()
     common_args_parser.add_argument("--debug", action="store_true",
         help=N_("Debug mode."))
@@ -421,10 +401,7 @@ def main():
     # sur les machines durcies avec un UMASK en 077 (#324).
     os.umask(0022)
 
-    # @FIXME: argparse utilise le domaine par défaut pour les traductions.
-    # On définit explicitement le domaine par défaut ici. Ceci permet de
-    # définir les traductions pour les textes de argparse dans VigiConf.
-    gettext.textdomain('vigilo-vigiconf')
+    prepare_argparse()
     args = parse_args()
 
     if args.debug:
