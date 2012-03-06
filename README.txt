@@ -53,6 +53,7 @@ du fichier ``/etc/sudoers`` les lignes suivantes ::
     Cmnd_Alias INIT = /etc/init.d/*
     Cmnd_Alias VALID = /usr/sbin/nagios
     vigiconf ALL=(ALL) NOPASSWD: INIT, VALID
+    vigiconf ALL=(nagios) NOPASSWD: /usr/bin/pkill
 
 
 Utilisation

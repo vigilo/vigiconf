@@ -21,7 +21,9 @@ Example usage for a local repository::
 Then activate the Rev keyword on the file conf.d/general/apps.py by the
 following command::
 
+  cd /etc/vigilo/vigiconf/
   svn propset svn:keywords Rev conf.d/general/apps.py
+  svn propset svn:ignore "*.pyc\n*.pyo\n" conf.d/general
 
 Then update the ``svnrepository`` parameter accordingly in the
 ``settings.ini`` configuration file (set it to
@@ -35,6 +37,7 @@ restart managed services. Add the following lines to ``/etc/sudoers``::
   Cmnd_Alias INIT = /etc/init.d/*
   Cmnd_Alias VALID = /usr/sbin/nagios
   vigiconf ALL=(ALL) NOPASSWD: INIT, VALID
+  vigiconf ALL=(nagios) NOPASSWD: /usr/bin/pkill
 
 Then update the ``svnrepository`` parameter in the ``settings.ini``
 configuration file and run::
