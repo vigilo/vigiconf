@@ -694,8 +694,10 @@ class Host(object):
         @type  dstype: "GAUGE" or "COUNTER", see RRDtool documentation
         @param reroutefor: service routing information
         @type  reroutefor: C{dict} with "host" and "service" as keys
-        @param max_value: the maximum values for the datasource, if any
+        @param max_value: the maximum value for the datasource, if any
         @type  max_value: C{int}
+        @param min_value: the minimal value for the datasource, if any
+        @type  min_value: C{int}
         """
         if reroutefor == None:
             target = self.name
