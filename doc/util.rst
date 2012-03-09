@@ -1077,7 +1077,8 @@ Balise "``weight``"
 ^^^^^^^^^^^^^^^^^^^^^
 Le bloc de données ``weight`` contient le poids apporté par ce service de haut
 niveau lorsqu'il se trouve dans un état supposé nominal. La valeur indiquée
-dans cette balise doit être un entier positif.
+dans cette balise doit être un entier positif. La valeur par défaut lorsque
+la balise est absente est 1.
 
 Exemple:
 
@@ -1096,7 +1097,8 @@ Balise "``warning_weight``"
 Le bloc de données ``warning_weight`` contient le poids apporté par ce service
 de haut niveau lorsqu'il se trouve dans un état dégradé (WARNING).
 La valeur indiquée dans cette balise doit être un entier positif, inférieur
-ou égal à celui donné dans la balise ``weight``.
+ou égal à celui donné dans la balise ``weight``. La valeur par défaut lorsque
+la balise est absente est la même que pour la balise ``weight``.
 
 Exemple:
 
