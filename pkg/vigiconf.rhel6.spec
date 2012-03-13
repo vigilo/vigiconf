@@ -78,5 +78,5 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Fri Jan 21 2011 Vincent Quéméner <vincent.quemener@c-s.fr> - 1.0-2
+* Fri Jan 21 2011 Vincent Quéméner <vincent.quemener@c-s.fr>
 - Rebuild for RHEL6.
