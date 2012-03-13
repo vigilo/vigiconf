@@ -35,6 +35,7 @@ install_permissions:
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(VARDIR)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/lock/$(PKGNAME)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
+	chmod 755 $(DESTDIR)$(PYTHON_SITELIB)/vigilo/$(NAME)/applications/*/*.sh
 
 lint: lint_pylint
 tests: tests_nose

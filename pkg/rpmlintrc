@@ -1,0 +1,5 @@
+# -*- python -*-
+
+from Config import *
+
+addFilter("W: explicit-lib-dependency libxml2-utils")

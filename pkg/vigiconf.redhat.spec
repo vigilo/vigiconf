@@ -78,6 +78,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /etc/cron.d/*
 %attr(755,root,root) %{_bindir}/*
 %{python26_sitelib}/*
+%attr(755,root,root) %{python26_sitelib}/vigilo/%{module}/applications/*/*.sh
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
 %attr(-,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
