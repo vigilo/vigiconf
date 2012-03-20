@@ -104,7 +104,6 @@ hostsGroups = {}
 hostsConf = {}
 dependencies = {}
 dynamicGroups = {}
-dns = {}
 mode = "onedir"
 confid = ""
 

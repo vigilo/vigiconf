@@ -54,17 +54,8 @@ class VentilationLoader(DBLoader):
           ...
           "my_host_name":
             {
-              'apacheRP': 'presentation_server.domain.name',
-              'collector': 'collect_server_pool1.domain.name',
-              'corrsup': 'correlation_server.domain.name',
-              'corrtrap': 'correlation_server.domain.name',
-              'dns': 'infra_server.domain.name',
-              'nagios': 'collect_server_pool1.domain.name',
-              'nagvis': 'presentation_server.domain.name',
-              'perfdata': 'collect_server_pool1.domain.name',
-              'rrdgraph': 'store_server_pool2.domain.name',
-              'storeme': 'store_server_pool2.domain.name',
-              'supnav': 'presentation_server.domain.name'
+              'appli1': 'serveur2.domain',
+              'appli2': 'serveur3.domain',
             }
           ...
           }

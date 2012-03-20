@@ -7,6 +7,7 @@ all: build
 include buildenv/Makefile.common.python
 CONFDIR := $(SYSCONFDIR)/vigilo/$(NAME)
 VARDIR := $(LOCALSTATEDIR)/lib/vigilo/$(NAME)
+VIGICONFPATH = $(dir $(shell PYTHONPATH=$(DESTDIR)$(PYTHON_SITELIB) python -c 'import vigilo.vigiconf; print vigilo.vigiconf.__file__'))
 
 build: $(INFILES)
 
@@ -35,7 +36,7 @@ install_permissions:
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(VARDIR)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/lock/$(PKGNAME)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
-	chmod 755 $(DESTDIR)$(PYTHON_SITELIB)/vigilo/$(NAME)/applications/*/*.sh
+	chmod 755 $(DESTDIR)$(VIGICONFPATH)/applications/*/*.sh
 
 lint: lint_pylint
 tests: tests_nose
