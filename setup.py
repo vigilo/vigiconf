@@ -112,7 +112,6 @@ setup(name='vigilo-vigiconf',
                 'nagios = vigilo.vigiconf.applications.nagios:Nagios',
                 'perfdata = vigilo.vigiconf.applications.perfdata:PerfData',
                 'vigirrd = vigilo.vigiconf.applications.vigirrd:VigiRRD',
-                'vigimap = vigilo.vigiconf.applications.vigimap:VigiMap',
                 ],
             'vigilo.vigiconf.testlib': [
                 'vigiconf-default = vigilo.vigiconf.tests',

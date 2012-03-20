@@ -26,6 +26,5 @@ from __future__ import absolute_import
 
 from .base import Generator
 from .file import FileGenerator
-from .map import MapGenerator
 from .manager import GeneratorManager, GenerationError
 

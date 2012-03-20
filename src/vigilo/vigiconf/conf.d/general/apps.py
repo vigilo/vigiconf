@@ -4,7 +4,6 @@ apps.update([
         "collector",
         "perfdata",
         "vigirrd",
-        "vigimap",
         ])
 
 confid = "$Rev$"[6:-2]
