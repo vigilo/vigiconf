@@ -32,7 +32,7 @@ class Process(Test):
                 [ "WALK/%s" % oids[section] ], weight=self.weight,
                 warning_weight=self.warning_weight, directives=self.directives)
         host.add_collector_metro(label, "m_walk_grep_count", [processname],
-                [ "WALK/%s" % oids[section] ], "GAUGE")
+                [ "WALK/%s" % oids[section] ], "GAUGE", rra_template="discrete")
         host.add_graph("%s process(es)" % label, [ label ], "lines",
                     "process(es)", group="Processes")
 

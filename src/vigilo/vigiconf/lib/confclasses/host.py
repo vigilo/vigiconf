@@ -325,7 +325,7 @@ class Host(object):
 
     def add_trap(self, service, oid, data=None):
         """
-        Add a SNMPT Trap handler (for snmptt)
+        Add a SNMPT Trap handler (for snmptt).
         @param service: the service description (nagios service)
         @type service: C{str}
         @param oid: as name. For identify snmp trap.
@@ -353,8 +353,8 @@ class Host(object):
     def add_netflow(self, data=None):
         """
         Add netflow handler (for pmacct and pmacct-snmp)
-        @param data: dictionary contains data like inbound, outboun, binary
-        path and ip list.
+        @param data: dictionary contains data like inbound, outbound, binary
+        path and IP list.
         @type data: C{dict}
         """
         if data is None:
@@ -432,7 +432,7 @@ class Host(object):
 
     def add_collector_metro(self, name, function, params, variables, dstype,
                             label=None, reroutefor=None, max_value=None,
-                            min_value=None):
+                            min_value=None, rra_template=None):
         """
         Add a metrology datasource to the Collector
         @param name: the datasource name
@@ -451,6 +451,9 @@ class Host(object):
         @type  reroutefor: C{dict} with "host" and "service" as keys
         @param max_value: the maximum values for the datasource, if any
         @type  max_value: C{int}
+        @param rra_template: RRA template to use. It omitted, generators
+            use a default template.
+        @type  rra_template: C{str}
         """
         if not label:
             label = name
@@ -468,6 +471,7 @@ class Host(object):
             'label': label,
             "max": max_value,
             "min": min_value,
+            "rra_template": rra_template,
         })
         # Add the Collector service (rerouting is handled inside the Collector)
         self.add(self.name, "SNMPJobs", (name, 'perfData'),
@@ -574,13 +578,14 @@ class Host(object):
                       min=min, max=max)
         graph.add_to_host(self.name)
 
-    def make_rrd_cdef(self, name, cdef):
+    def make_rrd_cdef(self, name, cdef, rra_template=None):
         self.add(self.name, "dataSources", name, {
             'dsType': "CDEF",
             'name': name,
             'label': name,
             "max": None,
             "min": None,
+            "rra_template": rra_template,
         })
         try:
             return Cdef(name, cdef)
@@ -678,7 +683,7 @@ class Host(object):
 
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
                              dstype="GAUGE", reroutefor=None, max_value=None,
-                             min_value=None):
+                             min_value=None, rra_template=None):
         """
         Add a perfdata handler: send the performance data from the nagios
         plugins to the RRDs
@@ -698,6 +703,9 @@ class Host(object):
         @type  max_value: C{int}
         @param min_value: the minimal value for the datasource, if any
         @type  min_value: C{int}
+        @param rra_template: RRA template to use. It omitted, generators
+            use a default template.
+        @type  rra_template: C{str}
         """
         if reroutefor == None:
             target = self.name
@@ -706,7 +714,8 @@ class Host(object):
         # Add the RRD
         self.add(target, "dataSources", name,
                  {'dsType': dstype, 'label': label,
-                  "max": max_value, "min": min_value})
+                  "max": max_value, "min": min_value,
+                  "rra_template": rra_template})
         # Add the perfdata handler in Nagios
         if not self.get('PDHandlers').has_key(service):
             self.add(self.name, "PDHandlers", service, [])
