@@ -225,7 +225,7 @@ class HostMethods(unittest.TestCase):
         self.assertEqual(
             conf.hostsConf["testserver1"]["dataSources"]["TestAddCS"],
             {'dsType':"GAUGE", 'label': "TestAddCSLabel",
-             "max": None, "min": None},
+             "max": None, "min": None, "rra_template": None},
             "add_collector_metro does not fill the dataSources sub-hashmap")
         self.assertEqual(
             conf.hostsConf["testserver1"]["SNMPJobs"][("TestAddCS","perfData")],
@@ -246,7 +246,7 @@ class HostMethods(unittest.TestCase):
         t2snmp = conf.hostsConf["testserver2"]["SNMPJobs"]
         self.assertEqual(t1ds["TestAddCSReRoute"],
             {'dsType':"GAUGE", 'label': "TestAddCSReRouteLabel",
-             "max": None, "min": None},
+             "max": None, "min": None, "rra_template": None},
             "add_collector_metro rerouting does not work with the "
             "dataSources sub-hashmap")
         self.assertEqual(t2snmp[("TestAddCSReRoute","perfData")],

@@ -22,7 +22,8 @@ class Users(Test):
                     warning_weight=self.warning_weight,
                     directives=self.directives)
         host.add_collector_metro("Users", "directValue", [],
-                    ["GET/.1.3.6.1.2.1.25.1.5.0"], "GAUGE")
+                    ["GET/.1.3.6.1.2.1.25.1.5.0"], "GAUGE",
+                    rra_template="discrete")
         host.add_graph("Users", [ "Users" ], "lines", "users")
 
 

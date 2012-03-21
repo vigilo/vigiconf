@@ -97,12 +97,12 @@ class ConnectorMetroGen(Generator):
                 tplvars["min"] = None
 
             if not datasource in netflow_datasources:
-                self.db_add_ds(cursor, tplvars, is_netflow=False)
+                self.db_add_ds(cursor, tplvars, ds_data.get("rra_template"))
             else:
-                self.db_add_ds(cursor, tplvars, is_netflow=True)
-        #db.commit()
-        #cursor.close()
-        #db.close()
+                # Netflow est un cas un peu à part
+                # et nécessite un modèle spécifique
+                # de stockage des données dans les RRD.
+                self.db_add_ds(cursor, tplvars, "netflow")
 
     def init_db(self, db_path, vserver):
         try:
@@ -158,7 +158,7 @@ class ConnectorMetroGen(Generator):
         #c.close()
         #db.close()
 
-    def db_add_ds(self, cursor, data, is_netflow=False):
+    def db_add_ds(self, cursor, data, rra_template=None):
         config = self.application.getConfig()
         jids = getattr(conf, 'jids', {})
         cursor.execute("INSERT INTO perfdatasource VALUES ("
@@ -169,10 +169,12 @@ class ConnectorMetroGen(Generator):
                         data["warningThreshold"], data["criticalThreshold"],
                         data["nagiosName"], jids.get(data['vserver'], None)))
         ds_id = cursor.lastrowid
-        if is_netflow:
-            rras = config["rra_netflow"]
+
+        if rra_template is None or rra_template not in config["rra"]:
+            rras = config["rra"]["basic"]
         else:
-            rras = config["rra"]
+            rras = config["rra"][rra_template]
+
         for rra in rras:
             cursor.execute("SELECT idrra FROM rra WHERE type = ? AND xff = ? "
                            "AND step = ? AND rows = ?",
