@@ -7,7 +7,7 @@ import os, unittest, shutil, socket
 
 from vigilo.common.conf import settings
 
-from vigilo.vigiconf.lib.confclasses.test import TestFactory
+from vigilo.vigiconf.lib.confclasses.test import Test, TestFactory
 from vigilo.vigiconf.discoverator import Discoverator
 
 from helpers import setup_tmpdir, setup_db, teardown_db, TESTDATADIR
@@ -68,6 +68,32 @@ class TestDiscoveratorBasics(unittest.TestCase):
         self.disc.find_hclasses_sysdescr()
         print self.disc.hclasses
         self.assertTrue("test_hclass" in self.disc.hclasses)
+
+    def test_detect_homonyms(self):
+        """
+        Détection des tests avec homonymie.
+
+        Si plusieurs classes d'hôtes fournissent le même test avec une méthode
+        de détection, chacune de ces méthodes de détection doit être appelée.
+        """
+        class FakeTest(Test):
+            oids = [".1.3.6.1.2.1.1.1.0"]
+        class FakeTest2(FakeTest):
+            pass
+        # On fait en sorte que les 2 tests soient vus
+        # comme ayant le même nom.
+        FakeTest2.__name__ = FakeTest.__name__
+        self.disc.oids[".1.3.6.1.2.1.1.1.0"] = ""
+        self.disc.testfactory.tests["faketest"] = {
+            "testclass1": FakeTest,
+            "testclass2": FakeTest2,
+        }
+        self.disc.find_tests()
+        self.disc.find_hclasses()
+        self.assertTrue("testclass1" in self.disc.hclasses,
+            str(self.disc.hclasses))
+        self.assertTrue("testclass2" in self.disc.hclasses,
+            str(self.disc.hclasses))
 
 
 class DiscoveratorBaseTest(object):
@@ -195,4 +221,3 @@ class DiscoveratorSpecificTest(unittest.TestCase):
                 "Test %s is not detected" % "Partition")
         self.assertFalse("Interface" in self.testnames,
                 "Test %s is detected" % "Interface")
-
