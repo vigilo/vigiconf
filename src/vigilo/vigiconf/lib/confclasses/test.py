@@ -146,11 +146,11 @@ class TestFactory(object):
     @type path: C{list}
     """
 
-    tests = {}
-    hclasschecks = {}
     __test__ = False # pour Nose
 
     def __init__(self, confdir):
+        self.tests = {}
+        self.hclasschecks = {}
         self.path = self._list_test_paths(confdir)
         if not self.tests:
             self.load_tests()
