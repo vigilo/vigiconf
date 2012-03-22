@@ -174,14 +174,11 @@ class Discoverator(object):
     def find_tests(self, tests=None):
         """
         Find the applicable tests using the test's detect() function
-        @param tests: list des tests spécifiques (None si tous les tests
-            doivent être détectés)
+        @param tests: Liste des tests spécifiques (None si tous les tests
+            doivent être détectés).
         @type  tests: C{list} of C{str}
         """
         for test in self.testfactory.get_tests():
-            # Was it already detected ?
-            if test.__name__ in [ t["name"] for t in self.tests ]:
-                continue
             # is it one of the tests "specifically wanted" to be detected ?
             if tests and test.__name__ not in tests:
                 continue
