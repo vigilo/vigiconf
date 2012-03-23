@@ -33,14 +33,14 @@ Installation à l'aide de urpmi:
 ..  sourcecode:: bash
 
     urpmi vigilo-vigiconf        # sur la machine d'administration
-    urpmi vigilo-vigiconf-local  # sur les autres machines
+    urpmi vigilo-vigiconf-local  # sur les autres machines de la plate-forme de supervision
 
 Installation à l'aide de yum:
 
 ..  sourcecode:: bash
 
     yum install vigilo-vigiconf        # sur la machine d'administration
-    yum install vigilo-vigiconf-local  # sur les autres machines
+    yum install vigilo-vigiconf-local  # sur les autres machines de la plate-forme de supervision
 
 
 Configuration
@@ -50,7 +50,7 @@ La configuration de VigiConf comprend deux parties. D'une part, la
 configuration de l'outil en lui-même. D'autre part, la configuration du parc
 informatique supervisé par Vigilo (et dont la configuration est gérée par
 VigiConf). Ce chapitre ne porte que sur la configuration de VigiConf. Pour la
-documentation de la configuration du parc informatique supervisé, reportez-vous
+documentation sur la configuration du parc informatique supervisé, reportez-vous
 au chapitre :ref:`confparc`.
 
 Par défaut, la configuration de VigiConf se trouve dans
@@ -111,9 +111,10 @@ défaut de Vigilo::
 
     postgres://vigilo:vigilo@localhost/vigilo
 
-**ATTENTION** : à l'heure actuelle, seul PostgreSQL a fait l'objet de tests
-intensifs. D'autres SGBD peuvent également fonctionner, mais aucun support ne
-sera fourni pour ceux-ci.
+..  warning::
+    À l'heure actuelle, seul PostgreSQL a fait l'objet de tests intensifs.
+    D'autres SGBD peuvent également fonctionner, mais aucun support ne
+    sera fourni pour ceux-ci.
 
 Préfixe pour les tables
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -907,7 +908,7 @@ Un bloc de données ``hlservice`` contient les blocs de données suivants, dans 
 - weight (0 ou 1 exactement)
 - warning_weight (0 ou 1 exactement)
 - group (0 ou plus)
-- depends (0 ou plus)
+- depends (1 ou plus)
 
 .. sourcecode:: xml
 
@@ -946,9 +947,6 @@ Vous pouvez également utiliser l'une des variables de substitution suivante :
 %(service)s
     Le nom du service de haut niveau (ex : "``hlservice1``").
 
-%(priority)d
-    La priorité des alertes qui impactent ce service de haut niveau, sous forme d'entier.
-
 %(weight)r
     Le poids courant associé a service de haut niveau sous forme d'entier ou
     "``None``" s'il est inconnu.
@@ -968,7 +966,18 @@ Vous pouvez également utiliser l'une des variables de substitution suivante :
     ou "``None``" si inconnu.
 
 %(total_deps)d
-    Le nombre de dépendances totales de ce service de haut niveau, sous forme d'entier.
+    Le nombre de dépendances totales de ce service de haut niveau,
+    sous forme d'entier.
+
+%(dep_hostname)s
+    Le nom de l'hôte de la dépendance qui a entraîné un changement de l'état
+    de ce service de haut niveau. Si la dépendance qui a entraîné le changement
+    d'état est un autre service de haut niveau, ce champ vaudra ``None``.
+
+%(dep_servicename)s
+    Le nom du service de la dépendance qui a entraîné un changement de l'état
+    de ce service de haut niveau. Si la dépendance qui a entraîné le changement
+    d'état est un hôte, ce champ vaudra ``None``.
 
 Balise "``warning_threshold``"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1263,9 +1272,9 @@ Les paramètres de ce test sont :
   ainsi que les options permettant d'obtenir un formatage "``brut``" des
   résultats (dans le cas de PostgreSQL, les options "``-Anqt``" ont cet effet).
   Enfin, la commande passée en paramètre **DOIT** contenir la séquence de
-  formatage "``%s``" et les options permettant de passer une requête SQL à la
+  formatage « %s » et les options permettant de passer une requête SQL à la
   commande sur la ligne de commande (pour PostgreSQL, il s'agit de l'option
-  "``-c``"). La séquence "``%s``" sera remplacée dynamiquement par une série de
+  "``-c``"). La séquence « %s » sera remplacée dynamiquement par une série de
   requêtes SQL destinées à vérifier l'intégrité de la base de données.
 - Un drapeau optionnel (paramètre "``strict``") qui indique le comportement à
   adopter lorsque des éléments inattendus sont trouvés dans le schéma de la
@@ -1273,10 +1282,11 @@ Les paramètres de ce test sont :
   cette option vaut *False*. Lorsque ce drapeau est actif, la présence d'objets
   supplémentaires lève un avertissement (WARNING) dans Nagios et Vigilo.
 
-  **Attention :** n'activez pas ce drapeau lorsque vous utilisez un modèle
-  personnalisé pour Vigilo (par exemple, intégrant des tables de liaison vers
-  d'autres outils). Dans le cas contraire, un avertissement sera
-  systématiquement levé par ce test.
+  ..    warning::
+        N'activez pas ce drapeau lorsque vous utilisez un modèle personnalisé
+        pour Vigilo (par exemple, intégrant des tables de liaison vers d'autres
+        outils). Dans le cas contraire, un avertissement sera systématiquement
+        levé par ce test.
 
 - Un drapeau optionnel (paramètre "``force``") qui permet de vérifier le schéma
   pour des versions non supportées par le test. Lorsque ce drapeau est actif et
@@ -1284,11 +1294,12 @@ Les paramètres de ce test sont :
   ce test, la version la plus proche est utilisée pour effectuer les
   vérificatiions.
 
-  **Attention :** ce drapeau doit être utilisé avec parcimonie. Ne l'utilisez
-  que lorsque le schéma de la base de données est en cours de migration vers
-  une nouvelle version et que la nouvelle version du test VigiloDatabase n'a
-  pas encore été déployée sur les serveurs de collecte pour prendre en charge
-  cette nouvelle version du schéma.
+  ..    warning::
+        Ce drapeau doit être utilisé avec parcimonie. Ne l'utilisez que lorsque
+        le schéma de la base de données est en cours de migration vers une
+        nouvelle version et que la nouvelle version du test VigiloDatabase
+        n'a pas encore été déployée sur les serveurs de collecte pour prendre
+        en charge cette nouvelle version du schéma.
 
 - Un préfixe optionnel (paramètre "``prefix``") utilisé devant les noms de
   toutes les tables de Vigilo. Il s'agit du même préfixe que celui défini dans
@@ -1337,18 +1348,10 @@ Mise en place des mails d'alertes pour les problèmes de bus
     <template name="vigilo_bus"/>
 
 
+..  : Inclusion de la documentation concernant
+..  : la configuration des journaux.
 
-Configuration des journaux
-==========================
-
-VigiConf est capable de transmettre un certain nombre d'informations au cours
-de son fonctionnement à un mécanisme de journalisation des événements (par
-exemple, des journaux systèmes, une trace dans un fichier, un enregistrement
-des événements en base de données, etc.).
-
-Le document Vigilo - Journaux d'événements décrit spécifiquement la
-configuration de la journalisation des événements au sein de toutes les
-applications de Vigilo, y compris dans VigiConf.
+..  include:: ../../common/doc/admin-logs.rst
 
 
 Utilisation de l'utilitaire "``vigiconf``"
@@ -1358,7 +1361,7 @@ La génération des fichiers de configuration des différentes applications en
 charge de la supervision du parc se fait en utilisant l'utilitaire
 "``vigiconf``" fourni lors de l'installation du paquet portant le même nom.
 
-Cet utilitaire permet d'effectuer les opérations suivantes :
+Cet utilitaire permet d'effectuer les opérations suivantes :
 
 - Affichage des informations concernant la configuration actuelle ;
 - Gestion des applications ;
@@ -1554,10 +1557,11 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
     Ce message d'avertissement est affiché lorsque VigiConf est exécuté depuis
     le compte "``root``".
 
-Exemples de configuration d'hôtes
----------------------------------
+Exemples de configurations d'hôtes particulières
+------------------------------------------------
 
-Classes de Service (avec un seul niveau de classe):
+Classes de Service (avec un seul niveau de classe)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ..  sourcecode:: xml
 
@@ -1570,10 +1574,12 @@ Classes de Service (avec un seul niveau de classe):
         <item>mpls-Bulk|BU</item>
         <item>mpls-BestEffort|BE</item>
       </attribute>
+
       <test name="Interface">
         <arg name="ifname">eth0</arg>
         <arg name="label">eth0</arg>
       </test>
+
       <test name="QOS_Interface">
         <arg name="ifname">TenGigabitEthernet4/0/0</arg>
         <arg name="label">Te4/0/0 - QOS</arg>
@@ -1582,18 +1588,21 @@ Classes de Service (avec un seul niveau de classe):
       <group>/Servers/Linux servers</group>
     </host>
 
-Classes de Service (avec 2 niveaux de classe):
+Classes de Service (avec 2 niveaux de classe)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ..  sourcecode:: xml
 
     <host name="_HOSTNAME_" address="X.X.X.X">
       <class>cisco</class>
       <attribute name="snmpCommunity">_SNMP_COMMUNITY_</attribute>
+
       <attribute name="QOS_mainClassName">
         <item>Groupe_1|GR1</item>
         <item>Groupe_2|GR2</item>
         <item>Groupe_3|GR3</item>
       </attribute>
+
       <attribute name="QOS_subClassName">
         <item>class-default</item>
         <item>telephonie</item>
@@ -1601,10 +1610,12 @@ Classes de Service (avec 2 niveaux de classe):
         <item>Video&amp;Donnees_Contraintes</item>
         <item>Services_Reseaux</item>
       </attribute>
+
       <test name="Interface">
         <arg name="ifname">eth0</arg>
         <arg name="label">eth0</arg>
       </test>
+
       <test name="QOS_Interface">
         <arg name="ifname">GigabitEthernet0/0</arg>
         <arg name="label">GE0/1</arg>
@@ -1613,7 +1624,8 @@ Classes de Service (avec 2 niveaux de classe):
       <group>/Servers/Linux servers</group>
     </host>
 
-ToIP:
+ToIP
+^^^^
 
 ..  sourcecode:: xml
 
@@ -1623,41 +1635,50 @@ ToIP:
       <attribute name="oxe_password">toor</attribute>
       <attribute name="timeout">10</attribute>
       <attribute name="prompt_timeout">5</attribute>
+
       <test name="Interface">
         <arg name="label">eth0</arg>
         <arg name="ifname">eth0</arg>
       </test>
+
       <test name="Autocoms">
         <arg name="crystals">42;47</arg>
         <arg name="labels">agence_42;agence_47</arg>
       </test>
+
       <test name="TrunkAverage">
         <arg name="crystals">205;207;208;</arg>
         <arg name="labels">agence_205;agence_208;agence_208</arg>
         <arg name="crit">42</arg>
       </test>
+
       <test name="TrunkPlatinium">
         <arg name="crystals">27;28;29;31</arg>
         <arg name="labels">agence_27;agence_28;agence_29;agence_31</arg>
         <arg name="crit">42</arg>
       </test>
+
       <test name="OxeCard">
         <arg name="crystals">42;47;49</arg>
         <arg name="labels">agence_42;agence_47;agence_49</arg>
       </test>
+
       <test name="FreePosCard">
         <arg name="hour">15:55:00</arg>
       </test>
+
       <test name="MevoCapacity">
         <arg name="crit">42</arg>
       </test>
+
       <test name="TrunkState"/>
       <test name="IpPhones"/>
       <test name="CcdaLicences"/>
       <group>/Servers/Linux servers</group>
     </host>
 
-Traps SNMP:
+Traps SNMP
+^^^^^^^^^^
 
 ..  sourcecode:: xml
 
@@ -1671,13 +1692,14 @@ Traps SNMP:
       </test>
       <test name="Trap">
         <arg name="OID">.1.3.6.1.1.2.1.1.2</arg>
-        <arg name="command">@LIBEXECDIR/vigilo/snmptt/get_trap_upload</arg>
+        <arg name="command">/var/lib/vigilo/snmptt/get_trap_upload</arg>
         <arg name="service">Upload</arg>
         <arg name="label">Upload</arg>
       </test>
     </host>
 
-NetFlow:
+NetFlow
+^^^^^^^
 
 ..  sourcecode:: xml
 
