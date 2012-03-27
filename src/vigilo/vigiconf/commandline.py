@@ -203,7 +203,7 @@ def server(args):
     dispatchator.server_status(args.server, args.status, args.no_deploy)
 
 
-def parse_args():
+def parse_args(): # pragma: no cover
     """Parses the commandline and starts the requested actions"""
     common_args_parser = argparse.ArgumentParser()
     common_args_parser.add_argument("--debug", action="store_true",
@@ -352,7 +352,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def change_user(username="vigiconf"):
+def change_user(username="vigiconf"): # pragma: no cover
     # Ne pas remonter les deux imports suivants, nécessaires pour les tests
     # unitaires (mock)
     # pylint: disable-msg=W0621,W0404
@@ -396,7 +396,7 @@ def change_user(username="vigiconf"):
                        "Aborting."), username)
         sys.exit(2)
 
-def main():
+def main(): # pragma: no cover
     # Évite des problèmes d'accès aux fichiers ensuite
     # sur les machines durcies avec un UMASK en 077 (#324).
     os.umask(0022)
