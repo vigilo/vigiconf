@@ -26,7 +26,7 @@ from __future__ import absolute_import
 import os
 import inspect
 from lxml import etree
-import networkx as nx
+from vigilo.common.nx import networkx as nx
 
 #from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger

@@ -28,7 +28,6 @@ Requires:   net-snmp-utils
 Requires:   sqlite3-tools
 Requires:   python-multiprocessing
 Requires:   python-initgroups
-Requires:   python-networkx
 ######### Dependance from python dependance tree ########
 Requires:   python-argparse
 Requires:   python-babel
