@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) 2011-2012 CS-SI
+# License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+
 import sys, os, inspect
 from epydoc.markup import epytext
 from vigilo.vigiconf.lib.confclasses.test import TestFactory

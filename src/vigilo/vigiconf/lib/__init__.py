@@ -2,7 +2,7 @@
 # vim:set expandtab tabstop=4 shiftwidth=4:
 ################################################################################
 #
-# Copyright (C) 2007-2011 CS-SI
+# Copyright (C) 2007-2012 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
