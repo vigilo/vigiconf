@@ -4,7 +4,7 @@ INFILES = pkg/$(PKGNAME).cron settings.ini
 
 all: build
 
-include buildenv/Makefile.common
+include buildenv/Makefile.common.python
 CONFDIR := $(SYSCONFDIR)/vigilo/$(NAME)
 VARDIR := $(LOCALSTATEDIR)/lib/vigilo/$(NAME)
 
