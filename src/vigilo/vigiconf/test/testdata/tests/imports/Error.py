@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) 2011-2012 CS-SI
+# License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+
 """
 Le test de supervision défini par ce module est FICTIF.
 Il est utilisé lors des tests unitaires pour valider le comportement
