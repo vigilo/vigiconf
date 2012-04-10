@@ -6,10 +6,14 @@ Manuel développeur
 Chargement des fichiers XML
 ===========================
 
-..  todo::
-    Détailler cette partie.
+Les fichiers XML se situent dans le répertoire
+:file:`/etc/vigilo/vigiconf/conf.d/`.
 
-Les fichiers XML se situe dans le répertoire ``/etc/vigilo/vigiconf/conf.d/``.
+On y trouve notamment les répertoires principaux suivants :
+- définition des hôtes :file:`/etc/vigilo/vigiconf/conf.d/hosts`
+- definition des groupes d'hôtes :file:`/etc/vigilo/vigiconf/conf.d/groups/`
+- définition des modèles d'équipements
+  :file:`/etc/vigilo/vigiconf/conf.d/templates/`
 
 La documentation sur la syntaxe des fichiers de configuration XML est disponible
 dans le :ref:`manuel utilisateur de VigiConf <manuel_util>`.
@@ -81,16 +85,17 @@ Ajout ou personnalisation d'un test
 L'administrateur de la solution a la possibilité de définir ses propres tests
 de supervision ou bien de redéfinir les tests fournis par défaut.
 Les ajouts/surcharges de tests doivent se faire dans le dossier
-``/etc/vigilo/vigiconf/conf.d/tests`` en respectant la même arborescence
+:file:`/etc/vigilo/vigiconf/conf.d/tests` en respectant la même arborescence
 :file:`{classe}/{test}.py`.
 
 Ainsi, le test portant sur le processeur de la classe d'équipements "maclasse"
 se trouvera dans le fichier
-``/etc/vigilo/vigiconf/conf.d/tests/maclasse/CPU.py``.
+:file:`/etc/vigilo/vigiconf/conf.d/tests/maclasse/CPU.py`.
 
 De même, on pourra redéfinir le comportement du test de supervision d'un
 processeur sur une distribution Linux en créant un fichier
-``/etc/vigilo/vigiconf/conf.d/tests/linux/CPU.py`` contenant le code modifié.
+:file:`/etc/vigilo/vigiconf/conf.d/tests/linux/CPU.py` contenant le code
+modifié.
 
 Structure du code d'un test
 ---------------------------
@@ -100,7 +105,7 @@ une méthode :py:func:`add_test` qui intègre la logique du test.
 
 Exemple de test de supervision de la charge du processeur sur un nouveau modèle
 d'équipements de la marque "exemple". Le test sera placé dans
-``/etc/vigilo/vigiconf/conf.d/tests/exemple/CPU.py``
+:file:`/etc/vigilo/vigiconf/conf.d/tests/exemple/CPU.py`.
 
 ..  sourcecode:: python
 
@@ -206,65 +211,66 @@ Une description du rôle de chacune de ces méthodes est donnée ci-dessous.
 :py:func:`add_external_sup_service`
     Ajoute un service actif à Nagios.
 
-    .. todo:: Documenter les différences service actif/passif ?
-
 :py:func:`add_graph`
     Ajoute un graphique à Vigigraph.
 
 :py:func:`add_metro_service`
-    ..  todo:: À documenter
+    Ajoute un test Nagios sur les valeurs contenues dans les fichiers RRD.
 
 :py:func:`add_nagios_directive`
-    Ajoute des directives Nagios supplémentaires pour l'hôte actuel.
+    Ajoute une directive Nagios générique. Cette méthode ne fonctionne que
+    pour les hôtes. Pour ajouter une directive Nagios à un service, utiliser
+    :py:func:`add_nagios_service_directive`.
 
 :py:func:`add_nagios_service_directive`
-    Ajout des directives Nagios supplémentaires pour un service
-    de l'hôte actuel.
+    Ajoute des directives Nagios supplémentaires pour un service de l'hôte
+    actuel. Cette méthode ne fonctionne que pour les services. Pour ajouter
+    une directive Nagios à un hôte, utiliser :py:func:`add_nagios_directive`.
 
-:py:func:`add_netflow`
-    Ajoute un service passif dans Nagios, des graphique dans VigiGraph
-    et la configuration de pmacct pour la capture de données Netflow
-    (information sur les sous-réseaux).
-
-    **data** : dictionnaire de données devant contenir
-    une clef « *IPs* » dont la valeur et un
-    dictionnaire avec les clefs/valeurs suivantes:
-    IP_1: X.X.X.X/24
-    IP_2: Y.Y.Y.Y/24
-    IP_3: Z.Z.Z.Z/24
-    /24 est le masque par défaut.
+.. todo:: (à supprimer car non utilisé en production)
+.. : :py:func:`add_netflow`
+.. :    Ajoute un service passif dans Nagios, des graphiques dans VigiGraph
+.. :    et la configuration de :command:`pmacct` pour la capture de données
+.. :    Netflow (information sur les sous-réseaux).
+.. :
 
 :py:func:`add_perfdata_handler`
-    ..  todo:: À documenter
-
-:py:func:`add_report`
-    ..  todo:: À documenter
+    Déclare une donnée de performance générée par un module Nagios dans Vigilo,
+    permettant ainsi de faire le lien entre les données de performance des
+    modules Nagios et les bases RRDs de métrologie.
 
 :py:func:`add_tag`
-    ..  todo:: À documenter
+    Associe une étiquette à un hôte ou un service. Chaque étiquette possède
+    un nom et une valeur. Les étiquettes peuvent être utilisées pour associer
+    des informations qui seront ensuite accessibles dans les interfaces web.
+    Par exemple, on peut associer une étiquette ``serialno`` à chaque machine,
+    contenant le numéro de série de celle-ci. Le numéro de série pourra ensuite
+    être utilisé dans VigiBoard afin de préremplir un formulaire constructeur
+    en ligne en cas d'anomalie sur un équipement.
+
+:py:func:`make_rrd_cdef`
+    Déclare une nouvelle donnée de performance sur un hôte, calculée en
+    fonction des valeurs des données de performance déjà existantes.
+    La formule de calcul utilisée pour calculer la valeur de cette nouvelle
+    donnée de performance doit être passée en notation polonaise inversée
+    (:abbr:`RPN (Reversed Polish Notation)`).
 
 :py:func:`add_trap`
-    Ajoute un service passif dans  Nagios, dont l'état changera sur réception
+    Ajoute un service passif dans Nagios, dont l'état changera sur réception
     d'un trap SNMP. Cette méthode ajoute également des éléments de configuration
     dans le fichier :file:`snmptt.conf` utilisé pour traiter les traps SNMP.
 
-    Les arguments de cette méthode sont :
-
-    **service**: service Nagios
-    **oid** : OID du trap SNMP
-    **data** : dictionnaire comprenant les clefs suivantes:
-    + *command* (chemin complet du script)
-    + *service* (nom du service Nagios)
-    + *label* (nom de l'event (snmptt.conf))
-    + *address* (facultative)
-
-    ..  todo::
-        La doc de dév ne doit pas se substituer à la doc d'API.
-        On risque en plus d'avoir des informations fausses ici du fait
-        des évolutions dans le code non répercutées.
-        Idéalement, il faudrait pouvoir référencer la doc d'API directement
-        (via un hyperlien).
-
+..  note::
+    Un service Nagios actif est un service pour lequel l'exécution du test
+    de supervision associé est déclenchée par Nagios.
+    Un service Nagios passif est un service dont le test de supervision n'est
+    pas déclenché par Nagios. À la place, la valeur d'état du service est
+    calculée indépendamment de Nagios, puis injectée dans celui-ci.
+    Par exemple, les services dont l'état est déterminé grâce à SNMP
+    sont déclarés comme des services passifs dans Nagios.
+    Le collector SNMP de Vigilo (service actif) est appelé par Nagios,
+    se charge de calculer les états de ces services, puis envoie ces états
+    à Nagios.
 
 ..  note::
     Toutes ces fonctions appellent la méthode add qui va ajouter/modifier
@@ -329,12 +335,12 @@ suivante ::
 Le fichier :file:`__init__.py`
 ------------------------------
 Ce fichier est quasiment identique entre les différents générateurs et décrit
-l'application pour laquelle des fichiers de configuration pour être générés.
+l'application pour laquelle des fichiers de configuration peuvent être générés.
 
 Le fichier doit contenir une classe Python héritant de la classe
 :py:class:`vigilo.vigiconf.lib.application.Application`.
 Cette classe ne contient aucune méthode, mais simplement des attributs
-permettant de décrire
+permettant de décrire l'application.
 
 Par exemple, pour une application nommée ``Foobar`` effectuant une collecte
 d'états, le fichier :file:`__init__.py` pourrait contenir un code semblable
@@ -361,14 +367,22 @@ d'états, le fichier :file:`__init__.py` pourrait contenir un code semblable
 Le rôle des différents attributs de cette classe est décrit dans le tableau
 ci-dessous.
 
-..  todo::  Documenter les attributs qui ne le sont pas encore.
-
 ..  table:: Attributs des sous-classes de :py:class:`Application`
 
     +-------------------+---------------------------------------------------+
     | Attribut          | Rôle                                              |
     +===================+===================================================+
-    | ``defaults``      |                                                   |
+    | ``dbonly``        | Drapeau indiquant si l'application manipule des   |
+    |                   | données externes à la base de données Vigilo.     |
+    |                   | Ce drapeau permet de paralléliser l'exécution des |
+    |                   | applications qui ne travaillent que sur la base   |
+    |                   | de données Vigilo et de désactiver leur exécution |
+    |                   | lorsqu'une bascule de serveur est nécessaire      |
+    |                   | (haute disponibilité).                            |
+    +-------------------+---------------------------------------------------+
+    | ``defaults``      | Paramêtres de configuration par défaut de         |
+    |                   | l'application et indépendants de la configuration |
+    |                   | du parc.                                          |
     +-------------------+---------------------------------------------------+
     | ``generator``     | La classe Python correspondant au générateur      |
     |                   | de configuration à proprement parler pour         |
@@ -393,7 +407,9 @@ ci-dessous.
     |                   | application. Le nom ne doit contenir **que**      |
     |                   | des caractères en minuscules.                     |
     +-------------------+---------------------------------------------------+
-    | ``priority``      |                                                   |
+    | ``priority``      | Priorité pour l'ordonnancement du redémarrage.    |
+    |                   | L'application avec la priorité la plus élevée     |
+    |                   | sera qualifiée et déployée en premier.            |
     +-------------------+---------------------------------------------------+
     | ``start_command`` | Une commande qui sera exécutée sur les serveurs   |
     |                   | de supervision où l'application est installée     |
@@ -640,7 +656,7 @@ Le but de ce fichier est d'effectuer des vérifications permettant de s'assurer
 que la nouvelle configuration est valide (bon format, bonnes options, etc.).
 
 Ce fichier sera exécuté une première fois sur la machine qui héberge VigiConf
-(phase de validationn), puis une seconde fois sur la machine de supervision
+(phase de validation), puis une seconde fois sur la machine de supervision
 finale (phase de qualification) afin d'être absolument certain que la
 nouvelle configuration pourra être appliquée.
 
