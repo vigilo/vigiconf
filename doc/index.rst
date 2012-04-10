@@ -15,13 +15,20 @@ Documentation disponible :
    :maxdepth: 2
 
    util
+
+.. : "suptests" est inclus et ne doit pas être référencé dans une TOC visible.
+.. : On l'inclus dans une table cachée pour éviter un avertissement de Sphinx.
+
+.. toctree::
+   :hidden:
+
    suptests
 
 
 .. *****************
 .. Indexes et tables
 .. *****************
-.. 
+..
 .. * :ref:`genindex`
 .. * :ref:`modindex`
 .. * :ref:`search`
