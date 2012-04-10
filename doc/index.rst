@@ -14,9 +14,15 @@ Documentation disponible :
 ..  toctree::
     :maxdepth: 2
 
-    dev
-    util
-    suptests
+   util
+
+.. : "suptests" est inclus et ne doit pas être référencé dans une TOC visible.
+.. : On l'inclus dans une table cachée pour éviter un avertissement de Sphinx.
+
+.. toctree::
+   :hidden:
+
+   suptests
 
 
 .. *****************
