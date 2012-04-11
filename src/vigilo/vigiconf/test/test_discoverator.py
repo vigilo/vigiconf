@@ -4,6 +4,7 @@
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 import os, unittest, shutil, socket
+from xml.etree import ElementTree as ET
 
 from vigilo.common.conf import settings
 
@@ -94,6 +95,15 @@ class TestDiscoveratorBasics(unittest.TestCase):
             str(self.disc.hclasses))
         self.assertTrue("testclass2" in self.disc.hclasses,
             str(self.disc.hclasses))
+        # Il ne doit y avoir qu'un seul test dans le résultat
+        self.disc.deduplicate_tests()
+        decl = self.disc.declaration()
+        testlines = []
+        for elem in decl:
+            if elem.tag != "test":
+                continue
+            testlines.append(ET.tostring(elem))
+        self.assertEqual(testlines, ['<test name="FakeTest" />'])
 
 
 class DiscoveratorBaseTest(object):
