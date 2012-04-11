@@ -170,6 +170,7 @@ class Discoverator(object):
         self.find_tests(tests)
         self.find_attributes()
         self.find_hclasses()
+        self.deduplicate_tests()
 
     def find_tests(self, tests=None):
         """
@@ -187,6 +188,7 @@ class Discoverator(object):
                 if detected is True:
                     self.tests.append({"class": test,
                                        "name": test.__name__,
+                                       "args": {},
                                       })
                 elif isinstance(detected, list):
                     for arglist in detected:
@@ -269,6 +271,16 @@ class Discoverator(object):
             except socket.error:
                 pass
 
+    def deduplicate_tests(self):
+        new_tests = []
+        seen = []
+        for testdict in self.tests:
+            if (testdict["name"], testdict["args"]) in seen:
+                continue # doublon
+            new_tests.append(testdict)
+            seen.append((testdict["name"], testdict["args"]))
+        self.tests = new_tests
+
     def declaration(self):
         """Generate the textual declaration for Vigiconf"""
         if "all" in self.hclasses:
@@ -295,11 +307,10 @@ class Discoverator(object):
         for testdict in self.tests:
             _test = ET.SubElement(decl, "test")
             _test.set("name", testdict["name"])
-            if testdict.has_key("args"):
-                for arg, val in testdict["args"].iteritems():
-                    _arg = ET.SubElement(_test, "arg")
-                    _arg.set("name", arg)
-                    _arg.text = val
+            for arg, val in testdict["args"].iteritems():
+                _arg = ET.SubElement(_test, "arg")
+                _arg.set("name", arg)
+                _arg.text = val
         #tree = ET.ElementTree(decl)
         return decl
 
