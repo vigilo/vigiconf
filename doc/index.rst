@@ -11,9 +11,10 @@ Documentation disponible :
 .. : index, sans désactiver complètement l'analyse du document (pour qu'il
 .. : soit quand même analysé par la directive "include").
 
-.. toctree::
-   :maxdepth: 2
+..  toctree::
+    :maxdepth: 2
 
+   dev
    util
 
 .. : "suptests" est inclus et ne doit pas être référencé dans une TOC visible.

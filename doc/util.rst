@@ -1,3 +1,5 @@
+..  _`manuel_util`:
+
 ******************
 Manuel utilisateur
 ******************
