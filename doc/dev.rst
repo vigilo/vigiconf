@@ -10,6 +10,7 @@ Les fichiers XML se situent dans le répertoire
 :file:`/etc/vigilo/vigiconf/conf.d/`.
 
 On y trouve notamment les répertoires principaux suivants :
+
 - définition des hôtes :file:`/etc/vigilo/vigiconf/conf.d/hosts`
 - definition des groupes d'hôtes :file:`/etc/vigilo/vigiconf/conf.d/groups/`
 - définition des modèles d'équipements
