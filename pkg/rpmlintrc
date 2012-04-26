@@ -3,4 +3,4 @@
 from Config import addFilter
 
 # Pour xmllint
-addFilter("W: explicit-lib-dependency libxml2(-utils)?")
+addFilter("[EW]: explicit-lib-dependency libxml2(-utils)?")
