@@ -28,7 +28,7 @@
 </host>
 <host name="switchalcatel0S6400" address="192.168.1.2" ventilation="Telecom">
     <class>alcatel</class>
-    <template>alcatel</template>>
+    <template>alcatel</template>
     <test name="Interface">
         <arg name="ifname">Alcatel-Lucent 2/11 6.4.2.807.R01</arg>
         <arg name="label">2/11</arg>
