@@ -3,8 +3,9 @@
 %define pyver 26
 %define pybasever 2.6
 %define __python /usr/bin/python%{pybasever}
-%define __os_install_post %{__python26_os_install_post}
-%{!?python26_sitelib: %define python26_sitelib %(python26 -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+# Turn off the brp-python-bytecompile script
+%define __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
 
 Name:       vigilo-%{module}
 Summary:    @SUMMARY@
@@ -77,13 +78,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/vigilo/%{module}/README.post-install
 %config(noreplace) /etc/cron.d/*
 %attr(755,root,root) %{_bindir}/*
-%{python26_sitelib}/*
-%attr(755,root,root) %{python26_sitelib}/vigilo/%{module}/applications/*/*.sh
+%{python_sitelib}/*
+%attr(755,root,root) %{python_sitelib}/vigilo/%{module}/applications/*/*.sh
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
 %attr(-,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
-
-
-%changelog
-* Thu Apr 07 2011 Aurelien Bompard <aurelien.bompard@c-s.fr>
-- Adapt to Vigilo V2
