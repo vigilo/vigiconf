@@ -61,6 +61,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
                 host_name\s+testserver1\s*
                 service_description\s+Collector\s*
                 check_command\s+Collector\s*
+                max_check_attempts\s+2\s*
                 [^\}]+                              # Any following declaration
                 \}                                  # End of the host definition
             """,
@@ -123,9 +124,9 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         nagiosconf = open(nagiosconffile).read()
         print nagiosconf
 
-        self.assertTrue("max_check_attempts    5" in nagiosconf)
-        self.assertTrue("check_interval    10" in nagiosconf)
-        self.assertTrue("retry_interval    1" in nagiosconf)
+        self.assertTrue("max_check_attempts      5" in nagiosconf)
+        self.assertTrue("check_interval          10" in nagiosconf)
+        self.assertTrue("retry_interval          1" in nagiosconf)
 
     def test_nagios_services_directives(self):
         """Nagios: host directives"""
@@ -140,7 +141,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         nagiosconf = open(nagiosconffile).read()
         print nagiosconf
 
-        self.assertTrue("obsess_over_service    1" in nagiosconf)
+        self.assertTrue("obsess_over_service     1" in nagiosconf)
 
     def test_nagios_service_directives_collector(self):
         """Nagios: service directives"""
@@ -154,7 +155,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
                      "Nagios conf file was not generated")
         nagiosconf = open(nagiosconffile).read()
         print nagiosconf
-        self.assertTrue("testdirective    testdirvalue" in nagiosconf)
+        self.assertTrue("testdirective           testdirvalue" in nagiosconf)
 
     def test_nagios_service_directives_external(self):
         """Nagios: service directives"""
@@ -167,7 +168,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
                      "Nagios conf file was not generated")
         nagiosconf = open(nagiosconffile).read()
         print nagiosconf
-        self.assertTrue("testdirective    testdirvalue" in nagiosconf)
+        self.assertTrue("testdirective           testdirvalue" in nagiosconf)
 
     def test_parents_directive(self):
         """Nagios: parents"""

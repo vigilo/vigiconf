@@ -30,7 +30,7 @@ class HostMethods(unittest.TestCase):
                          u"192.168.1.1", u"Servers")
         self.expected = {
             "metrosrv": {
-                "type": "metro",
+                "type": "passive",
                 "weight": 1,
                 "warning_weight": 1,
                 "directives": {},

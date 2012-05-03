@@ -266,11 +266,11 @@ class ParseHost(unittest.TestCase):
     def test_test(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-        <test name="Interface">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
+            <test name="Interface">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
             <group>/Servers</group>
-        </test>
         </host>""")
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
@@ -283,11 +283,11 @@ class ParseHost(unittest.TestCase):
     def test_test_weight(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-        <test name="Interface" weight="42">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
+            <test name="Interface" weight="42">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
             <group>/Servers</group>
-        </test>
         </host>""")
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
@@ -303,11 +303,11 @@ class ParseHost(unittest.TestCase):
     def test_test_weight_default(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-        <test name="Interface">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
+            <test name="Interface">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
             <group>/Servers</group>
-        </test>
         </host>""")
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -321,10 +321,10 @@ class ParseHost(unittest.TestCase):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-        <test name="Interface" weight="invalid">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
-        </test>
+            <test name="Interface" weight="invalid">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
         </host>""")
         self.host.close()
         filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
@@ -333,11 +333,11 @@ class ParseHost(unittest.TestCase):
     def test_test_warning_weight(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-        <test name="Interface" weight="45" warning_weight="42">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
+            <test name="Interface" weight="45" warning_weight="42">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
             <group>/Servers</group>
-        </test>
         </host>""")
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
@@ -353,11 +353,11 @@ class ParseHost(unittest.TestCase):
     def test_test_warning_weight_default1(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-        <test name="Interface">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
+            <test name="Interface">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
             <group>/Servers</group>
-        </test>
         </host>""")
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -372,11 +372,11 @@ class ParseHost(unittest.TestCase):
     def test_test_warning_weight_default2(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-        <test name="Interface" weight="42">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
+            <test name="Interface" weight="42">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
             <group>/Servers</group>
-        </test>
         </host>""")
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
@@ -391,10 +391,10 @@ class ParseHost(unittest.TestCase):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-        <test name="Interface" warning_weight="invalid">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
-        </test>
+            <test name="Interface" warning_weight="invalid">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
         </host>""")
         self.host.close()
         filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
@@ -404,10 +404,10 @@ class ParseHost(unittest.TestCase):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-        <test name="Interface" weight="41" warning_weight="42">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
-        </test>
+            <test name="Interface" weight="41" warning_weight="42">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
         </host>""")
         self.host.close()
         filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
@@ -419,8 +419,9 @@ class ParseHost(unittest.TestCase):
         """
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1">
-        <group>/Servers</group>
-        <test name="NonExistant"/></host>""")
+            <test name="NonExistant"/>
+            <group>/Servers</group>
+        </host>""")
         self.host.close()
         filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
         self.assertRaises(ParsingError, self.hostfactory._loadhosts, filepath)
@@ -430,8 +431,10 @@ class ParseHost(unittest.TestCase):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="foo" address="127.0.0.1" ventilation="Vigilo">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
+            <test name="Interface" weight="42" warning_weight="41">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
             <group>/Servers/Linux servers</group>
         </host>
         """)
@@ -446,8 +449,10 @@ class ParseHost(unittest.TestCase):
         """Hôte associé à aucun groupe opérationnel."""
         self.host.write("""<?xml version="1.0"?>
         <host name="foo" address="127.0.0.1" ventilation="Vigilo">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
+            <test name="Interface" weight="41" warning_weight="42">
+                <arg name="label">eth0</arg>
+                <arg name="ifname">eth0</arg>
+            </test>
         </host>
         """)
         self.host.close()
@@ -676,11 +681,11 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_attribute(self):
         self.ht.write("""<?xml version="1.0"?>
-                <templates>
-                    <template name="test">
-                        <attribute name="testattr">testattrvalue</attribute>
-                    </template>
-                </templates>""")
+        <templates>
+            <template name="test">
+                <attribute name="testattr">testattrvalue</attribute>
+            </template>
+        </templates>""")
         self.ht.close()
         self.hosttemplatefactory.load_templates()
         attrs = self.hosttemplatefactory.templates["test"]["attributes"]
@@ -690,11 +695,11 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_test(self):
         self.ht.write("""<?xml version="1.0"?>
-                <templates>
-                <template name="test">
-                    <test name="TestTest"/>
-                </template>
-                </templates>""")
+        <templates>
+        <template name="test">
+            <test name="TestTest"/>
+        </template>
+        </templates>""")
         self.ht.close()
         try:
             self.hosttemplatefactory.load_templates()
@@ -707,14 +712,14 @@ class ParseHostTemplate(unittest.TestCase):
     def test_test_args(self):
         """The \"test\" tag with arguments must be properly parsed"""
         self.ht.write("""<?xml version="1.0"?>
-                <templates>
-                <template name="test">
-                    <test name="TestTest">
-                        <arg name="TestArg1">TestValue1</arg>
-                        <arg name="TestArg2">TestValue2</arg>
-                    </test>
-                </template>
-                </templates>""")
+        <templates>
+        <template name="test">
+            <test name="TestTest">
+                <arg name="TestArg1">TestValue1</arg>
+                <arg name="TestArg2">TestValue2</arg>
+            </test>
+        </template>
+        </templates>""")
         self.ht.close()
         try:
             self.hosttemplatefactory.load_templates()
@@ -830,11 +835,11 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_group(self):
         self.ht.write("""<?xml version="1.0"?>
-                <templates>
-                <template name="test">
-                    <group>/Test group</group>
-                </template>
-                </templates>""")
+        <templates>
+        <template name="test">
+            <group>/Test group</group>
+        </template>
+        </templates>""")
         self.ht.close()
         self.hosttemplatefactory.load_templates()
         self.assertTrue("/Test group" in
@@ -843,13 +848,13 @@ class ParseHostTemplate(unittest.TestCase):
 
     def test_parent(self):
         self.ht.write("""<?xml version="1.0"?>
-            <templates>
-                <template name="test1">
-                </template>
-                <template name="test2">
-                    <parent>test1</parent>
-                </template>
-            </templates>""")
+        <templates>
+            <template name="test1">
+            </template>
+            <template name="test2">
+                <parent>test1</parent>
+            </template>
+        </templates>""")
         self.ht.close()
         self.hosttemplatefactory.load_templates()
         self.assertTrue("test1" in

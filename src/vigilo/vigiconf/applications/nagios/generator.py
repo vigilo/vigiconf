@@ -42,6 +42,9 @@ class NagiosGen(FileGenerator):
 
     @todo: this really deserves a refactoring, use safety glasses
     """
+    #    check_command           check-host-alive
+    #<-     23 caracters      ->#
+    pad = 23
 
     def generate(self):
         # pylint: disable-msg=W0201
@@ -66,22 +69,19 @@ class NagiosGen(FileGenerator):
         newhash = h.copy()
         # Groups
         self.__fillgroups(hostname, newhash)
-        # Notification periods
-        if h.has_key('notification_period') and h['notification_period']:
-            newhash['notification_period'] = "notification_period " \
-                                             + h['notification_period']
-        else:
-            newhash['notification_period'] = ""
+
         # Dependencies
         parents = self._getdeps(hostname)
         if parents:
-            newhash['parents'] = "parents" + " "*17 + ",".join(parents)
+            newhash['parents'] = "parents ".ljust(self.pad) + ",".join(parents)
         else:
             newhash['parents'] = ""
 
         # directives generiques du type host
-        newhash['generic_hdirectives'] =  "".join(["%s    %s\n    " % item
-            for item in newhash['nagiosDirectives']['host'].iteritems()])
+        newhash['generic_hdirectives'] =  "".join(["%s %s\n    " % \
+            (directive.ljust(self.pad), val)
+            for directive, val in \
+                    newhash['nagiosDirectives']['host'].iteritems()])
 
         # Add the host definition
         self.templateAppend(self.fileName, self.templates['host'], newhash)
@@ -93,10 +93,8 @@ class NagiosGen(FileGenerator):
             if "services" in newhash['nagiosDirectives']:
                 for directive, value in \
                        newhash['nagiosDirectives']['services'].iteritems():
-                    newhash['generic_sdirectives'] += "%s    %s\n    " % \
-                                        (directive, value)
-                    generic_sdirectives += "%s    %s\n    " % \
-                                        (directive, value)
+                    newhash['generic_sdirectives'] += "%s %s\n    " % \
+                            (directive.ljust(self.pad), value)
         # We need to know if a service is the exact same serviceName as ours.
         if h.has_key("snmpTrap") and len(h["snmpTrap"]):
             srvnames = h["services"].keys()
@@ -108,12 +106,11 @@ class NagiosGen(FileGenerator):
                 if k in srvnames:
                     continue
                 self.templateAppend(self.fileName,
-                        self.templates["collector"],
+                        self.templates["passive"],
                         {'name' :  hostname,
                          'serviceName' : k,
-                         'quietOrNot': "",
-                         'notification_period': "",
-                         'generic_sdirectives': newhash['generic_sdirectives'],
+                         'generic_sdirectives':
+                             newhash['generic_sdirectives'].rstrip(),
                         })
 
         # Add the service item into the Nagios configuration file
@@ -121,11 +118,9 @@ class NagiosGen(FileGenerator):
             # add a static active or passive service calling Collector if needed
             if h["force-passive"]:
                 self.templateAppend(self.fileName,
-                        self.templates["collector"],
+                        self.templates["passive"],
                         {'name' :  hostname,
                          'serviceName' : "Collector",
-                        'quietOrNot': "",
-                        'notification_period': "",
                         'generic_sdirectives': newhash['generic_sdirectives'],
                         })
             else:
@@ -154,8 +149,8 @@ class NagiosGen(FileGenerator):
         """Fill the groups in the configuration file"""
         h = conf.hostsConf[hostname]
         if h.get("otherGroups", None):
-            newhash['hostGroups'] = "hostgroups %s" % \
-                ','.join(h['otherGroups'])
+            newhash['hostGroups'] = "%s %s" % \
+                    ("hostgroups".ljust(self.pad), ','.join(h['otherGroups']))
             # builds a list of all groups memberships
             for i in h['otherGroups']:
                 if i not in self._files[self.fileName]:
@@ -172,7 +167,6 @@ class NagiosGen(FileGenerator):
 #                                     "hostgroupAlias": conf.hostsGroups[i]})
         else:
             newhash['hostGroups'] = "# no hostgroups defined"
-        newhash['quietOrNot'] = ""
 
     def _build_topology(self):
         """
@@ -242,54 +236,32 @@ class NagiosGen(FileGenerator):
             if "nagiosDirectives" in newhash:
                 if "services" in newhash['nagiosDirectives']:
                     for directive, value in \
-                           newhash['nagiosDirectives']['services'].iteritems():
-                        generic_sdirectives += "%s    %s\n    " % \
-                                            (directive, value)
+                        newhash['nagiosDirectives']['services'].iteritems():
+                            generic_sdirectives += "%s %s\n    " % \
+                                        (directive.ljust(self.pad), value)
             if newhash['nagiosSrvDirs'].has_key(srvname):
                 for directive, value in \
-                            newhash['nagiosSrvDirs'][srvname].iteritems():
-                    generic_sdirectives += "%s    %s\n    " % (directive, value)
+                        newhash['nagiosSrvDirs'][srvname].iteritems():
+                            generic_sdirectives += "%s %s\n    " % \
+                                    (directive.ljust(self.pad), value)
+            # Handle command definition
+            if scopy.has_key('command') and scopy['type'] == 'active' and \
+                     not h['force-passive']:
+                generic_sdirectives += "%s %s\n    " % \
+                        ("check_command".ljust(self.pad), scopy['command'])
+            # Handle perfdata
+            if srvname in h['PDHandlers']:
+                generic_sdirectives += "%s 1\n    " % \
+                    "process_perf_data".ljust(self.pad)
 
-            if srvname  in h['PDHandlers']:
-                # there is a perfdata handler to set as we asked to
-                # route a perfdata (or more) to a RRD
-                # (using perf2store => StoreMe)
-                perfdata = "process_perf_data       1"
+            if h['force-passive']:
+                # forcing passive type of service
+                tpltype = "passive"
             else:
-                perfdata = ""
-            # Handle notification periods
-            if scopy.has_key('notification_period'):
-                scopy['notification_period'] = "notification_period " \
-                                            + scopy['notification_period']
-            else:
-                scopy['notification_period'] = ""
-            if scopy['type'] == 'passive' or h['force-passive']:
-                # ajout d'un template de service passif
-                self.templateAppend(self.fileName, self.templates["collector"],
+                tpltype = scopy['type']
+            self.templateAppend(self.fileName, self.templates[tpltype],
                         {'name': h['name'],
                          'serviceName': srvname,
-                         'quietOrNot': newhash['quietOrNot'],
-                         'perfDataOrNot': perfdata,
-                         'notification_period': scopy['notification_period'],
-                         'generic_sdirectives': generic_sdirectives})
-            elif scopy['type'] == 'active':
-                # append an active service, named external, as in "not handled
-                # by Collector"
-                self.templateAppend(self.fileName, self.templates['ext'],
-                        {'name': h['name'],
-                         'desc': srvname,
-                         'command': scopy['command'],
-                         'quietOrNot': newhash['quietOrNot'],
-                         'perfDataOrNot': perfdata,
-                         'notification_period': scopy['notification_period'],
-                         'generic_sdirectives': generic_sdirectives})
-
-            else:
-                self.templateAppend(self.fileName,
-                        self.templates[ scopy['type'] ],
-                        {'name': h['name'],
-                         'desc': srvname,
-                         'generic_sdirectives': generic_sdirectives})
-
+                         'generic_sdirectives': generic_sdirectives.rstrip()})
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

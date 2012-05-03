@@ -397,10 +397,7 @@ class Host(object):
         else:
             target = reroutefor["host"]
             service = reroutefor['service']
-            reroutedby = {
-                'host': self.name,
-                'service': label,
-            }
+            reroutedby = {'host': self.name, 'service': label, }
 
         if directives is None:
             directives = {}
@@ -767,7 +764,7 @@ class Host(object):
         @type  factor: C{int} or C{float}
         """
         # Ajout du service Nagios
-        self.add_custom_service(servicename, "metro",
+        self.add_custom_service(servicename, "passive",
                                 weight=weight, warning_weight=warning_weight)
         # Ajout des seuils pour le connector-metro.
         self.add(self.name, "metro_services", metroname, {
