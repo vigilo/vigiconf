@@ -26,7 +26,7 @@ class ConnectorMetroTest(unittest.TestCase):
         self.basedir = os.path.join(self.tmpdir, "deploy")
         self.host = Host(conf.hostsConf, "dummy.xml", "testserver1",
                          "192.168.1.1", "Servers")
-        self.host.add_perfdata_handler("dummy", "dummy", "dummy", "dummy")
+        self.host.add_perfdata("dummy", "dummy")
 
     def tearDown(self):
         """Call after every test case."""

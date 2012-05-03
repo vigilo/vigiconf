@@ -35,8 +35,7 @@ class VigiRRDTest(unittest.TestCase):
 
     def test_graph_order(self):
         for i in range(7):
-            self.host.add_perfdata_handler("dummy_service", "test_ds_%d" % i,
-                    "test_ds_label_%d" % i, "test_ds_%d" % i)
+            self.host.add_perfdata("test_ds_%d" % i, "dummy")
         self.host.add_graph("test graph 1",
                 [ "test_ds_%d" % i for i in range(7) ],
                 "lines", "dummy")

@@ -235,6 +235,11 @@ Une description du rôle de chacune de ces méthodes est donnée ci-dessous.
 .. :    Netflow (information sur les sous-réseaux).
 .. :
 
+:py:func:`add_perfdata`
+    Déclare une donnée de performance reçu par le connecteur de métrologie,
+    permettant ainsi de faire le lien entre les données de performance et les
+    base RRDs de métrologie.
+
 :py:func:`add_perfdata_handler`
     Déclare une donnée de performance générée par un module Nagios dans Vigilo,
     permettant ainsi de faire le lien entre les données de performance des

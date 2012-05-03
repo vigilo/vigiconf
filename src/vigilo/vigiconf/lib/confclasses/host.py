@@ -681,9 +681,39 @@ class Host(object):
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, 'services', name, key, value)
 
+    def add_perfdata(self, name, label, dstype="GAUGE", reroutefor=None,
+            max_value=None, min_value=None, rra_template=None):
+        """
+        Add a perfdata: associate a RRD file to a host.
+        @param name: the datasource name (rrd filename)
+        @type  name: C{str}
+        @param label: the datasource display label
+        @type  label: C{str}
+        @param dstype: datasource type
+        @type  dstype: "GAUGE" or "COUNTER", see RRDtool documentation
+        @param reroutefor: service routing information
+        @type  reroutefor: C{dict} with "host" and "service" as keys
+        @param max_value: the maximum value for the datasource, if any
+        @type  max_value: C{int}
+        @param min_value: the minimal value for the datasource, if any
+        @type  min_value: C{int}
+        @param rra_template: RRA template to use. It omitted, generators
+            use a default template.
+        @type  rra_template: C{str}
+        """
+        if reroutefor is None:
+            target = self.name
+        else:
+            target = reroutefor['host']
+        # Add the RRD
+        self.add(target, "dataSources", name,
+                 {'dsType': dstype, 'label': label,
+                  "max": max_value, "min": min_value,
+                  "rra_template": rra_template})
+
     def add_perfdata_handler(self, service, name, label, perfdatavarname,
-                             dstype="GAUGE", reroutefor=None, max_value=None,
-                             min_value=None, rra_template=None):
+            dstype="GAUGE", reroutefor=None, max_value=None,
+            min_value=None, rra_template=None):
         """
         Add a perfdata handler: send the performance data from the nagios
         plugins to the RRDs
@@ -707,15 +737,10 @@ class Host(object):
             use a default template.
         @type  rra_template: C{str}
         """
-        if reroutefor == None:
-            target = self.name
-        else:
-            target = reroutefor['host']
         # Add the RRD
-        self.add(target, "dataSources", name,
-                 {'dsType': dstype, 'label': label,
-                  "max": max_value, "min": min_value,
-                  "rra_template": rra_template})
+        self.add_perfdata(name, label, dstype=dstype, reroutefor=reroutefor,
+                max_value=max_value, min_value=min_value,
+                rra_template=rra_template)
         # Add the perfdata handler in Nagios
         if not self.get('PDHandlers').has_key(service):
             self.add(self.name, "PDHandlers", service, [])
