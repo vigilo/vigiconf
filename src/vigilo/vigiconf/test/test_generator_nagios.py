@@ -60,8 +60,8 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
                 use\s+generic-active-service\s*
                 host_name\s+testserver1\s*
                 service_description\s+Collector\s*
-                check_command\s+Collector\s*
                 max_check_attempts\s+2\s*
+                check_command\s+Collector\s*
                 [^\}]+                              # Any following declaration
                 \}                                  # End of the host definition
             """,

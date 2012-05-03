@@ -156,10 +156,6 @@ class Validator(object):
                 svc_conf += len(conf.hostsConf[host]["services"])
                 svc_conf_detail.extend(["%s::%s" % (host, s)
                         for s in conf.hostsConf[host]["services"]])
-            if "SNMPJobs" in conf.hostsConf[host] and \
-                        conf.hostsConf[host]["SNMPJobs"]:
-                svc_conf += 1
-                svc_conf_detail.append("%s::Collector" % host)
             if "TelnetJobs" in conf.hostsConf[host] and \
                         conf.hostsConf[host]["TelnetJobs"]:
                 svc_conf += 1

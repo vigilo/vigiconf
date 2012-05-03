@@ -114,19 +114,6 @@ class NagiosGen(FileGenerator):
                         })
 
         # Add the service item into the Nagios configuration file
-        if len(h['SNMPJobs']):
-            # add a static active or passive service calling Collector if needed
-            if h["force-passive"]:
-                self.templateAppend(self.fileName,
-                        self.templates["passive"],
-                        {'name' :  hostname,
-                         'serviceName' : "Collector",
-                        'generic_sdirectives': newhash['generic_sdirectives'],
-                        })
-            else:
-                self.templateAppend(self.fileName,
-                                    self.templates["collector_main"],
-                                    newhash)
         self.__fillservices(hostname, newhash)
 
         ## WARNING: ugly hack to handle routes (GCE based, must disappear)!!

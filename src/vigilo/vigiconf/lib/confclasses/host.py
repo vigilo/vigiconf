@@ -389,6 +389,11 @@ class Host(object):
         @param warning_weight: service weight when in the WARNING state
         @type  warning_weight: C{int}
         """
+        # Si il n'existe pas encore, on ajoute un test Collector par défaut
+        # pour être sûr que les données soient collectées.
+        if "Collector" not in self.hosts[self.name]["services"]:
+            self.add_external_sup_service("Collector", "Collector",
+                    directives={"max_check_attempts": "2"})
         # Handle rerouting
         if reroutefor == None:
             target = self.name
@@ -452,6 +457,9 @@ class Host(object):
             use a default template.
         @type  rra_template: C{str}
         """
+        if "Collector" not in self.hosts[self.name]["services"]:
+            self.add_external_sup_service("Collector", "Collector",
+                    directives={"max_check_attempts": "2"})
         if not label:
             label = name
         # Handle rerouting

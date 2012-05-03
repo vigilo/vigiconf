@@ -160,11 +160,6 @@ class HostLoader(DBLoader):
             host = self.add(host)
             hosts[hostname] = host
 
-            # Synchronise le service "Collector"
-            # en fonction des besoins.
-            collector_loader = CollectorLoader(host)
-            collector_loader.load()
-
             # Synchronisation des tags de l'hôte.
             tag_loader = TagLoader(host, hostdata.get('tags', {}))
             tag_loader.load()
@@ -380,7 +375,7 @@ class ServiceLoader(DBLoader):
 
     def _list_db(self):
         return DBSession.query(self._class).filter_by(host=self.host
-            ).filter(self._class.servicename != u'Collector').all()
+            ).all()
         #return [ s for s in DBSession.query(self._class).filter_by(
         #         host=self.host).all() if s.servicename != 'Collector' ]
 
@@ -424,27 +419,6 @@ class ServiceLoader(DBLoader):
                 tag_loader = TagLoader(lls, conf.hostsConf[self.host.name] \
                     ['services'][service].get('tags', {}))
                 tag_loader.load_conf()
-
-class CollectorLoader(ServiceLoader):
-    def _list_db(self):
-        return DBSession.query(self._class).filter_by(host=self.host
-            ).filter(self._class.servicename == u'Collector').all()
-
-    def load_conf(self):
-        hostdata = conf.hostsConf[self.host.name]
-        if "SNMPJobs" in hostdata and hostdata['SNMPJobs']:
-            LOGGER.debug('Adding "Collector" service on host %s',
-                         self.host.name)
-            lls = dict(host=self.host, servicename=u"Collector",
-                        weight=1, warning_weight=1)
-            lls = self.add(lls)
-
-            # tags
-            if 'Collector' in hostdata['services']:
-                tag_loader = TagLoader(lls, hostdata['services'] \
-                    ['Collector'].get('tags', {}))
-                tag_loader.load_conf()
-
 
 class TagLoader(DBLoader):
     """Chargeur de tags. Attention les valeurs des tags sont ignorées"""
