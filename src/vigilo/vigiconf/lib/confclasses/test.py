@@ -59,7 +59,7 @@ class Test(object):
     __test__ = False # pour Nose
 
     def __init__(self):
-        self.weight = 1
+        self.weight = None
         self.warning_weight = self.weight
         self.directives = {}
 

@@ -15,10 +15,13 @@ settings.load_module(__name__)
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.loaders.group import GroupLoader
+from vigilo.vigiconf.loaders.host import ServiceLoader
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplateFactory
 from vigilo.vigiconf.lib.confclasses.host import HostFactory
+from vigilo.models.tables import ConfFile
+from vigilo.models.demo.functions import add_host
 
 from helpers import setup_tmpdir, setup_db, teardown_db
 
@@ -280,134 +283,83 @@ class ParseHost(unittest.TestCase):
                 self.hostsConf["testserver1"]["SNMPJobs"],
                 "The \"test\" tag is not properly parsed")
 
-    def test_test_weight(self):
+    def test_default_test_weights(self):
+        """
+        La valeur par défaut du poids et du poids WARNING des services.
+        """
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ventilation="Servers">
-            <test name="Interface" weight="42">
-                <arg name="label">eth0</arg>
-                <arg name="ifname">eth0</arg>
-            </test>
-            <group>/Servers</group>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <test name="UpTime"/>
+            <group>Servers</group>
         </host>""")
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
         print self.hostsConf
-        self.assertTrue("weight" in
-                self.hostsConf["testserver1"]["services"]["Interface eth0"],
-                "L'attribut weight du test n'est pas chargé")
-        services = self.hostsConf["testserver1"]["services"]
-        self.assertEquals(services["Interface eth0"]["weight"], 42,
-                          "L'attribut weight n'a pas la bonne valeur")
+        self.assertEquals(
+                self.hostsConf["testserver1"]["services"] \
+                              ["UpTime"]["weight"],
+                None, "L'attribut weight n'a pas la bonne valeur")
+        self.assertEquals(
+                self.hostsConf["testserver1"]["services"] \
+                              ["UpTime"]["warning_weight"],
+                None, "L'attribut warning_weight n'a pas la bonne valeur")
 
-    def test_test_weight_default(self):
+    def test_test_weight_override (self):
+        """
+        La valeur par défaut du poids des services peut être surchargée.
+        """
         self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ventilation="Servers">
-            <test name="Interface">
-                <arg name="label">eth0</arg>
-                <arg name="ifname">eth0</arg>
-            </test>
-            <group>/Servers</group>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <test name="UpTime" weight="42" />
+            <group>Servers</group>
         </host>""")
         self.host.close()
-        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
+        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
         print self.hostsConf
-        services = self.hostsConf["testserver1"]["services"]
-        self.assertEquals(services["Interface eth0"]["weight"], 1,
-                          "L'attribut weight n'a pas la bonne valeur "
-                          "par défaut")
+        self.assertEquals(
+                self.hostsConf["testserver1"]["services"] \
+                              ["UpTime"]["weight"],
+                42, "L'attribut weight n'a pas la bonne valeur")
+        self.assertEquals(
+                self.hostsConf["testserver1"]["services"] \
+                              ["UpTime"]["warning_weight"],
+                None, "L'attribut warning_weight n'a pas la bonne valeur")
+
+    def test_test_warning_weight_override(self):
+        """Poids WARNING par défaut des services peut être surchargée."""
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <test name="UpTime" weight="42" warning_weight="12" />
+            <group>Servers</group>
+        </host>""")
+        self.host.close()
+        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
+                                    "host.xml"))
+        print self.hostsConf
+        self.assertEquals(
+                self.hostsConf["testserver1"]["services"] \
+                              ["UpTime"]["warning_weight"],
+                12, "L'attribut weight n'a pas la bonne valeur")
 
     def test_test_weight_invalid(self):
-        GroupLoader().load()
+        """Valeur incorrecte du poids par défaut des services."""
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-            <test name="Interface" weight="invalid">
-                <arg name="label">eth0</arg>
-                <arg name="ifname">eth0</arg>
-            </test>
+            <test name="UpTime" weight="invalid" />
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
         self.assertRaises(ParsingError, self.hostfactory._loadhosts, filepath)
-
-    def test_test_warning_weight(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ventilation="Servers">
-            <test name="Interface" weight="45" warning_weight="42">
-                <arg name="label">eth0</arg>
-                <arg name="ifname">eth0</arg>
-            </test>
-            <group>/Servers</group>
-        </host>""")
-        self.host.close()
-        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
-                                    "host.xml"))
-        print self.hostsConf
-        self.assertTrue("warning_weight" in
-                self.hostsConf["testserver1"]["services"]["Interface eth0"],
-                "L'attribut warning_weight du test n'est pas chargé")
-        services = self.hostsConf["testserver1"]["services"]
-        self.assertEquals(services["Interface eth0"]["warning_weight"], 42,
-                          "L'attribut warning_weight n'a pas la bonne valeur")
-
-    def test_test_warning_weight_default1(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ventilation="Servers">
-            <test name="Interface">
-                <arg name="label">eth0</arg>
-                <arg name="ifname">eth0</arg>
-            </test>
-            <group>/Servers</group>
-        </host>""")
-        self.host.close()
-        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        print self.hostsConf
-        services = self.hostsConf["testserver1"]["services"]
-        # warning_weight prend la valeur de weight par défaut,
-        # qui lui-même prend la valeur 1 par défaut.
-        self.assertEquals(services["Interface eth0"]["warning_weight"], 1,
-                          "L'attribut warning_weight n'a pas la bonne valeur "
-                          "par défaut")
-
-    def test_test_warning_weight_default2(self):
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ventilation="Servers">
-            <test name="Interface" weight="42">
-                <arg name="label">eth0</arg>
-                <arg name="ifname">eth0</arg>
-            </test>
-            <group>/Servers</group>
-        </host>""")
-        self.host.close()
-        self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts", "host.xml"))
-        print self.hostsConf
-        services = self.hostsConf["testserver1"]["services"]
-        # warning_weight prend la valeur de weight par défaut.
-        self.assertEquals(services["Interface eth0"]["warning_weight"], 42,
-                          "L'attribut warning_weight n'a pas la bonne valeur "
-                          "par défaut")
 
     def test_test_warning_weight_invalid(self):
-        GroupLoader().load()
+        """Valeur incorrecte du poids WARNING par défaut des services."""
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" ventilation="Servers">
-            <test name="Interface" warning_weight="invalid">
-                <arg name="label">eth0</arg>
-                <arg name="ifname">eth0</arg>
-            </test>
-        </host>""")
-        self.host.close()
-        filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
-        self.assertRaises(ParsingError, self.hostfactory._loadhosts, filepath)
-
-    def test_test_warning_weight_greather_than_weight(self):
-        GroupLoader().load()
-        self.host.write("""<?xml version="1.0"?>
-        <host name="testserver1" ventilation="Servers">
-            <test name="Interface" weight="41" warning_weight="42">
-                <arg name="label">eth0</arg>
-                <arg name="ifname">eth0</arg>
-            </test>
+            <test name="UpTime" warning_weight="invalid" />
+            <group>/Servers</group>
         </host>""")
         self.host.close()
         filepath = os.path.join(self.tmpdir, "hosts", "host.xml")
@@ -833,6 +785,36 @@ class ParseHostTemplate(unittest.TestCase):
         self.assertRaises(ParsingError,
                           self.hosttemplatefactory.load_templates)
 
+    def test_default_service_weight_template(self):
+        """Le poids default_service_weight peut être déclaré dans un modèle"""
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+        <template name="test">
+            <default_service_weight>42</default_service_weight>
+        </template>
+        </templates>""")
+        self.ht.close()
+        try:
+            self.hosttemplatefactory.load_templates()
+        except KeyError:
+            self.fail("le poid \"default_service_weight\" n'est pas analysé "
+                      "correctement")
+
+    def test_default_service_warning_weight_template(self):
+        """Le poids default_service_warning_weight peut être déclaré dans un modèle"""
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+        <template name="test">
+            <default_service_warning_weight>42</default_service_warning_weight>
+        </template>
+        </templates>""")
+        self.ht.close()
+        try:
+            self.hosttemplatefactory.load_templates()
+        except KeyError:
+            self.fail("le poid \"default_service_warning_weight\" n'est pas "
+                      "analysé correctement")
+
     def test_group(self):
         self.ht.write("""<?xml version="1.0"?>
         <templates>
@@ -873,6 +855,7 @@ class ParseHostTemplate(unittest.TestCase):
         testdata = self.hosttemplatefactory.templates["test"]
         self.assertTrue("weight" in testdata,
                         "L'attribut weight n'est pas chargé")
+        print testdata["weight"]
         self.assertEquals(testdata["weight"], 42,
                           "L'attribut weight n'a pas la bonne valeur")
 
@@ -885,7 +868,8 @@ class ParseHostTemplate(unittest.TestCase):
         self.ht.close()
         self.hosttemplatefactory.load_templates()
         testdata = self.hosttemplatefactory.templates["test"]
-        self.assert_("weight" in testdata,
+        print testdata
+        self.assertTrue("weight" in testdata,
                      "L'attribut weight n'est pas réglé par défaut")
         self.assertEquals(testdata["weight"], None,
                     "L'attribut weight n'a pas la bonne valeur par défaut")

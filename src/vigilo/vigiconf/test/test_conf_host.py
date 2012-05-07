@@ -31,8 +31,8 @@ class HostMethods(unittest.TestCase):
         self.expected = {
             "metrosrv": {
                 "type": "passive",
-                "weight": 1,
-                "warning_weight": 1,
+                "weight": None,
+                "warning_weight": None,
                 "directives": {},
                 "reRoutedBy": None,
             },

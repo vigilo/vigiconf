@@ -28,7 +28,6 @@ import inspect
 from lxml import etree
 from vigilo.common.nx import networkx as nx
 
-#from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -95,12 +94,17 @@ class Host(object):
                     "services": {},
                 },
                 "nagiosSrvDirs"  : {},
-                "weight"         : 1,
+                "weight": 1, # Poids par défaut de l'hôte
+                "default_service_weight": 1, # Poids par défaut des services
+                "default_service_warning_weight": 1, # Poids WARNING par défaut
+                                                     # des services
                 "force-passive"  : False,
             }
         self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
                            "weight": int,
+                           "default_service_weight": int,
+                           "default_service_warning_weight": int,
                           }
         self.deprecated_attr = {
             "community": "snmpCommunity",
@@ -167,42 +171,7 @@ class Host(object):
         for attr_name, attr_value in attributes.iteritems():
             self.set_attribute(attr_name, attr_value)
 
-    def _get_warning_weight(self, label, weight, warning_weight):
-        """
-        Retourne le poids à utiliser pour un service lorsqu'il passe
-        dans l'état WARNING.
-
-        @param label: Nom du service dans Nagios.
-        @type label: C{str}
-        @param weight: Poids du service lorsqu'il se trouve dans
-            l'état OK ou UNKNOWN.
-        @type weight: C{int}
-        @param warning_weight: Poids indicatif demandé par l'utilisateur
-            pour ce service lorsqu'il se trouve dans l'état WARNING.
-            Si C{None} est passé comme valeur, la valeur par défaut est
-            renvoyée (ie. la valeur de C{weight}).
-        @type warning_weight: C{int} or None
-        @return: Valeur effective du poids de ce service lorsqu'il
-            se trouve dans l'état WARNING.
-        @rtype: C{int}
-        """
-        if warning_weight is None:
-            return weight
-
-        if warning_weight > weight:
-            raise ParsingError(_("warning_weight (%(warning_weight)d) must be "
-                                "less than or equal to weight (%(weight)d) "
-                                "for test '%(test)s' on host '%(host)s'") % {
-                                    'test': label,
-                                    'host': self.name,
-                                    'warning_weight': warning_weight,
-                                    'weight': weight,
-                                })
-        return warning_weight
-
-
-    def add_tests(self, test_list, args=None,
-                    weight=None, warning_weight=None,
+    def add_tests(self, test_list, args=None, weight=None, warning_weight=None,
                     directives=None):
         """
         Add a list of tests to this host, with the provided arguments
@@ -216,11 +185,6 @@ class Host(object):
         @param warning_weight: the test weight when in the WARNING state
         @type  warning_weight: C{int}
         """
-        if weight is None:
-            weight = 1
-
-        warning_weight = self._get_warning_weight('', weight, warning_weight)
-
         if directives is None:
             directives = {}
         if args is None:
@@ -366,7 +330,7 @@ class Host(object):
 #### Collector-related functions ####
 
     def add_collector_service(self, label, function, params, variables,
-                              reroutefor=None, weight=1, warning_weight=None,
+                              reroutefor=None, weight=None, warning_weight=None,
                               directives=None):
         """
         Add a supervision service to the Collector
@@ -416,8 +380,7 @@ class Host(object):
         definition = {
             'type': 'passive',
             'weight': weight,
-            'warning_weight': self._get_warning_weight(
-                                service, weight, warning_weight),
+            'warning_weight': warning_weight,
             'directives': directives,
             'reRoutedBy': reroutedby,
         }
@@ -488,7 +451,7 @@ class Host(object):
 
     def add_collector_service_and_metro(self, name, label, supfunction,
                     supparams, supvars, metrofunction, metroparams, metrovars,
-                    dstype, reroutefor=None, weight=1, warning_weight=None,
+                    dstype, reroutefor=None, weight=None, warning_weight=None,
                     directives=None):
         """
         Helper function for L{add_collector_service}() and
@@ -527,7 +490,7 @@ class Host(object):
     def add_collector_service_and_metro_and_graph(self, name, label, oid,
             th1, th2, dstype, template, vlabel, supcaption=None,
             supfunction="thresholds_OID_simple", metrofunction="directValue",
-            group="General", reroutefor=None, weight=1, warning_weight=None,
+            group="General", reroutefor=None, weight=None, warning_weight=None,
             directives=None):
         """
         Helper function for L{add_collector_service}(),
@@ -618,7 +581,7 @@ class Host(object):
                                                    "dateSetting": datesetting})
 
     def add_external_sup_service(self, name, command=None,
-                                 weight=1, warning_weight=None,
+                                 weight=None, warning_weight=None,
                                  directives=None):
         """
         Add a standard Nagios service
@@ -638,8 +601,7 @@ class Host(object):
 
         definition =  {'command': command,
                        'weight': weight,
-                       'warning_weight': self._get_warning_weight(
-                                            name, weight, warning_weight),
+                       'warning_weight': warning_weight,
                        'directives': directives,
                        'reRoutedBy': None,
                       }
@@ -654,7 +616,7 @@ class Host(object):
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, 'services', name, key, value)
 
-    def add_custom_service(self, name, stype, weight=1, warning_weight=None,
+    def add_custom_service(self, name, stype, weight=None, warning_weight=None,
                             directives=None):
         """
         Ajoute un service Nagios quasiment entièrement défini par un des
@@ -676,8 +638,7 @@ class Host(object):
 
         definition =  {'type': stype,
                        'weight': weight,
-                       'warning_weight': self._get_warning_weight(
-                                            name, weight, warning_weight),
+                       'warning_weight': warning_weight,
                        'directives': directives,
                        'reRoutedBy': None,
                       }
@@ -757,7 +718,7 @@ class Host(object):
                      'reRouteFor': reroutefor})
 
     def add_metro_service(self, servicename, metroname, warn, crit,
-                          factor=1, weight=1, warning_weight=None):
+                          factor=1, weight=None, warning_weight=None):
         """
         Add a Nagios test on the values stored in a RRD file
         @param servicename: the name of the Nagios service
@@ -930,7 +891,6 @@ class HostFactory(object):
         test_directives = {}
         directives = {}
         tests = []
-        weight = None
         templates = []
 
         if sourcexml is not None:
@@ -946,7 +906,11 @@ class HostFactory(object):
                     directives = {}
                     tests = []
                     tags = []
-                    weight = None
+                    weight = {
+                            "weight": None,
+                            "default_service_weight": None,
+                            "default_service_warning_weight": None
+                            }
                     templates = []
                     attributes = {}
 
@@ -997,43 +961,33 @@ class HostFactory(object):
                     cur_host.classes.append(get_text(elem))
 
                 elif elem.tag == "test":
-                    test_weight = get_attrib(elem, 'weight')
-                    try:
-                        test_weight = int(test_weight)
-                    except ValueError:
-                        raise ParsingError(
-                            _("Invalid value for weight in test %(test)s "
-                                "on host %(host)s: %(weight)r") % {
-                                'test': test_name,
-                                'host': cur_host.name,
-                                'weight': test_weight,
-                            })
-                    except TypeError:
-                        # C'est None, on laisse prendre la valeur par défaut
-                        pass
-
-                    test_warn_weight = get_attrib(elem, 'warning_weight')
-                    try:
-                        test_warn_weight = int(test_warn_weight)
-                    except ValueError:
-                        raise ParsingError(
-                            _("Invalid value for warning_weight in test "
-                                "%(test)s on host %(host)s: %(warning_weight)r"
-                              ) % {
-                                'test': test_name,
-                                'host': cur_host.name,
-                                'warning_weight': test_warn_weight,
-                            })
-                    except TypeError:
-                        # C'est None, on laisse prendre la valeur par défaut
-                        pass
+                    test_name = get_attrib(elem, 'name')
+                    test_weight = { "weight": None,
+                                    "warning_weight": None }
+                    for k in test_weight.keys():
+                        v = get_attrib(elem, k)
+                        try:
+                            test_weight[k] = int(v)
+                        except ValueError:
+                            raise ParsingError(
+                                    _("Invalid value for %(type)s in test "
+                                    "%(test)s on host %(host)s: %(value)r") %
+                                        {'type': k,
+                                         'test': test_name,
+                                         'host': cur_host.name,
+                                         'value': v,
+                                         })
+                        except TypeError:
+                            # C'est None, on laisse prendre la valeur par défaut
+                            pass
 
                     args = {}
                     for arg in elem.getchildren():
                         if arg.tag == 'arg':
                             args[get_attrib(arg, 'name')] = get_text(arg)
-                    tests.append( (test_name, args, test_weight,
-                                   test_warn_weight, test_directives) )
+                    tests.append( (test_name, args, test_weight["weight"],
+                                   test_weight["warning_weight"],
+                                   test_directives) )
                     test_name = None
 
                 elif elem.tag == "attribute":
@@ -1079,15 +1033,16 @@ class HostFactory(object):
                             % group_name)
                     cur_host.add_group(group_name)
 
-                elif elem.tag == "weight":
-                    host_weight = get_text(elem)
+                elif elem.tag in weight:
+                    value = get_text(elem)
                     try:
-                        weight = int(host_weight)
+                        weight[elem.tag] = int(value)
                     except ValueError:
-                        raise ParsingError(_("Invalid weight value for "
-                            "host %(host)s: %(weight)r") % {
+                        raise ParsingError(_("Invalid value for %(type)s on "
+                            "host %(host)s: %(value)r") % {
+                            'type': elem.tag,
                             'host': cur_host.name,
-                            'weight': host_weight,
+                            'value': value,
                         })
                     except TypeError:
                         # C'est None, on laisse prendre la valeur par défaut
@@ -1179,8 +1134,9 @@ class HostFactory(object):
                         raise ParsingError(_('You must associate host "%s" '
                             'with at least one group.') % cur_host.name)
 
-                    if weight is not None:
-                        cur_host.set_attribute("weight", weight)
+                    for key, value in weight.iteritems():
+                        if value is not None:
+                            cur_host.set_attribute(key, value)
 
                     for test_params in tests:
                         test_list = self.testfactory.get_test(test_params[0],

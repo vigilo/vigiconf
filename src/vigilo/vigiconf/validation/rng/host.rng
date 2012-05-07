@@ -139,6 +139,26 @@
                         <data type="positiveInteger"/>
                     </element>
                 </optional>
+
+                <!--
+                    Poids par défaut des services de cet hôte (entier
+                    strictement positif).
+                -->
+                <optional>
+                    <element name="default_service_weight">
+                        <data type="positiveInteger"/>
+                    </element>
+                </optional>
+
+                <!--
+                    Poids WARNING par défaut des services de cet hôte (entier
+                    strictement positif).
+                -->
+                <optional>
+                    <element name="default_service_warning_weight">
+                        <data type="positiveInteger"/>
+                    </element>
+                </optional>
             </interleave>
         </element>
     </define>

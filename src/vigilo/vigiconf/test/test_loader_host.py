@@ -54,6 +54,38 @@ class TestLoader(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
         settings["vigiconf"]["confdir"] = self.old_conf_dir
 
+    def test_warning_weight_forbidden(self):
+        """Valeur de warning_weight < weight est interdite."""
+        self.host.add_external_sup_service("Interface eth0")
+        host_dict = conf.hostsConf[u'testserver1']
+        host_dict["default_service_weight"] = 1
+        host_dict["default_service_warning_weight"] = 3
+        print host_dict
+        try:
+            self.hostloader.load()
+        except ParsingError, e:
+            pass
+        except Exception, e:
+            self.fail("Excepted a ParsingError, got %s" % type(e))
+        else:
+            self.fail("Expected a ParsingError")
+
+    def test_warning_weight_forbidden2(self):
+        """Valeur de warning_weight < weight surchargée est interdite."""
+        self.host.add_external_sup_service("Interface eth0", weight=12)
+        host_dict = conf.hostsConf[u'testserver1']
+        host_dict["default_service_weight"] = 42
+        host_dict["default_service_warning_weight"] = 41
+        print host_dict
+        try:
+            self.hostloader.load()
+        except ParsingError, e:
+            pass
+        except Exception, e:
+            self.fail("Excepted a ParsingError, got %s" % type(e))
+        else:
+            self.fail("Expected a ParsingError")
+
     def test_inexistent_group(self):
         host_dict = conf.hostsConf[u'testserver1']
         host_dict['otherGroups'].add(u'Inexistent group')

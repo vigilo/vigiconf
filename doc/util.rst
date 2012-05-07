@@ -338,6 +338,9 @@ La balise *host* peut contenir les balises suivantes :
 - ``test`` (0 ou plus)
 - ``tag`` (0 ou plus)
 - ``group`` (1 ou plus)
+- ``weight`` (0 ou 1)
+- ``default_service_weight`` (0 ou 1)
+- ``default_service_warning_weight`` (0 ou 1)
 
 
 Balise "``class``"
@@ -452,7 +455,8 @@ lorsqu'ils se trouvent dans un état supposé nominal (OK ou UNKNOWN).
 Ce poids est utilisé pour le calcul de l'état des
 :ref:`services de haut niveau <hlservices>`.
 Si cet attribut n'est pas configuré, le poids associé aux services techniques
-dans l'état OK ou UNKNOWN vaudra 1.
+dans l'état OK ou UNKNOWN sera le même que celui configuré par l'attribut
+``default_service_weight`` (qui vaut 1 par défaut).
 
 De même, elle accepte un attribut optionnel ``warning_weight``, contenant
 un entier positif et permettant de configurer le poids apporté par
@@ -461,8 +465,9 @@ dans un état dégradé (WARNING).
 Ce poids est utilisé pour le calcul de l'état des
 :ref:`services de haut niveau <hlservices>`.
 Si cet attribut n'est pas configuré, le poids associé aux services techniques
-dans l'état WARNING sera le même que celui configuré par l'attibut ``weight``.
-La valeur configurée dans cette attribut doit toujours être inférieure ou égale
+dans l'état WARNING sera le même que celui configuré par l'attibut
+``default_service_warning_weight`` (qui vaut 1 par défaut).
+La valeur configurée dans cet attribut doit toujours être inférieure ou égale
 à celle configurée dans l'attribut ``weight``.
 
 Un test accepte généralement zéro, un ou plusieurs arguments, qui doivent être
@@ -583,6 +588,38 @@ première forme s'appliquent également ici.
     ventilation que celui déterminé automatiquement, vous devez utiliser
     l'attribut *ventilation* de la balise *host* afin de spécifier manuellement
     le groupe de ventilation à utiliser.
+
+Balise "``weight``"
+^^^^^^^^^^^^^^^^
+Syntaxe:
+
+..  sourcecode:: xml
+
+    <weight>valeur</weight>
+
+La balise ``weight`` permet de paramétrer le poids affecté à un hôte.
+
+Balise "``default_service_weight``"
+^^^^^^^^^^^^^^^^
+Syntaxe:
+
+..  sourcecode:: xml
+
+    <default_service_weight>valeur</default_service_weight>
+
+La balise ``default_service_weight`` permet d'affecter un poids par défaut aux
+services de l'hôte.
+
+Balise "``default_service_warning_weight``"
+^^^^^^^^^^^^^^^^
+Syntaxe:
+
+..  sourcecode:: xml
+
+    <default_service_warning_weight>valeur</default_service_warning_weight>
+
+La balise ``default_service_warning_weight`` permet d'affecter un poids par
+défaut aux services de l'hôte lorsque ceux-ci sont dans l'état WARNING.
 
 Remarques
 ^^^^^^^^^
@@ -950,7 +987,7 @@ Vous pouvez également utiliser l'une des variables de substitution suivante :
     Le nom du service de haut niveau (ex : "``hlservice1``").
 
 %(weight)r
-    Le poids courant associé a service de haut niveau sous forme d'entier ou
+    Le poids courant associé a ce service de haut niveau sous forme d'entier ou
     "``None``" s'il est inconnu.
 
 %(critical_threshold)d
