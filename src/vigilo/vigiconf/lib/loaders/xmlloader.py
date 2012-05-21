@@ -255,7 +255,10 @@ class XMLLoader(DBLoader):
         @param elem: élément (élément courant par défaut)
         @type  elem: C{object}
         """
-        return unicode(self.get_text(elem))
+        res = self.get_text(elem)
+        if res is None:
+            return None
+        return unicode(res)
 
     def get_uattrib(self, name, elem=None):
         """ Obtient la valeur d'un attribut XML en unicode.
@@ -265,7 +268,10 @@ class XMLLoader(DBLoader):
         @param elem: élément (élément courant par défaut)
         @type  elem: C{object}
         """
-        return unicode(self.get_attrib(name, elem))
+        res = self.get_attrib(name, elem)
+        if res is None:
+            return None
+        return unicode(res)
 
     def delete_all(self):
         """ efface la totalité des entités de la base
