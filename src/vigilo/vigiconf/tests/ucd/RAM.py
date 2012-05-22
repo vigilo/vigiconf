@@ -11,9 +11,8 @@ class RAM(Test):
 
     oids = [".1.3.6.1.4.1.2021.4"]
 
-    def add_test(self, host, warn=80, crit=90):
+    def add_test(self, warn=80, crit=90):
         """
-        @param host: the Host object to add the test to
         @param warn: WARNING threshold
         @param crit: CRITICAL threshold
         """
@@ -30,26 +29,24 @@ class RAM(Test):
                 '.1.3.6.1.4.1.2021.4.5.0', '/', '100', '*' ]
 
         # Service
-        host.add_collector_service("RAM", "sup_rpn",
+        self.add_collector_service("RAM", "sup_rpn",
                 [ "RAM", warn, crit, "RAM: %2.2f%%" ] + rpn_percent_formula,
-                [ "WALK/.1.3.6.1.4.1.2021.4" ],
-                weight=self.weight, warning_weight=self.warning_weight,
-                directives=self.directives)
+                [ "WALK/.1.3.6.1.4.1.2021.4" ])
         # Metro
-        host.add_collector_metro("ram-buffer", "directValue", [],
+        self.add_collector_metro("ram-buffer", "directValue", [],
                 [ "GET/.1.3.6.1.4.1.2021.4.14.0" ], "GAUGE",
                 label="Buffer")
-        host.add_collector_metro("ram-cached", "directValue", [],
+        self.add_collector_metro("ram-cached", "directValue", [],
                 [ "GET/.1.3.6.1.4.1.2021.4.15.0" ], "GAUGE",
                 label="Cached")
-        host.add_collector_metro("Used RAM", "m_rpn", rpn_formula,
+        self.add_collector_metro("Used RAM", "m_rpn", rpn_formula,
                 [ "WALK/.1.3.6.1.4.1.2021.4" ], "GAUGE",
                 label="Used")
-        host.add_collector_metro("Total RAM", "directValue", [],
+        self.add_collector_metro("Total RAM", "directValue", [],
                 [ "GET/.1.3.6.1.4.1.2021.4.5.0" ], "GAUGE",
                 label="Total")
 
-        host.add_graph("RAM",
+        self.add_graph("RAM",
                 ["Used RAM", "ram-buffer", "ram-cached", "Total RAM"],
                 "stacks", "bytes", group="Performance", last_is_max=True,
                 min=0, factors={"Used RAM":   1024,

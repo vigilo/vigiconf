@@ -120,13 +120,10 @@ d'équipements de la marque "exemple". Le test sera placé dans
         de marque exemple.
         """
 
-        def add_test(self, host, warn=60, crit=80):
+        def add_test(self, warn=60, crit=80):
             """
             Description des arguments acceptés par ce test de supervision.
-            L'argument "host" est nécessaire au bon fonctionnement de VigiConf.
 
-            @param host: Un objet représentant l'équipement sur lequel le test
-                de supervision sera ajouté.
             @param warn: Seuil de charge CPU au-delà duquel un avertissement
                 sera levé par Vigilo dans le bac à événements.
             @type warn: C{int}
@@ -175,15 +172,13 @@ dans les fichiers XML de configuration qui utilisent ce test.
         crit = int(crit)
 
 
-Méthodes de l'objet ``host``
-----------------------------
-L'objet ``host`` passé aux tests de supervision contient plusieurs méthodes
-permettant d'ajouter les éléments de configuration nécessaires pour réaliser
-les tests à proprement parler, récupérer des informations sur les performances
-(métrologie), générer des graphiques à partir de ces informations, etc.
-
-Le code de ces méthodes se trouve dans le fichier
-:file:`/usr/lib/python{x.y}/site-packages/vigilo/vigiconf/lib/confclasses/host.py`.
+Méthodes de l'instance de test
+------------------------------
+Chaque instance de la classe ``Test`` ou d'une classe dérivée possède
+plusieurs méthodes permettant d'ajouter les éléments de configuration
+nécessaires pour réaliser les tests à proprement parler, récupérer des
+informations sur les performances (métrologie), générer des graphiques
+à partir de ces informations, etc.
 
 Une description du rôle de chacune de ces méthodes est donnée ci-dessous.
 
@@ -218,16 +213,6 @@ Une description du rôle de chacune de ces méthodes est donnée ci-dessous.
 :py:func:`add_metro_service`
     Ajoute un test Nagios sur les valeurs contenues dans les fichiers RRD.
 
-:py:func:`add_nagios_directive`
-    Ajoute une directive Nagios générique. Cette méthode ne fonctionne que
-    pour les hôtes. Pour ajouter une directive Nagios à un service, utiliser
-    :py:func:`add_nagios_service_directive`.
-
-:py:func:`add_nagios_service_directive`
-    Ajoute des directives Nagios supplémentaires pour un service de l'hôte
-    actuel. Cette méthode ne fonctionne que pour les services. Pour ajouter
-    une directive Nagios à un hôte, utiliser :py:func:`add_nagios_directive`.
-
 .. todo:: (à supprimer car non utilisé en production)
 .. : :py:func:`add_netflow`
 .. :    Ajoute un service passif dans Nagios, des graphiques dans VigiGraph
@@ -244,22 +229,6 @@ Une description du rôle de chacune de ces méthodes est donnée ci-dessous.
     Déclare une donnée de performance générée par un module Nagios dans Vigilo,
     permettant ainsi de faire le lien entre les données de performance des
     modules Nagios et les bases RRDs de métrologie.
-
-:py:func:`add_tag`
-    Associe une étiquette à un hôte ou un service. Chaque étiquette possède
-    un nom et une valeur. Les étiquettes peuvent être utilisées pour associer
-    des informations qui seront ensuite accessibles dans les interfaces web.
-    Par exemple, on peut associer une étiquette ``serialno`` à chaque machine,
-    contenant le numéro de série de celle-ci. Le numéro de série pourra ensuite
-    être utilisé dans VigiBoard afin de préremplir un formulaire constructeur
-    en ligne en cas d'anomalie sur un équipement.
-
-:py:func:`make_rrd_cdef`
-    Déclare une nouvelle donnée de performance sur un hôte, calculée en
-    fonction des valeurs des données de performance déjà existantes.
-    La formule de calcul utilisée pour calculer la valeur de cette nouvelle
-    donnée de performance doit être passée en notation polonaise inversée
-    (:abbr:`RPN (Reversed Polish Notation)`).
 
 :py:func:`add_trap`
     Ajoute un service passif dans Nagios, dont l'état changera sur réception

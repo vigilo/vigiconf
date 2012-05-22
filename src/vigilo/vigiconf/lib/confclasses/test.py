@@ -58,21 +58,115 @@ class Test(object):
     oids = []
     __test__ = False # pour Nose
 
-    def __init__(self):
-        self.weight = None
-        self.warning_weight = self.weight
-        self.directives = {}
+    def __init__(self, host, directives, weight, warning_weight):
+        """
+        Initialise le test de supervision.
 
-    def add_test(self, host):
+        @param host: L'hôte auquel le test de supervision est rattaché.
+        @type  host: L{Host<lib.confclasses.host.Host>}
+        @param directives: Directives Nagios à appliquer.
+        @type directives: C{dict}
+        @param weight: Poids des services créés par ce test lorsqu'ils
+            sont dans l'état OK.
+        @type weight: C{int}
+        @param warning_weight: Poids des services créés par ce test
+            lorsqu'ils sont dans l'état WARNING.
+        @type warning_weight: C{int}
+        """
+        self.host = host
+        self.directives = directives
+        self.weight = weight
+        self.warning_weight = warning_weight
+
+    def _inject_defaults(self, kwargs):
+        """
+        Injecte les valeurs par défaut de certains attributs
+        dans les paramètres d'une méthode de manipulation des
+        services de l'hôte.
+
+        @param kwargs: Les paramètres nommés passés à la méthode
+            de manipulation des services.
+        @type kwargs: C{dict}
+        """
+        kwargs.setdefault('weight', self.weight)
+        kwargs.setdefault('warning_weight', self.warning_weight)
+        kwargs.setdefault('directives', self.directives)
+
+    def add_collector_service(self, *args, **kwargs):
+        self._inject_defaults(kwargs)
+        self.host.add_collector_service(*args, **kwargs)
+
+    def add_collector_metro(self, *args, **kwargs):
+        self.host.add_collector_metro(*args, **kwargs)
+
+    def add_collector_service_and_metro(self, *args, **kwargs):
+        self._inject_defaults(kwargs)
+        self.host.add_collector_service_and_metro(*args, **kwargs)
+
+    def add_collector_service_and_metro_and_graph(self, *args, **kwargs):
+        self._inject_defaults(kwargs)
+        self.host.add_collector_service_and_metro_and_graph(*args, **kwargs)
+
+    def add_graph(self, *args, **kwargs):
+        self.host.add_graph(*args, **kwargs)
+
+    def add_external_sup_service(self, *args, **kwargs):
+        self._inject_defaults(kwargs)
+        self.host.add_external_sup_service(*args, **kwargs)
+
+    def add_custom_service(self, *args, **kwargs):
+        self._inject_defaults(kwargs)
+        self.host.add_custom_service(*args, **kwargs)
+
+    def add_perfdata_handler(self, *args, **kwargs):
+        self.host.add_perfdata_handler(*args, **kwargs)
+
+    def add_metro_service(self, *args, **kwargs):
+        self._inject_defaults(kwargs)
+        self.host.add_metro_service(*args, **kwargs)
+
+    def add_trap(self, *args, **kwargs):
+        self.host.add_trap(*args, **kwargs)
+
+    def add_netflow(self, *args, **kwargs):
+        self.host.add_netflow(*args, **kwargs)
+
+    def _get_inc_graph_prefix(self, prefix):
+        """
+        Génère un préfixe de nom de graphe incrémental
+        à partir d'un préfixe statique.
+
+        @param prefix: Préfixe statique du nom du graphe.
+        @type prefix: C{str}
+        @return: Préfixe de nom de graphe incrémenté.
+        @rtype: C{str}
+        """
+        graph_prefix = prefix
+        current_graphs = self.host.hosts[self.host.name]["graphItems"].keys()
+        i = 1
+        while True:
+            # Si l'un des graphes actuels contient déjà ce préfixe,
+            # alors on va en générer un nouveau.
+            for title in current_graphs:
+                if title.startswith(graph_prefix):
+                    break
+            # Sinon, le préfixe actuel peut être utilisé librement.
+            else:
+                break
+            i += 1
+            graph_prefix = "%s (%d)" % (prefix, i)
+        return graph_prefix
+
+
+    def add_test(self):
         """
         Add the test to the host provided as 1st argument.
         @note: This method must be implemented by subclasses.
-        @type  host: L{Host<lib.confclasses.host.Host>}
-        @param host: The host to add the test to
         """
         pass
 
-    def detect(self, walk):
+    @classmethod
+    def detect(cls, walk):
         """
         Use the walk OID hashmap to detect if this test is applicable.
         There are two ways to test this:
@@ -98,11 +192,12 @@ class Test(object):
         @param walk: the SNMP walk to check against
         @type  walk: C{dict}
         """
-        if hasattr(self, "detect_snmp"):
-            return getattr(self, "detect_snmp")(walk)
-        return self.detect_oid(walk)
+        if hasattr(cls, "detect_snmp"):
+            return getattr(cls, "detect_snmp")(walk)
+        return cls.detect_oid(walk)
 
-    def detect_oid(self, walk):
+    @classmethod
+    def detect_oid(cls, walk):
         """
         Use the walk OID hashmap to detect if this test is applicable.
 
@@ -113,15 +208,16 @@ class Test(object):
         @type  walk: C{dict}
         @rtype: bool
         """
-        if not self.oids:
+        if not cls.oids:
             return False
         for cur_oid in walk.keys():
-            for test_oid in self.oids:
+            for test_oid in cls.oids:
                 if cur_oid.startswith(test_oid):
                     return True
         return False
 
-    def detect_attribute_snmp(self, walk):
+    @classmethod
+    def detect_attribute_snmp(cls, walk):
         """
         Use the walk OID hashmap to detect attributes for the host where
         the walk comes from. Those attributes can then be used in the

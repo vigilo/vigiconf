@@ -554,9 +554,11 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         from vigilo.vigiconf.lib.confclasses.test import Test
         class AttributeUsingTest(Test):
-            def add_test(self, host):
-                host.set_attribute("attribute_in_test",
-                       host.get_attribute("attribute_in_conf", "wrong_value"))
+            def add_test(self):
+                self.host.set_attribute(
+                    "attribute_in_test",
+                    self.host.get_attribute("attribute_in_conf", "wrong_value")
+                )
         self.hosttemplatefactory.testfactory.tests["AttributeUsingTest"] = {
                 "all": AttributeUsingTest}
         htpl = HostTemplate("linux")
@@ -577,9 +579,11 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         from vigilo.vigiconf.lib.confclasses.test import Test
         class AttributeUsingTest(Test):
-            def add_test(self, host):
-                host.set_attribute("attribute_in_test",
-                       host.get_attribute("attribute_in_conf", "wrong_value"))
+            def add_test(self):
+                self.host.set_attribute(
+                    "attribute_in_test",
+                    self.host.get_attribute("attribute_in_conf", "wrong_value")
+                )
         self.hosttemplatefactory.testfactory.tests["AttributeUsingTest"] = {
                 "all": AttributeUsingTest}
         htpl = HostTemplate("linux")

@@ -7,11 +7,7 @@
 Tests sur l'exécuteur de commandes (SystemCommand)
 """
 
-import os
-import subprocess
 import unittest
-
-from vigilo.common.conf import settings
 
 from vigilo.vigiconf.lib.systemcommand import SystemCommand
 from vigilo.vigiconf.lib.systemcommand import SystemCommandError
@@ -37,4 +33,3 @@ class SystemCommandTest(unittest.TestCase):
         self.assertRaises(SystemCommandError, s.execute)
         s = SystemCommand(["false", ])
         self.assertRaises(SystemCommandError, s.execute)
-

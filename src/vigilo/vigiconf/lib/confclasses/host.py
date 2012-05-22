@@ -190,13 +190,10 @@ class Host(object):
         if args is None:
             args = {}
         for test_class in test_list:
-            inst = test_class()
+            inst = test_class(self, directives, weight, warning_weight)
             try:
-                inst.directives = directives
-                inst.weight = weight
-                inst.warning_weight = warning_weight
-                inst.add_test(self, **args)
-            except TypeError:
+                inst.add_test(**args)
+            except TypeError, e:
                 spec = inspect.getargspec(inst.add_test)
                 # On récupère la liste des arguments obligatoires.
                 defaults = spec[3]
@@ -718,7 +715,8 @@ class Host(object):
                      'reRouteFor': reroutefor})
 
     def add_metro_service(self, servicename, metroname, warn, crit,
-                          factor=1, weight=None, warning_weight=None):
+                          factor=1, weight=None, warning_weight=None,
+                          directives=None):
         """
         Add a Nagios test on the values stored in a RRD file
         @param servicename: the name of the Nagios service
@@ -734,7 +732,8 @@ class Host(object):
         """
         # Ajout du service Nagios
         self.add_custom_service(servicename, "passive",
-                                weight=weight, warning_weight=warning_weight)
+                                weight=weight, warning_weight=warning_weight,
+                                directives=directives)
         # Ajout des seuils pour le connector-metro.
         self.add(self.name, "metro_services", metroname, {
             'servicename': servicename,

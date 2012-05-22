@@ -183,7 +183,7 @@ class Discoverator(object):
             # is it one of the tests "specifically wanted" to be detected ?
             if tests and test.__name__ not in tests:
                 continue
-            detected = test().detect(self.oids)
+            detected = test.detect(self.oids)
             if detected:
                 if detected is True:
                     self.tests.append({"class": test,
@@ -251,7 +251,7 @@ class Discoverator(object):
         self.find_attribute_hostname()
         # Detect using the tests' detect_attribute_snmp() method
         for testdict in self.tests:
-            newattrs = testdict["class"]().detect_attribute_snmp(self.oids)
+            newattrs = testdict["class"].detect_attribute_snmp(self.oids)
             if newattrs:
                 self.attributes.update(newattrs)
 

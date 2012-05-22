@@ -12,9 +12,8 @@ class RAM(Test):
 
     oids = [".1.3.6.1.2.1.25.2.3.1.2"]
 
-    def add_test(self, host, **kw):
+    def add_test(self, **kw):
         """
-        @param host: the Host object to add the test to
         @param kw: unused (compatibility layer for other RAM tests)
         """
         # Ces classes ont de meilleurs tests de RAM.
@@ -24,17 +23,17 @@ class RAM(Test):
                         "netware", "alcatel", "expand", "extremenetworks",
                         "cisco_asa", "bluecoat" ]
         for skipclass in skipclasses:
-            if skipclass in host.classes:
+            if skipclass in self.host.classes:
                 return
 
         # Recherche du type "hrStorageRam"
-        host.add_collector_metro("Used RAM", "m_table_mult", [".1.3.6.1.2.1.25.2.1.2"],
+        self.add_collector_metro("Used RAM", "m_table_mult", [".1.3.6.1.2.1.25.2.1.2"],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6",
                     "WALK/.1.3.6.1.2.1.25.2.3.1.2"], "GAUGE", label="Used")
-        host.add_collector_metro("Total RAM", "m_table_mult", [".1.3.6.1.2.1.25.2.1.2"],
+        self.add_collector_metro("Total RAM", "m_table_mult", [".1.3.6.1.2.1.25.2.1.2"],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.5",
                     "WALK/.1.3.6.1.2.1.25.2.3.1.2"], "GAUGE", label="Total")
-        host.add_graph("RAM", [ "Used RAM", "Total RAM" ], "lines", "bytes",
+        self.add_graph("RAM", [ "Used RAM", "Total RAM" ], "lines", "bytes",
                        group="Performance", last_is_max=True)
 
 

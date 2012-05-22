@@ -12,9 +12,8 @@ class Process(Test):
 
     oids = [".1.3.6.1.2.1.25.4.2.1.2"]
 
-    def add_test(self, host, processname, section="name", label=None, warn="", crit="@0"):
+    def add_test(self, processname, section="name", label=None, warn="", crit="@0"):
         """
-        @param host:    the Host object to add the test to
         @param processname: the name of the process
         @param section: the section to search in the SNMP table
         @param label:   the label to display
@@ -27,17 +26,17 @@ class Process(Test):
                 "path": ".1.3.6.1.2.1.25.4.2.1.4",
                 "params": ".1.3.6.1.2.1.25.4.2.1.5",
                 }
-        host.add_collector_service("Process %s"%label, "walk_grep_count",
+        self.add_collector_service("Process %s"%label, "walk_grep_count",
                 [processname, warn, crit, "%%d instances of %s found" % label],
-                [ "WALK/%s" % oids[section] ], weight=self.weight,
-                warning_weight=self.warning_weight, directives=self.directives)
-        host.add_collector_metro(label, "m_walk_grep_count", [processname],
+                [ "WALK/%s" % oids[section] ])
+        self.add_collector_metro(label, "m_walk_grep_count", [processname],
                 [ "WALK/%s" % oids[section] ], "GAUGE", rra_template="discrete")
-        host.add_graph("%s process(es)" % label, [ label ], "lines",
+        self.add_graph("%s process(es)" % label, [ label ], "lines",
                     "process(es)", group="Processes")
 
 
-    def detect_snmp(self, walk):
+    @classmethod
+    def detect_snmp(cls, walk):
         """Disable automatic detection: we need a process name anyway"""
         return None
 

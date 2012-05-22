@@ -12,20 +12,20 @@ class Swap(Test):
 
     oids = [".1.3.6.1.2.1.25.2.3.1.2"]
 
-    def add_test(self, host):
+    def add_test(self):
         """
-        @param host: the Host object to add the test to
+        Teste la quantité de Swap utilisée.
         """
-        host.add_collector_metro("Swap", "m_table_mult",
+        self.add_collector_metro("Swap", "m_table_mult",
                 [".1.3.6.1.2.1.25.2.1.3"], # type: hrStorageVirtualMemory
                 ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6",
                  "WALK/.1.3.6.1.2.1.25.2.3.1.2"], 'GAUGE',
                  label='Used')
-        host.add_collector_metro("swap-total", "m_table_mult", [".1.3.6.1.2.1.25.2.1.3"],
+        self.add_collector_metro("swap-total", "m_table_mult", [".1.3.6.1.2.1.25.2.1.3"],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.5",
                     "WALK/.1.3.6.1.2.1.25.2.3.1.2"], "GAUGE",
                     label="Total")
-        host.add_graph("Swap", [ "Swap", "swap-total" ], "stacks", "bytes",
+        self.add_graph("Swap", [ "Swap", "swap-total" ], "stacks", "bytes",
                        last_is_max=True, min=0, group="Performance")
 
 

@@ -16,6 +16,5 @@ _ = translate(__name__)
 
 
 class Error(Test):
-    def add_test(self, host):
+    def add_test(self):
         raise VigiConfError(_("Import test was successful"))
-

@@ -10,7 +10,7 @@ from vigilo.vigiconf.lib.confclasses.test import Test
 class Metro(Test):
     """Set a threshold on metrology values"""
 
-    def add_test(self, host, servicename, metroname, warn, crit, factor=1):
+    def add_test(self, servicename, metroname, warn, crit, factor=1):
         """
         Set a threshold on metrology values
         @param servicename: the name of the Nagios service
@@ -24,9 +24,8 @@ class Metro(Test):
         @param factor: the factor to use, if any
         @type  factor: C{int} or C{float}
         """
-        host.add_metro_service(servicename, metroname, warn, crit, factor,
-                               weight=self.weight,
-                               warning_weight=self.warning_weight)
+        factor = float(factor)
+        self.add_metro_service(servicename, metroname, warn, crit, factor)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

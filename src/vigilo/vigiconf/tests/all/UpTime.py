@@ -12,14 +12,12 @@ class UpTime(Test):
 
     oids = [".1.3.6.1.2.1.1.3.0"]
 
-    def add_test(self, host):
-        host.add_collector_service("UpTime", "sysUpTime", [],
-                            ["GET/.1.3.6.1.2.1.1.3.0"], weight=self.weight,
-                            warning_weight=self.warning_weight,
-                            directives=self.directives)
-        host.add_collector_metro("sysUpTime", "m_sysUpTime", [],
+    def add_test(self):
+        self.add_collector_service("UpTime", "sysUpTime", [],
+                            ["GET/.1.3.6.1.2.1.1.3.0"])
+        self.add_collector_metro("sysUpTime", "m_sysUpTime", [],
                             ["GET/.1.3.6.1.2.1.1.3.0"], 'GAUGE', label="UpTime")
-        host.add_graph("UpTime", [ "sysUpTime" ], "lines", "jours",
+        self.add_graph("UpTime", [ "sysUpTime" ], "lines", "jours",
                             factors={"sysUpTime": round(1.0/86400, 10)})
 
 

@@ -16,7 +16,7 @@ class Interface(Test):
 
     oids = [".1.3.6.1.2.1.25.1.6.0"]
 
-    def add_test(self, host, label, ifname, max=None,
+    def add_test(self, label, ifname, max=None,
                  errors=True, staticindex=False, warn=None, crit=None,
                  counter32=False, teststate=True, admin="i", dormant="c" ):
         """
@@ -29,7 +29,6 @@ class Interface(Test):
         Please note that sub-interfaces (VLANs) do not support SNMP queries
         for the discard and error counters.
 
-        @param host: the Host object to add the test to
         @param label: Label to display
         @param ifname: SNMP name for the interface
         @param max: the maximum bandwidth available through this interface, in
@@ -94,13 +93,13 @@ class Interface(Test):
                                      'candidates': ', '.join(special_states),
                                 })
 
-        HCIf = host.get_attribute("DisableHighCapacityInterface", True)
+        HCIf = self.host.get_attribute("DisableHighCapacityInterface", True)
         if HCIf is not True or counter32 is not False:
             # using Low Capacity (32Bits) COUNTER for in and out
             snmp_oids["in"]  = ".1.3.6.1.2.1.2.2.1.10"
             snmp_oids["out"] = ".1.3.6.1.2.1.2.2.1.16"
 
-        if "nokia" in host.classes:
+        if "nokia" in self.host.classes:
             errors = False # Not supported on Nokia hardware
             del snmp_oids["inDisc"]
             del snmp_oids["outDisc"]
@@ -111,7 +110,7 @@ class Interface(Test):
         if staticindex:
             collector_function = "staticIfOperStatus"
             for snmpname, snmpoid in snmp_oids.iteritems():
-                host.add_collector_metro("%s%s" % (snmpname, label),
+                self.add_collector_metro("%s%s" % (snmpname, label),
                                          "directValue", [],
                                          [ "GET/%s.%s" % (snmpoid, ifname) ],
                                          "COUNTER", snmp_labels[snmpname],
@@ -119,7 +118,7 @@ class Interface(Test):
         else:
             collector_function = "ifOperStatus"
             for snmpname, snmpoid in snmp_oids.iteritems():
-                host.add_collector_metro("%s%s" % (snmpname, label),
+                self.add_collector_metro("%s%s" % (snmpname, label),
                                          "m_table", [ifname],
                                          [ "WALK/%s" % snmpoid,
                                            "WALK/.1.3.6.1.2.1.2.2.1.2"],
@@ -127,18 +126,16 @@ class Interface(Test):
                                          max_value=max)
 
         if teststate is True:
-            host.add_collector_service("Interface %s" % label, collector_function,
+            self.add_collector_service("Interface %s" % label, collector_function,
                 [ifname, label, admin, dormant],
                 ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
-                 "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"],
-                weight=self.weight, warning_weight=self.warning_weight,
-                directives=self.directives)
+                 "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"])
 
-        host.add_graph("Traffic %s" % label, ["in%s" % label, "out%s" % label],
+        self.add_graph("Traffic %s" % label, ["in%s" % label, "out%s" % label],
                     "area-line", "b/s", group="Network interfaces",
                     factors={"in%s" % label: 8, "out%s" % label: 8, },)
         if errors:
-            host.add_graph("Errors %s" % label,
+            self.add_graph("Errors %s" % label,
                     [ "inErrs%s"%label, "outErrs%s"%label,
                       "inDisc%s"%label, "outDisc%s"%label ],
                     "lines", "packets/s", group="Network interfaces")
@@ -148,41 +145,31 @@ class Interface(Test):
             warn = warn.replace(" ","").split(",")
             crit = crit.replace(" ","").split(",")
             if warn[0] and crit[0]:
-                host.add_metro_service("Traffic in %s"%label, "in"+label,
-                                       warn[0], crit[0], 8,
-                                       weight=self.weight,
-                                       warning_weight=self.warning_weight)
+                self.add_metro_service("Traffic in %s"%label, "in"+label,
+                                       warn[0], crit[0], 8)
             if warn[1] and crit[1]:
-                host.add_metro_service("Traffic out %s"%label, "out"+label,
-                                       warn[1], crit[1], 8,
-                                       weight=self.weight,
-                                       warning_weight=self.warning_weight)
+                self.add_metro_service("Traffic out %s"%label, "out"+label,
+                                       warn[1], crit[1], 8)
 
             if len(warn) >= 4 and len(crit) >= 4:
                 if warn[2] and crit[2]:
-                    host.add_metro_service("Discards in %s"%label, "inDisc"+label,
-                                           warn[2], crit[2], 8,
-                                           weight=self.weight,
-                                           warning_weight=self.warning_weight)
+                    self.add_metro_service("Discards in %s"%label, "inDisc"+label,
+                                           warn[2], crit[2], 8)
                 if warn[3] and crit[3]:
-                    host.add_metro_service("Discards out %s"%label, "outDisc"+label,
-                                           warn[3], crit[3], 8,
-                                           weight=self.weight,
-                                           warning_weight=self.warning_weight)
+                    self.add_metro_service("Discards out %s"%label, "outDisc"+label,
+                                           warn[3], crit[3], 8)
 
                 if len(warn) == 6 and len(crit) == 6 and errors:
                     if warn[4] and crit[4]:
-                        host.add_metro_service("Errors in %s"%label, "inErrs"+label,
-                                               warn[4], crit[4], 8,
-                                               weight=self.weight,
-                                               warning_weight=self.warning_weight)
+                        self.add_metro_service("Errors in %s"%label, "inErrs"+label,
+                                               warn[4], crit[4], 8)
                     if warn[5] and crit[5]:
-                        host.add_metro_service("Errors out %s"%label, "outErrs"+label,
-                                               warn[5], crit[5], 8,
-                                               weight=self.weight,
-                                               warning_weight=self.warning_weight)
+                        self.add_metro_service("Errors out %s"%label, "outErrs"+label,
+                                               warn[5], crit[5], 8)
 
-    def detect_snmp(self, oids):
+
+    @classmethod
+    def detect_snmp(cls, oids):
         """Detection method, see the documentation in the main Test class"""
         # Find the SNMP ids of interfaces with the right type. Types are in the
         # OID IF-MIB::ifType section
@@ -249,7 +236,9 @@ class Interface(Test):
             tests.append({"label": label, "ifname": ifname})
         return tests
 
-    def detect_attribute_snmp(self, oids):
+
+    @classmethod
+    def detect_attribute_snmp(cls, oids):
         """Detection method for the host attribute used in this test.
         See the documentation in the main Test class for details"""
         # Search if HighCapacity Counter must be disabled

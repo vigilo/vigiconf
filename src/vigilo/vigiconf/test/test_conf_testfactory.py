@@ -79,16 +79,15 @@ class TestFactoryImportsTest(unittest.TestCase):
         self.testfactory.load_tests()
         testclasses = self.testfactory.get_test('Error', 'imports')
         self.assertEquals(1, len(testclasses))
-        test = testclasses[0]()
+        test = testclasses[0](self.host, None, None, None)
 
         # On ne peut pas utiliser self.assertRaises à cause du rebinding
         # des classes dans TestFactory.
         try:
-            test.add_test(self.host)
+            test.add_test()
         except VigiConfError, e:
             self.assertEquals(_("Import test was successful"), e.message)
         except Exception, e:
-            self.fail("Unexpected exception of type %r", type(e))
+            self.fail("Unexpected exception of type %r" % type(e))
         else:
             self.fail("Expected VigiConfError exception")
-

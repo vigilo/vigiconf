@@ -13,18 +13,12 @@ _ = translate(__name__)
 class NTP(Test):
     """Check if the NTP service is up"""
 
-    def add_test(self, host):
-        """Arguments:
-            host: the Host object to add the test to
-        """
+    def add_test(self):
         warnings.warn(DeprecationWarning(_(
             "Test NTP has been deprecated. Please use NagiosPlugin instead")
             ).encode('utf-8'))
 
-        host.add_external_sup_service("NTP", "check_ntp_ntpq",
-                                        weight=self.weight,
-                                        warning_weight=self.warning_weight,
-                                        directives=self.directives)
+        self.add_external_sup_service("NTP", "check_ntp_ntpq")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -10,13 +10,8 @@ from vigilo.vigiconf.lib.confclasses.test import Test
 class HTTPS(Test):
     """Check if the SSL certificates on the HTTPS server are OK"""
 
-    def add_test(self, host):
-        """Arguments:
-            host: the Host object to add the test to
-        """
-        host.add_external_sup_service("HTTPS", "check_https",
-                weight=self.weight, warning_weight=self.warning_weight,
-                directives=self.directives)
+    def add_test(self):
+        self.add_external_sup_service("HTTPS", "check_https")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -11,9 +11,8 @@ class CPU(Test):
 
     oids = [".1.3.6.1.4.1.2021.11.55.0"]
 
-    def add_test(self, host, warn=70, crit=90):
+    def add_test(self, warn=70, crit=90):
         """
-        @param host: the Host object to add the test to
         @param warn: WARNING threshold (unused, for compatibility)
         @param crit: CRITICAL threshold (unused, for compatibility)
         """
@@ -22,17 +21,15 @@ class CPU(Test):
         activities = [ ("Kernel", baseoid % 5),    ("Wait", baseoid % 4),
                        ("Interrupt", baseoid % 6), ("Nice", baseoid % 1),
                        ("User", baseoid % 0),      ("Idle", baseoid % 3), ]
-        if "expand" in host.classes:
+        if "expand" in self.host.classes:
             # Not supported on expand hardware
             del activities[0] # Kernel
             del activities[0] # Wait
             del activities[0] # Interrupt
 
         for activity, oid in activities:
-            host.add_collector_metro("CPU %s" % activity, "directValue",
+            self.add_collector_metro("CPU %s" % activity, "directValue",
                                      [], [ oid ], 'COUNTER')
-        host.add_graph("CPU usage (by type)",
+        self.add_graph("CPU usage (by type)",
                        [ "CPU %s" % a[0] for a in activities ],
                        "stacks", "usage (%)", group="Performance")
-
-

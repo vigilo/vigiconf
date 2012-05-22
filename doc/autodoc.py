@@ -115,7 +115,7 @@ def write_autodoc():
             # obligatoires et optionnels du test
             # pour cette classe d'équipements.
             specs = list(inspect.getargspec(test_cls.add_test))
-            specs[0] = specs[0][2:] # "self" et "host" sont toujours présents.
+            specs[0] = specs[0][1:] # "self" est toujours présent.
             optional = isinstance(specs[3], tuple) and len(specs[3]) or 0
             optional = specs[0][:-optional]
             required = specs[0][: len(specs[0]) - len(optional)]
@@ -163,10 +163,8 @@ def write_autodoc():
 
             fields = doc.split_fields()
             for field in fields[1]:
+                # Si un paramètre inconnu est documenté...
                 if field.arg() not in tests_doc[test]['params']:
-                    # Un paramètre inconnu est documenté...
-                    if field.arg() == 'host':
-                        continue
                     print   >> sys.stderr, \
                             "WARNING: paramètre '%(param)s' inconnu " \
                             "(mais documenté !) dans le test '%(test)s' " \
