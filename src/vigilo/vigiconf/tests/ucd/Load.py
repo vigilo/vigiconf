@@ -21,6 +21,9 @@ class Load(Test):
         @param warn:    WARNING threshold
         @param crit:    CRITICAL threshold
         """
+        warn = self.as_float(warn)
+        crit = self.as_float(crit)
+
         # Load 01
         self.add_collector_service("Load 01", "simple_factor",
                     [warn, crit, 1.0/100, "Load: %2.2f"],

@@ -15,9 +15,10 @@ class TCP(Test):
             port:  the TCP port to test
             label: the label to display
         """
+        port = self.as_int(port)
         if label is None:
-            label = "TCP %s" % port
-        self.add_external_sup_service(label, "check_tcp!%s" % port)
+            label = "TCP %d" % port
+        self.add_external_sup_service(label, "check_tcp!%d" % port)
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

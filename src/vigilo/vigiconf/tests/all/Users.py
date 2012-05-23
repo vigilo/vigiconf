@@ -17,6 +17,9 @@ class Users(Test):
             warn: WARNING threshold
             crit: CRITICAL threshold
         """
+        warn = self.as_int(warn)
+        crit = self.as_int(crit)
+
         self.add_collector_service("Users", "thresholds_OID_simple",
                     [warn, crit, "%d users connected"],
                     ["GET/.1.3.6.1.2.1.25.1.5.0"])

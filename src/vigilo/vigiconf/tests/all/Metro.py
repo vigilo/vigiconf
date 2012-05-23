@@ -24,7 +24,7 @@ class Metro(Test):
         @param factor: the factor to use, if any
         @type  factor: C{int} or C{float}
         """
-        factor = float(factor)
+        factor = self.as_float(factor)
         self.add_metro_service(servicename, metroname, warn, crit, factor)
 
 

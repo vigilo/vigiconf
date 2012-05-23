@@ -17,12 +17,13 @@ class HTTP_url(Test):
             port:    the TCP port to test
             url:     the URL to check
         """
+        port = self.as_int(port)
 
         # remove http://
         if url.startswith("http://"):
             url = url[7:]
 
         self.add_external_sup_service(
-            service, "check_http_url!%s!%s" % (port, url))
+            service, "check_http_url!%d!%s" % (port, url))
         self.add_perfdata_handler(service, 'HTTP-time', 'response time', 'time')
         self.add_graph("HTTP response time", [ 'HTTP-time' ], 'lines', 's')

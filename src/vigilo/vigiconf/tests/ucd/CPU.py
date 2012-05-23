@@ -16,6 +16,9 @@ class CPU(Test):
         @param warn: WARNING threshold (unused, for compatibility)
         @param crit: CRITICAL threshold (unused, for compatibility)
         """
+        warn = self.as_float(warn)
+        crit = self.as_float(crit)
+
         baseoid = "GET/.1.3.6.1.4.1.2021.11.5%d.0"
         # don't include System time as it seems to be sum(Wait,Kernel)
         activities = [ ("Kernel", baseoid % 5),    ("Wait", baseoid % 4),

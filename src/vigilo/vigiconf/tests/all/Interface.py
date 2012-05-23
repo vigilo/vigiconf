@@ -56,6 +56,11 @@ class Interface(Test):
             ou bien "c" (l'interface est vue comme étant dans l'état
             "CRITICAL"). La valeur par défaut est "c".
         """
+        errors = self.as_bool(errors)
+        staticindex = self.as_bool(staticindex)
+        counter32 = self.as_bool(counter32)
+        teststate = self.as_bool(teststate)
+
         snmp_oids = {
             # using by default High Capacity (64Bits) COUNTER for in and out
             # http://www.ietf.org/rfc/rfc2233.txt

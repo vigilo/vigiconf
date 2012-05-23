@@ -16,6 +16,9 @@ class Proxy(Test):
             url:   the URL to check
             auth:  use authentication or not
         """
+        port = self.as_int(port)
+        auth = self.as_bool(auth)
+
         if url.startswith("http://"):
             if auth:
                 checkname = "check_proxy_auth"

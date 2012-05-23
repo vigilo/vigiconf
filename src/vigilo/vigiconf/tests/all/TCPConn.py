@@ -17,6 +17,9 @@ class TCPConn(Test):
             warn: WARNING threshold
             crit: CRITICAL threshold
         """
+        warn = self.as_int(warn)
+        crit = self.as_int(crit)
+
         self.add_collector_service("TCP connections", "thresholds_OID_simple",
                     [warn, crit, "%d established TCP connections"],
                     ["GET/.1.3.6.1.2.1.6.9.0"])

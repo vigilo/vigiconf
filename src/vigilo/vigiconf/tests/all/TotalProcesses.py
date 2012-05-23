@@ -17,6 +17,9 @@ class TotalProcesses(Test):
             warn: WARNING threshold
             crit: CRITICAL threshold
         """
+        warn = self.as_int(warn)
+        crit = self.as_int(crit)
+
         self.add_collector_service("Processes", "thresholds_OID_simple",
                     [warn, crit, "%d process(es) running"],
                     ["GET/.1.3.6.1.2.1.25.1.6.0"])

@@ -124,13 +124,20 @@ d'équipements de la marque "exemple". Le test sera placé dans
             """
             Description des arguments acceptés par ce test de supervision.
 
-            @param warn: Seuil de charge CPU au-delà duquel un avertissement
-                sera levé par Vigilo dans le bac à événements.
-            @type warn: C{int}
-            @param crit: Seuil de charge CPU au-delà duquel une alerte critique
-                sera levée par Vigilo dans le bac à événements.
-            @type crit: C{int}
+            @param warn: Seuil de charge CPU en pourcentage
+                au-delà duquel un avertissement sera levé
+                par Vigilo dans le bac à événements.
+            @type warn: C{float}
+            @param crit: Seuil de charge CPU en pourcentage
+                au-delà duquel une alerte critique sera levée
+                par Vigilo dans le bac à événements.
+            @type crit: C{float}
             """
+            # Généralement le code commence par convertir les paramètres
+            # reçus vers les types attendus, comme ci-dessous.
+            warn = self.as_float(warn)
+            crit = self.as_float(crit)
+
             # Code intégrant la logique de test de la charge CPU
             # sur ce type d'équipements.
 
@@ -159,28 +166,68 @@ ce test de supervision à un équipement.
 Les arguments passés à la méthode :py:func:`add_test` seront ceux indiqués
 dans les fichiers XML de configuration qui utilisent ce test.
 
-..  note::
+..  warning::
     Les arguments passés à la fonction :py:func:`add_test` seront
     systématiquement des chaînes de caractères, y compris pour des valeurs
     numériques (par exemple, des seuils d'alerte).
+
     Le code de la méthode doit donc effectuer les conversions nécessaires
-    avant d'utiliser ces valeurs. Par exemple :
-
-    ..  sourcecode:: python
-
-        warn = int(warn)
-        crit = int(crit)
+    avant d'utiliser ces valeurs. Le chapitre `Méthodes de l'instance de test`_
+    décrit les méthodes de la classe ``Test`` pouvant être utilisées afin
+    de réaliser les conversions adéquates.
 
 
 Méthodes de l'instance de test
 ------------------------------
 Chaque instance de la classe ``Test`` ou d'une classe dérivée possède
-plusieurs méthodes permettant d'ajouter les éléments de configuration
-nécessaires pour réaliser les tests à proprement parler, récupérer des
-informations sur les performances (métrologie), générer des graphiques
-à partir de ces informations, etc.
+plusieurs méthodes outils.
 
-Une description du rôle de chacune de ces méthodes est donnée ci-dessous.
+Ces méthodes peuvent être regroupées en 2 catégories :
+
+-   Les méthodes permettant de convertir les paramètres passés à un test
+    vers un type donné (entier, flottant, booléen).
+
+-   Les méthodes permettant d'ajouter les éléments de configuration
+    nécessaires pour réaliser les tests à proprement parler, récupérer des
+    informations sur les performances (métrologie), générer des graphiques
+    à partir de ces informations, etc.
+
+La liste suivante décrit les méthodes utilisables pour effectuer la conversion
+des paramètres d'un test.
+
+:py:func:`as_bool`
+    Convertit la valeur passée en argument en booléen.
+    Les valeurs ``1``, ``true``, ``on`` et ``yes`` représentent la valeur
+    Python ``True``, tandis que les valeurs ``0``, ``false``, ``off`` et ``no``
+    représentent la valeur Python ``False``. Toute autre valeur génèrera une
+    erreur d'analyse.
+
+    ..  note::
+        L'analyse effectuée est insensible à la casse (ie. ``yes`` == ``Yes``).
+
+    ..  note::
+        Si la valeur donnée est déjà un booléen, elle est retournée sans
+        qu'aucune conversion ne soit effectuée.
+
+:py:func:`as_float`
+    Convertit la valeur passée en argument en nombre flottant.
+    Si la valeur ne peut être convertie, une erreur d'analyse est levée.
+
+    ..  note::
+        Si la valeur donnée est déjà un flottant, elle est retournée sans
+        qu'aucune conversion ne soit effectuée.
+
+:py:func:`as_int`
+    Convertit la valeur passée en argument en nombre entier.
+    Si la valeur ne peut être convertie, une erreur d'analyse est levée.
+
+    ..  note::
+        Si la valeur donnée est déjà un entier, elle est retournée sans
+        qu'aucune conversion ne soit effectuée.
+
+
+La liste suivante décrit les méthodes appartenant à la deuxième catégorie
+(manipulation des tests de supervision et de la métrologie).
 
 :py:func:`add_collector_metro`
     Ajoute un service passif de métrologie à Nagios.

@@ -16,6 +16,8 @@ class RAM(Test):
         @param warn: WARNING threshold
         @param crit: CRITICAL threshold
         """
+        warn = self.as_float(warn)
+        crit = self.as_float(crit)
 
         # Calcul de l'espace réellement utilisé :
         # memTotalReal - memAvailReal - memBuffer - memCached

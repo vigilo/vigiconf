@@ -28,6 +28,7 @@ import sys
 
 from pkg_resources import working_set
 
+from vigilo.vigiconf.lib.exceptions import ParsingError
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -156,6 +157,74 @@ class Test(object):
             i += 1
             graph_prefix = "%s (%d)" % (prefix, i)
         return graph_prefix
+
+
+    @classmethod
+    def as_bool(cls, value):
+        """
+        Convertit la valeur donnée en booléen.
+
+        Les chaînes de caractères '1', 'true', 'on' et 'yes'
+        sont évaluées comme valant C{True}, tandis que les chaînes
+        '0', 'false', 'off' et 'no' sont évaluées comme valant
+        C{False}.
+
+        Si la valeur donnée est déjà un booléen, elle est
+        retournée sans modification.
+
+        @param value: Valeur à convertir.
+        @type value: C{bool} or C{str}
+        @return: Booléen obtenu après la conversion.
+        @rtype: C{bool}
+        """
+        # S'il s'agissait déjà d'un booléen, on ne fait rien.
+        if isinstance(value, bool):
+            return value
+
+        value = value.lower()
+        if value in ('1', 'true', 'on', 'yes'):
+            return True
+        elif value in ('0', 'false', 'off', 'no'):
+            return False
+        raise ParsingError('A boolean was expected')
+
+
+    @classmethod
+    def as_int(cls, value):
+        """
+        Convertit la valeur donnée en nombre entier.
+
+        Si la valeur donnée est déjà un entier, elle est
+        retournée sans modification.
+
+        @param value: Valeur à convertir.
+        @type value: C{int} or C{str}
+        @return: Nombre entier obtenu après la conversion.
+        @rtype: C{int}
+        """
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            raise ParsingError('An integer was expected')
+
+
+    @classmethod
+    def as_float(cls, value):
+        """
+        Convertit la valeur donnée en flottant.
+
+        Si la valeur donnée est déjà un flottant, elle est
+        retournée sans modification.
+
+        @param value: Valeur à convertir.
+        @type value: C{float} or C{str}
+        @return: Nombre flottant obtenu après la conversion.
+        @rtype: C{float}
+        """
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            raise ParsingError('A floating point value was expected')
 
 
     def add_test(self):

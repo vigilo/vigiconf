@@ -14,6 +14,9 @@ class CPU(Test):
             warn:   WARNING threshold
             crit:   CRITICAL threshold
         """
+        warn = self.as_float(warn)
+        crit = self.as_float(crit)
+
         check_cpu_perf_data = True
         if "ucd" in self.host.classes:
             # ucd donne des informations de métrologie plus complètes.

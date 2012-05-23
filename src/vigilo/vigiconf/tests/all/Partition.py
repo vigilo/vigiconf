@@ -24,6 +24,10 @@ class Partition(Test):
         @param percent:  if True, the thresholds apply to the percent. If
             C{False}, they apply to the number of bytes
         """
+        warn = self.as_float(warn)
+        crit = self.as_float(crit)
+        percent = self.as_bool(percent)
+
         self.add_collector_service("Partition %s" % label, "storage",
                     [partname, warn, crit, int(percent)],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.3",

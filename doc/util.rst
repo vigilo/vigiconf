@@ -474,6 +474,16 @@ Un test accepte généralement zéro, un ou plusieurs arguments, qui doivent êt
 passés dans l'ordre lors de la déclaration du test, à l'aide de la balise
 ``arg``. Chaque argument dispose d'un nom (attribut ``name``) et d'une valeur.
 
+Chaque argument possède un type (spécifié dans la documentation du test).
+Les types reconnus sont :
+
+-   les chaînes de caractères ;
+-   les nombres entiers ;
+-   les nombres relatifs (flottants) ;
+-   les booléens (utiliser la valeur ``1``, ``true``, ``on`` ou ``yes`` pour
+    la valeur ``True`` ou bien ``0``, ``false``, ``off`` ou ``no`` pour la
+    valeur ``False``).
+
 Vous pouvez également, de façon optionnelle, définir des paramètres spécifiques
 pour la supervision à l'aide de la balise ``nagios``, qui contiendra une ou
 plusieurs directives adressées au moteur de supervision Nagios. Voir la section
