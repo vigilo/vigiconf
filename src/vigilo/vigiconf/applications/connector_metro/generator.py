@@ -146,7 +146,9 @@ class ConnectorMetroGen(Generator):
         c.execute("""CREATE TABLE pdsrra (
                          idperfdatasource INTEGER NOT NULL,
                          idrra INTEGER NOT NULL,
+                         "order" INTEGER NOT NULL,
                          PRIMARY KEY (idperfdatasource, idrra),
+                         UNIQUE (idperfdatasource, "order"),
                          FOREIGN KEY(idperfdatasource)
                              REFERENCES perfdatasource (idperfdatasource)
                              ON DELETE CASCADE ON UPDATE CASCADE,
@@ -175,7 +177,7 @@ class ConnectorMetroGen(Generator):
         else:
             rras = config["rra"][rra_template]
 
-        for rra in rras:
+        for index, rra in enumerate(rras):
             cursor.execute("SELECT idrra FROM rra WHERE type = ? AND xff = ? "
                            "AND step = ? AND rows = ?",
                            (rra["type"], rra["xff"], rra["step"], rra["rows"]))
@@ -186,7 +188,8 @@ class ConnectorMetroGen(Generator):
                 rra_id = cursor.lastrowid
             else:
                 rra_id = rra_id[0]
-            cursor.execute("INSERT INTO pdsrra VALUES (?, ?)", (ds_id, rra_id))
+            cursor.execute("INSERT INTO pdsrra VALUES (?, ?, ?)",
+                           (ds_id, rra_id, index))
 
     def finalize_databases(self):
         for vserver in self.connections:
