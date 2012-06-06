@@ -4,23 +4,36 @@
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 from vigilo.vigiconf.lib.confclasses.test import Test
-
+from vigilo.vigiconf.lib.exceptions import ParsingError
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
 
 class Ping(Test):
     """Check if a host is up with a ping"""
 
-    def add_test(self, warn="3000,20", crit="5000,100"):
+    def add_test(self, warn=None, crit=None):
         """
-        @param warn: La limite WARNING sous forme d'une chaîne à deux
-            éléments séparés par une virgule :
-            C{round_trip_average, packet_loss_percent}
-        @param crit: La limite CRITICAL sous forme d'une chaîne à deux
-            éléments séparés par une virgule :
-            C{round_trip_average, packet_loss_percent}
+        @param warn: La limite WARNING sous la forme d'une liste contenant
+            deux éléments : C{round_trip_average, packet_loss_percent}
+        @param crit: La limite CRITICAL sous la forme d'une liste contenant
+            deux éléments : C{round_trip_average, packet_loss_percent}
         """
-        warn = [ e.strip() for e in warn.split(",") ]
-        crit = [ e.strip() for e in crit.split(",") ]
+        # Seuils par défaut.
+        if warn is None:
+            warn = (3000, 20)
+        if crit is None:
+            crit = (5000, 100)
+
+        # Validation des arguments.
+        if not isinstance(warn, tuple) or len(warn) != 2:
+            raise ParsingError(_('"warn" should be a list with two values'))
+        if not isinstance(crit, tuple) or len(crit) != 2:
+            raise ParsingError(_('"crit" should be a list with two values'))
+        warn = [ self.as_int(th) for th in warn ]
+        crit = [ self.as_int(th) for th in crit ]
+
+        # Ajout des tests.
         self.add_external_sup_service("Ping", "check_ping!%s,%s%%!%s,%s%%" %
                                       (warn[0], warn[1], crit[0], crit[1]))
         self.add_perfdata_handler("Ping", 'Ping-loss', 'Loss', 'pl')

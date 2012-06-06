@@ -472,7 +472,24 @@ La valeur configurée dans cet attribut doit toujours être inférieure ou égal
 
 Un test accepte généralement zéro, un ou plusieurs arguments, qui doivent être
 passés dans l'ordre lors de la déclaration du test, à l'aide de la balise
-``arg``. Chaque argument dispose d'un nom (attribut ``name``) et d'une valeur.
+``arg``. Chaque argument dispose d'un nom (attribut ``name``) et d'une valeur
+(ou liste de valeurs). Pour spécifier une liste de valeurs pour un argument,
+la sous-balise ``item`` doit être utilisée, comme dans l'extrait suivant :
+
+..  sourcecode:: xml
+
+    <test name="ACL">
+        <arg name="policy">whitelist</arg>
+        <!--
+            L'argument "addresses" est une liste d'adresses IP,
+            sous-réseaux ou noms de machines.
+        -->
+        <arg name="addresses">
+            <item>127.0.0.1</item>
+            <item>localhost</item>
+            <item>192.168.0.0/24</item>
+        </arg>
+    </test>
 
 Chaque argument possède un type (spécifié dans la documentation du test).
 Les types reconnus sont :

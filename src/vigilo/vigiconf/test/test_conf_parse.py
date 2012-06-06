@@ -596,6 +596,35 @@ class ParseHost(unittest.TestCase):
         self.assertEqual(self.hostsConf['testserver1']['attribute_in_test'],
                          "right_value")
 
+    def test_test_args_list(self):
+        """
+        Listes de valeurs comme argument d'un test dans un hôte
+        """
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1">
+            <test name="ArgListTest">
+                <arg name="multi">
+                    <item>a</item>
+                    <item>b</item>
+                </arg>
+            </test>
+            <group>/Servers</group>
+        </host>""")
+        self.host.close()
+        from vigilo.vigiconf.lib.confclasses.test import Test
+        class ArgListTest(Test):
+            args = None
+            def add_test(self, multi):
+                # On sauvegarde les valeurs dans un attribut de la classe
+                # pour pouvoir ensuite tester leur contenu.
+                ArgListTest.args = multi
+        self.hostfactory.testfactory.tests["ArgListTest"] = {
+                "all": ArgListTest}
+        path = os.path.join(self.tmpdir, "hosts", "host.xml")
+        self.hostfactory._loadhosts(path)
+        self.assertEquals(ArgListTest.args, ('a', 'b'))
+
+
 class ParseHostTemplate(unittest.TestCase):
 
     def setUp(self):
@@ -688,6 +717,32 @@ class ParseHostTemplate(unittest.TestCase):
         self.assertTrue("TestArg2" in tests[0]["args"])
         self.assertEqual(tests[0]["args"]["TestArg1"], "TestValue1")
         self.assertEqual(tests[0]["args"]["TestArg2"], "TestValue2")
+
+    def test_test_args_list(self):
+        """
+        Listes de valeurs comme argument d'un test dans un modèle d'hôtes
+        """
+        self.ht.write("""<?xml version="1.0"?>
+        <templates>
+        <template name="test">
+            <test name="TestTest">
+                <arg name="multi">
+                    <item>a</item>
+                    <item>b</item>
+                </arg>
+            </test>
+        </template>
+        </templates>""")
+        self.ht.close()
+        try:
+            self.hosttemplatefactory.load_templates()
+        except KeyError:
+            self.fail("The \"test\" tag with arguments is not properly parsed")
+        tests = self.hosttemplatefactory.templates["test"]["tests"]
+        self.assertEqual(len(tests), 1)
+        self.assertEqual(tests[0]["name"], "TestTest")
+        self.assertTrue("multi" in tests[0]["args"])
+        self.assertEqual(tests[0]["args"]["multi"], ('a', 'b'))
 
     def test_test_weight(self):
         self.ht.write("""<?xml version="1.0"?>

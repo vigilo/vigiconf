@@ -102,7 +102,11 @@
                             <zeroOrMore>
                                 <element name="arg">
                                     <attribute name="name"><text/></attribute>
-                                    <text/>
+                                    <mixed>
+                                        <zeroOrMore>
+                                            <element name="item"><text/></element>
+                                        </zeroOrMore>
+                                    </mixed>
                                 </element>
                             </zeroOrMore>
                             <zeroOrMore>

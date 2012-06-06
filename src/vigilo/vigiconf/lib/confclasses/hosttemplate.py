@@ -441,7 +441,22 @@ class HostTemplateFactory(object):
                     for arg in elem.getchildren():
                         if arg.tag != "arg":
                             continue
-                        args[get_attrib(arg, 'name')] = get_text(arg)
+
+                        arg_name = get_attrib(arg, 'name')
+                        args[arg_name] = []
+                        for item in arg.getchildren():
+                            if item.tag == 'item':
+                                args[arg_name].append(get_text(item))
+
+                        # S'il y avait effectivement une liste de valeurs,
+                        # on la transforme en tuple pour éviter toute
+                        # modification dans les tests.
+                        if args[arg_name]:
+                            args[arg_name] = tuple(args[arg_name])
+                        # Sinon, l'argument n'a qu'une seule valeur,
+                        # qu'on récupère ici.
+                        else:
+                            args[arg_name] = get_text(arg)
                     cur_tpl.add_test(test_name, args, test_weight["weight"],
                                      test_weight["warning_weight"],
                                      test_directives)

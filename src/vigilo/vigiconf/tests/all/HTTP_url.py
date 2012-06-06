@@ -11,11 +11,12 @@ from vigilo.vigiconf.lib.confclasses.test import Test
 class HTTP_url(Test):
     """Check if the HTTP service is up for a given url"""
 
-    def add_test(self, host, service, port=80, url="/"):
-        """Arguments:
-            service: the name of the service to be used in Nagios
-            port:    the TCP port to test
-            url:     the URL to check
+    def add_test(self, service, port=80, url="/"):
+        """
+        @param service: Le nom du service à utiliser dans Nagios.
+        @param port:    Le port sur lequel le serveur web écoute
+                        (80 par défaut).
+        @param url:     L'URL à demander au serveur web.
         """
         port = self.as_int(port)
 
