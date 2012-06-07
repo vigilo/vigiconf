@@ -1708,25 +1708,65 @@ ToIP
       </test>
 
       <test name="Autocoms">
-        <arg name="crystals">42;47</arg>
-        <arg name="labels">agence_42;agence_47</arg>
+        <!-- Identifiants des cristaux. -->
+        <arg name="crystals">
+            <item>42</item>
+            <item>47</item>
+        </arg>
+        <!-- Libellés associés à ces cristaux, dans le même ordre. -->
+        <arg name="labels">
+            <item>agence_42</item>
+            <item>agence_47</item>
+        </arg>
       </test>
 
       <test name="TrunkAverage">
-        <arg name="crystals">205;207;208;</arg>
-        <arg name="labels">agence_205;agence_208;agence_208</arg>
+        <!-- Identifiants des cristaux. -->
+        <arg name="crystals">
+            <item>205</item>
+            <item>207</item>
+            <item>208</item>
+        </arg>
+        <!-- Libellés associés à ces cristaux, dans le même ordre. -->
+        <arg name="labels">
+            <item>agence_205</item>
+            <item>agence_207</item>
+            <item>agence_208</item>
+        </arg>
         <arg name="crit">42</arg>
       </test>
 
       <test name="TrunkPlatinium">
-        <arg name="crystals">27;28;29;31</arg>
-        <arg name="labels">agence_27;agence_28;agence_29;agence_31</arg>
+        <!-- Identifiants des cristaux. -->
+        <arg name="crystals">
+            <item>27</item>
+            <item>28</item>
+            <item>29</item>
+            <item>31</item>
+        </arg>
+        <!-- Libellés associés à ces cristaux, dans le même ordre. -->
+        <arg name="labels">
+            <item>agence_27</item>
+            <item>agence_28</item>
+            <item>agence_29</item>
+            <item>agence_31</item>
+        </arg>
         <arg name="crit">42</arg>
       </test>
 
       <test name="OxeCard">
-        <arg name="crystals">42;47;49</arg>
-        <arg name="labels">agence_42;agence_47;agence_49</arg>
+        <!-- Identifiants des cristaux. -->
+        <arg name="crystals">
+            <item>42</item>
+            <item>47</item>
+            <item>49</item>
+        </arg>
+        <!-- Libellés associés à ces cristaux, dans le même ordre. -->
+        <arg name="labels">
+            <item>agence_42</item>
+            <item>agence_47</item>
+            <item>agence_49</item>
+        </arg>
       </test>
 
       <test name="FreePosCard">
@@ -1777,10 +1817,19 @@ NetFlow
         <arg name="label">eth0</arg>
         <arg name="ifname">eth0</arg>
       </test>
-      <test name="Netflow">
-        <arg name="ip_1">X.X.X.X/24</arg>
-        <arg name="ip_2">Y.Y.Y.Y/24</arg>
-        <arg name="ip_3">Y.Y.Y.Y/24</arg>
+      <test name="CollectNetflow">
+        <arg name="addresses">
+            <item>X.X.X.X/24</item>
+            <item>Y.Y.Y.Y/24</item>
+            <item>Z.Z.Z.Z/24</item>
+        </arg>
+      </test>
+      <test name="GraphNetflow">
+        <arg name="addresses">
+            <item>X.X.X.X/24</item>
+            <item>Y.Y.Y.Y/24</item>
+            <item>Z.Z.Z.Z/24</item>
+        </arg>
       </test>
       <group>/Servers/Linux servers</group>
     </host>

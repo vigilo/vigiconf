@@ -129,6 +129,10 @@ class Test(object):
         self._inject_defaults(kwargs)
         self.host.add_metro_service(*args, **kwargs)
 
+    def add_telnet_service(self, *args, **kwargs):
+        self._inject_defaults(kwargs)
+        self.host.add_telnet_service(*args, **kwargs)
+
     def add_trap(self, *args, **kwargs):
         self.host.add_trap(*args, **kwargs)
 

@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2012-06-07 18:46+0200\n"
+"PO-Revision-Date: 2012-06-07 18:48+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -497,15 +497,23 @@ msgstr ""
 msgid "CDEF name must be ASCII-only: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:837
+#: src/vigilo/vigiconf/lib/confclasses/host.py:769
+msgid "Cannot override general configuration."
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:779
+msgid "oxe_login and oxe_password cannot be empty"
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:919
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:305
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:97
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:843
-#: src/vigilo/vigiconf/lib/confclasses/host.py:863
+#: src/vigilo/vigiconf/lib/confclasses/host.py:925
+#: src/vigilo/vigiconf/lib/confclasses/host.py:945
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:311
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:331
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:103
@@ -516,42 +524,42 @@ msgid ""
 "correctly.Message: %(error)s."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:860
+#: src/vigilo/vigiconf/lib/confclasses/host.py:942
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:328
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:120
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "XML Syntaxfehler in \"%(file)s\": %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:871
+#: src/vigilo/vigiconf/lib/confclasses/host.py:953
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:339
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:931
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1013
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Ungültige Aufteilungsgruppe: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:972
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1054
 #, python-format
 msgid "Invalid value for %(type)s in test %(test)s on host %(host)s: %(value)r"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1047
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1129
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:130
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Ungültiger Gruppenname (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1056
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1138
 #, python-format
 msgid "Invalid value for %(type)s on host %(host)s: %(value)r"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1106
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1188
 #, python-format
 msgid ""
 "Host '%(host)s' inherits from both the '%(tpl1)s' and '%(tpl2)s' "
@@ -559,17 +567,17 @@ msgid ""
 "'%(tpl2)s'. The templates will be reordered to satisfy dependencies."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1132
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1214
 #, python-format
 msgid "Unable to load templates for %(host)s. Possible cycle."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1149
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1231
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "Host \"%s\" muss mindestens einer Gruppe zugeordnet werden."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1160
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1242
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
@@ -597,7 +605,7 @@ msgid ""
 "%(tplname)s). Maybe a missing host class ?"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:333
+#: src/vigilo/vigiconf/lib/confclasses/test.py:337
 #, python-format
 msgid "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 msgstr ""

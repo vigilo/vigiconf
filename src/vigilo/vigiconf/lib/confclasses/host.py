@@ -193,14 +193,15 @@ class Host(object):
             inst = test_class(self, directives, weight, warning_weight)
             try:
                 inst.add_test(**args)
-            except TypeError, e:
+            except TypeError:
                 spec = inspect.getargspec(inst.add_test)
-                # On récupère la liste des arguments obligatoires.
+                # On récupère la liste des arguments obligatoires,
+                # en prenant soin de supprimer l'argument "self".
                 defaults = spec[3]
                 if defaults is None:
-                    args = spec[0][2:]
+                    args = spec[0][1:]
                 else:
-                    args = spec[0][2:-len(defaults)]
+                    args = spec[0][1:-len(defaults)]
                 message = _('Test "%(test_name)s" on "%(host)s" needs the '
                             'following arguments: %(args)s (and only those)') \
                           % {'test_name': str(test_class.__name__),
@@ -590,6 +591,8 @@ class Host(object):
         @type  weight: C{int}
         @param warning_weight: service weight when in the WARNING state
         @type  warning_weight: C{int}
+        @param directives: Directives Nagios pour le service.
+        @type  directives: C{dict}
         """
         if directives is None:
             directives = {}
@@ -741,6 +744,82 @@ class Host(object):
             'critical': crit,
             'factor': factor,
         })
+
+    def add_telnet_service(self, servicename, options,
+                           weight=None, warning_weight=None,
+                           directives=None):
+        """
+        Ajoute un service pour collecte via le collector-telnet.
+
+        @param servicename: Nom du service qui sera ajouté au collector-telnet.
+        @type  servicename: C{str}
+        @param options: Dictionnaire d'options pour réaliser la collecte
+            de ce service. Le dictionnaire doit contenir au minimum les clés
+            suivantes: C{labels}, C{crystals}, C{domain}, C{srv_name} et
+            C{name}. Il peut également contenir la clé C{crit}.
+        @type  options: C{dict}
+        @param weight: service weight when in the OK state
+        @type  weight: C{int}
+        @param warning_weight: service weight when in the WARNING state
+        @type  warning_weight: C{int}
+        @param directives: Directives Nagios pour le service.
+        @type  directives: C{dict}
+        """
+        # Précaution contre les écrasements.
+        if servicename == "General":
+            raise VigiConfError(_("Cannot override general configuration."))
+        # Ajout de la configuration générale du collector-telnet.
+        if "General" not in self.hosts[self.name].get("telnetJobs"):
+            oxe_login = self.get_attribute("oxe_login", None)
+            oxe_pass = self.get_attribute("oxe_password", None)
+            timeout = self.get_attribute("timeout", 10)
+            prompt_timeout = self.get_attribute("prompt_timeout", 5)
+
+            if oxe_login is None or oxe_pass is None:
+                raise VigiConfError(
+                    _("oxe_login and oxe_password cannot be empty")
+                )
+
+            error_msg = _("Value for '%(attr)s' (%(value)s) could not be cast "
+                          "into an integer. Using default value (%(default)d).")
+            try:
+                timeout = int(timeout)
+            except ValueError:
+                default = 10
+                LOGGER.info(error_msg, {
+                                'value': timeout,
+                                'default': default,
+                                'attr': 'timeout',
+                            })
+                timeout = default
+
+            try:
+                prompt_timeout = int(prompt_timeout)
+            except ValueError:
+                default = 5
+                LOGGER.info(error_msg, {
+                                'value': prompt_timeout,
+                                'default': default,
+                                'attr': 'prompt_timeout',
+                            })
+                prompt_timeout = default
+
+            self.add(self.name, "telnetJobs", "General", {
+                "login": oxe_login,
+                "pass": oxe_pass,
+                "timeout": timeout,
+                "prompt_timeout": prompt_timeout,
+            })
+
+        # Ajout du plugin dans le collector-telnet.
+        self.add(self.name, "telnetJobs", servicename, options)
+        # Ajout d'un service passif pour le plugin.
+        self.add_custom_service(servicename, "passive", directives=directives,
+                                weight=weight, warning_weight=warning_weight)
+        # Ajout du collector-telnet lui-même dans les services.
+        if "Collector Telnet" not in self.hosts[self.name].get("services"):
+            self.add_external_sup_service("Collector Telnet",
+                        "collector_telnet!%s.py" % self.name)
 
     def add_tag(self, service, name, value):
         """
