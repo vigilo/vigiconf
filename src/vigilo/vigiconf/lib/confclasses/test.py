@@ -119,6 +119,9 @@ class Test(object):
         self._inject_defaults(kwargs)
         self.host.add_custom_service(*args, **kwargs)
 
+    def add_perfdata(self, *args, **kwargs):
+        self.host.add_perfdata(*args, **kwargs)
+
     def add_perfdata_handler(self, *args, **kwargs):
         self.host.add_perfdata_handler(*args, **kwargs)
 
