@@ -891,6 +891,7 @@ class HostFactory(object):
         directives = {}
         tests = []
         templates = []
+        weight = {}
 
         if sourcexml is not None:
             iterator = etree.iterwalk
