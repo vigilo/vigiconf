@@ -6,7 +6,7 @@
 """
 Test du chargeur de configuration en base
 """
-
+from __future__ import absolute_import
 
 import os
 import shutil
@@ -25,7 +25,7 @@ from vigilo.vigiconf.loaders.host import HostLoader
 from vigilo.vigiconf.lib.confclasses.host import Host as ConfHost
 from vigilo.vigiconf.lib import ParsingError
 
-from helpers import setup_db, teardown_db, DummyRevMan, setup_tmpdir
+from .helpers import setup_db, teardown_db, DummyRevMan, setup_tmpdir
 
 
 class TestLoader(unittest.TestCase):

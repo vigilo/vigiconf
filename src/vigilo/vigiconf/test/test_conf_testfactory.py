@@ -2,6 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+from __future__ import absolute_import
 
 import os
 import unittest
@@ -12,7 +13,7 @@ import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
 
-from helpers import setup_db, teardown_db
+from .helpers import setup_db, teardown_db
 from vigilo.vigiconf.lib import VigiConfError
 
 from vigilo.common.gettext import translate

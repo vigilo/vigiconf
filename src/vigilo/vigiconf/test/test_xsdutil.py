@@ -2,6 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+from __future__ import absolute_import
 
 import unittest
 
@@ -9,7 +10,7 @@ import os
 import subprocess
 import glob
 
-from helpers import TESTDATADIR
+from .helpers import TESTDATADIR
 
 
 class XSDTest(unittest.TestCase):
@@ -74,4 +75,3 @@ class XSDTest(unittest.TestCase):
                         ko_list.append(filepath)
         if len(ko_list) > 0:
             self.fail("files %s should be valid" % ", ".join(ko_list))
-

@@ -6,6 +6,7 @@
 """
 Tests de génération de configuration pour VigiRRD
 """
+from __future__ import absolute_import
 
 import os
 import unittest
@@ -16,7 +17,7 @@ from vigilo.vigiconf import conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.applications.vigirrd import VigiRRD
 
-from helpers import setup_tmpdir
+from .helpers import setup_tmpdir
 
 
 class VigiRRDTest(unittest.TestCase):
@@ -65,4 +66,3 @@ class VigiRRDTest(unittest.TestCase):
         ds_in_graph_2 = [ r[0] for r in c.fetchall() ]
         self.assertEqual(ds_in_graph_2,
                          [ "test_ds_%d" % i for i in range(6, -1, -1) ])
-

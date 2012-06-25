@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-
+from __future__ import absolute_import
 
 import os
 import re
@@ -12,7 +12,7 @@ from vigilo.vigiconf.applications.nagios import Nagios
 from vigilo.models.demo.functions import add_host, add_dependency_group, \
                                          add_dependency
 from vigilo.models.tables import ConfFile
-from helpers import GeneratorBaseTestCase
+from .helpers import GeneratorBaseTestCase
 
 
 class NagiosGeneratorTestCase(GeneratorBaseTestCase):

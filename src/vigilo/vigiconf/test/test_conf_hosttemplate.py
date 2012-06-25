@@ -2,6 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+from __future__ import absolute_import
 
 import unittest
 
@@ -14,7 +15,7 @@ from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplate
 from vigilo.vigiconf.lib.confclasses.hosttemplate import HostTemplateFactory
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from helpers import setup_db, teardown_db
+from .helpers import setup_db, teardown_db
 
 
 class HostTemplates(unittest.TestCase):

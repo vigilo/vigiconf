@@ -210,14 +210,6 @@ class Host(object):
                             }
                 raise VigiConfError(message)
 
-#    def apply_template(self, tpl):
-#        """
-#        Apply a host template to this host
-#        @param tpl: the template name
-#        @type  tpl: C{str}
-#        """
-#        conf.hosttemplatefactory.apply(self, tpl)
-
 
 #### Access the global dicts ####
 
@@ -1109,13 +1101,14 @@ class HostFactory(object):
 
                     dtarget = get_attrib(elem, 'target')
                     if dtarget is not None:
-                        dtarget= dtarget.strip()
+                        dtarget = dtarget.strip()
                     dvalue = get_text(elem).strip()
 
                     # directive nagios générique pour un hôte ou sur
                     # l'ensemble des services (suivant la target)
                     if test_name is None:
-                        cur_host.add_nagios_directive(dname, dvalue, target=dtarget)
+                        cur_host.add_nagios_directive(dname, dvalue,
+                                                      target=dtarget)
                         continue
 
                     # directive nagios spécifique à un service

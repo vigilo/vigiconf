@@ -2,6 +2,7 @@
 # pylint: disable-msg=C0111,W0211,R0904
 # Copyright (C) 2006-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+from __future__ import absolute_import
 
 import os, unittest, shutil, socket
 from xml.etree import ElementTree as ET
@@ -11,7 +12,7 @@ from vigilo.common.conf import settings
 from vigilo.vigiconf.lib.confclasses.test import Test, TestFactory
 from vigilo.vigiconf.discoverator import Discoverator
 
-from helpers import setup_tmpdir, setup_db, teardown_db, TESTDATADIR
+from .helpers import setup_tmpdir, setup_db, teardown_db, TESTDATADIR
 
 
 class TestDiscoveratorBasics(unittest.TestCase):

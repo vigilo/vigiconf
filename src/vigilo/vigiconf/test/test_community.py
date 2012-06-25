@@ -6,6 +6,7 @@
 """
 Test that VigiConf works in Community Edition
 """
+from __future__ import absolute_import
 
 import os
 import unittest
@@ -27,8 +28,8 @@ from vigilo.vigiconf.lib.confclasses.test import TestFactory
 from vigilo.vigiconf.lib.ventilation import get_ventilator
 from vigilo.vigiconf.lib.dispatchator.factory import get_dispatchator_class
 
-from helpers import setup_tmpdir, DummyRevMan
-from helpers import setup_db, teardown_db
+from .helpers import setup_tmpdir, DummyRevMan
+from .helpers import setup_db, teardown_db
 
 
 class CommunityEdition(unittest.TestCase):
@@ -111,5 +112,3 @@ class CommunityEdition(unittest.TestCase):
         self.assert_(isinstance(_server, ServerLocal),
                 "The ServerFactory does not create ServerLocal instances "
                 "for the local FQDN")
-
-

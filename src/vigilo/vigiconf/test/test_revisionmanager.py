@@ -6,6 +6,7 @@
 """
 Tests sur le gestionnaire de dépôt SVN (RevisionManager)
 """
+from __future__ import absolute_import
 
 import os
 import shutil
@@ -16,7 +17,7 @@ from vigilo.common.conf import settings
 
 from vigilo.vigiconf.lib.dispatchator.revisionmanager import RevisionManager
 
-from helpers import setup_tmpdir, LoggingCommandFactory
+from .helpers import setup_tmpdir, LoggingCommandFactory
 
 
 class RevisionManagerTest(unittest.TestCase):
@@ -261,4 +262,3 @@ class RevisionManagerTest(unittest.TestCase):
         print status
         self.assertEqual(status["removed"], [testdir, testfile])
         self.assertEqual(status["toremove"], [])
-

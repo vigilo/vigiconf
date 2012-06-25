@@ -2,8 +2,9 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2011-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+from __future__ import absolute_import
 
-from test_xsdutil import XSDTest
+from .test_xsdutil import XSDTest
 
 class HostGroupXSD(XSDTest):
     """
@@ -26,4 +27,3 @@ class HostGroupXSD(XSDTest):
                         "hostgroups1.xml",
                                       ]
                    }
-

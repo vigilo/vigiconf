@@ -6,6 +6,7 @@
 """
 Test that the dispatchator works properly
 """
+from __future__ import absolute_import
 
 import os
 import locale
@@ -18,9 +19,9 @@ from vigilo.vigiconf.lib.confclasses.host import Host
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
 from vigilo.vigiconf.lib.dispatchator import make_dispatchator
 
-from helpers import setup_tmpdir, DummyCommand
-from helpers import setup_deploy_dir, teardown_deploy_dir
-from helpers import setup_db, teardown_db
+from .helpers import setup_tmpdir, DummyCommand
+from .helpers import setup_deploy_dir, teardown_deploy_dir
+from .helpers import setup_db, teardown_db
 
 
 class DispatchatorTest(unittest.TestCase):

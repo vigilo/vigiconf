@@ -18,9 +18,9 @@ class DiskIO(Test):
             (limit_reads, limit_writes)
         """
         # Metrology
-        self.add_collector_metro("IO Reads", "directValue",[],
+        self.add_collector_metro("IO Reads", "directValue", [],
                 ["GET/.1.3.6.1.4.1.2021.11.58.0"], 'COUNTER')
-        self.add_collector_metro("IO Writes", "directValue",[],
+        self.add_collector_metro("IO Writes", "directValue", [],
                 ["GET/.1.3.6.1.4.1.2021.11.57.0"], 'COUNTER')
         self.add_graph("IO", [ "IO Reads", "IO Writes" ], "lines",
                 "disk I/O /s", "Performance")

@@ -6,6 +6,7 @@
 """
 Test de l'objet Server
 """
+from __future__ import absolute_import
 
 import os
 import shutil
@@ -15,8 +16,8 @@ from vigilo.common.conf import settings
 
 from vigilo.vigiconf.lib.server.local import ServerLocal
 
-from helpers import setup_tmpdir, LoggingCommand
-from helpers import setup_db, teardown_db
+from .helpers import setup_tmpdir, LoggingCommand
+from .helpers import setup_db, teardown_db
 
 
 class ServerFakeCommand(ServerLocal):

@@ -241,4 +241,3 @@ def _run_db_generator(appclass):
         DBSession.close_all()
         # fermeture propre des connexions, ce sous-process va être tué
         DBSession.bind.dispose()
-

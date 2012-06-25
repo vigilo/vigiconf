@@ -120,7 +120,9 @@ class DBLoader(object):
         else:
             return data[self._key_attr]
 
-
+    # Access to a protected member ... of a client class
+    # Désactivé car on doit accéder à des classes semi-publiques de SQLAlchemy.
+    # pylint: disable-msg=W0212
     def update(self, data):
         """
         @param data: un dictionnaire des données à mettre à jour

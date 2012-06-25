@@ -24,7 +24,6 @@ This module contains the classes needed to handle host templates
 from __future__ import absolute_import
 
 import os
-import copy
 from lxml import etree
 import networkx as nx
 
@@ -392,7 +391,7 @@ class HostTemplateFactory(object):
 
                     dtarget = get_attrib(elem, 'target')
                     if dtarget is not None:
-                        dtarget= dtarget.strip()
+                        dtarget = dtarget.strip()
                     dvalue = get_text(elem).strip()
 
                     # directive nagios générique pour un hôte ou sur

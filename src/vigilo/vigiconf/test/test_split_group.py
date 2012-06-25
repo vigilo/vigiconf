@@ -2,12 +2,13 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+from __future__ import absolute_import
 
 import unittest
 
 from vigilo.common.conf import settings
 
-from helpers import setup_db, teardown_db, setup_path
+from .helpers import setup_db, teardown_db, setup_path
 from vigilo.vigiconf.loaders.group import GroupLoader
 from vigilo.models.session import DBSession
 from vigilo.models.tables import SupItemGroup
@@ -42,4 +43,3 @@ class TestSplitGroup(unittest.TestCase):
         names = [c.name for c in children]
         names.sort()
         self.assertEquals([u'bar', u'foo'], names)
-

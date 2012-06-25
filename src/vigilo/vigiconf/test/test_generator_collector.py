@@ -2,10 +2,11 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2011-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+from __future__ import absolute_import
 
 import os
 from vigilo.vigiconf.applications.collector import Collector
-from helpers import GeneratorBaseTestCase
+from .helpers import GeneratorBaseTestCase
 
 class CollectorGeneratorTestCase(GeneratorBaseTestCase):
 
@@ -31,4 +32,3 @@ class CollectorGeneratorTestCase(GeneratorBaseTestCase):
         cfg = open(cfgfile).read()
         print cfg
         self.assertFalse("\\" in cfg)
-

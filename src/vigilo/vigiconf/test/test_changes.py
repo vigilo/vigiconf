@@ -6,6 +6,7 @@
 """
 Gestion du changement lors du chargement des fichiers XML
 """
+from __future__ import absolute_import
 
 import unittest
 
@@ -15,7 +16,7 @@ from vigilo.models.tables import SupItemGroup
 from vigilo.models.session import DBSession
 
 from vigilo.vigiconf.loaders.group import GroupLoader
-from helpers import setup_path, setup_db, teardown_db
+from .helpers import setup_path, setup_db, teardown_db
 
 
 class ChangeManagementTest(unittest.TestCase):
@@ -70,4 +71,3 @@ class ChangeManagementTest(unittest.TestCase):
         grouploader.load_dir(self.datadir)
         after = DBSession.query(SupItemGroup).count()
         self.assertEquals(after, before)
-

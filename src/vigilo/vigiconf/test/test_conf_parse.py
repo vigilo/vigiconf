@@ -2,6 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2012 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+from __future__ import absolute_import
 
 import os
 import unittest
@@ -23,7 +24,7 @@ from vigilo.vigiconf.lib.confclasses.host import HostFactory
 from vigilo.models.tables import ConfFile
 from vigilo.models.demo.functions import add_host
 
-from helpers import setup_tmpdir, setup_db, teardown_db
+from .helpers import setup_tmpdir, setup_db, teardown_db
 
 
 class ValidateXSD(unittest.TestCase):

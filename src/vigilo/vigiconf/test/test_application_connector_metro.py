@@ -6,6 +6,7 @@
 """
 Test de l'application connector-metro
 """
+from __future__ import absolute_import
 
 import os
 import shutil
@@ -16,7 +17,7 @@ from vigilo.vigiconf.applications.connector_metro import ConnectorMetro
 import vigilo.vigiconf.conf as conf
 from vigilo.vigiconf.lib.confclasses.host import Host
 
-from helpers import setup_tmpdir
+from .helpers import setup_tmpdir
 
 
 class ConnectorMetroTest(unittest.TestCase):
