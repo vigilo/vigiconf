@@ -130,8 +130,7 @@ class DummyRevMan(RevisionManager):
         # On indique qu'aucun changement n'a eu lieu,
         # car le fait de positionner le flag "force"
         # force de toutes façons les opérations.
-        self.dummy_status = {'toadd': [], 'added': [],
-                          'toremove': [], 'removed': [], 'modified': []}
+        self.dummy_status = {'added': [], 'removed': [], 'modified': []}
 
     def status(self):
         return self.dummy_status
@@ -229,4 +228,3 @@ class GeneratorBaseTestCase(TestCase):
             print appname
             print proc.communicate()[0]
             self.assertEqual(proc.returncode, 0)
-

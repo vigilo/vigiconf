@@ -215,7 +215,7 @@ class HostLoader(DBLoader):
         removed = self.rev_mgr.get_removed()
         for filename in removed:
             relfilename = filename[len(settings["vigiconf"].get("confdir"))+1:]
-            # si un dossier est supprimé avec rm -rf, SVN ne signale que le
+            # Si un dossier est supprimé avec rm -rf, SVN ne signale que le
             # dossier, pas tous ses fichiers/sous-dossiers -> on doit utiliser
             # un LIKE pour les attrapper
             DBSession.query(ConfFile).filter(or_(

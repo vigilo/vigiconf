@@ -1030,7 +1030,7 @@ class HostFactory(object):
 
                     dtarget = get_attrib(elem, 'target')
                     if dtarget is not None:
-                        dtarget= dtarget.strip()
+                        dtarget = dtarget.strip()
                     dvalue = get_text(elem).strip()
 
                     # directive nagios générique pour un hôte ou sur

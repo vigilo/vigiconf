@@ -6,13 +6,10 @@
 import os
 import unittest
 import shutil
-import re
 
 from vigilo.common.conf import settings
 from vigilo.models.tables import ConfFile
-from vigilo.models.demo.functions import add_host, add_dependency_group, \
-                                            add_dependency, add_vigiloserver, \
-                                            add_application, add_ventilation
+from vigilo.models.demo.functions import add_host
 from vigilo.models.session import DBSession
 
 import vigilo.vigiconf.conf as conf
@@ -88,4 +85,3 @@ class Generator(unittest.TestCase):
         f.close()
         self.host.add_group('Vigilo')
         self.genmanager.generate(DummyRevMan())
-

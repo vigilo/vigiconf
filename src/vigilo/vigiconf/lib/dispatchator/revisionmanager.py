@@ -37,6 +37,9 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
+from vigilo.models.session import DBSession
+from vigilo.models.tables import Version
+
 from vigilo.vigiconf.lib.systemcommand import SystemCommand, SystemCommandError
 from vigilo.vigiconf.lib.exceptions import DispatchatorError
 
@@ -47,6 +50,7 @@ class RevisionManager(object):
     configuration de VigiConf (C{conf.d}). Actuellement implémenté avec
     Subversion.
     """
+    _version_key = u'vigiconf.configuration'
 
     def __init__(self, force=None):
         if force is None:
@@ -60,14 +64,14 @@ class RevisionManager(object):
         """
         Prepare le dossier de configuration (c'est une copie de travail SVN).
         """
-        status = self.status()
+        status = self.sync()
         if self.deploy_revision != "HEAD" and \
                 (status["add"] or status["remove"] or status["modified"]):
             raise DispatchatorError(_("you can't go back to a former "
                 "revision if you have modified your configuration. "
                 "Use 'svn revert' to cancel your modifications"))
-        self.sync()
-        last_rev = self.last_revision()
+        last_rev = self.commit()
+        self.status()
         if last_rev == 1:
             self.force = self.force + ("db-sync", )
 
@@ -79,46 +83,41 @@ class RevisionManager(object):
         """
         if self._status is not None:
             return self._status
-        #_cmd = self._get_auth_svn_cmd_prefix('status')
-        #_cmd.append("--xml")
-        #_cmd.append(settings["vigiconf"].get("confdir"))
-        _cmd = ["svn", "status", "--xml", settings["vigiconf"]["confdir"]]
+        old_rev = Version.by_object_name(self._version_key).version
+        new_rev = self.last_revision()
+        confdir = settings["vigiconf"].get("confdir")
+        _cmd = [
+            "svn", "diff", "--xml", "--summarize",
+            "-r", "%d:%d" % (old_rev, new_rev),
+            confdir,
+        ]
+        LOGGER.debug('Running this command: %s' % ' '.join(_cmd))
         _command = self.command_class(_cmd)
         try:
             _command.execute()
         except SystemCommandError, e:
             raise DispatchatorError(
-                    _("can't get the SVN status for the configuration dir: %s")
-                      % e.value)
-        status = {"toadd": [], "added": [],
-                  "toremove": [], "removed": [], 'modified': []}
+                _("can't compute SVN differences "
+                  "for the configuration dir: %s")
+                  % e.value)
+        status = {"added": [], "removed": [], 'modified': []}
         if not _command.getResult():
             return status
+
+        # Associe le type de changement dans SVN
+        # au type de changement dans Vigilo.
+        mapping = {
+            "added": "added",
+            "deleted": "removed",
+            "modified": "modified",
+        }
         output = ET.fromstring(_command.getResult(stderr=False))
-        for entry in output.findall(".//entry"):
-            state = entry.find("wc-status").get("item")
-            if state == "unversioned":
-                path = entry.get("path")
-                confdir = settings["vigiconf"].get("confdir")
-                if path.startswith(os.path.join(confdir, "general")):
-                    if not path.endswith(".py"):
-                        continue
-                else:
-                    if not os.path.isdir(path) and not path.endswith(".xml"):
-                        continue
-                status["toadd"].append(entry.get("path"))
-            elif state == "added":
-                status["added"].append(entry.get("path"))
-            elif state == "missing":
-                status["toremove"].append(entry.get("path"))
-            elif state == "deleted":
-                status["removed"].append(entry.get("path"))
-            elif state == "modified":
-                status["modified"].append(entry.get("path"))
+        for entry in output.findall(".//path"):
+            status[mapping[entry.get("item")]].append(entry.text)
         self._status = status
         return status
 
-    def sync(self, status=None):
+    def sync(self):
         """
         Synchronise l'état SVN avec l'état réel du dossier. Exécute un
         C{svn add} sur les fichiers ou dossiers ajoutés, et un
@@ -127,24 +126,50 @@ class RevisionManager(object):
         if not settings["vigiconf"].get("svnrepository", False):
             LOGGER.warning(_("Not updating because the 'svnrepository' "
                                "configuration parameter is empty"))
-            return 0
-        if status is None:
-            status = self.status()
+            return {}
+
+        confdir = settings["vigiconf"].get("confdir")
+        _cmd = ["svn", "status", "--xml", confdir]
+        _command = self.command_class(_cmd)
+        try:
+            _command.execute()
+        except SystemCommandError, e:
+            raise DispatchatorError(
+                _("can't get SVN status for the configuration dir: %s")
+                  % e.value)
+
+        status = {"toadd": [], "added": [],
+                  "toremove": [], "removed": [], 'modified': []}
+        if _command.getResult():
+            output = ET.fromstring(_command.getResult(stderr=False))
+            for entry in output.findall(".//entry"):
+                state = entry.find("wc-status").get("item")
+                if state == "unversioned":
+                    path = entry.get("path")
+                    if path.startswith(os.path.join(confdir, "general")):
+                        if not path.endswith(".py"):
+                            continue
+                    else:
+                        if not os.path.isdir(path) and not path.endswith(".xml"):
+                            continue
+                    status["toadd"].append(entry.get("path"))
+                elif state == "added":
+                    status["added"].append(entry.get("path"))
+                elif state == "missing":
+                    status["toremove"].append(entry.get("path"))
+                elif state == "deleted":
+                    status["removed"].append(entry.get("path"))
+                elif state == "modified":
+                    status["modified"].append(entry.get("path"))
+
+        # Le up permet de restaurer les fichiers afin de pouvoir
+        # les supprimer correctement ensuite.
+        self.update()
         for item in status["toadd"]:
             self.add(item)
-        self.update()
-        # on applique le remove après le up, sinon le up restaure
         for item in status["toremove"]:
             self.remove(item)
-        # Et maintenant on refait un stat pour être sûr (récursivité)
-        self._status = None
-        i = 0
-        while status["toadd"] or status["toremove"]:
-            status = self.status()
-            i += 1
-            if i > 10: # sécurité
-                raise DispatchatorError(_("Error while syncing the "
-                                          "SVN directory"))
+        return status
 
     def add(self, path):
         """
@@ -213,6 +238,15 @@ class RevisionManager(object):
             self.deploy_revision = last_rev
         LOGGER.info(_("SVN commit successful"))
         return last_rev
+
+    def db_commit(self):
+        version_obj = Version.by_object_name(self._version_key)
+        if version_obj is None:
+            version_obj = Version(name=self._version_key)
+        version_obj.version = self.deploy_revision
+        DBSession.add(version_obj)
+        DBSession.flush()
+
 
     def update(self):
         """
@@ -292,16 +326,29 @@ class RevisionManager(object):
         @rtype: C{bool}
         """
         if "db-sync" in self.force:
-            # L'usage de l'option "--force db-sync" est considéré
-            # comme étant une modification de la configuration.
+            # L'option "--force db-sync" est traitée comme s'il
+            # s'agissait d'une modification de la configuration.
             return True
         status = self.status()
-        changes = status['modified'][:]
-        if not exclude_added:
-            changes.extend(status["added"])
-        if not exclude_removed:
-            changes.extend(status["removed"])
-        return filename in changes
+        confdir = settings["vigiconf"].get("confdir")
+        # Suppression des séparateurs de dossiers ('/') en fin de valeur.
+        while confdir.endswith(os.path.sep):
+            confdir = confdir[:-len(os.path.sep)]
+        while filename != confdir:
+            if filename in status['modified']:
+                return True
+            if (not exclude_added) and filename in status["added"]:
+                return True
+            if (not exclude_removed) and filename in status["removed"]:
+                return True
+            # L'élément courant n'a pas été modifié/ajouté/supprimé,
+            # on réitère en testant son dossier parent.
+            new_filename = filename.rpartition(os.path.sep)[0]
+            # Protection contre les boucles infinies.
+            if new_filename == filename:
+                break
+            filename = new_filename
+        return False
 
     def dir_changed(self, dirname):
         """
@@ -312,16 +359,21 @@ class RevisionManager(object):
         @rtype: C{bool}
         """
         if "db-sync" in self.force:
-            # L'usage de l'option "--force db-sync" est considéré
-            # comme étant une modification de la configuration.
+            # L'option "--force db-sync" est traitée comme s'il
+            # s'agissait d'une modification de la configuration.
             return True
+        # Suppression des séparateurs de dossiers ('/') en fin de valeur.
+        # Nécessaire car le séparateur n'apparaît pas dans la sortie de SVN.
+        while dirname.endswith(os.path.sep):
+            dirname = dirname[:-len(os.path.sep)]
         status = self.status()
-        changes = status['added'] + \
-                  status['removed'] + \
-                  status['modified']
-        for changed in changes:
-            if changed.startswith(dirname):
-                return True
+        if dirname in status['added']:
+            return True
+        if dirname in status['modified']:
+            return True
+        if dirname in status['removed']:
+            return True
+        return False
 
     def get_removed(self):
         """
@@ -329,8 +381,7 @@ class RevisionManager(object):
         @rtype: C{list}
         """
         status = self.status()
-        return status["removed"]
-
+        return status["removed"][:]
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
