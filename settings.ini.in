@@ -35,7 +35,7 @@ svnpassword = svnpass
 simulate = False
 
 [database]
-sqlalchemy_url = postgres://vigilo:vigilo@127.0.0.1/vigilo
+sqlalchemy_url = postgresql://vigilo:vigilo@127.0.0.1/vigilo
 db_basename = vigilo_
 
 ; affichage des requetes SQL (debug)
