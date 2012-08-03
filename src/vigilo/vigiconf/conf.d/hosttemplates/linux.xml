@@ -2,6 +2,7 @@
 <templates>
 <template name="linux">
     <class>linux</class>
+    <class>ucd</class>
     <attribute name="snmpOIDsPerPDU">10</attribute>
     <group>Linux servers</group>
     <test name="Interface">
