@@ -70,5 +70,8 @@ class ConnectorMetroTest(unittest.TestCase):
             (3, 'AVERAGE', 0.5, 24, 775), (4, 'AVERAGE', 0.5, 288, 732)
             ])
         self.assertEqual(pdsrra, [
-            (1, 1), (1, 2), (1, 3), (1, 4)
+            (1, 1, 0),
+            (1, 2, 1),
+            (1, 3, 2),
+            (1, 4, 3),
             ])
