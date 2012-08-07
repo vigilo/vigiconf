@@ -35,6 +35,7 @@ from vigilo.models.tables import Graph, GraphGroup, PerfDataSource
 from vigilo.models.tables import ConfFile, ConfItem, Change, Tag
 from vigilo.models.tables import SupItem, HighLevelService, GroupPath
 from vigilo.models.tables import MapLink, MapServiceLink, MapSegment
+from vigilo.models.tables import MapLlsLink, MapHlsLink, MapNodeLls, MapNodeHls
 from vigilo.models.tables import MapNode, MapNodeHost, MapNodeService
 from vigilo.models.tables.group import Group
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE
@@ -216,62 +217,169 @@ class HostLoader(DBLoader):
             DBSession.query(ConfFile).filter(or_(
                     ConfFile.name == unicode(relfilename),
                     ConfFile.name.like(unicode(relfilename) + u"/%")
-                )).delete()
+                )).delete(synchronize_session='fetch')
         LOGGER.debug("Done cleaning up old hosts")
 
         # Ghostbusters
         # 1- Hosts qui n'ont plus de fichier de configuration.
-        ghost_hosts = DBSession.query(Host.idhost).filter(
-                        Host.idconffile == None).all()
-        nb_ghosts = DBSession.query(SupItem).filter(
-                SupItem.idsupitem.in_([ h.idhost for h in ghost_hosts ])
-            ).delete()
+        nb_ghosts = DBSession.query(
+                SupItem.__table__
+            ).filter(
+                SupItem.__table__.c.idsupitem.in_(
+                    DBSession.query(
+                        Host.__table__.c.idhost
+                    ).filter(Host.__table__.c.idconffile == None)
+                )
+            ).delete(synchronize_session=False)
         LOGGER.debug("Deleted %d ghosts [Host]", nb_ghosts)
 
-        # 2- SupItems qui ne sont ni des hôtes, ni des HLS/LLS.
-        ghost_hosts = DBSession.query(Host.idhost.label('idsupitem'))
-        ghost_lls = DBSession.query(LowLevelService.idservice.label(
-                                    'idsupitem'))
-        ghost_hls = DBSession.query(HighLevelService.idservice.label(
-                                    'idsupitem'))
-        union = ghost_hosts.union(ghost_lls).union(ghost_hls).subquery()
-        ghost_all = DBSession.query(SupItem.idsupitem).outerjoin(
-                (union, union.c.idsupitem == SupItem.idsupitem)
-            ).filter(union.c.idsupitem == None).all()
-        nb_ghosts = DBSession.query(SupItem).filter(
-                    SupItem.idsupitem.in_([ s.idsupitem for s in ghost_all ])
-                ).delete()
+
+        # 2a- SupItems censés être des hôtes, mais qui n'ont pas d'entrée
+        #     dans la table Host.
+        nb_ghosts = DBSession.query(
+                SupItem.__table__
+            ).filter(
+                SupItem.__table__.c.idsupitem.in_(
+                    DBSession.query(
+                        SupItem.idsupitem
+                    ).outerjoin(
+                        (Host.__table__,
+                            Host.__table__.c.idhost ==
+                            SupItem.__table__.c.idsupitem)
+                    ).filter(
+                        SupItem.__table__.c.itemtype ==
+                            Host.__mapper_args__['polymorphic_identity']
+                    ).filter(Host.__table__.c.idhost == None)
+                )
+            ).delete(synchronize_session=False)
+
+        # 2b- SupItems censés être des LLS, mais qui n'ont pas d'entrée
+        #     dans la table LowLevelService.
+        nb_ghosts += DBSession.query(
+                SupItem.__table__
+            ).filter(
+                SupItem.__table__.c.idsupitem.in_(
+                    DBSession.query(
+                        SupItem.idsupitem
+                    ).outerjoin(
+                        (LowLevelService.__table__,
+                            LowLevelService.__table__.c.idservice ==
+                            SupItem.__table__.c.idsupitem)
+                    ).filter(
+                        SupItem.__table__.c.itemtype ==
+                        LowLevelService.__mapper_args__['polymorphic_identity']
+                    ).filter(LowLevelService.__table__.c.idservice == None)
+                )
+            ).delete(synchronize_session=False)
+
+        # 2c- SupItems censés être des HLS, mais qui n'ont pas d'entrée
+        #     dans la table HighLevelService.
+        nb_ghosts += DBSession.query(
+                SupItem.__table__
+            ).filter(
+                SupItem.__table__.c.idsupitem.in_(
+                    DBSession.query(
+                        SupItem.idsupitem
+                    ).outerjoin(
+                        (HighLevelService.__table__,
+                            HighLevelService.__table__.c.idservice ==
+                            SupItem.__table__.c.idsupitem)
+                    ).filter(
+                        SupItem.__table__.c.itemtype ==
+                        HighLevelService.__mapper_args__['polymorphic_identity']
+                    ).filter(HighLevelService.__table__.c.idservice == None)
+                )
+            ).delete(synchronize_session=False)
         LOGGER.debug("Deleted %d ghosts [SupItem]", nb_ghosts)
 
-        # 3- MapLinks qui n'ont pas de type (lien service ou segment).
-        service_link = DBSession.query(MapServiceLink.idmapservicelink.label(
-                                       'idmaplink'))
-        segment = DBSession.query(MapSegment.idmapsegment.label('idmaplink'))
-        union = service_link.union(segment).subquery()
-        ghost_all = DBSession.query(MapLink.idmaplink).outerjoin(
-                (union, union.c.idmaplink == MapLink.idmaplink)
-            ).filter(union.c.idmaplink == None).all()
-        nb_ghosts = DBSession.query(MapLink).filter(
-                MapLink.idmaplink.in_([ ml.idmaplink for ml in ghost_all ])
-            ).delete()
+
+        # 3a- MapLinks censés être des MapServiceLink mais qui n'ont
+        #     pas d'entrée dans la table MapServiceLink.
+        nb_ghosts = DBSession.query(
+                MapLink.__table__
+            ).filter(
+                MapLink.__table__.c.idmaplink.in_(
+                    DBSession.query(
+                        MapLink.idmaplink
+                    ).outerjoin(
+                        (MapServiceLink.__table__,
+                            MapServiceLink.__table__.c.idmapservicelink ==
+                            MapLink.__table__.c.idmaplink)
+                    ).filter(
+                        MapLink.__table__.c.type_link.in_([
+                            MapLlsLink.__mapper_args__['polymorphic_identity'],
+                            MapHlsLink.__mapper_args__['polymorphic_identity'],
+                        ])
+                    ).filter(MapServiceLink.__table__.c.idmapservicelink ==
+                             None)
+                )
+            ).delete(synchronize_session=False)
+
+        # 3b- MapLinks censés être des MapSegment mais qui n'ont
+        #     pas d'entrée dans la table MapSegment.
+        nb_ghosts += DBSession.query(
+                MapLink.__table__
+            ).filter(
+                MapLink.__table__.c.idmaplink.in_(
+                    DBSession.query(
+                        MapLink.idmaplink
+                    ).outerjoin(
+                        (MapSegment.__table__,
+                            MapSegment.__table__.c.idmapsegment ==
+                            MapLink.__table__.c.idmaplink)
+                    ).filter(
+                        MapLink.__table__.c.type_link ==
+                            MapSegment.__mapper_args__['polymorphic_identity']
+                    ).filter(MapSegment.__table__.c.idmapsegment == None)
+                )
+            ).delete(synchronize_session=False)
         LOGGER.debug("Deleted %d ghosts [MapLink]", nb_ghosts)
 
-        # 4- MapNodes qui n'ont pas d'entité (hôte/HLS/LLS) associée.
-        node_host = DBSession.query(MapNodeHost.idmapnode.label('idmapnode'))
-        node_service = DBSession.query(MapNodeService.idmapnode.label(
-                                       'idmapnode'))
-        union = node_host.union(node_service).subquery()
-        ghost_all = DBSession.query(MapNode.idmapnode).outerjoin(
-                (union, union.c.idmapnode == MapNode.idmapnode)
-            ).filter(union.c.idmapnode == None
-            ).filter(MapNode.type_node != None).all()
-        nb_ghosts = DBSession.query(MapNode).filter(
-                MapNode.idmapnode.in_([ mn.idmapnode for mn in ghost_all ])
-            ).delete()
+
+        # 4a- MapNodes qui sont censés être des MapNodeHost mais qui
+        #     n'ont pas d'entrée dans la sous-table.
+        nb_ghosts = DBSession.query(
+                MapNode.__table__
+            ).filter(
+                MapNode.__table__.c.idmapnode.in_(
+                    DBSession.query(
+                        MapNode.idmapnode
+                    ).outerjoin(
+                        (MapNodeHost.__table__,
+                            MapNodeHost.__table__.c.idmapnode ==
+                            MapNode.__table__.c.idmapnode)
+                    ).filter(
+                        MapNode.__table__.c.type_node ==
+                            MapNodeHost.__mapper_args__['polymorphic_identity']
+                    ).filter(MapNodeHost.__table__.c.idmapnode == None)
+                )
+            ).delete(synchronize_session=False)
+
+        # 4b- MapNodes qui sont censés être des MapNodeService mais qui
+        #     n'ont pas d'entrée dans la sous-table.
+        nb_ghosts += DBSession.query(
+                MapNode.__table__
+            ).filter(
+                MapNode.__table__.c.idmapnode.in_(
+                    DBSession.query(
+                        MapNode.idmapnode
+                    ).outerjoin(
+                        (MapNodeService.__table__,
+                            MapNodeService.__table__.c.idmapnode ==
+                            MapNode.__table__.c.idmapnode)
+                    ).filter(
+                        MapNode.__table__.c.type_node.in_([
+                            MapNodeLls.__mapper_args__['polymorphic_identity'],
+                            MapNodeHls.__mapper_args__['polymorphic_identity'],
+                        ])
+                    ).filter(MapNodeService.__table__.c.idmapnode == None)
+                )
+            ).delete(synchronize_session=False)
         LOGGER.debug("Deleted %d ghosts [MapNode]", nb_ghosts)
 
+
         # Suppression des hôtes qui ont été supprimés dans les fichiers
-        # modifiés
+        # modifiés.
         deleted_hosts = []
         for conffilename in self.conffiles:
             if not isinstance(conffilename, basestring):
@@ -293,9 +401,8 @@ class HostLoader(DBLoader):
         for graph in empty_graphs:
             DBSession.delete(graph)
 
-        # Si on a changé quelquechose, on le note en base
-        if hostnames or removed or ghost_hosts or deleted_hosts \
-                or empty_graphs:
+        # Si on a changé quelque chose, on le note en BDD.
+        if hostnames or removed or deleted_hosts or empty_graphs:
             Change.mark_as_modified(u"Host")
             Change.mark_as_modified(u"Service")
             Change.mark_as_modified(u"Graph")
