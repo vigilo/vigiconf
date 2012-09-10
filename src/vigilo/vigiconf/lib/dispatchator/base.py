@@ -138,14 +138,14 @@ class Dispatchator(object):
         Enregistre la configuration en base de données
         """
         try:
+            # Commit de la révision SVN dans la base de données.
+            self.rev_mgr.db_commit()
             transaction.commit()
             LOGGER.info(_("Database commit successful"))
         except Exception, e:
             transaction.abort()
             LOGGER.debug("Transaction rollbacked: %s", e)
             raise DispatchatorError(_("Database commit failed"))
-        # Commit de la configuration dans SVN
-        self.rev_mgr.commit()
         # Envoi de la révision sur les serveurs
         self.srv_mgr.set_revision(self.rev_mgr.deploy_revision, servers)
 

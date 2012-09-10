@@ -15,14 +15,22 @@ import unittest
 
 from vigilo.common.conf import settings
 
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+
+from vigilo.models.session import DBSession
+from vigilo.models import tables
+
 from vigilo.vigiconf.lib.dispatchator.revisionmanager import RevisionManager
 
 from .helpers import setup_tmpdir, LoggingCommandFactory
+from .helpers import setup_db, teardown_db
 
 
 class RevisionManagerTest(unittest.TestCase):
 
     def setUp(self):
+        setup_db()
         # Répertoires
         self.tmpdir = setup_tmpdir()
         self.confdir = os.path.join(self.tmpdir, "conf.d")
@@ -43,144 +51,151 @@ class RevisionManagerTest(unittest.TestCase):
         self.rev_mgr = RevisionManager()
 
     def tearDown(self):
+        teardown_db()
         shutil.rmtree(self.tmpdir)
 
     def _run_svn(self, command):
-        devnull = open(os.devnull, "w")
-        subprocess.call(["svn"] + command, stdout=devnull,
-                        stderr=subprocess.STDOUT)
-        devnull.close()
+        cmd = ["svn"] + command
+        LOGGER.debug('Executing SVN command: %s' % ' '.join(cmd))
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
+        LOGGER.debug('Output: %r' % (proc.stdout.readlines(), ))
 
     def test_nochange(self):
-        """RevMan: aucun changement"""
-        status = self.rev_mgr.status()
-        expected = {"toadd": [], "added": [],
-                    "toremove": [], "removed": [], 'modified': []}
+        """RevMan: synchronisation sans changement"""
+        status = self.rev_mgr.sync()
+        expected = {
+            "added": [],
+            "removed": [],
+            'modified': [],
+            "toadd": [],
+            "toremove": []
+        }
         self.assertEqual(status, expected)
 
-    def test_status_toadd_xml(self):
-        """RevMan: fichier XML ajouté"""
+    def test_sync_toadd_xml(self):
+        """RevMan: synchronisation d'un fichier XML ajouté"""
         newfile = os.path.join(self.confdir, "dummy.xml")
         open(newfile, "w").close()
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["toadd"], [newfile, ])
 
-    def test_status_toadd_py(self):
-        """RevMan: fichier Python ajouté dans le dossier general"""
+    def test_sync_toadd_py(self):
+        """RevMan: synchronisation d'un fichier Python ajouté dans le dossier general"""
         newfile = os.path.join(self.confdir, "general", "dummy.py")
         open(newfile, "w").close()
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["toadd"], [newfile, ])
 
-    def test_status_toadd_notpy_in_general(self):
-        """RevMan: fichier non-Python ajouté dans le dossier general"""
+    def test_sync_toadd_notpy_in_general(self):
+        """RevMan: synchronisation d'un fichier non-Python ajouté dans le dossier general"""
         newfile = os.path.join(self.confdir, "general", "dummy")
         open(newfile, "w").close()
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["toadd"], [])
 
-    def test_status_toadd_xml_in_general(self):
-        """RevMan: fichier XML ajouté dans le dossier general"""
+    def test_sync_toadd_xml_in_general(self):
+        """RevMan: synchronisation d'un fichier XML ajouté dans le dossier general"""
         newfile = os.path.join(self.confdir, "general", "dummy.xml")
         open(newfile, "w").close()
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["toadd"], [])
 
-    def test_status_toadd_notxml(self):
-        """RevMan: fichier non-XML ajouté"""
+    def test_sync_toadd_notxml(self):
+        """RevMan: synchronisation d'un fichier non-XML ajouté"""
         newfile = os.path.join(self.confdir, "dummy")
         open(newfile, "w").close()
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["toadd"], [])
 
-    def test_status_toadd_dir(self):
-        """RevMan: dossier ajouté"""
+    def test_sync_toadd_dir(self):
+        """RevMan: synchronisation d'un dossier ajouté"""
         newdir = os.path.join(self.confdir, "dummy")
         os.mkdir(newdir)
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["toadd"], [newdir, ])
 
-    def test_status_added(self):
-        """RevMan: fichier déjà ajouté dans SVN"""
+    def test_sync_added(self):
+        """RevMan: synchronisation d'un fichier déjà ajouté dans SVN"""
         newfile = os.path.join(self.confdir, "dummy.xml")
         open(newfile, "w").close()
         self._run_svn(["add", newfile])
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["added"], [newfile, ])
         self.assertEqual(status["toadd"], [])
 
-    def test_status_missing(self):
-        """RevMan: fichier supprimé"""
+    def test_sync_missing(self):
+        """RevMan: synchronisation d'un fichier supprimé"""
         testfile = os.path.join(self.confdir, "dummy.xml")
         open(testfile, "w").close()
         self._run_svn(["add", testfile])
         self._run_svn(["commit", "-m", "test", self.confdir])
         os.remove(testfile)
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["toremove"], [testfile, ])
         self.assertEqual(status["removed"], [])
 
-    def test_status_deleted_xml(self):
-        """RevMan: fichier supprimé dans SVN"""
+    def test_sync_deleted_xml(self):
+        """RevMan: synchronisation d'un fichier supprimé dans SVN"""
         testfile = os.path.join(self.confdir, "dummy.xml")
         open(testfile, "w").close()
         self._run_svn(["add", testfile])
         self._run_svn(["commit", "-m", "test", self.confdir])
         self._run_svn(["rm", testfile])
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["removed"], [testfile, ])
         self.assertEqual(status["toremove"], [])
 
-    def test_status_deleted_dir(self):
-        """RevMan: dossier supprimé dans SVN"""
+    def test_sync_deleted_dir(self):
+        """RevMan: synchronisation d'un dossier supprimé dans SVN"""
         testdir = os.path.join(self.confdir, "hosts")
         self._run_svn(["rm", testdir])
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         self.assertEqual(status["removed"], [testdir, ])
         self.assertEqual(status["toremove"], [])
 
-    def test_status_deleted_dir_and_files(self):
-        """RevMan: dossier supprimé alors qu'il contenait des fichiers"""
+    def test_sync_deleted_dir_and_files(self):
+        """RevMan: synchronisation d'un dossier supprimé alors qu'il contenait des fichiers"""
         testdir = os.path.join(self.confdir, "hosts")
         testfile = os.path.join(testdir, "dummy.xml")
         open(testfile, "w").close()
         self._run_svn(["add", testfile])
         self._run_svn(["commit", "-m", "test", self.confdir])
         self._run_svn(["rm", testdir])
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         print status
         self.assertEqual(status["removed"], [testdir, testfile])
         self.assertEqual(status["toremove"], [])
 
-    def test_status_strange_files(self):
+    def test_sync_strange_files(self):
         """RevMan: synchronisation avec un dossier supprimé manuellement contenant des fichiers bizarres"""
         testfile = os.path.join(self.confdir, "dummy.orig.old.disabled")
         open(testfile, "w").close()
         self._run_svn(["add", testfile])
         self._run_svn(["commit", "-m", "test", self.confdir])
         self._run_svn(["rm", testfile])
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         print status
         self.assertEqual(status["toremove"], [])
         self.assertEqual(status["removed"], [testfile])
 
-    def test_status_moved(self):
-        """RevMan: fichier renommé"""
+    def test_sync_moved(self):
+        """RevMan: synchronisation d'un fichier renommé"""
         oldname = os.path.join(self.confdir, "dummy1.xml")
         open(oldname, "w").close()
         self._run_svn(["add", oldname])
         self._run_svn(["commit", "-m", "test", self.confdir])
         newname = os.path.join(self.confdir, "dummy2.xml")
         os.rename(oldname, newname)
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         print status
         self.assertEqual(status["toremove"], [oldname, ])
         self.assertEqual(status["removed"], [])
         self.assertEqual(status["toadd"], [newname, ])
         self.assertEqual(status["added"], [])
 
-    def test_status_modified(self):
-        """RevMan: fichier modifié"""
+    def test_sync_modified(self):
+        """RevMan: synchronisation d'un fichier modifié"""
         testfile = os.path.join(self.confdir, "dummy.xml")
         open(testfile, "w").close()
         self._run_svn(["add", testfile])
@@ -188,12 +203,12 @@ class RevisionManagerTest(unittest.TestCase):
         f = open(testfile, "w")
         f.write("dummy\n")
         f.close()
-        status = self.rev_mgr.status()
+        status = self.rev_mgr.sync()
         print status
         self.assertEqual(status["modified"], [testfile, ])
 
     def test_sync_no_svnrepository(self):
-        """RevMan: demande de synchro sans dépôt"""
+        """RevMan: synchronisation sans dépôt"""
         settings["vigiconf"]["svnrepository"] = False
         cmdlogger = LoggingCommandFactory(simulate=True)
         self.rev_mgr.command_class = cmdlogger
@@ -222,12 +237,11 @@ class RevisionManagerTest(unittest.TestCase):
         self.rev_mgr.sync()
         expected = [
             ["svn", "status", "--xml", self.confdir],
-            ["svn", "add", test3],
-            ["svn", "add", test2],
             self.rev_mgr._get_auth_svn_cmd_prefix("update")
                 + ["-r", "HEAD", self.confdir],
+            ["svn", "add", test3],
+            ["svn", "add", test2],
             ["svn", "remove", test1],
-            ["svn", "status", "--xml", self.confdir],
         ]
         print cmdlogger.executed
         # On ne peut pas comparer directement les listes parce que l'ordre des
@@ -237,17 +251,6 @@ class RevisionManagerTest(unittest.TestCase):
         expected_subcommands = [ c[1] for c in expected ]
         self.assertEqual(subcommands, expected_subcommands)
         self.assertEqual(sorted(cmdlogger.executed), sorted(expected))
-        status = self.rev_mgr.status()
-        print status
-        # Là aussi, l'ordre n'est pas garanti
-        status["added"].sort()
-        expected = {'toremove': [],
-                    'removed': [test1, ],
-                    'added': [test2, test3, test4],
-                    'toadd': [],
-                    'modified': []}
-        expected["added"].sort()
-        self.assertEqual(status, expected)
 
     def test_sync_manually_deleted_dir(self):
         """RevMan: synchronisation avec un dossier supprimé manuellement"""
@@ -257,8 +260,131 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["add", testfile])
         self._run_svn(["commit", "-m", "test", self.confdir])
         shutil.rmtree(testdir)
-        self.rev_mgr.sync()
+        status = self.rev_mgr.sync()
+        print status
+        self.assertEqual(status["toremove"], [testdir])
+        self.assertEqual(status["removed"], [])
+
+    def test_status_no_change(self):
+        """RevMan: statut sans changement"""
+        DBSession.add(tables.Version(
+            name=RevisionManager._version_key,
+            version=1
+        ))
+        DBSession.flush()
+        status = self.rev_mgr.status()
+        expected = {"added": [], "removed": [], "modified": []}
+        self.assertEqual(status, expected)
+
+    def test_status_file_added(self):
+        """RevMan: statut après ajout d'un fichier"""
+        testdir = os.path.join(self.confdir, "hosts")
+        testfile = os.path.join(testdir, "dummy.xml")
+        open(testfile, "w").close()
+        self._run_svn(["add", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        DBSession.add(tables.Version(
+            name=RevisionManager._version_key,
+            version=1
+        ))
+        DBSession.flush()
+        status = self.rev_mgr.status()
+        expected = {
+            "added": [testfile],
+            "removed": [],
+            "modified": [],
+        }
+        self.assertEqual(status, expected)
+
+    def test_status_file_deleted(self):
+        """RevMan: statut après suppression d'un fichier"""
+        testdir = os.path.join(self.confdir, "hosts")
+        testfile = os.path.join(testdir, "dummy.xml")
+        open(testfile, "w").close()
+        self._run_svn(["add", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        self._run_svn(["delete", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        DBSession.add(tables.Version(
+            name=RevisionManager._version_key,
+            version=2
+        ))
+        DBSession.flush()
+        status = self.rev_mgr.status()
+        expected = {
+            "added": [],
+            "removed": [testfile],
+            "modified": [],
+        }
+        self.assertEqual(status, expected)
+
+    def test_status_file_modified(self):
+        """RevMan: statut après modification d'un fichier"""
+        testdir = os.path.join(self.confdir, "hosts")
+        testfile = os.path.join(testdir, "dummy.xml")
+        open(testfile, "w").close()
+        self._run_svn(["add", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        fd = open(testfile, "w")
+        fd.write("test")
+        fd.close()
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        DBSession.add(tables.Version(
+            name=RevisionManager._version_key,
+            version=2
+        ))
+        DBSession.flush()
+        status = self.rev_mgr.status()
+        expected = {
+            "added": [],
+            "removed": [],
+            "modified": [testfile],
+        }
+        self.assertEqual(status, expected)
+
+    def test_status_dir_added(self):
+        """RevMan: statut après ajout d'un dossier"""
+        testdir = os.path.join(self.confdir, "testdir")
+        os.mkdir(testdir)
+        self._run_svn(["add", testdir])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        DBSession.add(tables.Version(
+            name=RevisionManager._version_key,
+            version=1
+        ))
+        DBSession.flush()
+        status = self.rev_mgr.status()
+        expected = {
+            "added": [testdir],
+            "removed": [],
+            "modified": [],
+        }
+        self.assertEqual(status, expected)
+
+    def test_status_dir_deleted(self):
+        """RevMan: statut après suppression d'un dossier"""
+        testdir = os.path.join(self.confdir, "hosts")
+        testfile = os.path.join(testdir, "dummy.xml")
+        open(testfile, "w").close()
+        self._run_svn(["add", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        # Nécessaire pour éviter un
+        # "SVN warning: Directory 'hosts/' is out of date".
+        self._run_svn(["update", self.confdir])
+        self._run_svn(["delete", testdir])
+        self._run_svn(["commit", "-m", "test2", self.confdir])
+        DBSession.add(tables.Version(
+            name=RevisionManager._version_key,
+            version=2
+        ))
+        DBSession.flush()
         status = self.rev_mgr.status()
         print status
-        self.assertEqual(status["removed"], [testdir, testfile])
-        self.assertEqual(status["toremove"], [])
+        expected = {
+            "added": [],
+            # "svn diff" n'affiche pas les sous-arbres impactés,
+            # donc "testfile" n'apparait pas ici.
+            "removed": [testdir],
+            "modified": [],
+        }
+        self.assertEqual(status, expected)
