@@ -118,10 +118,12 @@ setup(name='vigilo-vigiconf',
             'vigilo.vigiconf.testlib': [
                 'vigiconf-default = vigilo.vigiconf.tests',
                 ],
+            'vigilo.models': [
+                'populate_db = vigilo.vigiconf.dbsetup:populate_db',
+            ],
         },
         package_dir={'': 'src'},
         include_package_data = True,
         data_files=get_data_files() +
             install_i18n("i18n", os.path.join(sys.prefix, 'share', 'locale')),
         )
-

@@ -267,7 +267,7 @@ class RevisionManagerTest(unittest.TestCase):
     def test_status_no_change(self):
         """RevMan: statut sans changement"""
         DBSession.add(tables.Version(
-            name=RevisionManager._version_key,
+            name=RevisionManager.version_key,
             version=1
         ))
         DBSession.flush()
@@ -283,7 +283,7 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["add", testfile])
         self._run_svn(["commit", "-m", "test", self.confdir])
         DBSession.add(tables.Version(
-            name=RevisionManager._version_key,
+            name=RevisionManager.version_key,
             version=1
         ))
         DBSession.flush()
@@ -305,7 +305,7 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["delete", testfile])
         self._run_svn(["commit", "-m", "test", self.confdir])
         DBSession.add(tables.Version(
-            name=RevisionManager._version_key,
+            name=RevisionManager.version_key,
             version=2
         ))
         DBSession.flush()
@@ -329,7 +329,7 @@ class RevisionManagerTest(unittest.TestCase):
         fd.close()
         self._run_svn(["commit", "-m", "test", self.confdir])
         DBSession.add(tables.Version(
-            name=RevisionManager._version_key,
+            name=RevisionManager.version_key,
             version=2
         ))
         DBSession.flush()
@@ -348,7 +348,7 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["add", testdir])
         self._run_svn(["commit", "-m", "test", self.confdir])
         DBSession.add(tables.Version(
-            name=RevisionManager._version_key,
+            name=RevisionManager.version_key,
             version=1
         ))
         DBSession.flush()
@@ -373,7 +373,7 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["delete", testdir])
         self._run_svn(["commit", "-m", "test2", self.confdir])
         DBSession.add(tables.Version(
-            name=RevisionManager._version_key,
+            name=RevisionManager.version_key,
             version=2
         ))
         DBSession.flush()

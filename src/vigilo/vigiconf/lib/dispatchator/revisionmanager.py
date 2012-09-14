@@ -50,7 +50,7 @@ class RevisionManager(object):
     configuration de VigiConf (C{conf.d}). Actuellement implémenté avec
     Subversion.
     """
-    _version_key = u'vigiconf.configuration'
+    version_key = u'vigiconf.configuration'
 
     def __init__(self, force=None):
         if force is None:
@@ -83,7 +83,7 @@ class RevisionManager(object):
         """
         if self._status is not None:
             return self._status
-        old_rev = Version.by_object_name(self._version_key).version
+        old_rev = Version.by_object_name(self.version_key).version
         new_rev = self.last_revision()
         confdir = settings["vigiconf"].get("confdir")
         _cmd = [
@@ -240,9 +240,9 @@ class RevisionManager(object):
         return last_rev
 
     def db_commit(self):
-        version_obj = Version.by_object_name(self._version_key)
+        version_obj = Version.by_object_name(self.version_key)
         if version_obj is None:
-            version_obj = Version(name=self._version_key)
+            version_obj = Version(name=self.version_key)
         version_obj.version = self.deploy_revision
         DBSession.add(version_obj)
         DBSession.flush()
