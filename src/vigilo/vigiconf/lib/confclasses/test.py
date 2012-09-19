@@ -385,7 +385,8 @@ class TestFactory(object):
                             globals()[current_test_name] = current_test_class
                             continue
                         if (not isinstance(current_test_class, type)) or \
-                            (not issubclass(current_test_class, Test)):
+                            (not issubclass(current_test_class, Test)) or \
+                            current_test_class == Test:
                             continue
                         if not self.tests.has_key(current_test_name):
                             self.tests[current_test_name] = {}
