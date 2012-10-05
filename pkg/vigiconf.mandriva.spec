@@ -18,7 +18,7 @@ Requires:   python >= 2.5
 Requires:   python-setuptools
 Requires:   python-lxml
 Requires:   perl
-Requires:   subversion
+Requires:   subversion >= 1.5.6
 Requires:   tar
 Requires:   libxml2-utils
 Requires:   python-argparse
