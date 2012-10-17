@@ -38,7 +38,8 @@ from vigilo.models.tables import MapLink, MapServiceLink, MapSegment
 from vigilo.models.tables import MapLlsLink, MapHlsLink, MapNodeLls, MapNodeHls
 from vigilo.models.tables import MapNode, MapNodeHost, MapNodeService
 from vigilo.models.tables.group import Group
-from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE
+from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE, \
+                                                    SUPITEM_GROUP_TABLE
 
 from vigilo.vigiconf.lib.loaders import DBLoader
 from vigilo.vigiconf.lib import ParsingError
@@ -431,17 +432,20 @@ class HostLoader(DBLoader):
         self._absolutize_groups(host, hostdata)
 
         # Rempli à mesure que des groupes sont ajoutés (sorte de cache).
-        hostgroups_cache = {}
-        for g in host.groups:
-            hostgroups_cache[g.idgroup] = g
+        hostgroups_cache = set()
+        for g in DBSession.query(SUPITEM_GROUP_TABLE.c.idgroup).filter(
+            SUPITEM_GROUP_TABLE.c.idsupitem == host.idhost).all():
+            hostgroups_cache.add(g.idgroup)
 
         # Suppression des anciens groupes
         # qui ne sont plus associés à l'hôte.
         for idgroup in hostgroups_cache.copy():
             path = self.group_cache[idgroup]
             if path not in hostdata['otherGroups']:
-                host.groups.remove(hostgroups_cache[idgroup])
-                del hostgroups_cache[idgroup]
+                DBSession.query(SUPITEM_GROUP_TABLE).filter(
+                    SUPITEM_GROUP_TABLE.c.idgroup == idgroup
+                ).delete()
+                hostgroups_cache.discard(idgroup)
 
         # Ajout des nouveaux groupes associés à l'hôte.
         hierarchy = self.grouploader.get_hierarchy()
@@ -467,7 +471,7 @@ class HostLoader(DBLoader):
                 })
 
             host.groups.append(hierarchy[path])
-            hostgroups_cache[idgroup] = hierarchy[path]
+            hostgroups_cache.add(idgroup)
 
 class ServiceLoader(DBLoader):
     """
