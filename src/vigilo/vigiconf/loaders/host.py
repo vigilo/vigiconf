@@ -177,6 +177,12 @@ class HostLoader(DBLoader):
                 for part in parse_path(g.path):
                     self.group_parts_cache.setdefault(part, []).append(g.path)
 
+        # Cache de l'association entre le nom d'un groupe de graphes
+        # et son identifiant.
+        graphgroups = {}
+        for graphgroup in DBSession.query(GraphGroup).all():
+            graphgroups[graphgroup.name] = graphgroup
+
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
             host = hosts[hostname]
@@ -203,7 +209,7 @@ class HostLoader(DBLoader):
 
             # graphes
             LOGGER.debug("Loading graphs for host %s", hostname)
-            graph_loader = GraphLoader(host)
+            graph_loader = GraphLoader(host, graphgroups)
             graph_loader.load()
 
         # Suppression des fichiers de configuration retirés du SVN
@@ -629,9 +635,17 @@ class GraphLoader(DBLoader):
     Appelé par le HostLoader, dépend de PDSLoader et de GraphGroupLoader
     """
 
-    def __init__(self, host):
+    def __init__(self, host, graphgroups):
         super(GraphLoader, self).__init__(Graph, "name")
         self.host = host
+        self.graphgroups = graphgroups
+
+        # Mise en cache des données de performance de l'hôte.
+        pds = {}
+        for datasource in DBSession.query(PerfDataSource).filter(
+            PerfDataSource.idhost == self.host.idhost).all():
+            pds[datasource.name] = datasource
+        self.pds = pds
 
     def _list_db(self):
         """Charge toutes les instances depuis la base de données"""
@@ -662,15 +676,14 @@ class GraphLoader(DBLoader):
         graph = super(GraphLoader, self).insert(data)
         graphname = data["name"]
         graphdata = conf.hostsConf[self.host.name]['graphItems'][graphname]
+
         # lien avec les PerfDataSources
         for dsname in graphdata['ds']:
-            pds = PerfDataSource.by_host_and_source_name(self.host.idhost,
-                                                         unicode(dsname))
-            graph.perfdatasources.append(pds)
+            graph.perfdatasources.append(self.pds[dsname])
+
         # lien avec les GraphGroups
-        for groupname, graphnames in conf.hostsConf[self.host.name]\
-                                                ['graphGroups'].iteritems():
+        for groupname, graphnames in \
+            conf.hostsConf[self.host.name]['graphGroups'].iteritems():
             if graphname not in graphnames:
                 continue
-            group = GraphGroup.by_group_name(groupname)
-            graph.groups.append(group)
+            graph.groups.append(self.graphgroups[groupname])
