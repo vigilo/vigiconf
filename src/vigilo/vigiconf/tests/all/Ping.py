@@ -26,15 +26,16 @@ class Ping(Test):
             crit = (5000, 100)
 
         # Validation des arguments.
-        if not isinstance(warn, tuple) or len(warn) != 2:
-            raise ParsingError(_('"warn" should be a list with two values'))
-        if not isinstance(crit, tuple) or len(crit) != 2:
-            raise ParsingError(_('"crit" should be a list with two values'))
+        thresholds = {'warn': warn, 'crit': crit}
+        for param, value in thresholds.iteritems():
+            if not isinstance(value, tuple) or len(value) != 2:
+                raise ParsingError(
+                    _('"%s" should be a list with two values') % param)
         warn = [ self.as_int(th) for th in warn ]
         crit = [ self.as_int(th) for th in crit ]
 
         # Ajout des tests.
-        self.add_external_sup_service("Ping", "check_ping!%s,%s%%!%s,%s%%" %
+        self.add_external_sup_service("Ping", "check_icmp!%s,%s%%!%s,%s%%" %
                                       (warn[0], warn[1], crit[0], crit[1]))
         self.add_perfdata_handler("Ping", 'Ping-loss', 'Loss', 'pl')
         self.add_perfdata_handler("Ping", 'Ping-RTA', 'Round-trip average', 'rta')

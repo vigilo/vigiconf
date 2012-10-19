@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.1.2\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2012-09-19 13:48+0200\n"
-"PO-Revision-Date: 2012-09-19 13:48+0200\n"
+"POT-Creation-Date: 2012-10-25 16:41+0200\n"
+"PO-Revision-Date: 2012-10-25 16:41+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -1047,11 +1047,8 @@ msgstr ""
 msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
 msgstr "Test NTP has been deprecated. Please use NagiosPlugin instead"
 
-#: src/vigilo/vigiconf/tests/all/Ping.py:30
-msgid "\"warn\" should be a list with two values"
-msgstr "\"warn\" should be a list with two values"
-
-#: src/vigilo/vigiconf/tests/all/Ping.py:32
-msgid "\"crit\" should be a list with two values"
-msgstr "\"crit\" should be a list with two values"
+#: src/vigilo/vigiconf/tests/all/Ping.py:33
+#, python-format
+msgid "\"%s\" should be a list with two values"
+msgstr "\"%s\" should be a list with two values"
 
