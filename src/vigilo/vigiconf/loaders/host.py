@@ -402,11 +402,23 @@ class HostLoader(DBLoader):
                     DBSession.delete(host)
 
         # Nettoyage des graphes et des groupes de graphes vides
-        LOGGER.debug("Cleaning up old graphs and graphgroups")
-        empty_graphs = DBSession.query(Graph).distinct().filter(
-                            ~Graph.perfdatasources.any()).all()
-        for graph in empty_graphs:
-            DBSession.delete(graph)
+        LOGGER.debug("Cleaning up old graphs")
+        empty_graphs = DBSession.query(
+                Graph
+            ).filter(
+                Graph.idgraph.in_(
+                    DBSession.query(
+                            Graph.idgraph
+                        ).outerjoin(
+                            (GRAPH_PERFDATASOURCE_TABLE,
+                                GRAPH_PERFDATASOURCE_TABLE.c.idgraph ==
+                                Graph.idgraph
+                            ),
+                        ).filter(GRAPH_PERFDATASOURCE_TABLE.c.idgraph == None
+                    )
+                )
+            ).delete(synchronize_session=False)
+        LOGGER.debug("Removed %r obsolete graphs", empty_graphs)
 
         # Si on a changé quelque chose, on le note en BDD.
         if hostnames or removed or deleted_hosts or empty_graphs:
