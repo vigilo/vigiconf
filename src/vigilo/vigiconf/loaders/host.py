@@ -505,25 +505,36 @@ class ServiceLoader(DBLoader):
     def _list_db(self):
         return DBSession.query(self._class).filter_by(host=self.host
             ).all()
-        #return [ s for s in DBSession.query(self._class).filter_by(
-        #         host=self.host).all() if s.servicename != 'Collector' ]
 
     def load_conf(self):
-        for service in conf.hostsConf[self.host.name]['services']:
-            idcollector = None
+        services = conf.hostsConf[self.host.name]['services'].keys()
+        collector = None
 
-            # L'hôte héberge un Collector, on récupère l'ID du Collector.
+        # Si le service Collector fait partie des services de l'hôte,
+        # alors il doit être traité en premier, pour permettre aux services
+        # passifs qui en dépendent d'y faire référence.
+        try:
+            services.remove('Collector')
+        except ValueError:
+            pass
+        else:
+            services.insert(0, 'Collector')
+
+        for service in services:
+            reroute = None
+
+            # Si le service dépend du Collector, on récupère
+            # l'ID du Collector pour faire le lien entre les deux.
             if (service, 'service') in \
                 conf.hostsConf[self.host.name]['SNMPJobs']:
-                idcollector = LowLevelService.get_supitem(
-                    self.host.name, u'Collector')
+                reroute = collector
 
             # L'hôte est rerouté, on récupère l'ID du service de reroutage.
             elif conf.hostsConf[self.host.name]['services'] \
                 [service]['reRoutedBy']:
                 reRoutedBy = conf.hostsConf[self.host.name]['services'] \
                     [service]['reRoutedBy']
-                idcollector = LowLevelService.get_supitem(
+                reroute = LowLevelService.get_supitem(
                     reRoutedBy['host'], reRoutedBy['service'])
 
             service = unicode(service)
@@ -548,9 +559,17 @@ class ServiceLoader(DBLoader):
                         })
 
             lls = dict(host=self.host, servicename=service,
-                       weight=weight, warning_weight=warning_weight,
-                       idcollector=idcollector)
+                       weight=weight, warning_weight=warning_weight)
+            if isinstance(reroute, int):
+                lls['idcollector'] = reroute
+            elif reroute != None:
+                lls['collector'] = reroute
             lls = self.add(lls)
+
+            # on mémorise l'identifiant du Collector pour les
+            # services passifs à venir qui en dépendent.
+            if service == 'Collector':
+                collector = lls
 
             # directives Nagios du service
             nagios_directives = conf.hostsConf[self.host.name]['nagiosSrvDirs']
