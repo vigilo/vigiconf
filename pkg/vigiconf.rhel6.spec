@@ -18,7 +18,7 @@ BuildRequires:   python-babel
 Requires:   python-distribute
 Requires:   python-lxml
 Requires:   perl
-Requires:   subversion
+Requires:   subversion >= 1.5.6
 Requires:   tar
 Requires:   libxml2
 Requires:   python-argparse

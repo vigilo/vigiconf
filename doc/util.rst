@@ -1626,13 +1626,13 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
 Exemples de configurations d'hôtes particulières
 ------------------------------------------------
 
-Classes de Service (avec un seul niveau de classe)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Classes de Service (avec un seul niveau de classes)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ..  sourcecode:: xml
 
     <host name="_HOSTNAME_" address="X.X.X.X">
-      <class>cisco</class>
+      <class>cisco_ios</class>
       <attribute name="QOS_mainClassName">
         <item>mpls-RealTime|RT</item>
         <item>class-default|DE</item>
@@ -1654,13 +1654,13 @@ Classes de Service (avec un seul niveau de classe)
       <group>/Servers/Linux servers</group>
     </host>
 
-Classes de Service (avec 2 niveaux de classe)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Classes de Service (avec 2 niveaux de classes)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ..  sourcecode:: xml
 
     <host name="_HOSTNAME_" address="X.X.X.X">
-      <class>cisco</class>
+      <class>cisco_ios</class>
       <attribute name="snmpCommunity">_SNMP_COMMUNITY_</attribute>
 
       <attribute name="QOS_mainClassName">

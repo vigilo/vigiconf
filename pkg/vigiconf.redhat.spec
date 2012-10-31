@@ -25,7 +25,7 @@ BuildRequires:   python26-babel
 Requires:   python26-distribute
 Requires:   python26-lxml
 Requires:   perl
-Requires:   subversion
+Requires:   subversion >= 1.5.6
 Requires:   tar
 Requires:   libxml2
 Requires:   python26-argparse
