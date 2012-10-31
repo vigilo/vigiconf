@@ -617,7 +617,7 @@ première forme s'appliquent également ici.
     le groupe de ventilation à utiliser.
 
 Balise "``weight``"
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
 Syntaxe:
 
 ..  sourcecode:: xml
@@ -627,7 +627,7 @@ Syntaxe:
 La balise ``weight`` permet de paramétrer le poids affecté à un hôte.
 
 Balise "``default_service_weight``"
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Syntaxe:
 
 ..  sourcecode:: xml
@@ -638,7 +638,7 @@ La balise ``default_service_weight`` permet d'affecter un poids par défaut aux
 services de l'hôte.
 
 Balise "``default_service_warning_weight``"
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Syntaxe:
 
 ..  sourcecode:: xml
