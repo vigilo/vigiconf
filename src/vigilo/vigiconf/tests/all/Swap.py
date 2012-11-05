@@ -24,13 +24,13 @@ class Swap(Test):
             return
 
         self.add_collector_metro("Swap", "m_table_mult",
-                ["Swap space"],
+                ["[Ss]wap [Ss]pace"],
                 ["WALK/.1.3.6.1.2.1.25.2.3.1.4",
                  "WALK/.1.3.6.1.2.1.25.2.3.1.6",
                  "WALK/.1.3.6.1.2.1.25.2.3.1.3"],
                 "GAUGE", label="Used")
         self.add_collector_metro("swap-total", "m_table_mult",
-                ["Swap space"],
+                ["[Ss]wap [Ss]pace"],
                 ["WALK/.1.3.6.1.2.1.25.2.3.1.4",
                  "WALK/.1.3.6.1.2.1.25.2.3.1.5",
                  "WALK/.1.3.6.1.2.1.25.2.3.1.3"],
