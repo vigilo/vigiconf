@@ -23,13 +23,9 @@ export BASE=$1
 
 if [ ! -d $BASE/collector/ ]
 then
-	exit 0;
+    exit 0;
 fi
 
-for file in $BASE/collector/*
-	do perl -e "require '$file'"
-
-	if test $? != 0
-		then exit -1
-	fi
-done
+ls -1 $BASE/collector/*.pm | sed -e 's,\(.*\),require "\1";,' > $BASE/collector.pm
+echo "1;" >> $BASE/collector.pm
+perl -e "require '$BASE/collector.pm'"

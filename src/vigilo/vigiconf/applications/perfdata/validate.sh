@@ -21,10 +21,11 @@
 
 export BASE=$1
 
-for file in `ls $BASE/perfdata/* 2>/dev/null`
-	do perl -e "require '$file'"
+if [ ! -d $BASE/perfdata/ ]
+then
+    exit 0;
+fi
 
-	if test $? != 0
-		then exit -1	
-	fi
-done
+ls -1 $BASE/perfdata/*.pm | sed -e 's,\(.*\),require "\1";,' > $BASE/perfdata.pm
+echo "1;" >> $BASE/perfdata.pm
+perl -e "require '$BASE/perfdata.pm'"
