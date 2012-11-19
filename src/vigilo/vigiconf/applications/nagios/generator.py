@@ -63,9 +63,9 @@ class NagiosGen(FileGenerator):
         if not os.path.exists(self.fileName):
             # One Nagios server routes all its events to a single
             # connector-nagios instance.
-            self.templateCreate(self.fileName, self.templates["header"],
-                {"confid": conf.confid,
-                 "socket": settings["vigiconf"].get("socket_nagios_to_vigilo")})
+            self.templateCreate(self.fileName, self.templates["header"], {
+                    "confid": conf.confid,
+                })
         newhash = h.copy()
         # Groups
         self.__fillgroups(hostname, newhash)

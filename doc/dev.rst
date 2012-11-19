@@ -641,9 +641,9 @@ de plusieurs modèles par le générateur Nagios :
             # Alors, on utilise la méthode templateCreate() pour créer
             # le fichier de configuration à partir du modèle contenu
             # dans "templates/header.tpl".
-            self.templateCreate(self.fileName, self.templates["header"],
-                {"confid": conf.confid,
-                 "socket": settings["vigiconf"].get("socket_nagios_to_vigilo")})
+            self.templateCreate(self.fileName, self.templates["header"] {,
+                    "confid": conf.confid,
+                })
 
         # Préparation des variables qui seront passées
         # au modèle "templates/host.tpl".

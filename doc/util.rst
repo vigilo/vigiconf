@@ -202,15 +202,6 @@ fonctionnalités.
 La valeur de cette option dans la configuration initiale fournie avec VigiConf
 est :file:`/etc/vigilo/vigiconf/plugins`.
 
-Emplacement du socket du connecteur-nagios
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-L'option "``socket_nagios_to_vigilo``" contient le chemin d'accès jusqu'au
-connecteur-nagios sur les machines où une configuration pour Nagios est
-télé-déployée.
-La valeur lors d'une nouvelle installation est
-:file:`/var/lib/vigilo/connector-nagios/send.sock`, ce qui correspond à la
-valeur par défaut dans la configuration du connector-nagios.
-
 Emplacement du verrou
 ^^^^^^^^^^^^^^^^^^^^^
 Afin d'éviter un conflit lorsque plusieurs administrateurs du même parc

@@ -13,10 +13,6 @@ targetconfdir = @SYSCONFDIR@/vigilo/vigiconf
 ; Dossier contenant des modules complémentaires pour VigiConf.
 pluginsdir = @SYSCONFDIR@/vigilo/vigiconf/plugins
 
-; Emplacement du socket UNIX sur les machines
-; où le connecteur-nagios est installé.
-socket_nagios_to_vigilo = @LOCALSTATEDIR@/lib/vigilo/connector-nagios/send.sock
-
 ; Emplacement du fichier contenant le verrou de VigiConf.
 lockfile = @LOCALSTATEDIR@/lock/vigilo-vigiconf/vigiconf.token
 
