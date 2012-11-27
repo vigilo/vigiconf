@@ -1,13 +1,44 @@
-Source: vigiconf
-Section: vigilo
+Source: vigilo-vigiconf
+Section: python
 Priority: extra
-Maintainer: Aurélien BOMPARD <aurelien.bompard@c-s.fr>
-Build-Depends: debhelper (>= 5), dpatch
-Standards-Version: 3.7.2
+Maintainer: Vigilo Team <contact@projet-vigilo.org>
+Build-Depends:
+ debhelper (>= 7.0.50~),
+ python (>= 2.6.6-3~),
+ python-setuptools,
+ python-epydoc,
+ python-initgroups
+Standards-Version: 3.8.4
+Homepage: http://www.projet-vigilo.org/
+X-Python-Version: >= 2.5
 
-Package: vigiconf
+Package: vigilo-vigiconf
 Architecture: all
-Depends: python2.5, perl, subversion, openssh-client, tar, sec
-Description: Configuration manager for the supervision system
- This program generates and pushes the configuration for the
- applications used in the supervision system.
+Suggests: vigilo-vigiconf-doc
+Depends:
+ ${misc:Depends},
+ ${python:Depends},
+ perl,
+ subversion,
+ tar,
+ libxml2,
+ snmp,
+ sqlite3,
+ vigilo-models,
+ python-argparse,
+ python-lxml,
+ python-networkx
+Description: Configuration manager for Vigilo
+ This program generates and deploys the
+ configuration for the applications used
+ by Vigilo.
+
+Package: vigilo-vigiconf-doc
+Architecture: all
+Section: doc
+Depends: ${sphinxdoc:Depends} ${misc:Depends}
+Description: Configuration manager for Vigilo (documentation)
+ VigiConf generates and deploys the configuration
+ for the applications used by Vigilo.
+ .
+ This package contains documentation for VigiConf.

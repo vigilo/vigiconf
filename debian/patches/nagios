@@ -1,0 +1,22 @@
+Description: Nagios' service is called "nagios3" on Debian.
+Forwarded: not-needed.
+--- a/src/vigilo/vigiconf/applications/nagios/config.py
++++ b/src/vigilo/vigiconf/applications/nagios/config.py
+@@ -1,4 +1,4 @@
+ DEFAULTS = {
+-    "initname": "nagios",
+-    "nagios_bin": "nagios",
++    "initname": "nagios3",
++    "nagios_bin": "nagios3",
+ }
+--- a/src/vigilo/vigiconf/applications/nagios/validate.sh
++++ b/src/vigilo/vigiconf/applications/nagios/validate.sh
+@@ -23,7 +23,7 @@
+ LOCATION=$2
+ 
+ if [ "$LOCATION" = "local" ] ; then
+-    if ! ls /etc/init.d/nagios >/dev/null 2>&1; then
++    if ! ls /etc/init.d/nagios3 >/dev/null 2>&1; then
+         echo "Nagios is not installed"
+         exit 1
+     fi
