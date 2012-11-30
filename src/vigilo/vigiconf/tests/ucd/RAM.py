@@ -16,6 +16,11 @@ class RAM(Test):
         @param warn: WARNING threshold
         @param crit: CRITICAL threshold
         """
+        # Ces classes ont de meilleurs tests de RAM.
+        skipclasses = [ "bigip" ]
+        for skipclass in skipclasses:
+            if skipclass in self.host.classes:
+                return
         warn = self.as_float(warn)
         crit = self.as_float(crit)
 
