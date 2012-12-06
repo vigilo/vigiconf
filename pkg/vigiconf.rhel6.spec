@@ -75,7 +75,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{python_sitelib}/vigilo/%{module}/applications/*/*.sh
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
-%attr(-,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
+# Les autres utilisateurs du groupe peuvent prendre le verrou (cf. #1108).
+%attr(775,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
 
 
 %changelog
