@@ -329,9 +329,15 @@ La balise *host* peut contenir les balises suivantes :
 - ``test`` (0 ou plus)
 - ``tag`` (0 ou plus)
 - ``group`` (1 ou plus)
-- ``weight`` (0 ou 1)
-- ``default_service_weight`` (0 ou 1)
-- ``default_service_warning_weight`` (0 ou 1)
+
+..  ifconfig:: project.endswith('Enterprise')
+
+    Dans la version Entreprise de Vigilo, cette balise peut également contenir
+    les balises additionnelles suivantes :
+
+    - ``weight`` (0 ou 1)
+    - ``default_service_weight`` (0 ou 1)
+    - ``default_service_warning_weight`` (0 ou 1)
 
 
 Balise "``class``"
@@ -398,21 +404,28 @@ interrogation SNMP (voir à ce sujet le chapitre « :ref:`discover` »).
 Les noms d'attributs utilisables dépendent des tests de supervision installés
 avec VigiConf. Par défaut, les attributs suivants sont disponibles :
 
+- "``cpulist``" : la liste des identifiants des processeurs sur l'équipement ;
 - "``fans``" : la liste des identifiants des ventilateurs sur l'équipement ;
-- "``tempsensors``" : la liste des noms des sondes de température présentes
-  sur l'équipement ;
-- "``cpulist``" : la liste des identifiants des processeurs sur
-  l'équipement ;
 - "``snmpCommunity``" : la communauté pour l'accès SNMP à l'équipement ;
 - "``snmpVersion``" : la version SNMP à utiliser (par défaut, la version 2 est
   utilisée) ;
 - "``snmpPort``" : le port SNMP à utiliser (par défaut, le port 161 est
   utilisé) ;
-- "``oxe_login``": le nom d'utilisateur permettant de se connecter en Telnet à
-  l'hôte ;
-- "``oxe_password``": le mot de passe allant de pair avec le nom d'utilisateur
-  permettant de se connecter en Telnet à l'hôte ;
-- "``timeout``": délai d'attente utilisé lors de la connexion Telnet à l'hôte.
+- "``tempsensors``" : la liste des noms des sondes de température présentes
+  sur l'équipement.
+
+..  ifconfig:: project.endswith('Enterprise')
+
+    La version enterprise de Vigilo contient les attributs supplémentaires
+    suivants :
+
+    - "``oxe_login``": le nom d'utilisateur permettant de se connecter à l'hôte
+      en utilisant le protocole Telnet;
+    - "``oxe_password``": le mot de passe allant de paire avec le nom
+      d'utilisateur permettant de se connecter à l'hôte en utilisant le
+      protocole Telnet ;
+    - "``timeout``": délai d'attente utilisé lors des connexions Telnet
+      à l'hôte.
 
 
 .. _`configuration des tests d'un hôte`:
@@ -440,26 +453,28 @@ possède un attribut ``name`` obligatoire qui désigne le test de supervision
 à appliquer (par exemple : "``CPU``" pour superviser l'état du processeur d'un
 équipement).
 
-Elle accepte un attribut optionnel ``weight``, contenant un entier positif et permettant
-de configurer le poids apporté par les services techniques associés à ce test
-lorsqu'ils se trouvent dans un état supposé nominal (OK ou UNKNOWN).
-Ce poids est utilisé pour le calcul de l'état des
-:ref:`services de haut niveau <hlservices>`.
-Si cet attribut n'est pas configuré, le poids associé aux services techniques
-dans l'état OK ou UNKNOWN sera le même que celui configuré par l'attribut
-``default_service_weight`` (qui vaut 1 par défaut).
+..  ifconfig:: project.endswith('Enterprise')
 
-De même, elle accepte un attribut optionnel ``warning_weight``, contenant
-un entier positif et permettant de configurer le poids apporté par
-les services techniques associés à ce test lorsqu'ils se trouvent
-dans un état dégradé (WARNING).
-Ce poids est utilisé pour le calcul de l'état des
-:ref:`services de haut niveau <hlservices>`.
-Si cet attribut n'est pas configuré, le poids associé aux services techniques
-dans l'état WARNING sera le même que celui configuré par l'attibut
-``default_service_warning_weight`` (qui vaut 1 par défaut).
-La valeur configurée dans cet attribut doit toujours être inférieure ou égale
-à celle configurée dans l'attribut ``weight``.
+    Elle accepte un attribut optionnel ``weight``, contenant un entier positif et permettant
+    de configurer le poids apporté par les services techniques associés à ce test
+    lorsqu'ils se trouvent dans un état supposé nominal (OK ou UNKNOWN).
+    Ce poids est utilisé pour le calcul de l'état des
+    :ref:`services de haut niveau <hlservices>`.
+    Si cet attribut n'est pas configuré, le poids associé aux services techniques
+    dans l'état OK ou UNKNOWN sera le même que celui configuré par l'attribut
+    ``default_service_weight`` (qui vaut 1 par défaut).
+
+    De même, elle accepte un attribut optionnel ``warning_weight``, contenant
+    un entier positif et permettant de configurer le poids apporté par
+    les services techniques associés à ce test lorsqu'ils se trouvent
+    dans un état dégradé (WARNING).
+    Ce poids est utilisé pour le calcul de l'état des
+    :ref:`services de haut niveau <hlservices>`.
+    Si cet attribut n'est pas configuré, le poids associé aux services techniques
+    dans l'état WARNING sera le même que celui configuré par l'attibut
+    ``default_service_warning_weight`` (qui vaut 1 par défaut).
+    La valeur configurée dans cet attribut doit toujours être inférieure ou égale
+    à celle configurée dans l'attribut ``weight``.
 
 Un test accepte généralement zéro, un ou plusieurs arguments, qui doivent être
 passés dans l'ordre lors de la déclaration du test, à l'aide de la balise
@@ -501,11 +516,14 @@ ci-dessous pour plus d'informations.
     Si le même argument est défini deux fois, seule la dernière valeur sera
     utilisée.
 
-..  note::
-    Vigilo est optimiste quant à l'état des éléments du parc. De fait, la
-    valeur de l'attribut "``weight``" est utilisée aussi bien lorsque
-    le service se trouve dans l'état OK (état nominal) que lorsqu'il se trouve
-    dans l'état UNKNOWN (état inconnu, supposé nominal).
+..  ifconfig:: project.endswith('Enterprise')
+
+    ..  note::
+        Vigilo est optimiste quant à l'état des éléments du parc.
+        De fait, la valeur de l'attribut "``weight``" est utilisée aussi
+        bien lorsque le service se trouve dans l'état OK (état nominal)
+        que lorsqu'il se trouve dans l'état UNKNOWN (état inconnu,
+        supposé nominal).
 
 
 .. _nagiostag:
@@ -607,37 +625,40 @@ première forme s'appliquent également ici.
     l'attribut *ventilation* de la balise *host* afin de spécifier manuellement
     le groupe de ventilation à utiliser.
 
-Balise "``weight``"
-^^^^^^^^^^^^^^^^^^^
-Syntaxe:
+..  ifconfig:: project.endswith('Enterprise')
 
-..  sourcecode:: xml
+    Balise "``weight``"
+    ^^^^^^^^^^^^^^^^^^^
+    Syntaxe:
 
-    <weight>valeur</weight>
+    ..  sourcecode:: xml
 
-La balise ``weight`` permet de paramétrer le poids affecté à un hôte.
+        <weight>valeur</weight>
 
-Balise "``default_service_weight``"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Syntaxe:
+    La balise ``weight`` permet de paramétrer le poids affecté à un hôte.
 
-..  sourcecode:: xml
+    Balise "``default_service_weight``"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Syntaxe:
 
-    <default_service_weight>valeur</default_service_weight>
+    ..  sourcecode:: xml
 
-La balise ``default_service_weight`` permet d'affecter un poids par défaut aux
-services de l'hôte.
+        <default_service_weight>valeur</default_service_weight>
 
-Balise "``default_service_warning_weight``"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Syntaxe:
+    La balise ``default_service_weight`` permet d'affecter un poids par défaut aux
+    services de l'hôte.
 
-..  sourcecode:: xml
+    Balise "``default_service_warning_weight``"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Syntaxe:
 
-    <default_service_warning_weight>valeur</default_service_warning_weight>
+    ..  sourcecode:: xml
 
-La balise ``default_service_warning_weight`` permet d'affecter un poids par
-défaut aux services de l'hôte lorsque ceux-ci sont dans l'état WARNING.
+        <default_service_warning_weight>valeur</default_service_warning_weight>
+
+    La balise ``default_service_warning_weight`` permet d'affecter un poids par
+    défaut aux services de l'hôte lorsque ceux-ci sont dans l'état WARNING.
+
 
 Remarques
 ^^^^^^^^^
@@ -741,11 +762,18 @@ Exemple:
 
 Balise "``test``"
 ^^^^^^^^^^^^^^^^^
-Un bloc de données ``test`` possède les attributs suivants :
+
+Un bloc de données ``test`` possède l'attribut suivant :
 
 - ``name`` (1 exactement)
-- ``weight`` (0 ou 1 exactement)
-- ``warning_weight`` (0 ou 1 exactement)
+
+..  ifconfig:: project.endswith('Enterprise')
+
+    Dans la version Entreprise de Vigilo, les attributs additionnels
+    suivants sont utilisables :
+
+    - ``weight`` (0 ou 1 exactement)
+    - ``warning_weight`` (0 ou 1 exactement)
 
 Un bloc de données ``test`` contient les blocs suivants, dans l'ordre :
 
@@ -755,11 +783,20 @@ Un bloc de données ``test`` contient les blocs suivants, dans l'ordre :
 Reportez-vous à la documentation sur la `configuration des tests d'un hôte`_
 pour plus d'information sur les attributs et blocs acceptés par cette balise.
 
-Exemple:
+..  ifconfig:: not project.endswith('Enterprise')
+
+    Exemple:
+
+..  ifconfig:: project.endswith('Enterprise')
+
+    Exemples:
+
+    ..  sourcecode:: xml
+
+        <test name="Errpt" weight="42"/>
 
 ..  sourcecode:: xml
 
-    <test name="Errpt" weight="42"/>
     <test name="Proc">
       <arg name="label">aixmibd</arg>
       <arg name="processname">.*aixmibd .*</arg>
@@ -793,57 +830,59 @@ qui envoie une alerte lorsque la durée de fonctionnement d'une machine est trop
 faible (c'est-à-dire lorsqu'elle a été redémarrée récemment).
 
 
-Dossier "``topologies``"
-------------------------
+..  ifconfig:: project.endswith('Enterprise')
 
-Le dossier "``topologies``" contient les fichiers de définition des dépendances
-topologiques. Tous les fichiers XML de ce dossier sont analysés et doivent
-contenir la définition d'une ou plusieurs dépendances.
+    Dossier "``topologies``"
+    ------------------------
 
-La balise à la racine de ce document se nomme "``topologies``" et peut contenir
-un ou plusieurs blocs "``topology``", correspondant chacun à la définition d'un
-groupe de dépendances.
+    Le dossier "``topologies``" contient les fichiers de définition des dépendances
+    topologiques. Tous les fichiers XML de ce dossier sont analysés et doivent
+    contenir la définition d'une ou plusieurs dépendances.
 
-Le fragment de code suivant rappelle la structure générale du fichier:
+    La balise à la racine de ce document se nomme "``topologies``" et peut contenir
+    un ou plusieurs blocs "``topology``", correspondant chacun à la définition d'un
+    groupe de dépendances.
 
-..  sourcecode:: xml
+    Le fragment de code suivant rappelle la structure générale du fichier:
 
-    <?xml version="1.0"?>
-    <topologies>
-      <topology attr1="..." attr2="..." attrN="..."> ... </topology>
-      <topology attr1="..." attr2="..." attrN="..."> ... </topology>
-      ...
-    </topologies>
+    ..  sourcecode:: xml
 
-Balise "``topology``"
-^^^^^^^^^^^^^^^^^^^^^
-Un bloc de données ``topology`` possède les attributs suivants :
+        <?xml version="1.0"?>
+        <topologies>
+          <topology attr1="..." attr2="..." attrN="..."> ... </topology>
+          <topology attr1="..." attr2="..." attrN="..."> ... </topology>
+          ...
+        </topologies>
 
-- ``host`` : le nom de l'hôte auquel ajouter des dépendances.
-- ``service`` (optionnel) : le nom du service auquel ajouter des dépendances.
-  Si cet attribut est omis, les dépendances portent directement sur l'hôte
-  indiqué par l'attribut ``host``.
+    Balise "``topology``"
+    ^^^^^^^^^^^^^^^^^^^^^
+    Un bloc de données ``topology`` possède les attributs suivants :
 
-Cette balise peut contenir 1 ou plusieurs balises "``depends``" indiquant de
-quoi cet élément dépend. La balise "``depends``" possède deux attributs :
+    - ``host`` : le nom de l'hôte auquel ajouter des dépendances.
+    - ``service`` (optionnel) : le nom du service auquel ajouter des dépendances.
+      Si cet attribut est omis, les dépendances portent directement sur l'hôte
+      indiqué par l'attribut ``host``.
 
-- ``host`` : le nom de l'hôte duquel cet élément dépend.
-- ``service`` (optionnel) : le nom du service duquel dépend cet élément. Si cet
-  attribut est omis, l'élément dépend directement de l'hôte indiqué par
-  l'attribut ``host`` de cette balise.
+    Cette balise peut contenir 1 ou plusieurs balises "``depends``" indiquant de
+    quoi cet élément dépend. La balise "``depends``" possède deux attributs :
 
-Exemple:
+    - ``host`` : le nom de l'hôte duquel cet élément dépend.
+    - ``service`` (optionnel) : le nom du service duquel dépend cet élément. Si cet
+      attribut est omis, l'élément dépend directement de l'hôte indiqué par
+      l'attribut ``host`` de cette balise.
 
-..  sourcecode:: xml
+    Exemple:
 
-    <topology host="host1" service="service1">
-      <depends host="router.example.com" />
-      <depends host="router2.example.com" service="Interface eth0" />
-    </topology>
+    ..  sourcecode:: xml
 
-Dans cet exemple, le service "``service1``" de l'hôte "``host1``" est marqué
-comme dépendant de l'hôte "``router.example.com``" (un routeur) et du service
-"``Interface eth0``" de l'hôte "``router2.example.com``" (un second routeur).
+        <topology host="host1" service="service1">
+          <depends host="router.example.com" />
+          <depends host="router2.example.com" service="Interface eth0" />
+        </topology>
+
+    Dans cet exemple, le service "``service1``" de l'hôte "``host1``" est marqué
+    comme dépendant de l'hôte "``router.example.com``" (un routeur) et du service
+    "``Interface eth0``" de l'hôte "``router2.example.com``" (un second routeur).
 
 
 Dossier "``groups``"
@@ -919,297 +958,299 @@ de l'arborescence, comme dans l'exemple ci-dessous:
 Notez que chacun des "``group1``" correspond à un groupe différent.
 
 
-..  _`hlservices`:
+..  ifconfig:: project.endswith('Enterprise')
 
-Dossier "``hlservices``"
-------------------------
+    ..  _`hlservices`:
 
-Le dossier "``hlservices``" contient les fichiers de définition des services de
-haut niveau. Tous les fichiers XML de ce dossier sont analysés et doivent
-contenir la définition d'un ou plusieurs services de haut niveau.
+    Dossier "``hlservices``"
+    ------------------------
 
-Un service de haut niveau permet de représenter un élément virtuel du parc,
-c'est-à-dire pour lequel il n'y a pas de test direct possible. Les services de
-haut niveau sont généralement utilisés pour représenter un mécanisme
-d'équilibrage de charge (load-balancing) ou de redondance (failover) entre des
-équipements du parc.
+    Le dossier "``hlservices``" contient les fichiers de définition des services de
+    haut niveau. Tous les fichiers XML de ce dossier sont analysés et doivent
+    contenir la définition d'un ou plusieurs services de haut niveau.
 
-La balise à la racine de ce document se nomme "``hlservice``" et peut contenir
-un ou plusieurs blocs "``hlservice``", correspondant chacun à la définition
-d'un groupe d'éléments supervisés.
+    Un service de haut niveau permet de représenter un élément virtuel du parc,
+    c'est-à-dire pour lequel il n'y a pas de test direct possible. Les services de
+    haut niveau sont généralement utilisés pour représenter un mécanisme
+    d'équilibrage de charge (load-balancing) ou de redondance (failover) entre des
+    équipements du parc.
 
-Le fragment de code suivant rappelle la structure générale du fichier:
+    La balise à la racine de ce document se nomme "``hlservice``" et peut contenir
+    un ou plusieurs blocs "``hlservice``", correspondant chacun à la définition
+    d'un groupe d'éléments supervisés.
 
-..  sourcecode:: xml
+    Le fragment de code suivant rappelle la structure générale du fichier:
 
-    <?xml version="1.0"?>
-    <hlservices>
-      <hlservice attr1="..." attr2="..." attrN="..."> ... </hlservice>
-      <hlservice attr1="..." attr2="..." attrN="..."> ... </hlservice>
-      ...
-    </hlservices>
+    ..  sourcecode:: xml
 
-Balise "``hlservice``"
-^^^^^^^^^^^^^^^^^^^^^^
-Un bloc de données ``hlservice`` possède un attribut: ``name``.
+        <?xml version="1.0"?>
+        <hlservices>
+          <hlservice attr1="..." attr2="..." attrN="..."> ... </hlservice>
+          <hlservice attr1="..." attr2="..." attrN="..."> ... </hlservice>
+          ...
+        </hlservices>
 
-Un bloc de données ``hlservice`` contient les blocs de données suivants, dans l'ordre :
+    Balise "``hlservice``"
+    ^^^^^^^^^^^^^^^^^^^^^^
+    Un bloc de données ``hlservice`` possède un attribut: ``name``.
 
-- message (1 exactement)
-- warning_threshold (1 exactement)
-- critical_threshold (1 exactement)
-- unknown_priority (0 ou 1 exactement)
-- warning_priority (0 ou 1 exactement)
-- critical_priority (0 ou 1 exactement)
-- operator (1 exactement)
-- weight (0 ou 1 exactement)
-- warning_weight (0 ou 1 exactement)
-- group (0 ou plus)
-- depends (1 ou plus)
+    Un bloc de données ``hlservice`` contient les blocs de données suivants, dans l'ordre :
 
-.. sourcecode:: xml
+    - message (1 exactement)
+    - warning_threshold (1 exactement)
+    - critical_threshold (1 exactement)
+    - unknown_priority (0 ou 1 exactement)
+    - warning_priority (0 ou 1 exactement)
+    - critical_priority (0 ou 1 exactement)
+    - operator (1 exactement)
+    - weight (0 ou 1 exactement)
+    - warning_weight (0 ou 1 exactement)
+    - group (0 ou plus)
+    - depends (1 ou plus)
 
-    <hlservice name="hlservice1">
-      <message>Message à afficher</message>
-      <warning_threshold>20</warning_threshold>
-      <critical_threshold>10</critical_threshold>
-      <unknown_priority>8</unknown_priority>
-      <warning_priority>6</warning_priority>
-      <critical_priority>10</critical_priority>
-      <operator>PLUS</operator>
-      <weight>42</weight>
-      <warning_weight>21</warning_weight>
-      <group>hlsgroup1</group>
-      <group>hlsgroup2</group>
-      <depends host="routeur1.example.com" service="Interface eth0"/>
-    </hlservice>
+    .. sourcecode:: xml
 
-Balise "``message``"
-^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``message`` contient une chaîne de caractère libre. Il
-s'agit du message à afficher lorsque le service passe dans un état autre que
-OK.
+        <hlservice name="hlservice1">
+          <message>Message à afficher</message>
+          <warning_threshold>20</warning_threshold>
+          <critical_threshold>10</critical_threshold>
+          <unknown_priority>8</unknown_priority>
+          <warning_priority>6</warning_priority>
+          <critical_priority>10</critical_priority>
+          <operator>PLUS</operator>
+          <weight>42</weight>
+          <warning_weight>21</warning_weight>
+          <group>hlsgroup1</group>
+          <group>hlsgroup2</group>
+          <depends host="routeur1.example.com" service="Interface eth0"/>
+        </hlservice>
 
-Exemple:
+    Balise "``message``"
+    ^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``message`` contient une chaîne de caractère libre. Il
+    s'agit du message à afficher lorsque le service passe dans un état autre que
+    OK.
 
-..  sourcecode:: xml
+    Exemple:
 
-    <message>Le service %(service)s a changé d'état</message>
+    ..  sourcecode:: xml
 
-Vous pouvez également utiliser l'une des variables de substitution suivante :
+        <message>Le service %(service)s a changé d'état</message>
 
-%(state)s
-    L'état du service de haut niveau, sous forme de texte (ex : "``CRITICAL``").
+    Vous pouvez également utiliser l'une des variables de substitution suivante :
 
-%(service)s
-    Le nom du service de haut niveau (ex : "``hlservice1``").
+    %(state)s
+        L'état du service de haut niveau, sous forme de texte (ex : "``CRITICAL``").
 
-%(weight)r
-    Le poids courant associé a ce service de haut niveau sous forme d'entier ou
-    "``None``" s'il est inconnu.
+    %(service)s
+        Le nom du service de haut niveau (ex : "``hlservice1``").
 
-%(critical_threshold)d
-    Le seuil sous lequel les alertes passent dans l'état "``CRITICAL``".
+    %(weight)r
+        Le poids courant associé a ce service de haut niveau sous forme d'entier ou
+        "``None``" s'il est inconnu.
 
-%(warning_threshold)d
-    Le seuil sous lequel les alertes passent dans l'état "``WARNING``".
+    %(critical_threshold)d
+        Le seuil sous lequel les alertes passent dans l'état "``CRITICAL``".
 
-%(operator)s
-    L'opérateur de dépendance du service de haut niveau. Vaut "``+``" pour le
-    type ``PLUS``, "``&``" pour le type ``AND`` ou "``|``" pour le type ``OR``.
+    %(warning_threshold)d
+        Le seuil sous lequel les alertes passent dans l'état "``WARNING``".
 
-%(active_deps)r
-    Le nombre de dépendances encore fonctionnelles de ce service de haut niveau
-    ou "``None``" si inconnu.
+    %(operator)s
+        L'opérateur de dépendance du service de haut niveau. Vaut "``+``" pour le
+        type ``PLUS``, "``&``" pour le type ``AND`` ou "``|``" pour le type ``OR``.
 
-%(total_deps)d
-    Le nombre de dépendances totales de ce service de haut niveau,
-    sous forme d'entier.
+    %(active_deps)r
+        Le nombre de dépendances encore fonctionnelles de ce service de haut niveau
+        ou "``None``" si inconnu.
 
-%(dep_hostname)s
-    Le nom de l'hôte de la dépendance qui a entraîné un changement de l'état
-    de ce service de haut niveau. Si la dépendance qui a entraîné le changement
-    d'état est un autre service de haut niveau, ce champ vaudra ``None``.
+    %(total_deps)d
+        Le nombre de dépendances totales de ce service de haut niveau,
+        sous forme d'entier.
 
-%(dep_servicename)s
-    Le nom du service de la dépendance qui a entraîné un changement de l'état
-    de ce service de haut niveau. Si la dépendance qui a entraîné le changement
-    d'état est un hôte, ce champ vaudra ``None``.
+    %(dep_hostname)s
+        Le nom de l'hôte de la dépendance qui a entraîné un changement de l'état
+        de ce service de haut niveau. Si la dépendance qui a entraîné le changement
+        d'état est un autre service de haut niveau, ce champ vaudra ``None``.
 
-Balise "``warning_threshold``"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``warning_threshold`` contient un entier, correspondant au
-seuil sous lequel le service de haut niveau passe dans l'état WARNING.
+    %(dep_servicename)s
+        Le nom du service de la dépendance qui a entraîné un changement de l'état
+        de ce service de haut niveau. Si la dépendance qui a entraîné le changement
+        d'état est un hôte, ce champ vaudra ``None``.
 
-Exemple:
+    Balise "``warning_threshold``"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``warning_threshold`` contient un entier, correspondant au
+    seuil sous lequel le service de haut niveau passe dans l'état WARNING.
 
-..  sourcecode:: xml
+    Exemple:
 
-    <warning_threshold>2</warning_threshold>
+    ..  sourcecode:: xml
 
-Balise "``critical_threshold``"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``critical_threshold`` contient un entier, correspondant au
-seuil sous lequel le service de haut niveau passe dans l'état CRITICAL.
+        <warning_threshold>2</warning_threshold>
 
-Exemple:
+    Balise "``critical_threshold``"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``critical_threshold`` contient un entier, correspondant au
+    seuil sous lequel le service de haut niveau passe dans l'état CRITICAL.
 
-..  sourcecode:: xml
+    Exemple:
 
-    <critical_threshold>1</critical_threshold>
+    ..  sourcecode:: xml
 
-Balise "``unknown_priority``"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``unknown_priority`` contient un entier, correspondant
-à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
-l'état ``UNKNOWN``.
+        <critical_threshold>1</critical_threshold>
 
-Exemple:
+    Balise "``unknown_priority``"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``unknown_priority`` contient un entier, correspondant
+    à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
+    l'état ``UNKNOWN``.
 
-..  sourcecode:: xml
+    Exemple:
 
-    <unknown_priority>4<unknown_priority/>
+    ..  sourcecode:: xml
 
-Cette valeur est utilisée pour déterminer la priorités des alertes et
-influencer l'ordre d'apparition des alertes dans le bac à événements
-(VigiBoard).
+        <unknown_priority>4<unknown_priority/>
 
-Balise "``warning_priority``"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``unknown_priority`` contient un entier, correspondant
-à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
-l'état ``WARNING``.
+    Cette valeur est utilisée pour déterminer la priorités des alertes et
+    influencer l'ordre d'apparition des alertes dans le bac à événements
+    (VigiBoard).
 
-Exemple:
+    Balise "``warning_priority``"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``unknown_priority`` contient un entier, correspondant
+    à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
+    l'état ``WARNING``.
 
-..  sourcecode:: xml
+    Exemple:
 
-    <warning_priority>4<warning_priority/>
+    ..  sourcecode:: xml
 
-Cette valeur est utilisée pour déterminer la priorités des alertes et
-influencer l'ordre d'apparition des alertes dans le bac à événements
-(VigiBoard).
+        <warning_priority>4<warning_priority/>
 
-Balise "``critical_priority``"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``unknown_priority`` contient un entier, correspondant
-à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
-l'état ``CRITICAL``.
+    Cette valeur est utilisée pour déterminer la priorités des alertes et
+    influencer l'ordre d'apparition des alertes dans le bac à événements
+    (VigiBoard).
 
-Exemple:
+    Balise "``critical_priority``"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``unknown_priority`` contient un entier, correspondant
+    à la priorité associée à ce serveur de niveau lorsque celui-ci passe dans
+    l'état ``CRITICAL``.
 
-..  sourcecode:: xml
+    Exemple:
 
-    <critical_priority>4<critical_priority/>
+    ..  sourcecode:: xml
 
-Cette valeur est utilisée pour déterminer la priorités des alertes et
-influencer l'ordre d'apparition des alertes dans le bac à événements
-(VigiBoard).
+        <critical_priority>4<critical_priority/>
 
-Balise "``operator``"
-^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``operator`` décrit le type d'opération appliquée
-aux dépendances de ce service de haut niveau, parmi les valeurs suivantes :
+    Cette valeur est utilisée pour déterminer la priorités des alertes et
+    influencer l'ordre d'apparition des alertes dans le bac à événements
+    (VigiBoard).
 
-"``PLUS``" ou "``+``"
-    Le poids courant du service de haut niveau correspond à la somme des poids
-    de ses dépendances actives. Ce type de dépendance permet de représenter
-    une situation de répartition de charge.
+    Balise "``operator``"
+    ^^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``operator`` décrit le type d'opération appliquée
+    aux dépendances de ce service de haut niveau, parmi les valeurs suivantes :
 
-"``OR``" ou "``|``"
-    Le poids courant du service de haut niveau correspond au maximum des poids
-    de ses dépendances actives. Ce type de dépendance permet de représenter
-    une situation de redondance (haute-disponibilité).
+    "``PLUS``" ou "``+``"
+        Le poids courant du service de haut niveau correspond à la somme des poids
+        de ses dépendances actives. Ce type de dépendance permet de représenter
+        une situation de répartition de charge.
 
-"``AND``" ou "``&amp;``"
-    Le poids courant du service de haut niveau correspond au minimum des poids
-    de ses dépendances actives. Ce type de dépendance permet de décrire
-    des dépendances fonctionnelles et d'être averti rapidement lorsque l'une
-    des dépendances du service de haut niveau tombe en panne.
+    "``OR``" ou "``|``"
+        Le poids courant du service de haut niveau correspond au maximum des poids
+        de ses dépendances actives. Ce type de dépendance permet de représenter
+        une situation de redondance (haute-disponibilité).
+
+    "``AND``" ou "``&amp;``"
+        Le poids courant du service de haut niveau correspond au minimum des poids
+        de ses dépendances actives. Ce type de dépendance permet de décrire
+        des dépendances fonctionnelles et d'être averti rapidement lorsque l'une
+        des dépendances du service de haut niveau tombe en panne.
+
+        ..  note::
+            Cet opérateur est représenté par le symbole "``&``".
+            Néanmoins, ce symbole joue un rôle spécial en XML et doit donc être
+            échappé (représenté par une entité XML) avant d'être utilisé, comme
+            dans l'exemple suivant :
+
+            ..  sourcecode:: xml
+
+                <operator>&amp;</operator>
+
+    Balise "``weight``"
+    ^^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``weight`` contient le poids apporté par ce service de haut
+    niveau lorsqu'il se trouve dans un état supposé nominal. La valeur indiquée
+    dans cette balise doit être un entier positif. La valeur par défaut lorsque
+    la balise est absente est 1.
+
+    Exemple:
+
+    ..  sourcecode:: xml
+
+        <weight>42</weight>
 
     ..  note::
-        Cet opérateur est représenté par le symbole "``&``".
-        Néanmoins, ce symbole joue un rôle spécial en XML et doit donc être
-        échappé (représenté par une entité XML) avant d'être utilisé, comme
-        dans l'exemple suivant :
+        Vigilo est optimiste quant à l'état des éléments du parc.
+        De fait, cette valeur est utilisée aussi bien lorsque le service se
+        trouve dans l'état OK (état nominal) que lorsqu'il se trouve dans
+        l'état UNKNOWN (état inconnu, supposé nominal).
 
-        ..  sourcecode:: xml
+    Balise "``warning_weight``"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``warning_weight`` contient le poids apporté par ce service
+    de haut niveau lorsqu'il se trouve dans un état dégradé (WARNING).
+    La valeur indiquée dans cette balise doit être un entier positif, inférieur
+    ou égal à celui donné dans la balise ``weight``. La valeur par défaut lorsque
+    la balise est absente est la même que pour la balise ``weight``.
 
-            <operator>&amp;</operator>
+    Exemple:
 
-Balise "``weight``"
-^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``weight`` contient le poids apporté par ce service de haut
-niveau lorsqu'il se trouve dans un état supposé nominal. La valeur indiquée
-dans cette balise doit être un entier positif. La valeur par défaut lorsque
-la balise est absente est 1.
+    ..  sourcecode:: xml
 
-Exemple:
+        <warning_weight>42</warning_weight>
 
-..  sourcecode:: xml
+    Balise "``group``"
+    ^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``group`` contient le nom du groupe auquel ce service de
+    haut niveau appartient.
 
-    <weight>42</weight>
+    Exemple:
 
-..  note::
-    Vigilo est optimiste quant à l'état des éléments du parc. De fait, cette
-    valeur est utilisée aussi bien lorsque le service se trouve dans l'état
-    OK (état nominal) que lorsqu'il se trouve dans l'état UNKNOWN (état inconnu,
-    supposé nominal).
+    ..  sourcecode:: xml
 
-Balise "``warning_weight``"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``warning_weight`` contient le poids apporté par ce service
-de haut niveau lorsqu'il se trouve dans un état dégradé (WARNING).
-La valeur indiquée dans cette balise doit être un entier positif, inférieur
-ou égal à celui donné dans la balise ``weight``. La valeur par défaut lorsque
-la balise est absente est la même que pour la balise ``weight``.
+        <group>hlsgroup1</group>
 
-Exemple:
+    Balise "``depends``"
+    ^^^^^^^^^^^^^^^^^^^^
+    Le bloc de données ``depends`` correspond à la description d'une dépendance de
+    ce service de haut niveau. Il possède deux attributs :
 
-..  sourcecode:: xml
+    - ``host`` : (optionnel) le nom de l'hôte dont dépend ce service de haut
+      niveau. Si omis, alors ce service de haut niveau dépend d'un autre service de
+      haut niveau dont le nom est donné par l'attribut ``service``.
+    - ``service`` : (optionnel) le nom du service dont dépend ce service de haut
+      niveau. Si omis, alors ce service de haut niveau dépend directement de l'hôte
+      dont le nom est donné par l'attribut ``host``.
 
-    <warning_weight>42</warning_weight>
+    Exemple d'une dépendance sur un hôte:
 
-Balise "``group``"
-^^^^^^^^^^^^^^^^^^
-Le bloc de données ``group`` contient le nom du groupe auquel ce service de
-haut niveau appartient.
+    ..  sourcecode:: xml
 
-Exemple:
+        <depends host="foo.example.com"/>
 
-..  sourcecode:: xml
+    Exemple d'une dépendance sur un service technique (de bas niveau):
 
-    <group>hlsgroup1</group>
+    ..  sourcecode: xml
 
-Balise "``depends``"
-^^^^^^^^^^^^^^^^^^^^
-Le bloc de données ``depends`` correspond à la description d'une dépendance de
-ce service de haut niveau. Il possède deux attributs :
+        <depends host="router.example.com" service="Interface eth0"/>
 
-- ``host`` : (optionnel) le nom de l'hôte dont dépend ce service de haut
-  niveau. Si omis, alors ce service de haut niveau dépend d'un autre service de
-  haut niveau dont le nom est donné par l'attribut ``service``.
-- ``service`` : (optionnel) le nom du service dont dépend ce service de haut
-  niveau. Si omis, alors ce service de haut niveau dépend directement de l'hôte
-  dont le nom est donné par l'attribut ``host``.
+    Exemple d'une dépendance sur un autre service de haut niveau:
 
-Exemple d'une dépendance sur un hôte:
+    ..  sourcecode:: xml
 
-..  sourcecode:: xml
-
-    <depends host="foo.example.com"/>
-
-Exemple d'une dépendance sur un service technique (de bas niveau):
-
-..  sourcecode: xml
-
-    <depends host="router.example.com" service="Interface eth0"/>
-
-Exemple d'une dépendance sur un autre service de haut niveau:
-
-..  sourcecode:: xml
-
-    <depends service="hlservice2"/>
+        <depends service="hlservice2"/>
 
 
 
@@ -1294,115 +1335,117 @@ Le rôle de chacun de ces attributs est précisé ci-dessous :
   préfixant la valeur par "``0x``".
 
 
-Détection de la corruption de la base de données de Vigilo
-----------------------------------------------------------
+..  ifconfig:: project.endswith('Enterprise')
 
-Le test "``VigiloDatabase``" permet de tester l'état de la base de données de
-Vigilo pour détecter d'éventuels problèmes (par exemple, une corruption des
-données).
+    Détection de la corruption de la base de données de Vigilo
+    ----------------------------------------------------------
 
-Il peut être utilisé depuis n'importe quelle machine capable de se connecter à
-la base de données. Nous recommandons cependant d'appliquer le test directement
-à la machine qui héberge la base de données, et ce afin de minimiser la durée
-d'exécution du test (latence du réseau).
+    Le test "``VigiloDatabase``" permet de tester l'état de la base de données de
+    Vigilo pour détecter d'éventuels problèmes (par exemple, une corruption des
+    données).
 
-Le listing suivant présente un exemple de configuration de ce test:
+    Il peut être utilisé depuis n'importe quelle machine capable de se connecter à
+    la base de données. Nous recommandons cependant d'appliquer le test directement
+    à la machine qui héberge la base de données, et ce afin de minimiser la durée
+    d'exécution du test (latence du réseau).
 
-..  sourcecode:: xml
+    Le listing suivant présente un exemple de configuration de ce test:
 
-    <test name="VigiloDatabase">
-      <arg name="command">
-        psql -Anqt -c "%s" "user=vigilo dbname=vigilo host=localhost"
-      </arg>
-      <arg name="strict">True</arg>
-      <arg name="force">True</arg>
-      <arg name="prefix">vigilo_</arg>
-    </test>
+    ..  sourcecode:: xml
 
-Les paramètres de ce test sont :
+        <test name="VigiloDatabase">
+          <arg name="command">
+            psql -Anqt -c "%s" "user=vigilo dbname=vigilo host=localhost"
+          </arg>
+          <arg name="strict">True</arg>
+          <arg name="force">True</arg>
+          <arg name="prefix">vigilo_</arg>
+        </test>
 
-- La commande (paramètre "``command``") à utiliser pour se connecter à la base
-  de données depuis la ligne de commande. Cette commande **DOIT** contenir
-  toutes les informations nécessaires pour se connecter à la base de données
-  (nom d'utilisateur, adresse de la machine, port du serveur de base de données
-  si différent du port par défaut, nom de la base de données, mot de passe),
-  ainsi que les options permettant d'obtenir un formatage "``brut``" des
-  résultats (dans le cas de PostgreSQL, les options "``-Anqt``" ont cet effet).
-  Enfin, la commande passée en paramètre **DOIT** contenir la séquence de
-  formatage « %s » et les options permettant de passer une requête SQL à la
-  commande sur la ligne de commande (pour PostgreSQL, il s'agit de l'option
-  "``-c``"). La séquence « %s » sera remplacée dynamiquement par une série de
-  requêtes SQL destinées à vérifier l'intégrité de la base de données.
-- Un drapeau optionnel (paramètre "``strict``") qui indique le comportement à
-  adopter lorsque des éléments inattendus sont trouvés dans le schéma de la
-  base de données (par exemple, des tables/vues supplémentaires). Par défaut,
-  cette option vaut *False*. Lorsque ce drapeau est actif, la présence d'objets
-  supplémentaires lève un avertissement (WARNING) dans Nagios et Vigilo.
+    Les paramètres de ce test sont :
 
-  ..    warning::
-        N'activez pas ce drapeau lorsque vous utilisez un modèle personnalisé
-        pour Vigilo (par exemple, intégrant des tables de liaison vers d'autres
-        outils). Dans le cas contraire, un avertissement sera systématiquement
-        levé par ce test.
+    - La commande (paramètre "``command``") à utiliser pour se connecter à la base
+      de données depuis la ligne de commande. Cette commande **DOIT** contenir
+      toutes les informations nécessaires pour se connecter à la base de données
+      (nom d'utilisateur, adresse de la machine, port du serveur de base de données
+      si différent du port par défaut, nom de la base de données, mot de passe),
+      ainsi que les options permettant d'obtenir un formatage "``brut``" des
+      résultats (dans le cas de PostgreSQL, les options "``-Anqt``" ont cet effet).
+      Enfin, la commande passée en paramètre **DOIT** contenir la séquence de
+      formatage « %s » et les options permettant de passer une requête SQL à la
+      commande sur la ligne de commande (pour PostgreSQL, il s'agit de l'option
+      "``-c``"). La séquence « %s » sera remplacée dynamiquement par une série de
+      requêtes SQL destinées à vérifier l'intégrité de la base de données.
+    - Un drapeau optionnel (paramètre "``strict``") qui indique le comportement à
+      adopter lorsque des éléments inattendus sont trouvés dans le schéma de la
+      base de données (par exemple, des tables/vues supplémentaires). Par défaut,
+      cette option vaut *False*. Lorsque ce drapeau est actif, la présence d'objets
+      supplémentaires lève un avertissement (WARNING) dans Nagios et Vigilo.
 
-- Un drapeau optionnel (paramètre "``force``") qui permet de vérifier le schéma
-  pour des versions non supportées par le test. Lorsque ce drapeau est actif et
-  que la version du schéma de la base de données Vigilo n'est pas supportée par
-  ce test, la version la plus proche est utilisée pour effectuer les
-  vérificatiions.
+      ..    warning::
+            N'activez pas ce drapeau lorsque vous utilisez un modèle personnalisé
+            pour Vigilo (par exemple, intégrant des tables de liaison vers d'autres
+            outils). Dans le cas contraire, un avertissement sera systématiquement
+            levé par ce test.
 
-  ..    warning::
-        Ce drapeau doit être utilisé avec parcimonie. Ne l'utilisez que lorsque
-        le schéma de la base de données est en cours de migration vers une
-        nouvelle version et que la nouvelle version du test VigiloDatabase
-        n'a pas encore été déployée sur les serveurs de collecte pour prendre
-        en charge cette nouvelle version du schéma.
+    - Un drapeau optionnel (paramètre "``force``") qui permet de vérifier le schéma
+      pour des versions non supportées par le test. Lorsque ce drapeau est actif et
+      que la version du schéma de la base de données Vigilo n'est pas supportée par
+      ce test, la version la plus proche est utilisée pour effectuer les
+      vérificatiions.
 
-- Un préfixe optionnel (paramètre "``prefix``") utilisé devant les noms de
-  toutes les tables de Vigilo. Il s'agit du même préfixe que celui défini dans
-  l'option "``db_basename``" du fichier settings.ini de VigiConf (voir chapitre
-  ). Par défaut, la valeur de l'option "``db_basename``" dans le fichier de
-  configuration de VigiConf est utilisée automatiquement.
+      ..    warning::
+            Ce drapeau doit être utilisé avec parcimonie. Ne l'utilisez que lorsque
+            le schéma de la base de données est en cours de migration vers une
+            nouvelle version et que la nouvelle version du test VigiloDatabase
+            n'a pas encore été déployée sur les serveurs de collecte pour prendre
+            en charge cette nouvelle version du schéma.
 
-Mise en place des mails d'alertes pour les problèmes de bus
------------------------------------------------------------
+    - Un préfixe optionnel (paramètre "``prefix``") utilisé devant les noms de
+      toutes les tables de Vigilo. Il s'agit du même préfixe que celui défini dans
+      l'option "``db_basename``" du fichier settings.ini de VigiConf (voir chapitre
+      ). Par défaut, la valeur de l'option "``db_basename``" dans le fichier de
+      configuration de VigiConf est utilisée automatiquement.
 
-- Choisir le destinataire final (ex: ``foo@bar.com``)
+    Mise en place des mails d'alertes pour les problèmes de bus
+    -----------------------------------------------------------
 
-- Mise en place dans le fichier
-  :file:`/etc/nagios/vigilo.d/vigilo-enterprise.cfg`
-  du contact ``last-chance-contact`` il faut remplacer ``root@localhost`` par
-  le mail choisi:
+    - Choisir le destinataire final (ex: ``foo@bar.com``)
 
-..  sourcecode:: nagios
+    - Mise en place dans le fichier
+      :file:`/etc/nagios/vigilo.d/vigilo-enterprise.cfg`
+      du contact ``last-chance-contact`` il faut remplacer ``root@localhost`` par
+      le mail choisi:
 
-    define contact{
-        contact_name                    last-chance-contact
-        alias                           Contact urgence Vigilo
-        service_notification_period     24x7
-        host_notification_period        24x7
-        service_notification_options    w,u,c,r
-        host_notification_options       u,d,r
-        service_notification_commands   notify-service-by-email
-        host_notification_commands      notify-host-by-email
-        ; Remplacer "foo@bar.com" par l'adresse email du contact.
-        email                           foo@bar.com
-    }
+    ..  sourcecode:: nagios
 
-- Vérifier qu'un mail peut-être envoyé via la commande suivante remplaçant
-  l'adresse email par ce qui a été choisi:
+        define contact{
+            contact_name                    last-chance-contact
+            alias                           Contact urgence Vigilo
+            service_notification_period     24x7
+            host_notification_period        24x7
+            service_notification_options    w,u,c,r
+            host_notification_options       u,d,r
+            service_notification_commands   notify-service-by-email
+            host_notification_commands      notify-host-by-email
+            ; Remplacer "foo@bar.com" par l'adresse email du contact.
+            email                           foo@bar.com
+        }
 
-..  sourcecode:: bash
+    - Vérifier qu'un mail peut-être envoyé via la commande suivante remplaçant
+      l'adresse email par ce qui a été choisi:
 
-    echo testbody | /bin/mail -s testobject foo@bar.com
+    ..  sourcecode:: bash
 
-- Mise en place du template avec le contact pour le bus via les templates
-  suivant ``vigilo_bus`` il faudra importer dans la définition de l'hôte
-  utiliser le template comme ceci:
+        echo testbody | /bin/mail -s testobject foo@bar.com
 
-..  sourcecode:: xml
+    - Mise en place du template avec le contact pour le bus via les templates
+      suivant ``vigilo_bus`` il faudra importer dans la définition de l'hôte
+      utiliser le template comme ceci:
 
-    <template name="vigilo_bus"/>
+    ..  sourcecode:: xml
+
+        <template name="vigilo_bus"/>
 
 
 ..  : Inclusion de la documentation concernant
@@ -1614,216 +1657,218 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
     Ce message d'avertissement est affiché lorsque VigiConf est exécuté depuis
     le compte "``root``".
 
-Exemples de configurations d'hôtes particulières
-------------------------------------------------
+..  ifconfig:: project.endswith('Enterprise')
 
-Classes de Service (avec un seul niveau de classes)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Exemples de configurations d'hôtes particulières
+    ------------------------------------------------
 
-..  sourcecode:: xml
+    Classes de Service (avec un seul niveau de classes)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    <host name="_HOSTNAME_" address="X.X.X.X">
-      <class>cisco_ios</class>
-      <attribute name="QOS_mainClassName">
-        <item>mpls-RealTime|RT</item>
-        <item>class-default|DE</item>
-        <item>mpls-Brocade|BR</item>
-        <item>mpls-Bulk|BU</item>
-        <item>mpls-BestEffort|BE</item>
-      </attribute>
+    ..  sourcecode:: xml
 
-      <test name="Interface">
-        <arg name="ifname">eth0</arg>
-        <arg name="label">eth0</arg>
-      </test>
+        <host name="_HOSTNAME_" address="X.X.X.X">
+          <class>cisco_ios</class>
+          <attribute name="QOS_mainClassName">
+            <item>mpls-RealTime|RT</item>
+            <item>class-default|DE</item>
+            <item>mpls-Brocade|BR</item>
+            <item>mpls-Bulk|BU</item>
+            <item>mpls-BestEffort|BE</item>
+          </attribute>
 
-      <test name="QOS_Interface">
-        <arg name="ifname">TenGigabitEthernet4/0/0</arg>
-        <arg name="label">Te4/0/0 - QOS</arg>
-        <arg name="direction">OUT</arg>
-      </test>
-      <group>/Servers/Linux servers</group>
-    </host>
+          <test name="Interface">
+            <arg name="ifname">eth0</arg>
+            <arg name="label">eth0</arg>
+          </test>
 
-Classes de Service (avec 2 niveaux de classes)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          <test name="QOS_Interface">
+            <arg name="ifname">TenGigabitEthernet4/0/0</arg>
+            <arg name="label">Te4/0/0 - QOS</arg>
+            <arg name="direction">OUT</arg>
+          </test>
+          <group>/Servers/Linux servers</group>
+        </host>
 
-..  sourcecode:: xml
+    Classes de Service (avec 2 niveaux de classes)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    <host name="_HOSTNAME_" address="X.X.X.X">
-      <class>cisco_ios</class>
-      <attribute name="snmpCommunity">_SNMP_COMMUNITY_</attribute>
+    ..  sourcecode:: xml
 
-      <attribute name="QOS_mainClassName">
-        <item>Groupe_1|GR1</item>
-        <item>Groupe_2|GR2</item>
-        <item>Groupe_3|GR3</item>
-      </attribute>
+        <host name="_HOSTNAME_" address="X.X.X.X">
+          <class>cisco_ios</class>
+          <attribute name="snmpCommunity">_SNMP_COMMUNITY_</attribute>
 
-      <attribute name="QOS_subClassName">
-        <item>class-default</item>
-        <item>telephonie</item>
-        <item>Video_Bufferisee</item>
-        <item>Video&amp;Donnees_Contraintes</item>
-        <item>Services_Reseaux</item>
-      </attribute>
+          <attribute name="QOS_mainClassName">
+            <item>Groupe_1|GR1</item>
+            <item>Groupe_2|GR2</item>
+            <item>Groupe_3|GR3</item>
+          </attribute>
 
-      <test name="Interface">
-        <arg name="ifname">eth0</arg>
-        <arg name="label">eth0</arg>
-      </test>
+          <attribute name="QOS_subClassName">
+            <item>class-default</item>
+            <item>telephonie</item>
+            <item>Video_Bufferisee</item>
+            <item>Video&amp;Donnees_Contraintes</item>
+            <item>Services_Reseaux</item>
+          </attribute>
 
-      <test name="QOS_Interface">
-        <arg name="ifname">GigabitEthernet0/0</arg>
-        <arg name="label">GE0/1</arg>
-        <arg name="direction">OUT</arg>
-      </test>
-      <group>/Servers/Linux servers</group>
-    </host>
+          <test name="Interface">
+            <arg name="ifname">eth0</arg>
+            <arg name="label">eth0</arg>
+          </test>
 
-ToIP
-^^^^
+          <test name="QOS_Interface">
+            <arg name="ifname">GigabitEthernet0/0</arg>
+            <arg name="label">GE0/1</arg>
+            <arg name="direction">OUT</arg>
+          </test>
+          <group>/Servers/Linux servers</group>
+        </host>
 
-..  sourcecode:: xml
+    ToIP
+    ^^^^
 
-    <host name="_HOSTNAME_" address="X.X.X.X">
-      <class>toip</class>
-      <attribute name="oxe_login">gcharbon</attribute>
-      <attribute name="oxe_password">toor</attribute>
-      <attribute name="timeout">10</attribute>
-      <attribute name="prompt_timeout">5</attribute>
+    ..  sourcecode:: xml
 
-      <test name="Interface">
-        <arg name="label">eth0</arg>
-        <arg name="ifname">eth0</arg>
-      </test>
+        <host name="_HOSTNAME_" address="X.X.X.X">
+          <class>toip</class>
+          <attribute name="oxe_login">gcharbon</attribute>
+          <attribute name="oxe_password">toor</attribute>
+          <attribute name="timeout">10</attribute>
+          <attribute name="prompt_timeout">5</attribute>
 
-      <test name="Autocoms">
-        <!-- Identifiants des cristaux. -->
-        <arg name="crystals">
-            <item>42</item>
-            <item>47</item>
-        </arg>
-        <!-- Libellés associés à ces cristaux, dans le même ordre. -->
-        <arg name="labels">
-            <item>agence_42</item>
-            <item>agence_47</item>
-        </arg>
-      </test>
+          <test name="Interface">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+          </test>
 
-      <test name="TrunkAverage">
-        <!-- Identifiants des cristaux. -->
-        <arg name="crystals">
-            <item>205</item>
-            <item>207</item>
-            <item>208</item>
-        </arg>
-        <!-- Libellés associés à ces cristaux, dans le même ordre. -->
-        <arg name="labels">
-            <item>agence_205</item>
-            <item>agence_207</item>
-            <item>agence_208</item>
-        </arg>
-        <arg name="crit">42</arg>
-      </test>
+          <test name="Autocoms">
+            <!-- Identifiants des cristaux. -->
+            <arg name="crystals">
+                <item>42</item>
+                <item>47</item>
+            </arg>
+            <!-- Libellés associés à ces cristaux, dans le même ordre. -->
+            <arg name="labels">
+                <item>agence_42</item>
+                <item>agence_47</item>
+            </arg>
+          </test>
 
-      <test name="TrunkPlatinium">
-        <!-- Identifiants des cristaux. -->
-        <arg name="crystals">
-            <item>27</item>
-            <item>28</item>
-            <item>29</item>
-            <item>31</item>
-        </arg>
-        <!-- Libellés associés à ces cristaux, dans le même ordre. -->
-        <arg name="labels">
-            <item>agence_27</item>
-            <item>agence_28</item>
-            <item>agence_29</item>
-            <item>agence_31</item>
-        </arg>
-        <arg name="crit">42</arg>
-      </test>
+          <test name="TrunkAverage">
+            <!-- Identifiants des cristaux. -->
+            <arg name="crystals">
+                <item>205</item>
+                <item>207</item>
+                <item>208</item>
+            </arg>
+            <!-- Libellés associés à ces cristaux, dans le même ordre. -->
+            <arg name="labels">
+                <item>agence_205</item>
+                <item>agence_207</item>
+                <item>agence_208</item>
+            </arg>
+            <arg name="crit">42</arg>
+          </test>
 
-      <test name="OxeCard">
-        <!-- Identifiants des cristaux. -->
-        <arg name="crystals">
-            <item>42</item>
-            <item>47</item>
-            <item>49</item>
-        </arg>
-        <!-- Libellés associés à ces cristaux, dans le même ordre. -->
-        <arg name="labels">
-            <item>agence_42</item>
-            <item>agence_47</item>
-            <item>agence_49</item>
-        </arg>
-      </test>
+          <test name="TrunkPlatinium">
+            <!-- Identifiants des cristaux. -->
+            <arg name="crystals">
+                <item>27</item>
+                <item>28</item>
+                <item>29</item>
+                <item>31</item>
+            </arg>
+            <!-- Libellés associés à ces cristaux, dans le même ordre. -->
+            <arg name="labels">
+                <item>agence_27</item>
+                <item>agence_28</item>
+                <item>agence_29</item>
+                <item>agence_31</item>
+            </arg>
+            <arg name="crit">42</arg>
+          </test>
 
-      <test name="FreePosCard">
-        <arg name="hour">15:55:00</arg>
-      </test>
+          <test name="OxeCard">
+            <!-- Identifiants des cristaux. -->
+            <arg name="crystals">
+                <item>42</item>
+                <item>47</item>
+                <item>49</item>
+            </arg>
+            <!-- Libellés associés à ces cristaux, dans le même ordre. -->
+            <arg name="labels">
+                <item>agence_42</item>
+                <item>agence_47</item>
+                <item>agence_49</item>
+            </arg>
+          </test>
 
-      <test name="MevoCapacity">
-        <arg name="crit">42</arg>
-      </test>
+          <test name="FreePosCard">
+            <arg name="hour">15:55:00</arg>
+          </test>
 
-      <test name="TrunkState"/>
-      <test name="IpPhones"/>
-      <test name="CcdaLicences"/>
-      <group>/Servers/Linux servers</group>
-    </host>
+          <test name="MevoCapacity">
+            <arg name="crit">42</arg>
+          </test>
 
-Traps SNMP
-^^^^^^^^^^
+          <test name="TrunkState"/>
+          <test name="IpPhones"/>
+          <test name="CcdaLicences"/>
+          <group>/Servers/Linux servers</group>
+        </host>
 
-..  sourcecode:: xml
+    Traps SNMP
+    ^^^^^^^^^^
 
-    <host name="_HOSTNAME_" address="X.X.X.X">
-      <class>linux</class>
-      <template>linux</template>
-      <attribute name="cpulist">2</attribute>
-      <test name="Interface">
-        <arg name="label">eth0</arg>
-        <arg name="ifname">eth0</arg>
-      </test>
-      <test name="Trap">
-        <arg name="OID">.1.3.6.1.1.2.1.1.2</arg>
-        <arg name="command">/var/lib/vigilo/snmptt/get_trap_upload</arg>
-        <arg name="service">Upload</arg>
-        <arg name="label">Upload</arg>
-      </test>
-    </host>
+    ..  sourcecode:: xml
 
-NetFlow
-^^^^^^^
+        <host name="_HOSTNAME_" address="X.X.X.X">
+          <class>linux</class>
+          <template>linux</template>
+          <attribute name="cpulist">2</attribute>
+          <test name="Interface">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+          </test>
+          <test name="Trap">
+            <arg name="OID">.1.3.6.1.1.2.1.1.2</arg>
+            <arg name="command">/var/lib/vigilo/snmptt/get_trap_upload</arg>
+            <arg name="service">Upload</arg>
+            <arg name="label">Upload</arg>
+          </test>
+        </host>
 
-..  sourcecode:: xml
+    NetFlow
+    ^^^^^^^
 
-    <host name="_HOSTNAME_" address="X.X.X.X">
-      <class>linux</class>
-      <class>netflow</class>
-      <template>linux</template>
-      <test name="Interface">
-        <arg name="label">eth0</arg>
-        <arg name="ifname">eth0</arg>
-      </test>
-      <test name="CollectNetflow">
-        <arg name="addresses">
-            <item>X.X.X.X/24</item>
-            <item>Y.Y.Y.Y/24</item>
-            <item>Z.Z.Z.Z/24</item>
-        </arg>
-      </test>
-      <test name="GraphNetflow">
-        <arg name="addresses">
-            <item>X.X.X.X/24</item>
-            <item>Y.Y.Y.Y/24</item>
-            <item>Z.Z.Z.Z/24</item>
-        </arg>
-      </test>
-      <group>/Servers/Linux servers</group>
-    </host>
+    ..  sourcecode:: xml
+
+        <host name="_HOSTNAME_" address="X.X.X.X">
+          <class>linux</class>
+          <class>netflow</class>
+          <template>linux</template>
+          <test name="Interface">
+            <arg name="label">eth0</arg>
+            <arg name="ifname">eth0</arg>
+          </test>
+          <test name="CollectNetflow">
+            <arg name="addresses">
+                <item>X.X.X.X/24</item>
+                <item>Y.Y.Y.Y/24</item>
+                <item>Z.Z.Z.Z/24</item>
+            </arg>
+          </test>
+          <test name="GraphNetflow">
+            <arg name="addresses">
+                <item>X.X.X.X/24</item>
+                <item>Y.Y.Y.Y/24</item>
+                <item>Z.Z.Z.Z/24</item>
+            </arg>
+          </test>
+          <group>/Servers/Linux servers</group>
+        </host>
 
 
 Glossaire - Terminologie
