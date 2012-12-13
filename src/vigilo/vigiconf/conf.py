@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
-# ConfigMgr configuration loader
 # Copyright (C) 2007-2012 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
@@ -47,12 +47,45 @@ from .lib.confclasses.test import TestFactory
 __docformat__ = "epytext"
 
 
+# Initialize global paths
+CODEDIR = os.path.dirname(__file__)
+
+# Initialize global conf variables
+apps = set()
+apps_conf = {}
+
+# TODO: en base, plus de python
+hostsGroups = {}
+
+hostsConf = {}
+dependencies = {}
+dynamicGroups = {}
+mode = "onedir"
+confid = ""
+
+#hostsConf = hostfactory.hosts
+hostsConf = {}
+
+
 def loadConf():
     load_general_conf()
     load_xml_conf()
 
 def load_general_conf():
     # General configuration
+    conf = {
+        'apps': set(),
+        'apps_conf': {},
+        'hostsGroups': {},
+        'hostsConf': {},
+        'dependencies': {},
+        'dynamicGroups': {},
+        'mode': 'onedir',
+        'confid': '',
+        'appsGroupsByServer': {},
+        'appsGroupsBackup': {},
+    }
+    conf_keys = conf.keys()
     for confsubdir in [ "general", ]:
         try:
             files = glob.glob(os.path.join(settings["vigiconf"].get("confdir"),
@@ -60,11 +93,14 @@ def load_general_conf():
             files.sort(key=lambda f: os.path.splitext(f)[0])
             #print files
             for fileF in files:
-                execfile(fileF, globals())
+                execfile(fileF, conf)
                 #print "Sucessfully parsed %s"%fileF
         except Exception, e:
             sys.stderr.write("Error while parsing %s: %s\n"%(fileF, str(e)))
             raise e
+    # On répercute la configuration dans l'environnement global.
+    for conf_key in conf_keys:
+        globals()[conf_key] = conf[conf_key]
 
 def load_xml_conf(validation=True):
     """
@@ -88,27 +124,6 @@ def load_xml_conf(validation=True):
     except ParsingError, e:
         LOGGER.error(_("Error loading configuration"))
         raise e
-
-
-
-# Initialize global paths
-CODEDIR = os.path.dirname(__file__)
-
-# Initialize global conf variables
-apps = set()
-apps_conf = {}
-
-# TODO: en base, plus de python
-hostsGroups = {}
-
-hostsConf = {}
-dependencies = {}
-dynamicGroups = {}
-mode = "onedir"
-confid = ""
-
-#hostsConf = hostfactory.hosts
-hostsConf = {}
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
