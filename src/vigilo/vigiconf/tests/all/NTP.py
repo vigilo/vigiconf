@@ -14,6 +14,10 @@ class NTP(Test):
     """Check if the NTP service is up"""
 
     def add_test(self):
+        skipclasses = [ "spectracom" ]
+        for skipclass in skipclasses:
+            if skipclass in self.host.classes:
+                return
         warnings.warn(DeprecationWarning(_(
             "Test NTP has been deprecated. Please use NagiosPlugin instead")
             ).encode('utf-8'))
