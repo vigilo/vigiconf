@@ -90,7 +90,7 @@ def load_general_conf():
         try:
             files = glob.glob(os.path.join(settings["vigiconf"].get("confdir"),
                                            confsubdir, "*.py"))
-            files.sort(key=lambda f: os.path.splitext(f)[0])
+            files.sort()
             #print files
             for fileF in files:
                 execfile(fileF, conf)

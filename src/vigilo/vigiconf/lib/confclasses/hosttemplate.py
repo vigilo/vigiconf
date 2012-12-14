@@ -271,9 +271,6 @@ class HostTemplateFactory(object):
         Get all the available templates and stores them in the self.templates
         class variable. Apply inheritance if necessary.
         """
-        # re-declare global hosttemplatefactory. The keyword "global" does not
-        # work because it is only used in files that are execfile'd, and global
-        # is a parser instruction
         xsd = self._get_xsd()
         for pathdir in self.path:
             if not os.path.exists(pathdir):

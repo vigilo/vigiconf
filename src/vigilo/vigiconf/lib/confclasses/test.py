@@ -24,22 +24,18 @@ This module contains the classes needed to handle the tests
 from __future__ import absolute_import
 
 import os
+import imp
+import inspect
 import sys
 
 from pkg_resources import working_set
 
 from vigilo.vigiconf.lib.exceptions import ParsingError
-from vigilo.common.logging import get_logger
+from vigilo.common.logging import get_logger, get_error_message
 LOGGER = get_logger(__name__)
 
 from vigilo.common.gettext import translate
 _ = translate(__name__)
-
-# Inutilisée dans ce fichier, mais obligatoire pour pouvoir
-# l'utiliser dans les tests de supervision (cf. #723).
-# Ceci est nécessaire tant que execfile() est utilisé pour
-# charger les tests de supervision (voir aussi le ticket #219).
-from vigilo.vigiconf.lib import VigiConfError, ParsingError
 
 class Test(object):
     """
@@ -332,7 +328,6 @@ class TestFactory(object):
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.testlib"):
             path = entry.load().__path__[0]
-            #if not resource_exists(path) or not resource_isdir(path):
             if not os.path.isdir(path):
                 LOGGER.warning(_("Invalid entry point %(epname)s in package "
                                  "%(eppkg)s: %(epmodname)s") %
@@ -344,6 +339,15 @@ class TestFactory(object):
             paths.append(path)
         paths.append(os.path.join(confdir, "tests"))
         return paths
+
+    def _filter_tests(self, obj):
+        """
+        Retourne C{True} si l'objet passé en argument est une classe Python
+        décrivant un test de supervision ou C{False} dans le cas contraire.
+        """
+        return type(obj) == type(Test) and \
+                issubclass(obj, Test) and \
+                obj != Test
 
     def load_tests(self):
         """
@@ -370,28 +374,67 @@ class TestFactory(object):
                 hclassdir = os.path.join(pathdir, hclass)
                 if not os.path.isdir(hclassdir):
                     continue
+
+                # On charge d'abord la classe d'équipements.
+                mod_info = imp.find_module(hclass, [pathdir])
+                try:
+                    mod = imp.load_module(
+                            "vigilo.vigiconf.tests.%s" % hclass,
+                            *mod_info)
+                except KeyboardInterrupt:
+                    raise
+                except Exception, e:
+                    LOGGER.warning(
+                        _("Unable to load %(file)s: %(error)s") % {
+                            'file': hclassdir,
+                            'error': get_error_message(e),
+                         })
+                    continue
+
+                # Puis les tests qu'elle contient.
+                testfiles = set()
                 for testfile in os.listdir(hclassdir):
-                    if not testfile.endswith(".py") or \
+                    if (not testfile.endswith((".py", ".pyc", ".pyo"))) or \
                             testfile.startswith("__"):
                         continue
+                    mod_name = testfile.rpartition('.')[0]
+                    # Évite de charger plusieurs fois le même test
+                    # (depuis le .py et depuis le .pyc par exemple).
+                    if mod_name in testfiles:
+                        continue
                     # Load the file and get the class name
-                    temp_locals = {}
-                    execfile(os.path.join(hclassdir, testfile),
-                             globals(), temp_locals)
-                    for current_test_name, current_test_class \
-                            in temp_locals.iteritems():
-                        if current_test_name in sys.modules:
-                            # This is an import statement, re-bind it here
-                            globals()[current_test_name] = current_test_class
-                            continue
-                        if (not isinstance(current_test_class, type)) or \
-                            (not issubclass(current_test_class, Test)) or \
-                            current_test_class == Test:
-                            continue
-                        if not self.tests.has_key(current_test_name):
-                            self.tests[current_test_name] = {}
-                        self.tests[current_test_name] \
-                                             [hclass] = current_test_class
+                    try:
+                        mod_info = imp.find_module(mod_name, [hclassdir])
+                    except ImportError:
+                        # On ignore silencieusement l'erreur.
+                        continue
+
+                    try:
+                        mod = imp.load_module(
+                            "vigilo.vigiconf.tests.%s.%s" % (hclass, mod_name),
+                            *mod_info)
+                    except KeyboardInterrupt:
+                        raise
+                    except Exception, e:
+                        raise
+                        LOGGER.warning(
+                            _("Unable to load %(file)s: %(error)s") % {
+                                'file': os.path.join(hclassdir, testfile),
+                                'error': get_error_message(e),
+                             })
+                    else:
+                        for current_test_name, current_test_class \
+                            in inspect.getmembers(mod, self._filter_tests):
+                            if not self.tests.has_key(current_test_name):
+                                self.tests[current_test_name] = {}
+                            self.tests[current_test_name][hclass] = \
+                                current_test_class
+                        testfiles.add(mod_name)
+                    finally:
+                        # find_module() ouvre un descripteur de fichier
+                        # en cas de succès et c'est à nous de le refermer.
+                        if mod_info[0]:
+                            mod_info[0].close()
 
     def get_testnames(self, hclasses=None):
         """
@@ -426,21 +469,6 @@ class TestFactory(object):
                     continue
                 test_list.append(self.tests[current_test_name][hclass])
         return test_list
-
-
-#    def add_test(self, host, test_name, **kw):
-#        """
-#        Adds a test to a host, with the optionnal kw arguments
-#        @param host: the host to add to
-#        @type  host: L{Server<lib.server.Server>}
-#        @param test_name: the name of the test to add
-#        @type  test_name: C{str}
-#        @param kw: the test arguments
-#        @type  kw: C{dict}
-#        """
-#        test_list = self.get_test(test_name, host.classes)
-#        for test_class in test_list:
-#            test_class().add_test(host, **kw)
 
     def get_hclasses(self):
         """
@@ -510,18 +538,40 @@ class TestFactory(object):
                 if hclass.startswith("."):
                     continue
                 hclassdir = os.path.join(pathdir, hclass)
-                if not os.path.isdir(hclassdir):
+                self.hclasschecks[hclass] = {
+                    "sysdescr": None,
+                    "oid": None,
+                    "detect_snmp": None,
+                }
+
+                try:
+                    mod_info = imp.find_module(hclass, [pathdir])
+                except ImportError:
+                    # Pas de fichier __init__.py, __init__.pyc
+                    # ou __init__.pyo.
                     continue
-                initfile = os.path.join(hclassdir,"__init__.py")
-                if not os.path.exists(initfile):
-                    continue
-                # Load the file and get the attribute and the function
-                temp_locals = {}
-                execfile(os.path.join(hclassdir, "__init__.py"),
-                         globals(), temp_locals)
-                #from pprint import pprint; pprint(temp_locals)
-                hccheck = {"sysdescr": None, "oid": None, "detect_snmp": None}
-                hccheck.update(temp_locals)
-                if "__doc__" in hccheck:
-                    del hccheck["__doc__"] # small cleanup
-                self.hclasschecks[hclass] = hccheck
+
+                try:
+                    mod = imp.load_module(
+                            "vigilo.vigiconf.tests.%s" % hclass,
+                            *mod_info)
+                except KeyboardInterrupt:
+                    raise
+                except Exception, e:
+                    LOGGER.warning(
+                        _("Unable to load %(file)s: %(error)s") % {
+                            'file': hclassdir,
+                            'error': get_error_message(e),
+                         })
+                else:
+                    # Mise à jour des prédicats en fonction du contenu
+                    # du fichier __init__ du module.
+                    for hccheck in self.hclasschecks[hclass].keys():
+                        if hasattr(mod, hccheck):
+                            self.hclasschecks[hclass][hccheck] = \
+                                getattr(mod, hccheck)
+                finally:
+                    # find_module() ouvre un descripteur de fichier
+                    # en cas de succès et c'est à nous de le refermer.
+                    if mod_info[0]:
+                        mod_info[0].close()
