@@ -82,7 +82,7 @@ def get_server_manager_class():
     Retourne la bonne sous-classe de L{ServerManager<manager.ServerManager>}
     en fonction de l'édition de Vigilo.
     """
-    if hasattr(conf, "appsGroupsByServer"):
+    if getattr(conf, "appsGroupsByServer", None):
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.extensions", "server_manager_remote"):
             return entry.load()

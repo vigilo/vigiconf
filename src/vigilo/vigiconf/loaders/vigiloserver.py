@@ -56,11 +56,11 @@ class VigiloServerLoader(DBLoader):
     def load_conf(self):
         LOGGER.info(_("Loading Vigilo servers"))
         servers = set()
-        if hasattr(conf, "appsGroupsByServer"):
+        if getattr(conf, "appsGroupsByServer", None):
             configured_servers = conf.appsGroupsByServer.values()
         else:
             configured_servers = [{"hostgroup": ["localhost"]}, ]
-        if hasattr(conf, "appsGroupsBackup"):
+        if getattr(conf, "appsGroupsBackup", None):
             configured_servers.extend(conf.appsGroupsBackup.values())
         for appgroup in configured_servers:
             for vservers in appgroup.values():

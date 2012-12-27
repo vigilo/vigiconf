@@ -63,7 +63,7 @@ class Ventilator(object):
 
 def get_ventilator(apps):
     """Ventilation factory"""
-    if hasattr(conf, "appsGroupsByServer"):
+    if getattr(conf, "appsGroupsByServer", None):
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.extensions", "ventilator"):
             ventilator_class = entry.load()

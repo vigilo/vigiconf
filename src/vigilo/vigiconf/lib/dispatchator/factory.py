@@ -44,7 +44,7 @@ def get_dispatchator_class():
     @return: La meilleure sous-classe de L{Dispatchator<base.Dispatchator>}
     disponible, en fonction de l'édition de Vigilo.
     """
-    if hasattr(conf, "appsGroupsByServer"):
+    if getattr(conf, "appsGroupsByServer", None):
         for entry in working_set.iter_entry_points(
                         "vigilo.vigiconf.extensions", "dispatchator_remote"):
             return entry.load()
