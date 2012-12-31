@@ -170,7 +170,7 @@ class HostLoader(DBLoader):
             LOGGER.debug("Preparing group cache")
             groups = DBSession.query(GroupPath).join(
                     (Group, Group.idgroup == GroupPath.idgroup)
-                ).filter(Group._grouptype == u'supitemgroup').all()
+                ).filter(Group.grouptype == u'supitemgroup').all()
             for g in groups:
                 self.group_cache[g.idgroup] = g.path
                 self.group_cache[g.path] = g.idgroup
