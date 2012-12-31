@@ -46,5 +46,19 @@ doc: apidoc sphinxdoc
 clean: clean_python
 	rm -f $(INFILES)
 
+prepare_sphinxdoc: bin/vigilo-autodoc
+	bin/vigilo-autodoc doc/autodoc.py
 
-.PHONY: all clean install apidoc lint install_users install_permissions tests install_pkg install_python install_python_pkg
+sphinxdoc_html: bin/python prepare_sphinxdoc
+sphinxdoc_pdf: bin/python prepare_sphinxdoc
+sphinxdoc_odt: bin/python prepare_sphinxdoc
+
+.PHONY: \
+	all build clean \
+	install install_users install_permissions \
+	install_pkg install_python install_python_pkg \
+	tests lint \
+	doc apidoc \
+	prepare_sphinxdoc sphinxdoc_html sphinxdoc_pdf sphinxdoc_odt \
+
+# vim: set noexpandtab :

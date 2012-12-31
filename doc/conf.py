@@ -18,4 +18,3 @@ latex_documents = [
 ]
 
 execfile("../buildenv/doc/conf.py")
-execfile("autodoc.py")
