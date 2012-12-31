@@ -21,11 +21,11 @@
 
 export BASE=$1
 
-if [ ! -d $BASE/collector/ ]
+if [ ! -d "$BASE/collector/" ]
 then
     exit 0;
 fi
 
-ls -1 $BASE/collector/*.pm | sed -e 's,\(.*\),require "\1";,' > $BASE/collector.pm
-echo "1;" >> $BASE/collector.pm
+find "$BASE/collector/" -name '*.pm' -printf 'require "%p";\n' > "$BASE/collector.pm"
+printf '1;\n' >> "$BASE/collector.pm"
 perl -e "require '$BASE/collector.pm'"

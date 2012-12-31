@@ -21,11 +21,11 @@
 
 export BASE=$1
 
-if [ ! -d $BASE/perfdata/ ]
+if [ ! -d "$BASE/perfdata/" ]
 then
     exit 0;
 fi
 
-ls -1 $BASE/perfdata/*.pm | sed -e 's,\(.*\),require "\1";,' > $BASE/perfdata.pm
-echo "1;" >> $BASE/perfdata.pm
+find "$BASE/perfdata/" -name '*.pm' -printf 'require "%p";\n' > "$BASE/perfdata.pm"
+printf '1;\n' >> "$BASE/perfdata.pm"
 perl -e "require '$BASE/perfdata.pm'"
