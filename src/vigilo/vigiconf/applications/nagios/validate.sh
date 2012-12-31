@@ -1,47 +1,23 @@
 #!/bin/sh
-################################################################################
-# $Id$
-# nagios.sh
 # Copyright (C) 2007-2013 CS-SI
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-################################################################################
+# License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 BASEDIR=$1
-LOCATION=$2
 
-if [ "$LOCATION" = "local" ] ; then
-    if ! ls /etc/init.d/nagios >/dev/null 2>&1; then
+if [ "$2" = "local" ]; then
+    if [ ! -e '%%(nagios_init)s' ]; then
         echo "Nagios is not installed"
         exit 1
     fi
 fi
 
-if [ -e /usr/sbin/nagios2 ]; then
-    nver=2
-elif [ -e /usr/sbin/nagios3 ]; then
-    nver=3
-elif [ -e /usr/sbin/nagios ]; then
-    nver=""
-else
-    echo "Nagios not installed, aborting validation"
+if [ ! -e '%%(nagios_bin)s' ]; then
+    echo "Nagios is not installed. Aborting validation."
     exit 0
 fi
 
-if [ ! -d $BASEDIR/nagios ]; then
-    echo "Nagios configuration is not available, aborting validation"
+if [ ! -d "$BASEDIR/nagios" ]; then
+    echo "Nagios configuration is not available. Aborting validation."
     exit 0
 fi
 
@@ -50,14 +26,16 @@ testconffile=`mktemp /tmp/valid-nagios-XXXXXX`
 trap "rm -f $testconffile" EXIT
 chmod 644 $testconffile
 
-# TODO: le chemin vers la conf de vigiconf est hardcodé ici
-
-sed -e 's,/etc/vigilo/vigiconf/prod/nagios,'$BASEDIR'/nagios,' \
-    /etc/nagios${nver}/nagios.cfg > $testconffile
+# Normalisation de targetconfdir : on remplace les successions
+# de "/" par un seul "/" et on supprime l'éventuel "/" final.
+TARGETCONFDIR=`echo '%%(targetconfdir)s' | sed -e 's,/\+,/,g;s,/$,,'`
+# On substitue le chemin jusqu'à l'arborescence de la configuration de Vigilo
+# de production par le chemin jusqu'à l'arborescence de validation.
+sed -e 's,'$TARGETCONFDIR'/prod/nagios,'$BASEDIR'/nagios,' '%%(nagios_cfg)s' > $testconffile
 
 # Utilisation de sudo pour pouvoir ecrire dans les repertoires specifiques de
 # Nagios (/var/spool/nagios/)
 # Sudo en root plutôt qu'en 'nagios' parce que certaines distribs ne laissent
 # le droit d'exécution de Nagios qu'à root (mdv2010+)
-sudo /usr/sbin/nagios${nver} -v $testconffile
+sudo '%%(nagios_bin)s' -v $testconffile
 exit $?

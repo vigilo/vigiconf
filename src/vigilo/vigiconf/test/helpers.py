@@ -197,6 +197,12 @@ class GeneratorBaseTestCase(TestCase):
         add_host("testserver1", conffile)
         self.apps = self._get_apps()
         self.genmanager = GeneratorManager(self.apps.values())
+        self.substitutions = {
+            'nagios_bin': 'nagios',
+            'nagios_init': '/etc/init.d/nagios',
+            'targetconfdir': '/etc/vigilo/vigiconf/',
+            'nagios_cfg': '/etc/nagios/nagios.cfg',
+        }
 
     def tearDown(self):
         DBSession.expunge_all()
@@ -223,8 +229,17 @@ class GeneratorBaseTestCase(TestCase):
             validation_script = os.path.join(
                     os.path.dirname(module.__file__),
                     "validate.sh")
+            fh = open(validation_script, 'r')
+            contents = fh.read()
+            fh.close()
+            contents = contents % {
+            }
+            validation_script = os.path.join(self.tmpdir, "validate.sh")
+            fh = open(validation_script, 'w')
+            fh.write(contents % self.substitutions)
+            fh.close()
+            print appname
             proc = Popen(["sh", validation_script, deploydir],
                         stdout=PIPE, stderr=STDOUT)
-            print appname
             print proc.communicate()[0]
             self.assertEqual(proc.returncode, 0)

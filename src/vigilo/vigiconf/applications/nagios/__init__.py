@@ -9,7 +9,6 @@ from __future__ import absolute_import
 from vigilo.vigiconf.lib.application import Application
 
 from . import generator
-from . import config
 
 
 class Nagios(Application):
@@ -21,7 +20,6 @@ class Nagios(Application):
     stop_command = "stop.sh"
     generator = generator.NagiosGen
     group = "collect"
-    defaults = config.DEFAULTS
 #pylint: disable-msg=C0103
 
 

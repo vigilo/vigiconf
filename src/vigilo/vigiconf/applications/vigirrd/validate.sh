@@ -1,36 +1,21 @@
 #!/bin/sh
-################################################################################
-# $Id$
-# rrdgraph.sh
 # Copyright (C) 2007-2013 CS-SI
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-################################################################################
-if [ "$2" == "local" ] ; then
-    ls /etc/init.d/httpd >/dev/null || exit 1
+# License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
+
+if [ "$2" == "local" ]; then
+    if [ ! -e '%%(httpd_init)s' ]; then
+        exit 1
+    fi
 fi
 
-export BASE=$1
+export BASE="$1"
 
-if [ ! -r $BASE/vigirrd.db ]
-then
+if [ ! -r "$BASE/vigirrd.db" ]; then
     exit 0
 fi
 
-sqlite3 $BASE/vigirrd.db "SELECT COUNT(*) FROM perfdatasource" && \
-sqlite3 $BASE/vigirrd.db "SELECT COUNT(*) FROM host" && \
-sqlite3 $BASE/vigirrd.db "SELECT COUNT(*) FROM graph" && \
-sqlite3 $BASE/vigirrd.db "SELECT COUNT(*) FROM graphperfdatasource"
+'%%(sqlite3_bin)s' "$BASE/vigirrd.db" "SELECT COUNT(*) FROM perfdatasource" && \
+'%%(sqlite3_bin)s' "$BASE/vigirrd.db" "SELECT COUNT(*) FROM host" && \
+'%%(sqlite3_bin)s' "$BASE/vigirrd.db" "SELECT COUNT(*) FROM graph" && \
+'%%(sqlite3_bin)s' "$BASE/vigirrd.db" "SELECT COUNT(*) FROM graphperfdatasource"
 exit $?
