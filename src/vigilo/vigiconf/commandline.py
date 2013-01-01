@@ -117,7 +117,7 @@ def deploy(args):
     if args.revision:
         dispatchator.deploy_revision = args.revision
     dispatchator.force = tuple(flatten(args.force))
-    dispatchator.run(stop_after=args.stop_after)
+    dispatchator.run(stop_after=args.stop_after, with_dbonly=args.dbonly)
 
 def apps(args):
     dispatchator = get_dispatchator(args)
@@ -306,8 +306,13 @@ def parse_args(): # pragma: no cover
                         help=N_("Force the given operations. This can be used "
                                 "to return VigiConf to a known good state."))
     parser_deploy.add_argument("-n", "--dry-run", action="store_true",
-                      dest="simulate", help=N_("Simulate only, no copy will "
-                      "actually be made, no commit in the database."))
+                        dest="simulate",
+                        help=N_("Simulate only, no copy will "
+                                "actually be made, no commit in the database."))
+    parser_deploy.add_argument("--no-dbonly", action="store_false",
+                        dest="dbonly",
+                        help=N_("Disable generators marked as requiring only "
+                                "the database to operate (dbonly)."))
     parser_deploy.add_argument('server', nargs='*',
                       help=N_("Supervision servers to deploy to, all of them "
                              "if not specified."))

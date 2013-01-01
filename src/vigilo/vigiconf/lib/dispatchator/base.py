@@ -189,13 +189,13 @@ class Dispatchator(object):
     def server_status(self, servernames, status, no_deploy=False):
         raise NotImplementedError()
 
-    def run(self, stop_after=None):
+    def _run(self, stop_after):
         """
-        Méthode principale pour déclencher VigiConf.
-        @param stop_after: Étape après laquelle il faut s'arrêter. Valeurs
-            possibles : C{generation} ou C{deployment}. Par défaut : on déroule
-            la totalité du processus.
-        @type  stop_after: C{bool}
+        Effectue le déploiement.
+
+        @param stop_after: Étape après laquelle il faut s'arrêter.
+            Valeurs possibles : C{generation}, C{push} ou C{None}.
+        @type  stop_after: C{str}
         """
         # On le fait au début pour gérer le cas où un serveur serait
         # indisponible (#867)
@@ -203,15 +203,29 @@ class Dispatchator(object):
         self.rev_mgr.prepare()
         self.generate()
         if stop_after == "generation":
-            self.gen_mgr.generate_dbonly()
             return
         deployed = self.deploy()
         if stop_after == "push":
-            self.gen_mgr.generate_dbonly()
             return
         self.commit(deployed)
         self.restart()
-        self.gen_mgr.generate_dbonly()
+
+    def run(self, stop_after=None, with_dbonly=True):
+        """
+        Méthode principale pour déclencher VigiConf.
+
+        @param stop_after: Étape après laquelle il faut s'arrêter.
+            Valeurs possibles : C{generation}, C{push} ou C{None}.
+            Par défaut, on déroule la totalité du processus.
+        @type  stop_after: C{str}
+        @param with_dbonly: Indique si les générateurs qui n'opèrent
+            que sur la base de données (dbonly) doivent être exécutés
+            ou non. Par défaut, ils sont exécutés normalement.
+        @type with_dbonly: C{bool}
+        """
+        self._run(stop_after)
+        if with_dbonly:
+            self.gen_mgr.generate_dbonly()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
