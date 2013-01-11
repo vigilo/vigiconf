@@ -147,8 +147,6 @@ class Interface(Test):
 
         # Supervision service
         if warn and crit:
-            warn = warn.replace(" ","").split(",")
-            crit = crit.replace(" ","").split(",")
             if warn[0] and crit[0]:
                 self.add_metro_service("Traffic in %s"%label, "in"+label,
                                        warn[0], crit[0], 8)

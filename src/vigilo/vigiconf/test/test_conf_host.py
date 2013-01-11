@@ -74,7 +74,7 @@ class HostMethods(unittest.TestCase):
         """Test for the add_metro_service function in the Interface test"""
         test_list = self.testfactory.get_test("Interface", self.host.classes)
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0",
-                                        "warn":"10,20", "crit":"30,40"})
+                                        "warn": (10, 20), "crit": (30, 40)})
         self.assertEqual(
             conf.hostsConf["testserver1"]["services"]["Traffic in eth0"],
             self.expected["metrosrv"])
@@ -83,8 +83,8 @@ class HostMethods(unittest.TestCase):
             conf.hostsConf["testserver1"]["metro_services"]['ineth0'],
             {
                 'servicename': 'Traffic in eth0',
-                'warning': '10',
-                'critical': '30',
+                'warning': 10,
+                'critical': 30,
                 'factor': 8,
             }
         )
@@ -97,8 +97,8 @@ class HostMethods(unittest.TestCase):
             conf.hostsConf["testserver1"]["metro_services"]['outeth0'],
             {
                 'servicename': 'Traffic out eth0',
-                'warning': '20',
-                'critical': '40',
+                'warning': 20,
+                'critical': 40,
                 'factor': 8,
             }
         )
