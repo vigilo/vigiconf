@@ -187,7 +187,7 @@ class Application(object):
             if not os.path.exists(scripts_dir):
                 os.makedirs(scripts_dir)
             for action in ["start", "stop"]:
-                script_path = os.path.join(scripts_dir, "%s.sh" % action)
+                script_path = os.path.join(scripts_dir, "%s.sh.in" % action)
                 if os.path.exists(script_path):
                     return
                 command = self._get_startup_command(action)
@@ -229,16 +229,17 @@ class Application(object):
                                         'app': self.name,
                                         'error': self.validation,
                                     })
+        config = self.getConfig()
         for vserver in self.servers:
             scripts_dir = os.path.join(basedir, vserver, "apps", self.name)
             if not os.path.exists(scripts_dir):
                 os.makedirs(scripts_dir)
-            dest_script = os.path.join(scripts_dir, "validation.sh")
+            dest_script = os.path.join(scripts_dir, "validation.sh.in")
             if os.path.exists(dest_script):
                 return
             s = resource_string(self.__module__, self.validation)
             d = open(dest_script, "w")
-            d.write(s)
+            d.write(s % config)
             d.close()
 
     def validate_servers(self, servers=None, async=False):
