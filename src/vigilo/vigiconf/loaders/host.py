@@ -38,6 +38,7 @@ from vigilo.models.tables import MapLink, MapServiceLink, MapSegment
 from vigilo.models.tables import MapLlsLink, MapHlsLink, MapNodeLls, MapNodeHls
 from vigilo.models.tables import MapNode, MapNodeHost, MapNodeService
 from vigilo.models.tables.group import Group
+from vigilo.models.tables.supitemgroup2supitem import SupItemGroup2SupItem
 from vigilo.models.tables.secondary_tables import GRAPH_PERFDATASOURCE_TABLE, \
                                                     SUPITEM_GROUP_TABLE
 
@@ -460,9 +461,10 @@ class HostLoader(DBLoader):
         for idgroup in hostgroups_cache.copy():
             path = self.group_cache[idgroup]
             if path not in hostdata['otherGroups']:
-                DBSession.query(SUPITEM_GROUP_TABLE).filter(
-                    SUPITEM_GROUP_TABLE.c.idgroup == idgroup
-                ).delete()
+                DBSession.query(SupItemGroup2SupItem
+                    ).filter(SupItemGroup2SupItem.idgroup == idgroup
+                    ).filter(SupItemGroup2SupItem.idsupitem == host.idhost
+                    ).delete()
                 hostgroups_cache.discard(idgroup)
 
         # Ajout des nouveaux groupes associés à l'hôte.
