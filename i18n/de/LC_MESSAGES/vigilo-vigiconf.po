@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2013-01-01 02:26+0100\n"
+"PO-Revision-Date: 2013-03-25 16:58+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -252,84 +252,94 @@ msgstr ""
 " %(msg)s\n"
 "Befehl war: %(cmd)s"
 
-#: src/vigilo/vigiconf/applications/rrd/generator.py:141
 #: src/vigilo/vigiconf/applications/vigirrd/generator.py:88
 #, python-format
 msgid "Some datasources are not on a graph: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:227
+#: src/vigilo/vigiconf/lib/application.py:88
+#, python-format
+msgid ""
+"A timeout occured while executing application %(application)s with action"
+" %(action)s on the following servers: %(servers)s."
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/application.py:261
 #, python-format
 msgid "Can't find the validation script for app %(app)s: %(error)s"
 msgstr ""
 "Gültigkeitsprüfungsskript für app %(app)s kann nicht gefunden werden: "
 "%(error)s"
 
-#: src/vigilo/vigiconf/lib/application.py:387
+#: src/vigilo/vigiconf/lib/application.py:426
 #, python-format
 msgid "%(app)s: validation failed for server '%(server)s': %(reason)s"
 msgstr ""
 "%(app)s: Gültigkeitsprüfung für Server '%(server)s' fehlgeschlagen: "
 "%(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:394
+#: src/vigilo/vigiconf/lib/application.py:433
 #, python-format
 msgid "%(app)s : Validation successful for server: %(server)s"
 msgstr "%(app)s : Gültigkeitsprüfung für Server erfolgreich: %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:416
+#: src/vigilo/vigiconf/lib/application.py:455
 #, python-format
 msgid "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
 msgstr ""
 "%(app)s : Qualifikation bei '%(server)s' fehlgeschlagen - URSACHE: "
 "%(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:425
+#: src/vigilo/vigiconf/lib/application.py:464
 #, python-format
 msgid "%(app)s : Qualification successful on server : %(server)s"
 msgstr "%(app)s : Qualifikation bei Server erfolgreich: %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:440
+#: src/vigilo/vigiconf/lib/application.py:479
 #, python-format
 msgid "Starting %(app)s on %(server)s ..."
 msgstr "%(app)s wird auf %(server)s gestartet..."
 
-#: src/vigilo/vigiconf/lib/application.py:443
+#: src/vigilo/vigiconf/lib/application.py:482
 #, python-format
 msgid "Reloading %(app)s on %(server)s ..."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:451
+#: src/vigilo/vigiconf/lib/application.py:490
 #, python-format
 msgid "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 msgstr "%(app)s auf %(server)s kann nicht gestartet werden - URSACHE %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:460
+#: src/vigilo/vigiconf/lib/application.py:499
 #, python-format
 msgid "%(app)s started on %(server)s"
 msgstr "%(app)s auf %(server)s gestartet"
 
-#: src/vigilo/vigiconf/lib/application.py:462
+#: src/vigilo/vigiconf/lib/application.py:501
 #, python-format
 msgid "%(app)s reloaded on %(server)s"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:475
+#: src/vigilo/vigiconf/lib/application.py:514
 #, python-format
 msgid "Stopping %(app)s on %(server)s ..."
 msgstr "%(app)s auf %(server)s werden beendet ..."
 
-#: src/vigilo/vigiconf/lib/application.py:485
+#: src/vigilo/vigiconf/lib/application.py:524
 #, python-format
 msgid "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 msgstr "%(app)s auf %(server)s kann nicht beendet werden - URSACHE %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:493
+#: src/vigilo/vigiconf/lib/application.py:533
 #, python-format
 msgid "%(app)s stopped on %(server)s"
 msgstr "%(app)s auf %(server)s beendet"
 
-#: src/vigilo/vigiconf/lib/application.py:554
+#: src/vigilo/vigiconf/lib/application.py:581
+msgid "Empty list of servers"
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/application.py:648
 #, python-format
 msgid ""
 "Incoherent configuration: application %(app)s has an entry point named "
@@ -338,19 +348,19 @@ msgstr ""
 "Inkohärente Konfiguration: Anwendung %(app)s hat einen Einstiegspunkt "
 "namens %(epname)s im Paket %(eppkg)s"
 
-#: src/vigilo/vigiconf/lib/application.py:559
+#: src/vigilo/vigiconf/lib/application.py:653
 #, python-format
 msgid "Application %s is installed but disabled (see conf.d/general/apps.py)"
 msgstr ""
 "Anwendung %s ist installiert, jedoch deaktiviert (siehe "
 "conf.d/general/apps.py)"
 
-#: src/vigilo/vigiconf/lib/application.py:563
+#: src/vigilo/vigiconf/lib/application.py:657
 #, python-format
 msgid "application %s is not unique. Providing modules: %s"
 msgstr "Anwendung %s ist nicht eindeutig. Module: %s werden bereitgestellt"
 
-#: src/vigilo/vigiconf/lib/application.py:574
+#: src/vigilo/vigiconf/lib/application.py:668
 #, python-format
 msgid ""
 "Application %s has been added to conf.d/general/apps.py, but is not "
@@ -359,21 +369,28 @@ msgstr ""
 "Anwendung %s wurde zu conf.d/general/apps.py hinzugefügt, ist jedoch "
 "nicht installiert"
 
-#: src/vigilo/vigiconf/lib/application.py:589
+#: src/vigilo/vigiconf/lib/application.py:683
 msgid "validation failed, see above for more information."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:591
+#: src/vigilo/vigiconf/lib/application.py:685
 msgid "Validation successful"
 msgstr "Gültigkeitsprüfung erfolgreich"
 
-#: src/vigilo/vigiconf/lib/application.py:605
+#: src/vigilo/vigiconf/lib/application.py:699
 msgid "qualification failed. See above for more information."
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/application.py:607
+#: src/vigilo/vigiconf/lib/application.py:701
 msgid "Qualification successful"
 msgstr "Gültigkeitsprüfung erfolgreich"
+
+#: src/vigilo/vigiconf/lib/application.py:744
+#, python-format
+msgid ""
+"Next attempt for %(action)s action in %(interval)d second(s) (attempt "
+"#%(attempt)d)"
+msgstr ""
 
 #: src/vigilo/vigiconf/lib/systemcommand.py:127
 #, python-format
@@ -956,36 +973,36 @@ msgstr "Gruppe werden geladen"
 msgid "Done loading groups"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:86
+#: src/vigilo/vigiconf/loaders/host.py:87
 #, python-format
 msgid "Deleting leftover config file from database: %s"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:92
+#: src/vigilo/vigiconf/loaders/host.py:93
 msgid "Loading hosts"
 msgstr "Hosts werden geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:123
+#: src/vigilo/vigiconf/loaders/host.py:124
 #, python-format
 msgid "Registering new configuration file '%(relative)s' (from %(absolute)s)"
 msgstr ""
 
-#: src/vigilo/vigiconf/loaders/host.py:150
+#: src/vigilo/vigiconf/loaders/host.py:151
 #, python-format
 msgid "Loading host %s"
 msgstr "Host %s wird geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:430
+#: src/vigilo/vigiconf/loaders/host.py:431
 msgid "Done loading hosts"
 msgstr "Hosts sind geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:444
+#: src/vigilo/vigiconf/loaders/host.py:445
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Unbekannte Gruppe \"%(group)s\" in Host \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:472
-#: src/vigilo/vigiconf/loaders/host.py:484
+#: src/vigilo/vigiconf/loaders/host.py:474
+#: src/vigilo/vigiconf/loaders/host.py:486
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
@@ -994,7 +1011,7 @@ msgstr ""
 "Syntaxfehler in Host %(host)s: Es konnte keine zu diesem Pfad : "
 "\"%(path)s\" passende Gruppe gefunden werden"
 
-#: src/vigilo/vigiconf/loaders/host.py:552
+#: src/vigilo/vigiconf/loaders/host.py:554
 #, python-format
 msgid ""
 "warning_weight (%(warning_weight)d) must be less than or equal to weight "

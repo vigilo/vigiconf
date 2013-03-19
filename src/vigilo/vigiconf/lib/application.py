@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+# vim:set expandtab tabstop=4 shiftwidth=4:
 ################################################################################
 #
-# ConfigMgr Data Consistancy dispatchator
+# Vigiconf Application Manager
 # Copyright (C) 2007-2013 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,8 +29,9 @@ Toutes les applications héritent de la classe L{Application}.
 from __future__ import absolute_import
 
 import os
-import Queue
-from threading import Thread
+import sys
+from time import sleep
+from threading import Thread, current_thread
 # Warning, the "threading" module overwrites the built-in function enumerate()
 # if used as import * !!
 
@@ -37,7 +39,7 @@ from pkg_resources import resource_exists, resource_string, working_set
 
 from vigilo.common.conf import settings
 
-from vigilo.common.logging import get_logger
+from vigilo.common.logging import get_logger, get_error_message
 LOGGER = get_logger(__name__)
 
 from vigilo.common.gettext import translate
@@ -48,7 +50,6 @@ from vigilo.vigiconf.lib.systemcommand import SystemCommand, SystemCommandError
 from vigilo.vigiconf.lib.exceptions import VigiConfError, DispatchatorError
 from vigilo.vigiconf.lib.server.factory import ServerFactory
 
-
 class ApplicationError(VigiConfError):
     """Exception concerning an application"""
 
@@ -57,11 +58,45 @@ class ApplicationError(VigiConfError):
         self.cause = None
 
     def __str__(self):
-        return repr("ApplicationError : "+self.value)
+        return repr("ApplicationError : " + self.value)
+
+class ApplicationTimeOutError(ApplicationError):
+    """
+    Exception levée lors du dépassement de la durée de vie d'une action dans
+    une application.
+    """
+
+    def __init__(self, status=True, application=None, action=None,
+                 servers=None):
+        """
+        @param status: L'état du statut pour les résultats d'actions qui n'ont
+                       pas dépassé le délai maximum autorisé.
+        @type  status: C{bool}
+        @param application: L'application qui a dépassé le délai maximum
+                            autorisé.
+        @type  application: L{Application<application.Application>}
+        @param action: L'action qui a dépassé le délai maximum autorisé.
+        @type  action: C{str}
+        @param servers: Liste de serveurs qui ont dépassé le délai maximum
+                        autorisé.
+        @type  action: C{list} de C{str}
+        """
+        self.application = application
+        self.action = action
+        self.servers = servers
+        self.status = status
+        self.value = _("A timeout occured while executing application "
+                       "%(application)s with action %(action)s on the following"
+                       " servers: %(servers)s.") % {
+                                   "application": application,
+                                   "action":      action,
+                                   "servers":     ", ".join(servers)}
 
 
 class PassGenerator(object):
-    """Pseudo-générateur qui ne fait rien. C'est le générateur par défaut."""
+    """
+    Pseudo-générateur qui ne fait rien. C'est le générateur par défaut.
+    """
     def __init__(self, app, ventilation):
         pass
     def generate(self):
@@ -121,8 +156,7 @@ class Application(object):
             raise NotImplementedError
         self.servers = {}
         self.actions = {}
-        self.serversQueue = None # will be initialized as Queue.Queue later
-        self.returnsQueue = None # will be initialized as Queue.Queue later
+        self.threads = {}
 
 
     def __str__(self):
@@ -317,10 +351,7 @@ class Application(object):
             arrière-plan
         @param async: C{bool}
         """
-        result = True
-
-        self.serversQueue = Queue.Queue()
-        self.returnsQueue = Queue.Queue()
+        self.threads = {}
 
         # intersection of serverslists
         if servernames is None:
@@ -334,17 +365,38 @@ class Application(object):
                             if action in self.actions[s] ]
 
         # start the threads
-        for servername in servernames:
-            self.serversQueue.put(servername)
-            _thread = Thread(target=self._threaded_action, args=[action])
-            _thread.start()
+        for s in servernames:
+            target = self._threaded_action
+            args = [action, s]
+            thread = Thread(target=target, args=args)
+            thread.daemon = True
 
-        result = ActionResult(self.name, action,
-                              self.serversQueue, self.returnsQueue)
+            self.threads[thread] = {"server": s,
+                                    "status": True}
+
+        result = ActionResult(self, action)
         if async:
             return result
         else:
             return result.get()
+
+    def _threaded_action(self, action, servername):
+        """
+        Exécute l'action sur le serveur. Cette méthode est éxecutée dans un
+        thread séparé.
+        @param action: Action à effectuer. Correspond à une méthode de la
+            classe, suivie de C{Server}.
+        @type  action: C{str}
+        @param servername: nom du serveur sur lequel lancer l'action.
+        @type  servername: C{str}
+        """
+        try:
+            getattr(self, "%sServer" % action)(servername)
+        except ApplicationError, e: # if it fails
+            LOGGER.error(get_error_message(e))
+            thread = current_thread()
+            if thread in self.threads:
+                self.threads[thread]["status"] = False
 
     def filterServers(self, servers):
         """
@@ -354,15 +406,6 @@ class Application(object):
             serveurs.
         """
         return set(servers) & set(self.servers) # intersection
-
-    def _threaded_action(self, action):
-        servername = self.serversQueue.get()
-        try:
-            getattr(self, "%sServer" % action)(servername)
-        except ApplicationError, e:
-            self.returnsQueue.put(e.value)
-        self.serversQueue.task_done()
-
 
     def validateServer(self, servername):
         """
@@ -491,6 +534,7 @@ class Application(object):
             })
             error.cause = e
             raise error
+
         LOGGER.info(_("%(app)s stopped on %(server)s"), {
             'app': self.name,
             'server': server.name,
@@ -504,31 +548,78 @@ class ActionResult(object):
     thread.
     """
 
-    def __init__(self, app_name, action_name, commands, errors):
-        self.app_name = app_name
-        self.action_name = action_name
-        self._commands = commands
-        self._errors = errors
+    def __init__(self, application, action):
+        """
+        @param application: L'application dont le résultat est testé.
+        @type  application: L{Application<application.Application>}
+        @param action: L'action dont le résultat est testé.
+        @type  action: C{str}
+        """
+        self.application = application
+        self.action = action
+        self.timeout = self.application.getConfig().get("timeout", None)
 
-    def process_errors(self):
-        """
-        Envoie tous les messages d'erreur dans syslog.
-        """
-        result = True # we suppose there is no error (empty queue)
-        while not self._errors.empty():
-            # syslog each item of the queue
-            result = False
-            error = self._errors.get()
-            LOGGER.warning(error)
-        return result
+        if self.timeout is not None and \
+           isinstance(self.timeout, (int, long, float)) and \
+           self.timeout > 0:
+
+            self.timeout = float(self.timeout)
+        else:
+            self.timeout = None
+        for thread in self.application.threads:
+            thread.start()
 
     def get(self):
         """
-        Retourne le résultat de l'action en attendant la fin du thread.
+        Retourne le résultat de l'action en attendant la fin des threads.
+
+        @return: Le résultat des threads de l'application/action.
+        @rtype: C{bool}
+        @raise ApplicationTimeOutError: Lorsque un ou plusieurs threads ont
+                                        dépassé le délai maximum autorisé.
         """
-        self._commands.join()
-        result = self.process_errors()
-        return result
+        status = True
+        if self.timeout is not None:
+            try:
+                oneSlice = self.timeout / len(self.application.threads)
+            except ZeroDivisionError:
+                LOGGER.error(_("Empty list of servers"))
+                return True
+        else:
+            oneSlice = None
+        slices = oneSlice
+        # cette boucle permet de s'assurer que le temps minimum a été si
+        # besoin dépassé (mais sans lever d'exception).
+        # il y a minimum une portion de temps par threads (avec report des
+        # portions non consommées)
+        for thread in self.application.threads:
+            thread.join(slices)
+            if not thread.isAlive() and oneSlice:
+                slices += oneSlice
+            else:
+                slices = oneSlice
+
+        servers = []
+        # seconde passe où la détection des time out est réalisée.
+        # avec construction d'une liste de serveur en time out.
+        # Note: ne pas utiliser d'iterator sur le dictionnaire
+        # self.application.threads car des opérations de del sont faites dans
+        # la boucle for sur le dictionnaire.
+        for thread in self.application.threads.keys():
+            thread.join(0.001)
+            if thread.isAlive(): # time out détecté
+                servers.append(self.application.threads[thread]["server"])
+                del self.application.threads[thread]
+            else:
+                status = status and self.application.threads[thread]["status"]
+
+        self.application.threads = {}
+        # exception ApplicationTimeOutError contenant une liste de serveur en
+        # time out
+        if servers:
+            raise ApplicationTimeOutError(status, self.application,
+                                          self.action, servers)
+        return status
 
 
 
@@ -537,7 +628,17 @@ class ApplicationManager(object):
     Gestionnaire des applications. Maintient la liste des applications
     disponibles, et permet d'effectuer des actions sur l'ensemble des
     applications d'un seul coup.
+    @ivar attempts: Spécifie le nombre d'essais à effectuer lorsque
+                    l'application ne doit pas dépasser un certain temps
+                    d'exécution.
+    @type attempts: C{int}
+    @ivar interval: Spécifie le temps à attendre entre chaque tentative
+                    lorsque le temps d'exécution est dépassé.
+    @type interval: C{int}
     """
+    attempts = 3
+    interval = 60
+
 
     def __init__(self):
         self.applications = []
@@ -619,24 +720,59 @@ class ApplicationManager(object):
         if not self.applications:
             return
         status = True
-        current_level = self.applications[0].priority
         results = []
+        if isinstance(self.attempts, int) and \
+           self.attempts > 0:
+            attempts = self.attempts
+        else:
+            attempts = 1
+        priorities = {}
+        # construction d'un dictionnaire de priorité d'application
+        # dict = {1: [app1, app2],
+        #         2: [app3, app4]}
         for app in self.applications:
-            if (app.priority != current_level):
-                # On attend la fin des actions précédentes
+            p = app.priority
+            if p in priorities:
+                priorities[p].append(app)
+            else:
+                priorities[p] = [app]
+        # lancement des action/application pour chaque priorité
+        for priority in sorted(priorities, reverse=True):
+            apps = priorities[priority]
+            for app in apps:
+                results.append(app.execute(action, servers, async=True))
+            test = 0
+            timedout = []
+            while test < attempts :
+                test += 1
+                if timedout:
+                    # attente d'un interval de temps avant nouvel essai
+                    msg = _("Next attempt for %(action)s action in %(interval)d"
+                            " second(s) (attempt #%(attempt)d)") % {
+                                  "action": action,
+                                  "interval": self.interval,
+                                  "attempt": test}
+                    LOGGER.info(msg)
+                    sleep(self.interval)
+                    for e in timedout:
+                        app = e.application
+                        act = e.action
+                        servers = e.servers
+                        # relance des exécutions précédemment en time out
+                        results.append(app.execute(act, servers, async=True))
+                timedout = []
                 for result in results:
-                    result_status = result.get()
-                    status = status and result_status
+                    try:
+                        status = status and result.get()
+                    except ApplicationTimeOutError, e:
+                        LOGGER.info(get_error_message(e))
+                        status = status and e.status
+                        timedout.append(e)
                 results = []
-                current_level = app.priority
-            # exécution de l'action
-            results.append(app.execute(action, servers, async=True))
-        # on attend les dernières actions
-        for result in results:
-            result_status = result.get()
-            status = status and result_status
+            if timedout:
+                for e in timedout:
+                    LOGGER.error(get_error_message(e))
+                sys.exit(2)
+
         return status
-
-
-
 # vim:set expandtab tabstop=4 shiftwidth=4:

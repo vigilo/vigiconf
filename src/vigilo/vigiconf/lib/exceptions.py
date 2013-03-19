@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# vim:set expandtab tabstop=4 shiftwidth=4:
 ################################################################################
 #
 # Copyright (C) 2007-2013 CS-SI
