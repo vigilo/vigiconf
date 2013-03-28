@@ -56,6 +56,13 @@ case "$1" in
            -g $SERVER_GROUP  \
               $SERVER_USER
 
+        # unlock the account
+        if [ "`passwd -S $SERVER_USER | cut -d' ' -f2`" = "LK" ]; then
+            # unlock the account
+            dd if=/dev/urandom | tr -dc A-Za-z0-9 | head -c12 | \
+                passwd --stdin $SERVER_USER >/dev/null
+        fi
+
         chown -R $SERVER_USER:$SERVER_GROUP \
             /var/lib/vigilo/$MODULE \
             /var/log/vigilo/$MODULE \
