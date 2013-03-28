@@ -75,29 +75,30 @@ class CollectorGen(FileGenerator):
         for jobname, jobtype in keys:
             jobdata = h['SNMPJobs'][(jobname, jobtype)]
             jobdata['params'] = self._convert_list(jobdata['params'])
+            jobdata['vars'] = self._convert_list(jobdata['vars'])
+            # échapemment des slashs et des quotes simple
+            jobname = self.quote(jobname.strip())
             tplvars = {'function': jobdata['function'],
                        'params': jobdata['params'],
                        'vars': jobdata['vars'],
                        'name': jobname,
-                       'dsname': "",
+                       'dsname': jobname,
                        'reRouteFor': 'undef',
                       }
             # We collect data for another host, analyse the
             # reRouting arguements
-            if jobdata['reRouteFor'] != None:
+            if jobdata['reRouteFor'] is not None:
                 rr_tpl = "{vserver => '%s', host => '%s', service => '%s'}"
                 forHost = jobdata['reRouteFor']['host']
-                service = jobdata['reRouteFor']['service']
+                service = self.quote(jobdata['reRouteFor']['service'].strip())
+                tplvars["dsname"] = service
                 vserver = self.ventilation[forHost]['nagios']
                 if isinstance(vserver, list):
                     vserver = vserver[0]
                 if jobtype != 'perfData': # service check result => forHost's spoolme server
                     tplvars['reRouteFor'] = rr_tpl % (vserver, forHost,
                                                       service)
-            else:
-                forHost = hostname
-                service = jobname
-            tplvars["dsname"] = service.strip()
+
             if jobtype == 'perfData':
                 self.templateAppend(fileName, self.templates["metro"], tplvars)
             else:
@@ -105,11 +106,11 @@ class CollectorGen(FileGenerator):
                                     tplvars)
 
     def _convert_list(self, l):
-        """Convertit en syntaxe Perl en protégeat contre l'unicode (#882)"""
+        """Convertit en syntaxe Perl en protégeant contre l'unicode (#882)"""
         result = []
         for index, param in enumerate(l):
-            if isinstance(param, unicode):
-                result.append('"%s"' % param.replace('"', '\\"'))
+            if isinstance(param, basestring):
+                result.append("'%s'" % self.quote(param))
             else:
                 result.append(repr(param))
         result = "[%s]" % ", ".join(result)

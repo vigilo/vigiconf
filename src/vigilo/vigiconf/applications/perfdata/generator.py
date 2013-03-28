@@ -38,18 +38,20 @@ class PerfDataGen(FileGenerator):
         newhash['confid'] = conf.confid
         self.templateCreate(fileName, self.templates["header"], newhash)
         for (servicename, perfitems) in h['PDHandlers'].iteritems():
+            servicename = self.quote(servicename.strip())
             for perfitem in perfitems:
-                if perfitem['reRouteFor'] != None:
+                if perfitem['reRouteFor'] is not None:
                     forHost = perfitem['reRouteFor']['host']
                     reRouteFor = "'%s'" % forHost
                 else:
                     forHost = hostname
                     reRouteFor = "undef"
-                rrdname = perfitem["name"].strip()
-                tplvars = {'service':servicename,
-                           'host': forHost, 
+                rrdname = self.quote(perfitem["name"].strip())
+                pdvn = self.quote(perfitem['perfDataVarName'].strip())
+                tplvars = {'service': servicename,
+                           'host': forHost,
                            'ds': rrdname,
-                           'perfDataVarName': perfitem['perfDataVarName'],
+                           'perfDataVarName': pdvn,
                            'reRouteFor': reRouteFor}
                 self.templateAppend(fileName, self.templates["map"], tplvars)
         self.templateAppend(fileName, self.COMMON_PERL_LIB_FOOTER, {})

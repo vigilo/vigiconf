@@ -177,3 +177,15 @@ class FileGenerator(Generator):
             templates[tplname] = tpl
         return templates
 
+    def quote(self, s):
+        """
+        Permet l'échappement des chaîne de caractères en vue de l'inclure
+        dans un template dans une valeur de type chaîne de caractère entourée
+        de quotes simples <'>.
+        @param s: La chaîne de caractères à échapper.
+        @type  s: C{basestring}
+        @return: La chaîne résultat.
+        @rtype: C{basestring}
+
+        """
+        return s.replace("\\", "\\\\").replace("'", "\\'")
