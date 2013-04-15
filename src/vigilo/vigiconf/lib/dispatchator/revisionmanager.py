@@ -26,6 +26,7 @@ le système de gestion de version qui gère les révisions de la configuration.
 from __future__ import absolute_import
 
 import os
+import itertools
 from xml.etree import ElementTree as ET
 
 from vigilo.common.conf import settings
@@ -350,29 +351,49 @@ class RevisionManager(object):
             filename = new_filename
         return False
 
+    def _is_in_dir(self, dirname, filename):
+        """
+        Permet de savoir si un fichier appartient à un dossier.
+        @param dirname: Dossier à analyser.
+        @type  dirname: C{str}
+        @param filename: Fichier (ou dossier) à analyser.
+        @type  filename: C{str}
+        @return: C{True} si C{filename} est un sous élément de C{dirname},
+                 C{False} sinon.
+        @rtype: C{bool}
+        """
+        f = os.path.normpath(filename)
+        d = os.path.normpath(dirname)
+        prefix = os.path.commonprefix([f, d])
+        if prefix == d:
+            # Il y a un préfixe commun, il faut des vérifications
+            # supplémentaires.
+            suffix = f.replace(prefix, '').lstrip(os.path.sep)
+            prefix_sep_suffix = os.path.join(prefix, suffix)
+            if prefix_sep_suffix == f or prefix_sep_suffix == f + os.path.sep:
+                return True
+        return False
+
     def dir_changed(self, dirname):
         """
         Retourne l'état de modification d'un dossier.
         @param dirname: Dossier à analyser
         @type  dirname: C{str}
-        @return: C{True} si C{dirname} a été modifié, C{False} sinon.
+        @return: C{True} si C{dirname} a été modifié ou un sous élément de
+                 C{dirname}, C{False} sinon.
         @rtype: C{bool}
         """
         if "db-sync" in self.force:
             # L'option "--force db-sync" est traitée comme s'il
             # s'agissait d'une modification de la configuration.
             return True
-        # Suppression des séparateurs de dossiers ('/') en fin de valeur.
-        # Nécessaire car le séparateur n'apparaît pas dans la sortie de SVN.
-        while dirname.endswith(os.path.sep):
-            dirname = dirname[:-len(os.path.sep)]
         status = self.status()
-        if dirname in status['added']:
-            return True
-        if dirname in status['modified']:
-            return True
-        if dirname in status['removed']:
-            return True
+        added = iter(status['added'])
+        modified = iter(status['modified'])
+        removed = iter(status['removed'])
+        for filename in itertools.chain(added, modified, removed):
+            if self._is_in_dir(dirname, filename):
+                return True
         return False
 
     def get_removed(self):

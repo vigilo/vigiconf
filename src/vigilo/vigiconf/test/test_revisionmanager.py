@@ -388,3 +388,63 @@ class RevisionManagerTest(unittest.TestCase):
             "modified": [],
         }
         self.assertEqual(status, expected)
+
+    def test_status_dir_changed(self):
+        """RevMan: statut d'un dossier après changemement dans le dossier"""
+        testdir = os.path.join(self.confdir, "hosts")
+        testfile = os.path.join(testdir, "dummy.xml")
+        open(testfile, "w").close()
+        self._run_svn(["add", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        fd = open(testfile, "w")
+        fd.write("test")
+        fd.close()
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        DBSession.add(tables.Version(
+            name=RevisionManager.version_key,
+            version=2
+        ))
+        DBSession.flush()
+        self.assertEqual(self.rev_mgr.dir_changed(testdir), True)
+        self.assertEqual(self.rev_mgr.dir_changed(testdir + os.path.sep), True)
+        self.assertEqual(self.rev_mgr.dir_changed(os.path.dirname(testdir)), True)
+
+    def test_status_file_changed(self):
+        """RevMan: statut d'un fichier après changemement"""
+        testdir = os.path.join(self.confdir, "hosts")
+        testfile = os.path.join(testdir, "dummy.xml")
+        open(testfile, "w").close()
+        self._run_svn(["add", testfile])
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        fd = open(testfile, "w")
+        fd.write("test")
+        fd.close()
+        self._run_svn(["commit", "-m", "test", self.confdir])
+        DBSession.add(tables.Version(
+            name=RevisionManager.version_key,
+            version=2
+        ))
+        DBSession.flush()
+        self.assertEqual(self.rev_mgr.file_changed(testfile), True)
+
+    def test_status_is_in_dir(self):
+        """RevMan: statut de la fonction interne de détection des changements dans les répertoires"""
+        self.assertTrue(self.rev_mgr._is_in_dir("/", "/"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/", "/a"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/", "/a/"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/a", "/a"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/a", "/a/"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/a/", "/a"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/a/", "/a/"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/a", "/a/b"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/a", "/a/b/"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/a/", "/a/b"))
+        self.assertTrue(self.rev_mgr._is_in_dir("/a/", "/a/b/"))
+        self.assertFalse(self.rev_mgr._is_in_dir("/a", "/ab"))
+        self.assertFalse(self.rev_mgr._is_in_dir("/a", "/ab/"))
+        self.assertFalse(self.rev_mgr._is_in_dir("/a/", "/ab"))
+        self.assertFalse(self.rev_mgr._is_in_dir("/a/", "/ab/"))
+        self.assertFalse(self.rev_mgr._is_in_dir("/a", "/a.b"))
+        self.assertFalse(self.rev_mgr._is_in_dir("/a", "/a.b/"))
+        self.assertFalse(self.rev_mgr._is_in_dir("/a/", "/a.b"))
+        self.assertFalse(self.rev_mgr._is_in_dir("/a/", "/a.b/"))
