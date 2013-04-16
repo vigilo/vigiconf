@@ -31,6 +31,7 @@ from __future__ import absolute_import
 import os
 import sys
 from time import sleep
+from collections import deque
 from threading import Thread, current_thread
 # Warning, the "threading" module overwrites the built-in function enumerate()
 # if used as import * !!
@@ -395,8 +396,12 @@ class Application(object):
         except ApplicationError, e: # if it fails
             LOGGER.error(get_error_message(e))
             thread = current_thread()
-            if thread in self.threads:
+            try:
                 self.threads[thread]["status"] = False
+            except KeyError:
+                # si la clé n'est pas présente on ignore silencieusement, il
+                # y a eu un timeout de détecté dans le thread principal.
+                pass
 
     def filterServers(self, servers):
         """
@@ -573,43 +578,44 @@ class ActionResult(object):
         """
         Retourne le résultat de l'action en attendant la fin des threads.
 
-        @return: Le résultat des threads de l'application/action.
+        @return: C{True} quand l'action a pu être executée correctement sur
+                 l'ensemble des serveurs, C{False} sinon.
         @rtype: C{bool}
-        @raise ApplicationTimeOutError: Lorsque un ou plusieurs threads ont
+        @raise ApplicationTimeOutError: Lorsqu'un ou plusieurs threads ont
                                         dépassé le délai maximum autorisé.
         """
+        if not len(self.application.threads):
+            LOGGER.error(_("Empty list of servers"))
+            return True
         status = True
-        if self.timeout is not None:
-            try:
-                oneSlice = self.timeout / len(self.application.threads)
-            except ZeroDivisionError:
-                LOGGER.error(_("Empty list of servers"))
-                return True
-        else:
-            oneSlice = None
-        slices = oneSlice
-        # cette boucle permet de s'assurer que le temps minimum a été si
-        # besoin dépassé (mais sans lever d'exception).
-        # il y a minimum une portion de temps par threads (avec report des
-        # portions non consommées)
-        for thread in self.application.threads:
-            thread.join(slices)
-            if not thread.isAlive() and oneSlice:
-                slices += oneSlice
+        threads = deque(self.application.threads.keys())
+        # fréquence de vérification
+        delay = 0.1
+        timeleft = self.timeout
+        if self.timeout is None:
+            delay = None
+            timeleft = 0
+        # Premiere passe qui permet de s'assurer que le temps minimum a
+        # été si besoin consommé (mais sans lever d'exception).
+        while timeleft > 0:
+            if not threads:
+                break
+            thread = threads.popleft()
+            thread.join(delay)
+            if thread.isAlive():
+                timeleft -= delay
+                threads.append(thread)
             else:
-                slices = oneSlice
+                status = status and self.application.threads[thread]["status"]
 
+        # Seconde passe où la détection des time out est réalisée (avec si
+        # besoin construction d'une liste de serveur en time out et la levée
+        # d'une exception).
         servers = []
-        # seconde passe où la détection des time out est réalisée.
-        # avec construction d'une liste de serveur en time out.
-        # Note: ne pas utiliser d'iterator sur le dictionnaire
-        # self.application.threads car des opérations de del sont faites dans
-        # la boucle for sur le dictionnaire.
-        for thread in self.application.threads.keys():
-            thread.join(0.001)
+        for thread in threads:
+            thread.join(delay)
             if thread.isAlive(): # time out détecté
                 servers.append(self.application.threads[thread]["server"])
-                del self.application.threads[thread]
             else:
                 status = status and self.application.threads[thread]["status"]
 
