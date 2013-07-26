@@ -18,7 +18,7 @@ case "$1" in
     install|upgrade)
         echo "Creating the vigiconf user..."
         groupadd vigiconf || :
-        useradd -s /bin/bash -m -d /var/lib/vigilo-vigiconf -g vigiconf -c 'VigiConf user' vigiconf || :
+        useradd -s /bin/bash -m -d /var/lib/vigilo/vigiconf -g vigiconf -c 'VigiConf user' vigiconf || :
     ;;
 
     abort-upgrade)
