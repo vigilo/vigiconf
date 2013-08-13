@@ -93,7 +93,14 @@ class Discoverator(object):
                 cur_value = cur_value + "\n" + line
             else:
                 cur_oid = line_mo.group(1)
-                cur_value = line_mo.group(2).strip("\n\r")
+                tmp_value = line_mo.group(2).strip("\n\r")
+                # Depuis net-snmp 5.4.0, les chaînes de caractères
+                # sont délimitées par des guillemets dans le walk.
+                if len(tmp_value) >= 2 and \
+                    tmp_value.startswith('"') and \
+                    tmp_value.endswith('"'):
+                    tmp_value = tmp_value[1:-1]
+                cur_value = tmp_value
             if cur_oid is not None:
                 self.oids[cur_oid] = cur_value
 
