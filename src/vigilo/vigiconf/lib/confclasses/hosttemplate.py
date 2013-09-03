@@ -275,11 +275,13 @@ class HostTemplateFactory(object):
         for pathdir in self.path:
             if not os.path.exists(pathdir):
                 continue
-            for tplfile in os.listdir(pathdir):
-                if not tplfile.endswith(".xml") or tplfile.startswith("__"):
-                    continue
-                self._validate(os.path.join(pathdir, tplfile), xsd)
-                self._load(os.path.join(pathdir, tplfile))
+            for root, dirs, files in os.walk(pathdir):
+                for f in files:
+                    if not f.endswith(".xml") or f.startswith("__"):
+                        continue
+                    tplfile = os.path.join(root, f)
+                    self._validate(tplfile, xsd)
+                    self._load(tplfile)
         self._resolve_dependencies()
 
     def _resolve_dependencies(self):
