@@ -87,7 +87,7 @@ class TestFactoryImportsTest(unittest.TestCase):
         try:
             test.add_test()
         except VigiConfError, e:
-            self.assertEquals(_("Import test was successful"), e.message)
+            self.assertEquals(_("Import test was successful"), unicode(e))
         except Exception, e:
             self.fail("Unexpected exception of type %r" % type(e))
         else:
