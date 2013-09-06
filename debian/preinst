@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for vigiconf
+# preinst script for vigilo-vigiconf
 #
 # see: dh_installdeb(1)
 

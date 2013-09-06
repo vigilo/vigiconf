@@ -18,6 +18,7 @@ Suggests: vigilo-vigiconf-doc
 Depends:
  ${misc:Depends},
  ${python:Depends},
+ bash,
  perl,
  subversion,
  tar,

@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for vigilo-connector-nagios
+# postinst script for vigilo-vigiconf
 #
 # see: dh_installdeb(1)
 
@@ -62,6 +62,8 @@ case "$1" in
             dd if=/dev/urandom | tr -dc A-Za-z0-9 | head -c12 | \
                 passwd --stdin $SERVER_USER >/dev/null
         fi
+
+        chsh -s /bin/bash $SERVER_USER
 
         chown -R $SERVER_USER:$SERVER_GROUP \
             /var/lib/vigilo/$MODULE \
