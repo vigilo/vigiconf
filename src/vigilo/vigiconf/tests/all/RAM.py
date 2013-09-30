@@ -21,7 +21,7 @@ class RAM(Test):
         # indicateurs définis ici (et surcharge le graphe)
         skipclasses = [ "cisco", "windows2000", "rapidcity", "xmperf",
                         "netware", "alcatel", "expand", "extremenetworks",
-                        "cisco_asa", "bluecoat", "bigip" ]
+                        "cisco_asa", "bluecoat", "bigip", "esxi" ]
         for skipclass in skipclasses:
             if skipclass in self.host.classes:
                 return

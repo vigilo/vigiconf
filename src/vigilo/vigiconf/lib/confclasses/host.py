@@ -523,6 +523,15 @@ class Host(object):
         @type  group: C{str}
         @param factors: the factors to use, if any
         @type  factors: C{dict}
+        @param last_is_max: le dernier DS doit provoquer l'affichage d'une
+            ligne horizontale noire (limite supérieure) et ne pas être listé
+            dans la légende
+        @type  last_is_max: C{bool}
+        @param min: valeur plancher du graphe
+        @type  min: C{float}
+        @param max: valeur plafond du graphe
+        @type  max: C{float}
+
         """
         for ds in dslist:
             if isinstance(ds, Cdef):
