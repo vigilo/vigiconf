@@ -957,13 +957,17 @@ de l'arborescence, comme dans l'exemple ci-dessous:
 
 Notez que chacun des "``group1``" correspond à un groupe différent.
 
+..  _`hlservices`:
+
+Dossier "``hlservices``"
+------------------------
+
+..  ifconfig:: not project.endswith('Enterprise')
+
+    Cette fonctionnalité n'est disponible que dans la version Enterprise
+    de Vigilo.
 
 ..  ifconfig:: project.endswith('Enterprise')
-
-    ..  _`hlservices`:
-
-    Dossier "``hlservices``"
-    ------------------------
 
     Le dossier "``hlservices``" contient les fichiers de définition des services de
     haut niveau. Tous les fichiers XML de ce dossier sont analysés et doivent

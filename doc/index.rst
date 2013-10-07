@@ -9,7 +9,7 @@ Documentation disponible :
 ..  toctree::
     :maxdepth: 2
 
-    util
+    admin
     dev
 
 .. : "suptests" est inclus et ne doit pas être référencé dans une TOC visible.
