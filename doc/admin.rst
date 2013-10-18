@@ -1840,7 +1840,6 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             <arg name="OID">.1.3.6.1.1.2.1.1.2</arg>
             <arg name="command">/var/lib/vigilo/snmptt/get_trap_upload</arg>
             <arg name="service">Upload</arg>
-            <arg name="label">Upload</arg>
           </test>
         </host>
 

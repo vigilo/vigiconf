@@ -102,13 +102,13 @@ class NagiosGen(FileGenerator):
             # {'SERVICE1': {'2.3.4.5.6': {'label': 'LAB1, 'command': '/usr/bin/cmd1', 'service': 'SERVICE1', 'address': '127.0.0.1'}}
             #, 'SERVICE2': {'1.2.3.4.5': {'label': 'LAB2', 'command': '/usr/bin/cmd2', 'service': 'SERVICE2', 'address': '127.0.0.1'}}}
             # 2 services about Trap for the same host
-            for k in h["snmpTrap"]:
-                if k in srvnames:
+            for trap in h["snmpTrap"]:
+                if trap in srvnames or trap is None:
                     continue
                 self.templateAppend(self.fileName,
                         self.templates["passive"],
                         {'name' :  hostname,
-                         'serviceName' : k,
+                         'serviceName' : trap,
                          'generic_sdirectives':
                              newhash['generic_sdirectives'].rstrip(),
                         })
