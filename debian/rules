@@ -24,10 +24,10 @@ ifneq "$(NOPY)" ""
 endif
 
 override_dh_auto_build:
-	$(MAKE) settings.ini pkg/$(PKGNAME).cron
+	$(MAKE) settings.ini pkg/$(PKGNAME)
 
 override_dh_auto_install:
-	/usr/bin/python setup.py install --root=debian/$(PKGNAME) \
+	CRONEXT= /usr/bin/python setup.py install --root=debian/$(PKGNAME) \
 	    --single-version-externally-managed \
 	    --install-layout=deb
 	mkdir -p \

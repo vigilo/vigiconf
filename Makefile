@@ -1,7 +1,5 @@
 NAME := vigiconf
 
-INFILES = pkg/$(PKGNAME).cron settings.ini
-
 all: build
 
 include buildenv/Makefile.common.python
@@ -9,9 +7,11 @@ CONFDIR := $(SYSCONFDIR)/vigilo/$(NAME)
 VARDIR := $(LOCALSTATEDIR)/lib/vigilo/$(NAME)
 VIGICONFPATH = $(dir $(shell PYTHONPATH=$(DESTDIR)$(PYTHON_SITELIB) python -c 'import vigilo.vigiconf; print vigilo.vigiconf.__file__'))
 
+INFILES = pkg/$(PKGNAME)$(CRONEXT) settings.ini
+
 build: $(INFILES)
 
-pkg/$(PKGNAME).cron: pkg/cronjobs.in
+pkg/$(PKGNAME)$(CRONEXT): pkg/cronjobs.in
 	sed -e 's,@BINDIR@,$(PREFIX)/bin,' $^ > $@
 
 settings.ini: settings.ini.in
@@ -22,9 +22,9 @@ install: build install_python install_users install_permissions
 install_pkg: build install_python_pkg
 
 install_python: settings.ini $(PYTHON)
-	$(PYTHON) setup.py install --record=INSTALLED_FILES
+	CRONEXT=$(CRONEXT) $(PYTHON) setup.py install --record=INSTALLED_FILES
 install_python_pkg: settings.ini $(PYTHON)
-	$(PYTHON) setup.py install --single-version-externally-managed \
+	CRONEXT=$(CRONEXT) $(PYTHON) setup.py install --single-version-externally-managed \
 		$(SETUP_PY_OPTS) --root=$(DESTDIR)
 
 install_users:
