@@ -53,9 +53,21 @@ class TestDiscoveratorBasics(unittest.TestCase):
         self.assertEqual(len(self.disc.oids), 0)
 
     def test_wrapped_line(self):
+        """Discoverator : valeur multiligne sans guillemets"""
         tmpfile = os.path.join(self.tmpdir, "test.walk")
         walkfile = open(tmpfile, "w")
         walkfile.write(".1.42 = First line\nSecond line\nThird line\n")
+        walkfile.close()
+        self.disc._get_snmp_command = lambda c, v, h: ["cat", tmpfile]
+        self.disc.scanhost("test", "public", "v2c")
+        self.assertEqual(self.disc.oids[".1.42"],
+                    "First line\nSecond line\nThird line\n")
+
+    def test_wrapped_line2(self):
+        """Discoverator : valeur multiligne entre guillemets"""
+        tmpfile = os.path.join(self.tmpdir, "test.walk")
+        walkfile = open(tmpfile, "w")
+        walkfile.write(".1.42 = \"First line\nSecond line\nThird line\n\"")
         walkfile.close()
         self.disc._get_snmp_command = lambda c, v, h: ["cat", tmpfile]
         self.disc.scanhost("test", "public", "v2c")

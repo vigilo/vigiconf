@@ -86,23 +86,61 @@ class Discoverator(object):
         """
         line_re = re.compile("^((?:\.\d+)+) =\s?(.*)$")
         cur_oid = None
+        full_value = False
+        need_quote = False
         cur_value = ""
+
         for line in iterator:
             line_mo = line_re.match(line)
-            if line_mo is None:
-                cur_value = cur_value + "\n" + line
-            else:
+            if line_mo is not None:
+                # Cas d'une valeur multiligne sans guillemets.
+                if cur_value and not need_quote:
+                    self._add_OID_value(cur_oid, cur_value)
+
                 cur_oid = line_mo.group(1)
-                tmp_value = line_mo.group(2).strip("\n\r")
-                # Depuis net-snmp 5.4.0, les chaînes de caractères
-                # sont délimitées par des guillemets dans le walk.
-                if len(tmp_value) >= 2 and \
-                    tmp_value.startswith('"') and \
-                    tmp_value.endswith('"'):
-                    tmp_value = tmp_value[1:-1]
-                cur_value = tmp_value
-            if cur_oid is not None:
-                self.oids[cur_oid] = cur_value
+                cur_value = line_mo.group(2).strip("\n\r")
+
+                # Cas d'une valeur entre guillemets.
+                if cur_value.startswith('"'):
+                    # La valeur se termine sur la ligne où elle a commencé.
+                    if cur_value.endswith('"'):
+                        need_quote = False
+                    else:
+                        need_quote = True
+
+            # Continuation de la valeur d'une ligne précédente.
+            else:
+                cur_value = cur_value + "\n" + line.rstrip("\r\n")
+                # Si la ligne se termine par un guillemet,
+                # alors la valeur est terminée.
+                if need_quote and cur_value.endswith('"'):
+                    need_quote = False
+                    self._add_OID_value(cur_oid, cur_value)
+
+        # Cas de la dernière valeur.
+        # cur_oid vaut None lorsque le fichier est vide.
+        if cur_oid and cur_value:
+            self._add_OID_value(cur_oid, cur_value)
+
+    _hexcheck_re = re.compile("^(?:[0-9a-f]{2} \r?\n?)+00 $", re.I)
+    _hex_re = re.compile("(?:([0-9a-f]{2}) \r?\n?)", re.I)
+
+    def _unhex(self, s):
+        return s.group(1).decode('hex')
+
+    def _add_OID_value(self, cur_oid, cur_value):
+        # Depuis net-snmp 5.4.0, les chaînes de caractères
+        # sont délimitées par des guillemets dans le walk.
+        if cur_value.startswith('"') and \
+            cur_value.endswith('"') and \
+            len(cur_value) >= 2:
+            cur_value = cur_value[1:-1]
+
+            # Conversion des chaînes hexadécimales
+            # et suppression du '\x00' terminal.
+            if self._hexcheck_re.match(cur_value):
+                cur_value = self._hex_re.sub(self._unhex, cur_value)[:-1]
+        self.oids[cur_oid] = cur_value
 
     def scanfile(self, filename):
         """
