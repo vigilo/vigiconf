@@ -69,6 +69,7 @@ class Partition(Test):
             partname = oids[ ".1.3.6.1.2.1.25.2.3.1.3." + partid ]
             # sanitize it
             partname = re.sub(" .*", " .*", partname)
+            partname = partname.replace(r"\ ", "") # Windows drive letters
             label = cls._get_label(partid, oids)
             if not label:
                 # No mountpoint found: maybe Windows ? Use partname
@@ -88,7 +89,7 @@ class Partition(Test):
             if oids[oid] == partid:
                 fsid = oid.split(".")[-1]
                 # now use HOST-RESOURCES-MIB::hrFSMountPoint
-                label = oids[ ".1.3.6.1.2.1.25.3.8.1.2." + fsid ]
+                label = oids[ ".1.3.6.1.2.1.25.3.8.1.2."+fsid ]
                 label = label.replace('"', '')
                 label = label.replace("\\", "")
                 return label

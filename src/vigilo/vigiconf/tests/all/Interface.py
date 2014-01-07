@@ -198,7 +198,7 @@ class Interface(Test):
         alphanum = string.letters + string.digits
         for intfid in intfids:
             # SNMP name: use IF-MIB::ifDescr and sanitize it
-            ifname = oids[ ".1.3.6.1.2.1.2.2.1.2." + intfid ]
+            ifname = oids[ ".1.3.6.1.2.1.2.2.1.2."+intfid ]
             ifname = re.sub("; .*", "; .*", ifname)
             if ifname == "lo": # Don't monitor the loopback
                 continue
