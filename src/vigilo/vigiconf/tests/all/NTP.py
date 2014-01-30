@@ -14,7 +14,8 @@ class NTP(Test):
     """Check if the NTP service is up"""
 
     def add_test(self):
-        skipclasses = [ "spectracom_netclock", "spectracom_securesync" ]
+        skipclasses = [ "spectracom_netclock", "spectracom_securesync",
+                "windows" ]
         for skipclass in skipclasses:
             if skipclass in self.host.classes:
                 return
