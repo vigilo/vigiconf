@@ -330,7 +330,7 @@ La balise *host* peut contenir les balises suivantes :
 - ``tag`` (0 ou plus)
 - ``group`` (1 ou plus)
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Dans la version Entreprise de Vigilo, cette balise peut également contenir
     les balises additionnelles suivantes :
@@ -414,7 +414,7 @@ avec VigiConf. Par défaut, les attributs suivants sont disponibles :
 - "``tempsensors``" : la liste des noms des sondes de température présentes
   sur l'équipement.
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     La version enterprise de Vigilo contient les attributs supplémentaires
     suivants :
@@ -453,7 +453,7 @@ possède un attribut ``name`` obligatoire qui désigne le test de supervision
 à appliquer (par exemple : "``CPU``" pour superviser l'état du processeur d'un
 équipement).
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Elle accepte un attribut optionnel ``weight``, contenant un entier positif et permettant
     de configurer le poids apporté par les services techniques associés à ce test
@@ -516,7 +516,7 @@ ci-dessous pour plus d'informations.
     Si le même argument est défini deux fois, seule la dernière valeur sera
     utilisée.
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     ..  note::
         Vigilo est optimiste quant à l'état des éléments du parc.
@@ -625,7 +625,7 @@ première forme s'appliquent également ici.
     l'attribut *ventilation* de la balise *host* afin de spécifier manuellement
     le groupe de ventilation à utiliser.
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Balise "``weight``"
     ^^^^^^^^^^^^^^^^^^^
@@ -767,7 +767,7 @@ Un bloc de données ``test`` possède l'attribut suivant :
 
 - ``name`` (1 exactement)
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Dans la version Entreprise de Vigilo, les attributs additionnels
     suivants sont utilisables :
@@ -783,11 +783,11 @@ Un bloc de données ``test`` contient les blocs suivants, dans l'ordre :
 Reportez-vous à la documentation sur la `configuration des tests d'un hôte`_
 pour plus d'information sur les attributs et blocs acceptés par cette balise.
 
-..  ifconfig:: not project.endswith('Enterprise')
+..  only:: not enterprise
 
     Exemple:
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Exemples:
 
@@ -830,7 +830,7 @@ qui envoie une alerte lorsque la durée de fonctionnement d'une machine est trop
 faible (c'est-à-dire lorsqu'elle a été redémarrée récemment).
 
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Dossier "``topologies``"
     ------------------------
@@ -962,12 +962,12 @@ Notez que chacun des "``group1``" correspond à un groupe différent.
 Dossier "``hlservices``"
 ------------------------
 
-..  ifconfig:: not project.endswith('Enterprise')
+..  only:: not enterprise
 
     Cette fonctionnalité n'est disponible que dans la version Enterprise
     de Vigilo.
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Le dossier "``hlservices``" contient les fichiers de définition des services de
     haut niveau. Tous les fichiers XML de ce dossier sont analysés et doivent
@@ -1339,7 +1339,7 @@ Le rôle de chacun de ces attributs est précisé ci-dessous :
   préfixant la valeur par "``0x``".
 
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Détection de la corruption de la base de données de Vigilo
     ----------------------------------------------------------
@@ -1661,7 +1661,7 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
     Ce message d'avertissement est affiché lorsque VigiConf est exécuté depuis
     le compte "``root``".
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Exemples de configurations d'hôtes particulières
     ------------------------------------------------

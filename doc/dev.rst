@@ -693,7 +693,7 @@ hôtes, services ou toute autre donnée).
 Un générateur de cartes automatiques est une classe contenue dans le paquet
 :py:mod:`automaps` et dérivant de la classe de base :py:class:`AutoMap`.
 
-..  ifconfig:: project.endswith('Enterprise')
+..  only:: enterprise
 
     Une implémentation d'un tel générateur est fournie, il s'agit de la classe
     :py:class:`BasicAutoMap`. La classe :py:class:`BasicAutoMap` génère
