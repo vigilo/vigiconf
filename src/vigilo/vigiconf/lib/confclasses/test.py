@@ -376,7 +376,14 @@ class TestFactory(object):
                     continue
 
                 # On charge d'abord la classe d'équipements.
-                mod_info = imp.find_module(hclass, [pathdir])
+                try:
+                    mod_info = imp.find_module(hclass, [pathdir])
+                except ImportError:
+                    LOGGER.warning(
+                        _('Invalid hostclass "%s". Missing __init__.py?') %
+                        hclass
+                    )
+                    continue
                 try:
                     mod = imp.load_module(
                             "vigilo.vigiconf.tests.%s" % hclass,

@@ -1,15 +1,15 @@
 # English translations for vigilo-vigiconf.
-# Copyright (C) 2013 ORGANIZATION
+# Copyright (C) 2014 ORGANIZATION
 # This file is distributed under the same license as the vigilo-vigiconf
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vigilo-vigiconf 3.0.1\n"
+"Project-Id-Version: vigilo-vigiconf 3.3\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2013-03-25 16:58+0100\n"
-"PO-Revision-Date: 2013-03-25 16:58+0100\n"
+"POT-Creation-Date: 2014-02-10 10:32+0100\n"
+"PO-Revision-Date: 2014-02-10 10:32+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -219,16 +219,16 @@ msgstr "Loading XML configuration"
 msgid "Error loading configuration"
 msgstr "Error loading configuration"
 
-#: src/vigilo/vigiconf/discoverator.py:112
+#: src/vigilo/vigiconf/discoverator.py:157
 #, python-format
 msgid "%s: No such file"
 msgstr "%s: No such file"
 
-#: src/vigilo/vigiconf/discoverator.py:117
+#: src/vigilo/vigiconf/discoverator.py:162
 msgid "Can't find the hostname using SNMPv2-MIB::sysName.0"
 msgstr "Can't find the hostname using SNMPv2-MIB::sysName.0"
 
-#: src/vigilo/vigiconf/discoverator.py:121
+#: src/vigilo/vigiconf/discoverator.py:166
 #, python-format
 msgid ""
 "Invalid HOSTNAME detected in SNMPv2-MIB::sysName.0: \"%s\" (blank "
@@ -237,11 +237,11 @@ msgstr ""
 "Invalid HOSTNAME detected in SNMPv2-MIB::sysName.0: \"%s\" (blank "
 "character not allowed)"
 
-#: src/vigilo/vigiconf/discoverator.py:151
+#: src/vigilo/vigiconf/discoverator.py:196
 msgid "The \"snmpwalk\" command is not installed."
 msgstr "The \"snmpwalk\" command is not installed."
 
-#: src/vigilo/vigiconf/discoverator.py:155
+#: src/vigilo/vigiconf/discoverator.py:200
 #, python-format
 msgid ""
 "SNMP walk command failed with error status %(status)s and message:\n"
@@ -252,12 +252,13 @@ msgstr ""
 "  %(msg)s\n"
 "The command was: %(cmd)s"
 
+#: src/vigilo/vigiconf/applications/rrd/generator.py:141
 #: src/vigilo/vigiconf/applications/vigirrd/generator.py:88
 #, python-format
 msgid "Some datasources are not on a graph: %s"
 msgstr "Some datasources are not on a graph: %s"
 
-#: src/vigilo/vigiconf/lib/application.py:88
+#: src/vigilo/vigiconf/lib/application.py:89
 #, python-format
 msgid ""
 "A timeout occured while executing application %(application)s with action"
@@ -266,76 +267,76 @@ msgstr ""
 "A timeout occured while executing application %(application)s with action"
 " %(action)s on the following servers: %(servers)s."
 
-#: src/vigilo/vigiconf/lib/application.py:261
+#: src/vigilo/vigiconf/lib/application.py:262
 #, python-format
 msgid "Can't find the validation script for app %(app)s: %(error)s"
 msgstr "Can't find the validation script for app %(app)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/application.py:426
+#: src/vigilo/vigiconf/lib/application.py:436
 #, python-format
 msgid "%(app)s: validation failed for server '%(server)s': %(reason)s"
 msgstr "%(app)s: validation failed for server '%(server)s': %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:433
+#: src/vigilo/vigiconf/lib/application.py:443
 #, python-format
 msgid "%(app)s : Validation successful for server: %(server)s"
 msgstr "%(app)s : Validation successful for server: %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:455
+#: src/vigilo/vigiconf/lib/application.py:465
 #, python-format
 msgid "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
 msgstr "%(app)s : Qualification failed on '%(server)s' - REASON: %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:464
+#: src/vigilo/vigiconf/lib/application.py:474
 #, python-format
 msgid "%(app)s : Qualification successful on server : %(server)s"
 msgstr "%(app)s : Qualification successful on server : %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:479
+#: src/vigilo/vigiconf/lib/application.py:489
 #, python-format
 msgid "Starting %(app)s on %(server)s ..."
 msgstr "Starting %(app)s on %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:482
+#: src/vigilo/vigiconf/lib/application.py:492
 #, python-format
 msgid "Reloading %(app)s on %(server)s ..."
 msgstr "Reloading %(app)s on %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:490
+#: src/vigilo/vigiconf/lib/application.py:500
 #, python-format
 msgid "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 msgstr "Can't Start %(app)s on %(server)s - REASON %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:499
+#: src/vigilo/vigiconf/lib/application.py:509
 #, python-format
 msgid "%(app)s started on %(server)s"
 msgstr "%(app)s started on %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:501
+#: src/vigilo/vigiconf/lib/application.py:511
 #, python-format
 msgid "%(app)s reloaded on %(server)s"
 msgstr "%(app)s reloaded on %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:514
+#: src/vigilo/vigiconf/lib/application.py:524
 #, python-format
 msgid "Stopping %(app)s on %(server)s ..."
 msgstr "Stopping %(app)s on %(server)s ..."
 
-#: src/vigilo/vigiconf/lib/application.py:524
+#: src/vigilo/vigiconf/lib/application.py:534
 #, python-format
 msgid "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 msgstr "Can't Stop %(app)s on %(server)s - REASON %(reason)s"
 
-#: src/vigilo/vigiconf/lib/application.py:533
+#: src/vigilo/vigiconf/lib/application.py:543
 #, python-format
 msgid "%(app)s stopped on %(server)s"
 msgstr "%(app)s stopped on %(server)s"
 
-#: src/vigilo/vigiconf/lib/application.py:581
+#: src/vigilo/vigiconf/lib/application.py:588
 msgid "Empty list of servers"
 msgstr "Empty list of servers"
 
-#: src/vigilo/vigiconf/lib/application.py:648
+#: src/vigilo/vigiconf/lib/application.py:662
 #, python-format
 msgid ""
 "Incoherent configuration: application %(app)s has an entry point named "
@@ -344,17 +345,17 @@ msgstr ""
 "Incoherent configuration: application %(app)s has an entry point named "
 "%(epname)s in package %(eppkg)s"
 
-#: src/vigilo/vigiconf/lib/application.py:653
+#: src/vigilo/vigiconf/lib/application.py:667
 #, python-format
 msgid "Application %s is installed but disabled (see conf.d/general/apps.py)"
 msgstr "Application %s is installed but disabled (see conf.d/general/apps.py)"
 
-#: src/vigilo/vigiconf/lib/application.py:657
+#: src/vigilo/vigiconf/lib/application.py:671
 #, python-format
 msgid "application %s is not unique. Providing modules: %s"
 msgstr "application %s is not unique. Providing modules: %s"
 
-#: src/vigilo/vigiconf/lib/application.py:668
+#: src/vigilo/vigiconf/lib/application.py:682
 #, python-format
 msgid ""
 "Application %s has been added to conf.d/general/apps.py, but is not "
@@ -363,23 +364,23 @@ msgstr ""
 "Application %s has been added to conf.d/general/apps.py, but is not "
 "installed"
 
-#: src/vigilo/vigiconf/lib/application.py:683
+#: src/vigilo/vigiconf/lib/application.py:697
 msgid "validation failed, see above for more information."
 msgstr "validation failed, see above for more information."
 
-#: src/vigilo/vigiconf/lib/application.py:685
+#: src/vigilo/vigiconf/lib/application.py:699
 msgid "Validation successful"
 msgstr "Validation successful"
 
-#: src/vigilo/vigiconf/lib/application.py:699
+#: src/vigilo/vigiconf/lib/application.py:713
 msgid "qualification failed. See above for more information."
 msgstr "qualification failed. See above for more information."
 
-#: src/vigilo/vigiconf/lib/application.py:701
+#: src/vigilo/vigiconf/lib/application.py:715
 msgid "Qualification successful"
 msgstr "Qualification successful"
 
-#: src/vigilo/vigiconf/lib/application.py:744
+#: src/vigilo/vigiconf/lib/application.py:756
 #, python-format
 msgid ""
 "Next attempt for %(action)s action in %(interval)d second(s) (attempt "
@@ -519,25 +520,25 @@ msgstr ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
 "%(args)s (and only those)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:531
+#: src/vigilo/vigiconf/lib/confclasses/host.py:540
 #, python-format
 msgid "host '%(host)s': wrong datasource in graph '%(graph)s': %(ds)s"
 msgstr "host '%(host)s': wrong datasource in graph '%(graph)s': %(ds)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:555
+#: src/vigilo/vigiconf/lib/confclasses/host.py:564
 #, python-format
 msgid "CDEF name must be ASCII-only: %s"
 msgstr "CDEF name must be ASCII-only: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:762
+#: src/vigilo/vigiconf/lib/confclasses/host.py:771
 msgid "Cannot override general configuration."
 msgstr "Cannot override general configuration."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:772
+#: src/vigilo/vigiconf/lib/confclasses/host.py:781
 msgid "oxe_login and oxe_password cannot be empty"
 msgstr "oxe_login and oxe_password cannot be empty"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:775
+#: src/vigilo/vigiconf/lib/confclasses/host.py:784
 #, python-format
 msgid ""
 "Value for '%(attr)s' (%(value)s) could not be cast into an integer. Using"
@@ -546,17 +547,17 @@ msgstr ""
 "Value for '%(attr)s' (%(value)s) could not be cast into an integer. Using"
 " default value (%(default)d)."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:908
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:301
+#: src/vigilo/vigiconf/lib/confclasses/host.py:917
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:303
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:97
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr "Invalid XML validation schema %(schema)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:914
-#: src/vigilo/vigiconf/lib/confclasses/host.py:934
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:307
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:327
+#: src/vigilo/vigiconf/lib/confclasses/host.py:923
+#: src/vigilo/vigiconf/lib/confclasses/host.py:943
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:309
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:329
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:103
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:123
 #, python-format
@@ -567,42 +568,42 @@ msgstr ""
 "Error reading %(file)s, make sure the permissions are set "
 "correctly.Message: %(error)s."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:931
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:324
+#: src/vigilo/vigiconf/lib/confclasses/host.py:940
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:326
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:120
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "XML syntax error in %(file)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:942
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:335
+#: src/vigilo/vigiconf/lib/confclasses/host.py:951
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:337
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr "XML validation failed: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1003
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1012
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Invalid ventilation group: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1044
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1053
 #, python-format
 msgid "Invalid value for %(type)s in test %(test)s on host %(host)s: %(value)r"
 msgstr "Invalid value for %(type)s in test %(test)s on host %(host)s: %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1120
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1129
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:129
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Invalid group name (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1129
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1138
 #, python-format
 msgid "Invalid value for %(type)s on host %(host)s: %(value)r"
 msgstr "Invalid value for %(type)s on host %(host)s: %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1179
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1188
 #, python-format
 msgid ""
 "Host '%(host)s' inherits from both the '%(tpl1)s' and '%(tpl2)s' "
@@ -613,17 +614,17 @@ msgstr ""
 "templates (in this order), but '%(tpl1)s' already inherits from "
 "'%(tpl2)s'. The templates will be reordered to satisfy dependencies."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1205
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1214
 #, python-format
 msgid "Unable to load templates for %(host)s. Possible cycle."
 msgstr "Unable to load templates for %(host)s. Possible cycle."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1222
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1231
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "You must associate host \"%s\" with at least one group."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1233
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1242
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
@@ -632,21 +633,21 @@ msgstr ""
 "Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
 "class ?"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:292
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:294
 msgid "A cycle has been detected in templates"
 msgstr "A cycle has been detected in templates"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:425
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:427
 #, python-format
 msgid "Invalid value for %(type)s in test %(test)s in template %(tpl)s: %(value)r"
 msgstr "Invalid value for %(type)s in test %(test)s in template %(tpl)s: %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:466
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:468
 #, python-format
 msgid "Invalid value for %(type)s in template %(tpl)s: %(value)r"
 msgstr "Invalid value for %(type)s in template %(tpl)s: %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:536
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:538
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s (added by template "
@@ -660,9 +661,14 @@ msgstr ""
 msgid "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 msgstr "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:388
-#: src/vigilo/vigiconf/lib/confclasses/test.py:421
-#: src/vigilo/vigiconf/lib/confclasses/test.py:562
+#: src/vigilo/vigiconf/lib/confclasses/test.py:383
+#, python-format
+msgid "Invalid hostclass \"%s\". Missing __init__.py?"
+msgstr "Invalid hostclass \"%s\". Missing __init__.py?"
+
+#: src/vigilo/vigiconf/lib/confclasses/test.py:395
+#: src/vigilo/vigiconf/lib/confclasses/test.py:428
+#: src/vigilo/vigiconf/lib/confclasses/test.py:569
 #, python-format
 msgid "Unable to load %(file)s: %(error)s"
 msgstr "Unable to load %(file)s: %(error)s"
@@ -713,7 +719,7 @@ msgstr ""
 "Vigilo server management is only available in the Enterprise edition. "
 "Aborting."
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:70
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:71
 msgid ""
 "you can't go back to a former revision if you have modified your "
 "configuration. Use 'svn revert' to cancel your modifications"
@@ -721,31 +727,31 @@ msgstr ""
 "you can't go back to a former revision if you have modified your "
 "configuration. Use 'svn revert' to cancel your modifications"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:100
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:101
 #, python-format
 msgid "can't compute SVN differences for the configuration dir: %s"
 msgstr "can't compute SVN differences for the configuration dir: %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:127
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:128
 msgid "Not updating because the 'svnrepository' configuration parameter is empty"
 msgstr "Not updating because the 'svnrepository' configuration parameter is empty"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:138
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:139
 #, python-format
 msgid "can't get SVN status for the configuration dir: %s"
 msgstr "can't get SVN status for the configuration dir: %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:188
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:189
 #, python-format
 msgid "Can't add %(path)s in repository: %(error)s"
 msgstr "Can't add %(path)s in repository: %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:211
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:212
 #, python-format
 msgid "can't remove %(path)s from repository: %(error)s"
 msgstr "can't remove %(path)s from repository: %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:222
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:223
 msgid ""
 "Not committing because the 'svnrepository' configuration parameter is "
 "empty"
@@ -753,16 +759,16 @@ msgstr ""
 "Not committing because the 'svnrepository' configuration parameter is "
 "empty"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:234
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:235
 #, python-format
 msgid "can't commit the configuration dir in SVN: %s"
 msgstr "can't commit the configuration dir in SVN: %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:239
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:240
 msgid "SVN commit successful"
 msgstr "SVN commit successful"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:262
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:263
 #, python-format
 msgid ""
 "can't execute the request to update the local copy. COMMAND %(cmd)s "
@@ -771,7 +777,7 @@ msgstr ""
 "can't execute the request to update the local copy. COMMAND %(cmd)s "
 "FAILED. REASON: %(reason)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:302
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:303
 #, python-format
 msgid "can't execute the request to get the current revision: %s"
 msgstr "can't execute the request to get the current revision: %s"
@@ -1079,7 +1085,7 @@ msgstr ""
 "Invalid value \"%(value)s\" for %(param)s. Expected one of: "
 "%(candidates)s."
 
-#: src/vigilo/vigiconf/tests/all/NTP.py:21
+#: src/vigilo/vigiconf/tests/all/NTP.py:22
 msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
 msgstr "Test NTP has been deprecated. Please use NagiosPlugin instead"
 
