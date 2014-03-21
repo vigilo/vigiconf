@@ -28,7 +28,6 @@ L{ServerManagerLocal} sont disponibles.
 from __future__ import absolute_import
 
 import socket
-
 from pkg_resources import working_set
 
 from vigilo.common.logging import get_logger
@@ -50,8 +49,30 @@ class ServerFactory(object):
 
     def __init__(self):
         self.remote_class = self.find_remote_class()
-        self.localnames = [ "localhost", socket.gethostname(),
-                            socket.getfqdn() ]
+        names = set(['::1', '127.0.0.1', 'localhost', socket.gethostname()])
+        self.localnames = names.copy()
+
+        # IPs/noms d'hôtes déterminés grâce aux entrées précédentes.
+        for name in names:
+            try:
+                name = socket.gethostbyname(name)
+                self.localnames.add(name)
+            except socket.error:
+                continue
+            try:
+                for alias in socket.gethostbyaddr(name):
+                    if isinstance(alias, list):
+                        self.localnames |= set(alias)
+                    else:
+                        self.localnames.add(alias)
+            except socket.error:
+                pass
+
+        # FQDN
+        try:
+            self.localnames.add(socket.getfqdn())
+        except socket.error:
+            pass
 
     def find_remote_class(self): # pylint: disable-msg=R0201
         for entry in working_set.iter_entry_points(

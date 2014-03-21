@@ -50,7 +50,7 @@ class CommunityEdition(unittest.TestCase):
         settings["vigiconf"]["confdir"] = self.old_conf_dir
 
     def test_ventilator_com(self):
-        """The supervision server in C.E. must always be the localhost"""
+        """The monitoring server in C.E. must always be the localhost"""
         host = Host(conf.hostsConf, "dummy.xml", "testserver1",
                     "192.168.1.1", "Servers")
         nagios = Nagios()
@@ -60,8 +60,8 @@ class CommunityEdition(unittest.TestCase):
         mapping = ventilator.ventilation_by_appname(mapping)
         for app, appserver in mapping[host.name].iteritems():
             self.assertEqual(appserver, "localhost",
-                "The supevision server in the Enterprise Edition for the "
-                "%s application is not the localhost" % app)
+                "The monitoring server in the Enterprise Edition for the "
+                "%s application is not the local host" % app)
 
     def test_generator_com(self):
         """Test the generation in C.E."""
