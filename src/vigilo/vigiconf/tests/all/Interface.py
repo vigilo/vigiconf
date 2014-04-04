@@ -60,6 +60,11 @@ class Interface(Test):
         staticindex = self.as_bool(staticindex)
         counter32 = self.as_bool(counter32)
         teststate = self.as_bool(teststate)
+        DHCIf = self.host.get_attribute("DisableHighCapacityInterface", False)
+        if DHCIf is None:
+            DHCIf = True
+        DHCIf = self.as_bool(DHCIf)
+
 
         snmp_oids = {
             # using by default High Capacity (64Bits) COUNTER for in and out
@@ -98,8 +103,7 @@ class Interface(Test):
                                      'candidates': ', '.join(special_states),
                                 })
 
-        HCIf = self.host.get_attribute("DisableHighCapacityInterface", True)
-        if HCIf is not True or counter32 is not False:
+        if DHCIf or counter32 :
             # using Low Capacity (32Bits) COUNTER for in and out
             snmp_oids["in"]  = ".1.3.6.1.2.1.2.2.1.10"
             snmp_oids["out"] = ".1.3.6.1.2.1.2.2.1.16"
