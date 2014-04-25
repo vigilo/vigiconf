@@ -746,7 +746,7 @@ class Host(object):
             'factor': factor,
         })
 
-    def add_telnet_service(self, servicename, options,
+    def add_telnet_service(self, servicename, params,
                            weight=None, warning_weight=None,
                            directives=None):
         """
@@ -754,11 +754,9 @@ class Host(object):
 
         @param servicename: Nom du service qui sera ajouté au collector-telnet.
         @type  servicename: C{str}
-        @param options: Dictionnaire d'options pour réaliser la collecte
-            de ce service. Le dictionnaire doit contenir au minimum les clés
-            suivantes: C{labels}, C{crystals}, C{domain}, C{srv_name} et
-            C{name}. Il peut également contenir la clé C{crit}.
-        @type  options: C{dict}
+        @param params: Dictionnaire de paramètres pour réaliser la collecte
+            de ce service.
+        @type  params: C{dict}
         @param weight: service weight when in the OK state
         @type  weight: C{int}
         @param warning_weight: service weight when in the WARNING state
@@ -813,7 +811,7 @@ class Host(object):
             })
 
         # Ajout du plugin dans le collector-telnet.
-        self.add(self.name, "telnetJobs", servicename, options)
+        self.add(self.name, "telnetJobs", servicename, params)
         # Ajout d'un service passif pour le plugin.
         self.add_custom_service(servicename, "passive", directives=directives,
                                 weight=weight, warning_weight=warning_weight)
