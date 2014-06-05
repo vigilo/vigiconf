@@ -13,6 +13,8 @@
     <attribute name="snmpCommunity">public</attribute>
     <attribute name="snmpPort">161</attribute>
     <attribute name="snmpOIDsPerPDU">10</attribute>
+    <!-- SNMP Collector timeout -->
+    <attribute name="collectorTimeout">3</attribute>
     <test name="UpTime"/>
 </template>
 </templates>

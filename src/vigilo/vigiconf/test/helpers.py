@@ -190,6 +190,7 @@ class GeneratorBaseTestCase(TestCase):
         self.testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
         self.host = Host(conf.hostsConf, "dummy.xml", "testserver1",
                          "192.168.1.1", "Servers")
+        self.host.set_attribute("collectorTimeout", "3")
         # attention, le fichier dummy.xml doit exister ou l'hôte sera supprimé
         # juste après avoir été inséré
         open(os.path.join(self.tmpdir, "conf.d", "dummy.xml"), "w").close()

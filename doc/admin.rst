@@ -404,13 +404,15 @@ interrogation SNMP (voir à ce sujet le chapitre « :ref:`discover` »).
 Les noms d'attributs utilisables dépendent des tests de supervision installés
 avec VigiConf. Par défaut, les attributs suivants sont disponibles :
 
+- "``collectorTimeout``" : délai d'attente utilisé lors de la récupération
+  des données SNMP de l'hôte ;
 - "``cpulist``" : la liste des identifiants des processeurs sur l'équipement ;
 - "``fans``" : la liste des identifiants des ventilateurs sur l'équipement ;
 - "``snmpCommunity``" : la communauté pour l'accès SNMP à l'équipement ;
-- "``snmpVersion``" : la version SNMP à utiliser (par défaut, la version 2 est
-  utilisée) ;
 - "``snmpPort``" : le port SNMP à utiliser (par défaut, le port 161 est
   utilisé) ;
+- "``snmpVersion``" : la version SNMP à utiliser (par défaut, la version 2 est
+  utilisée) ;
 - "``tempsensors``" : la liste des noms des sondes de température présentes
   sur l'équipement.
 
