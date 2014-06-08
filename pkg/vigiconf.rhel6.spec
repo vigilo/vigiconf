@@ -16,7 +16,7 @@ Buildrequires: python-distribute
 BuildRequires:   python-babel
 
 Requires:   python-distribute
-Requires:   python-lxml
+Requires:   python-lxml >= 3.0.1
 Requires:   perl
 Requires:   subversion >= 1.5.6
 Requires:   tar
