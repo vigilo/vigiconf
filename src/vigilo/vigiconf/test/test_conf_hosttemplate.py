@@ -78,22 +78,6 @@ class HostTemplates(unittest.TestCase):
         self.assertEqual(conf.hostsConf["testserver1"]["TestAttr"],
                          "TestVal", "add_attribute does not work")
 
-    def test_add_default_service_weight(self):
-        """Test for the add_weight method"""
-        self.tpl.add_weight("default_service_weight", 12)
-        self.hosttemplatefactory.apply(self.host, "testtpl1")
-        self.assertEqual(conf.hostsConf["testserver1"][
-            "default_service_weight"],
-            12, "add_weight does not work")
-
-    def test_add_default_service_warning_weight(self):
-        """Test for the add_weight method"""
-        self.tpl.add_weight("default_service_warning_weight", 12)
-        self.hosttemplatefactory.apply(self.host, "testtpl1")
-        self.assertEqual(conf.hostsConf["testserver1"][
-            "default_service_warning_weight"],
-            12, "add_weight does not work")
-
     def test_inherit_redefine_test(self):
         self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label1"})
         tpl2 = HostTemplate("testtpl2")

@@ -80,7 +80,7 @@ class TestFactoryImportsTest(unittest.TestCase):
         self.testfactory.load_tests()
         testclasses = self.testfactory.get_test('Error', 'imports')
         self.assertEquals(1, len(testclasses))
-        test = testclasses[0](self.host, None, None, None)
+        test = testclasses[0](self.host, None)
 
         # On ne peut pas utiliser self.assertRaises à cause du rebinding
         # des classes dans TestFactory.

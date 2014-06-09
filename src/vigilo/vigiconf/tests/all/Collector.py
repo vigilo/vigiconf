@@ -10,10 +10,7 @@ class Collector(Test):
     """The Collector service"""
 
     def add_test(self):
-        self.add_external_sup_service("Collector", "Collector",
-                weight=self.weight,
-                warning_weight=self.warning_weight,
-                directives=self.directives)
+        self.add_external_sup_service("Collector", "Collector")
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

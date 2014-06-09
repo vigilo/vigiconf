@@ -94,17 +94,10 @@ class Host(object):
                     "services": {},
                 },
                 "nagiosSrvDirs"  : {},
-                "weight": 1, # Poids par défaut de l'hôte
-                "default_service_weight": 1, # Poids par défaut des services
-                "default_service_warning_weight": 1, # Poids WARNING par défaut
-                                                     # des services
                 "force-passive"  : False,
             }
         self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
-                           "weight": int,
-                           "default_service_weight": int,
-                           "default_service_warning_weight": int,
                           }
         self.deprecated_attr = {
             "community": "snmpCommunity",
@@ -171,8 +164,7 @@ class Host(object):
         for attr_name, attr_value in attributes.iteritems():
             self.set_attribute(attr_name, attr_value)
 
-    def add_tests(self, test_list, args=None, weight=None, warning_weight=None,
-                    directives=None):
+    def add_tests(self, test_list, args=None, directives=None):
         """
         Add a list of tests to this host, with the provided arguments
 
@@ -180,17 +172,16 @@ class Host(object):
         @type  test_list: C{list} of C{Test<.test.Test>}
         @param args: the test arguments
         @type  args: C{dict}
-        @param weight: the test weight when in the OK state
-        @type  weight: C{int}
-        @param warning_weight: the test weight when in the WARNING state
-        @type  warning_weight: C{int}
+        @param directives: A dictionary of directives to be passed on
+            to Nagios.
+        @type  directives: C{dict}
         """
         if directives is None:
             directives = {}
         if args is None:
             args = {}
         for test_class in test_list:
-            inst = test_class(self, directives, weight, warning_weight)
+            inst = test_class(self, directives)
             try:
                 inst.add_test(**args)
             except TypeError:
@@ -320,8 +311,7 @@ class Host(object):
 #### Collector-related functions ####
 
     def add_collector_service(self, label, function, params, variables,
-                              reroutefor=None, weight=None, warning_weight=None,
-                              directives=None):
+                              reroutefor=None, directives=None):
         """
         Add a supervision service to the Collector
         @param label: the service display label
@@ -338,10 +328,9 @@ class Host(object):
             given by the "host" and "service" keys of this dict,
             respectively.
         @type  reroutefor: C{dict}
-        @param weight: service weight when in the OK state
-        @type  weight: C{int}
-        @param warning_weight: service weight when in the WARNING state
-        @type  warning_weight: C{int}
+        @param directives: A dictionary of directives to be passed on
+            to Nagios.
+        @type  directives: C{dict}
         """
         # Si il n'existe pas encore, on ajoute un test Collector par défaut
         # pour être sûr que les données soient collectées.
@@ -369,8 +358,6 @@ class Host(object):
         # ont été définis pour ce service.
         definition = {
             'type': 'passive',
-            'weight': weight,
-            'warning_weight': warning_weight,
             'directives': directives,
             'reRoutedBy': reroutedby,
         }
@@ -441,8 +428,7 @@ class Host(object):
 
     def add_collector_service_and_metro(self, name, label, supfunction,
                     supparams, supvars, metrofunction, metroparams, metrovars,
-                    dstype, reroutefor=None, weight=None, warning_weight=None,
-                    directives=None):
+                    dstype, reroutefor=None, directives=None):
         """
         Helper function for L{add_collector_service}() and
         L{add_collector_metro}().
@@ -466,22 +452,19 @@ class Host(object):
         @type  dstype: "GAUGE" or "COUNTER", see RRDtool documentation
         @param reroutefor: service routing information
         @type  reroutefor: C{dict} with "host" and "service" as keys
-        @param weight: service weight when in the OK state
-        @type  weight: C{int}
-        @param warning_weight: service weight when in the WARNING state
-        @type  warning_weight: C{int}
+        @param directives: A dictionary of directives to be passed on
+            to Nagios.
+        @type  directives: C{dict}
         """
         self.add_collector_service(name, supfunction, supparams, supvars,
-                        reroutefor=reroutefor, weight=weight,
-                        warning_weight=warning_weight, directives=directives)
+                        reroutefor=reroutefor, directives=directives)
         self.add_collector_metro(name, metrofunction, metroparams, metrovars,
                                  dstype, label=label, reroutefor=reroutefor)
 
     def add_collector_service_and_metro_and_graph(self, name, label, oid,
             th1, th2, dstype, template, vlabel, supcaption=None,
             supfunction="thresholds_OID_simple", metrofunction="directValue",
-            group="General", reroutefor=None, weight=None, warning_weight=None,
-            directives=None):
+            group="General", reroutefor=None, directives=None):
         """
         Helper function for L{add_collector_service}(),
         L{add_collector_metro}() and L{add_graph}(). See those methods for
@@ -495,8 +478,6 @@ class Host(object):
                     [th1, th2, supcaption], ["GET/%s"%oid], metrofunction,
                     [], [ "GET/%s"%oid ], dstype,
                     reroutefor=reroutefor,
-                    weight=weight,
-                    warning_weight=warning_weight,
                     directives=directives)
         if reroutefor != None:
             target = reroutefor['host']
@@ -579,20 +560,15 @@ class Host(object):
             self.add(self.name, "reports", title, {"reportName": reportname,
                                                    "dateSetting": datesetting})
 
-    def add_external_sup_service(self, name, command=None,
-                                 weight=None, warning_weight=None,
-                                 directives=None):
+    def add_external_sup_service(self, name, command=None, directives=None):
         """
         Add a standard Nagios service
         @param name: the service name
         @type  name: C{str}
         @param command: the command to use
         @type  command: C{str}
-        @param weight: service weight when in the OK state
-        @type  weight: C{int}
-        @param warning_weight: service weight when in the WARNING state
-        @type  warning_weight: C{int}
-        @param directives: Directives Nagios pour le service.
+        @param directives: A dictionary of directives to be passed on
+            to Nagios.
         @type  directives: C{dict}
         """
         if directives is None:
@@ -601,8 +577,6 @@ class Host(object):
             self.add_sub(self.name, "nagiosSrvDirs", name, dname, dvalue)
 
         definition =  {'command': command,
-                       'weight': weight,
-                       'warning_weight': warning_weight,
                        'directives': directives,
                        'reRoutedBy': None,
                       }
@@ -617,8 +591,7 @@ class Host(object):
         for (key, value) in definition.iteritems():
             self.add_sub(self.name, 'services', name, key, value)
 
-    def add_custom_service(self, name, stype, weight=None, warning_weight=None,
-                            directives=None):
+    def add_custom_service(self, name, stype, directives=None):
         """
         Ajoute un service Nagios quasiment entièrement défini par un des
         modèles fournis dans le générateur Nagios.
@@ -627,10 +600,9 @@ class Host(object):
         @type  name: C{str}
         @param stype: the service type
         @type  stype: C{str}
-        @param weight: service weight when in the OK state
-        @type  weight: C{int}
-        @param warning_weight: service weight when in the WARNING state
-        @type  warning_weight: C{int}
+        @param directives: A dictionary of directives to be passed on
+            to Nagios.
+        @type  directives: C{dict}
         """
         if directives is None:
             directives = {}
@@ -638,8 +610,6 @@ class Host(object):
             self.add_sub(self.name, "nagiosSrvDirs", name, dname, dvalue)
 
         definition =  {'type': stype,
-                       'weight': weight,
-                       'warning_weight': warning_weight,
                        'directives': directives,
                        'reRoutedBy': None,
                       }
@@ -719,8 +689,7 @@ class Host(object):
                      'reRouteFor': reroutefor})
 
     def add_metro_service(self, servicename, metroname, warn, crit,
-                          factor=1, weight=None, warning_weight=None,
-                          directives=None):
+                          factor=1, directives=None):
         """
         Add a Nagios test on the values stored in a RRD file
         @param servicename: the name of the Nagios service
@@ -733,11 +702,12 @@ class Host(object):
         @type  crit: C{str}
         @param factor: the factor to use, if any
         @type  factor: C{int} or C{float}
+        @param directives: A dictionary of directives to be passed on
+            to Nagios.
+        @type  directives: C{dict}
         """
         # Ajout du service Nagios
-        self.add_custom_service(servicename, "passive",
-                                weight=weight, warning_weight=warning_weight,
-                                directives=directives)
+        self.add_custom_service(servicename, "passive", directives=directives)
         # Ajout des seuils pour le connector-metro.
         self.add(self.name, "metro_services", metroname, {
             'servicename': servicename,
@@ -746,9 +716,7 @@ class Host(object):
             'factor': factor,
         })
 
-    def add_telnet_service(self, servicename, params,
-                           weight=None, warning_weight=None,
-                           directives=None):
+    def add_telnet_service(self, servicename, params, directives=None):
         """
         Ajoute un service pour collecte via le collector-telnet.
 
@@ -757,11 +725,8 @@ class Host(object):
         @param params: Dictionnaire de paramètres pour réaliser la collecte
             de ce service.
         @type  params: C{dict}
-        @param weight: service weight when in the OK state
-        @type  weight: C{int}
-        @param warning_weight: service weight when in the WARNING state
-        @type  warning_weight: C{int}
-        @param directives: Directives Nagios pour le service.
+        @param directives: A dictionary of directives to be passed on
+            to Nagios.
         @type  directives: C{dict}
         """
         # Précaution contre les écrasements.
@@ -813,8 +778,7 @@ class Host(object):
         # Ajout du plugin dans le collector-telnet.
         self.add(self.name, "telnetJobs", servicename, params)
         # Ajout d'un service passif pour le plugin.
-        self.add_custom_service(servicename, "passive", directives=directives,
-                                weight=weight, warning_weight=warning_weight)
+        self.add_custom_service(servicename, "passive", directives=directives)
         # Ajout du collector-telnet lui-même dans les services.
         if "Collector Telnet" not in self.hosts[self.name].get("services"):
             self.add_external_sup_service("Collector Telnet",
@@ -983,7 +947,6 @@ class HostFactory(object):
         directives = {}
         tests = []
         templates = []
-        weight = {}
 
         if sourcexml is not None:
             iterator = etree.iterwalk
@@ -998,11 +961,6 @@ class HostFactory(object):
                     directives = {}
                     tests = []
                     tags = []
-                    weight = {
-                            "weight": None,
-                            "default_service_weight": None,
-                            "default_service_warning_weight": None
-                            }
                     templates = []
                     attributes = {}
 
@@ -1054,24 +1012,6 @@ class HostFactory(object):
 
                 elif elem.tag == "test":
                     test_name = get_attrib(elem, 'name')
-                    test_weight = { "weight": None,
-                                    "warning_weight": None }
-                    for k in test_weight.keys():
-                        v = get_attrib(elem, k)
-                        try:
-                            test_weight[k] = int(v)
-                        except ValueError:
-                            raise ParsingError(
-                                    _("Invalid value for %(type)s in test "
-                                    "%(test)s on host %(host)s: %(value)r") %
-                                        {'type': k,
-                                         'test': test_name,
-                                         'host': cur_host.name,
-                                         'value': v,
-                                         })
-                        except TypeError:
-                            # C'est None, on laisse prendre la valeur par défaut
-                            pass
 
                     args = {}
                     for arg in elem.getchildren():
@@ -1093,9 +1033,7 @@ class HostFactory(object):
                         # qu'on récupère ici.
                         else:
                             args[arg_name] = get_text(arg)
-                    tests.append( (test_name, args, test_weight["weight"],
-                                   test_weight["warning_weight"],
-                                   test_directives) )
+                    tests.append( (test_name, args, test_directives) )
                     test_name = None
 
                 elif elem.tag == "attribute":
@@ -1140,21 +1078,6 @@ class HostFactory(object):
                         raise ParsingError(_('Invalid group name (%s)')
                             % group_name)
                     cur_host.add_group(group_name)
-
-                elif elem.tag in weight:
-                    value = get_text(elem)
-                    try:
-                        weight[elem.tag] = int(value)
-                    except ValueError:
-                        raise ParsingError(_("Invalid value for %(type)s on "
-                            "host %(host)s: %(value)r") % {
-                            'type': elem.tag,
-                            'host': cur_host.name,
-                            'value': value,
-                        })
-                    except TypeError:
-                        # C'est None, on laisse prendre la valeur par défaut
-                        pass
 
                 elif elem.tag == "nagios":
                     process_nagios = False
@@ -1241,10 +1164,6 @@ class HostFactory(object):
                     if not len(cur_host.get_attribute('otherGroups')):
                         raise ParsingError(_('You must associate host "%s" '
                             'with at least one group.') % cur_host.name)
-
-                    for key, value in weight.iteritems():
-                        if value is not None:
-                            cur_host.set_attribute(key, value)
 
                     for test_params in tests:
                         test_list = self.testfactory.get_test(test_params[0],

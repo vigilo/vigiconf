@@ -330,16 +330,6 @@ La balise *host* peut contenir les balises suivantes :
 - ``tag`` (0 ou plus)
 - ``group`` (1 ou plus)
 
-..  only:: enterprise
-
-    Dans la version Entreprise de Vigilo, cette balise peut également contenir
-    les balises additionnelles suivantes :
-
-    - ``weight`` (0 ou 1)
-    - ``default_service_weight`` (0 ou 1)
-    - ``default_service_warning_weight`` (0 ou 1)
-
-
 Balise "``class``"
 ^^^^^^^^^^^^^^^^^^
 Syntaxe:
@@ -463,29 +453,6 @@ possède un attribut ``name`` obligatoire qui désigne le test de supervision
 à appliquer (par exemple : "``CPU``" pour superviser l'état du processeur d'un
 équipement).
 
-..  only:: enterprise
-
-    Elle accepte un attribut optionnel ``weight``, contenant un entier positif et permettant
-    de configurer le poids apporté par les services techniques associés à ce test
-    lorsqu'ils se trouvent dans un état supposé nominal (OK ou UNKNOWN).
-    Ce poids est utilisé pour le calcul de l'état des
-    :ref:`services de haut niveau <hlservices>`.
-    Si cet attribut n'est pas configuré, le poids associé aux services techniques
-    dans l'état OK ou UNKNOWN sera le même que celui configuré par l'attribut
-    ``default_service_weight`` (qui vaut 1 par défaut).
-
-    De même, elle accepte un attribut optionnel ``warning_weight``, contenant
-    un entier positif et permettant de configurer le poids apporté par
-    les services techniques associés à ce test lorsqu'ils se trouvent
-    dans un état dégradé (WARNING).
-    Ce poids est utilisé pour le calcul de l'état des
-    :ref:`services de haut niveau <hlservices>`.
-    Si cet attribut n'est pas configuré, le poids associé aux services techniques
-    dans l'état WARNING sera le même que celui configuré par l'attibut
-    ``default_service_warning_weight`` (qui vaut 1 par défaut).
-    La valeur configurée dans cet attribut doit toujours être inférieure ou égale
-    à celle configurée dans l'attribut ``weight``.
-
 Un test accepte généralement zéro, un ou plusieurs arguments, qui doivent être
 passés dans l'ordre lors de la déclaration du test, à l'aide de la balise
 ``arg``. Chaque argument dispose d'un nom (attribut ``name``) et d'une valeur
@@ -525,15 +492,6 @@ ci-dessous pour plus d'informations.
 ..  note::
     Si le même argument est défini deux fois, seule la dernière valeur sera
     utilisée.
-
-..  only:: enterprise
-
-    ..  note::
-        Vigilo est optimiste quant à l'état des éléments du parc.
-        De fait, la valeur de l'attribut "``weight``" est utilisée aussi
-        bien lorsque le service se trouve dans l'état OK (état nominal)
-        que lorsqu'il se trouve dans l'état UNKNOWN (état inconnu,
-        supposé nominal).
 
 
 .. _nagiostag:
@@ -631,40 +589,6 @@ première forme s'appliquent également ici.
     ventilation que celui déterminé automatiquement, vous devez utiliser
     l'attribut *ventilation* de la balise *host* afin de spécifier manuellement
     le groupe de ventilation à utiliser.
-
-..  only:: enterprise
-
-    Balise "``weight``"
-    ^^^^^^^^^^^^^^^^^^^
-    Syntaxe:
-
-    ..  sourcecode:: xml
-
-        <weight>valeur</weight>
-
-    La balise ``weight`` permet de paramétrer le poids affecté à un hôte.
-
-    Balise "``default_service_weight``"
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Syntaxe:
-
-    ..  sourcecode:: xml
-
-        <default_service_weight>valeur</default_service_weight>
-
-    La balise ``default_service_weight`` permet d'affecter un poids par défaut aux
-    services de l'hôte.
-
-    Balise "``default_service_warning_weight``"
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Syntaxe:
-
-    ..  sourcecode:: xml
-
-        <default_service_warning_weight>valeur</default_service_warning_weight>
-
-    La balise ``default_service_warning_weight`` permet d'affecter un poids par
-    défaut aux services de l'hôte lorsque ceux-ci sont dans l'état WARNING.
 
 
 Remarques
@@ -802,14 +726,6 @@ Un bloc de données ``test`` possède l'attribut suivant :
 
 - ``name`` (1 exactement)
 
-..  only:: enterprise
-
-    Dans la version Entreprise de Vigilo, les attributs additionnels
-    suivants sont utilisables :
-
-    - ``weight`` (0 ou 1 exactement)
-    - ``warning_weight`` (0 ou 1 exactement)
-
 Un bloc de données ``test`` contient les blocs suivants, dans l'ordre :
 
 - ``arg`` (0 ou plus)
@@ -828,7 +744,7 @@ pour plus d'information sur les attributs et blocs acceptés par cette balise.
 
     ..  sourcecode:: xml
 
-        <test name="Errpt" weight="42"/>
+        <test name="Errpt"/>
 
 ..  sourcecode:: xml
 
@@ -1042,8 +958,6 @@ Dossier "``hlservices``"
     - warning_priority (0 ou 1 exactement)
     - critical_priority (0 ou 1 exactement)
     - operator (1 exactement)
-    - weight (0 ou 1 exactement)
-    - warning_weight (0 ou 1 exactement)
     - group (0 ou plus)
     - depends (1 ou plus)
 
@@ -1057,8 +971,6 @@ Dossier "``hlservices``"
           <warning_priority>6</warning_priority>
           <critical_priority>10</critical_priority>
           <operator>PLUS</operator>
-          <weight>42</weight>
-          <warning_weight>21</warning_weight>
           <group>hlsgroup1</group>
           <group>hlsgroup2</group>
           <depends host="routeur1.example.com" service="Interface eth0"/>
@@ -1085,8 +997,9 @@ Dossier "``hlservices``"
         Le nom du service de haut niveau (ex : "``hlservice1``").
 
     %(weight)r
-        Le poids courant associé a ce service de haut niveau sous forme d'entier ou
-        "``None``" s'il est inconnu.
+        Le poids courant calculé pour ce service de haut niveau sous forme
+        d'entier ou "``None``" s'il est inconnu (ie. si le service est dans
+        l'état «``UNKNOWN``»).
 
     %(critical_threshold)d
         Le seuil sous lequel les alertes passent dans l'état "``CRITICAL``".
@@ -1217,39 +1130,6 @@ Dossier "``hlservices``"
 
                 <operator>&amp;</operator>
 
-    Balise "``weight``"
-    ^^^^^^^^^^^^^^^^^^^^^
-    Le bloc de données ``weight`` contient le poids apporté par ce service de haut
-    niveau lorsqu'il se trouve dans un état supposé nominal. La valeur indiquée
-    dans cette balise doit être un entier positif. La valeur par défaut lorsque
-    la balise est absente est 1.
-
-    Exemple:
-
-    ..  sourcecode:: xml
-
-        <weight>42</weight>
-
-    ..  note::
-        Vigilo est optimiste quant à l'état des éléments du parc.
-        De fait, cette valeur est utilisée aussi bien lorsque le service se
-        trouve dans l'état OK (état nominal) que lorsqu'il se trouve dans
-        l'état UNKNOWN (état inconnu, supposé nominal).
-
-    Balise "``warning_weight``"
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Le bloc de données ``warning_weight`` contient le poids apporté par ce service
-    de haut niveau lorsqu'il se trouve dans un état dégradé (WARNING).
-    La valeur indiquée dans cette balise doit être un entier positif, inférieur
-    ou égal à celui donné dans la balise ``weight``. La valeur par défaut lorsque
-    la balise est absente est la même que pour la balise ``weight``.
-
-    Exemple:
-
-    ..  sourcecode:: xml
-
-        <warning_weight>42</warning_weight>
-
     Balise "``group``"
     ^^^^^^^^^^^^^^^^^^
     Le bloc de données ``group`` contient le nom du groupe auquel ce service de
@@ -1264,32 +1144,53 @@ Dossier "``hlservices``"
     Balise "``depends``"
     ^^^^^^^^^^^^^^^^^^^^
     Le bloc de données ``depends`` correspond à la description d'une dépendance de
-    ce service de haut niveau. Il possède deux attributs :
+    ce service de haut niveau. Il possède les attributs suivants :
 
     - ``host`` : (optionnel) le nom de l'hôte dont dépend ce service de haut
       niveau. Si omis, alors ce service de haut niveau dépend d'un autre service de
       haut niveau dont le nom est donné par l'attribut ``service``.
+
     - ``service`` : (optionnel) le nom du service dont dépend ce service de haut
       niveau. Si omis, alors ce service de haut niveau dépend directement de l'hôte
       dont le nom est donné par l'attribut ``host``.
 
-    Exemple d'une dépendance sur un hôte:
+    - ``weight`` : (optionnel) poids contribué par cette dépendance dans le calcul
+      de l'état du service de haut niveau lorsqu'elle se trouve dans un état nominal
+      (``OK`` ou ``UP``). Il s'agit d'un entier positif.
+      Si cet attribut n'est pas spécifié, le poids associé est 1.
+
+    - ``warning_weight`` : (optionnel) poids contribué par cette dépendance dans le
+      calcul de l'état du service de haut niveau lorsqu'elle se trouve dans un état
+      dégradé (``WARNING``). Il s'agit d'un entier positif.
+      Si cet attribut n'est pas spécifié, le poids associé est le même que celui
+      indiqué par l'attribut ``weight`` ou 1 si ``weight`` n'a pas non plus été
+      renseigné.
+
+      .. note::
+
+         La valeur configurée dans cet attribut doit toujours être inférieure ou égale
+         à celle configurée dans l'attribut ``weight``.
+
+    Exemple d'une dépendance sur un hôte :
 
     ..  sourcecode:: xml
 
         <depends host="foo.example.com"/>
 
-    Exemple d'une dépendance sur un service technique (de bas niveau):
+    Exemple d'une dépendance sur un service technique (de bas niveau) utilisant
+    un poids différent dans l'état ``OK`` et dans l'état ``WARNING`` :
 
     ..  sourcecode: xml
 
-        <depends host="router.example.com" service="Interface eth0"/>
+        <depends host="router.example.com" service="Interface eth0" weight="42" warning_weight="24"/>
 
-    Exemple d'une dépendance sur un autre service de haut niveau:
+    Exemple d'une dépendance sur un autre service de haut niveau dont seul le poids
+    dans l'état ``OK`` est spécifié (cette valeur est automatiquement réutilisée
+    comme poids dans l'état ``WARNING``) :
 
     ..  sourcecode:: xml
 
-        <depends service="hlservice2"/>
+        <depends service="hlservice2" weight="13"/>
 
 
 

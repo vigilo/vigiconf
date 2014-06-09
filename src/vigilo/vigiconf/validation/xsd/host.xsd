@@ -80,8 +80,6 @@ hosts element contains one ore more host elements
                 </xs:choice>
 
                 <xs:attribute name="name" type="xs:string"/>
-                <xs:attribute name="weight" type="xs:positiveInteger" use="optional"/>
-                <xs:attribute name="warning_weight" type="xs:positiveInteger" use="optional"/>
             </xs:complexType>
         </xs:element>
 
@@ -97,21 +95,6 @@ hosts element contains one ore more host elements
         </xs:element>
 
         <xs:element name="group" type="xs:string"/>
-
-        <!-- Poids accordé à l'hôte (entier strictement positif). -->
-        <xs:element name="weight" minOccurs="0" type="xs:positiveInteger"/>
-
-        <!--
-            Poids par défaut des services de cet hôte (entier strictement
-            positif).
-        -->
-        <xs:element name="default_service_weight" minOccurs="0" type="xs:positiveInteger"/>
-
-        <!--
-            Poids WARNING par défaut des services de cet hôte (entier
-            strictement positif).
-        -->
-        <xs:element name="default_service_warning_weight" minOccurs="0" type="xs:positiveInteger"/>
     </xs:choice>
 
     <!-- Libellé de l'hôte. -->

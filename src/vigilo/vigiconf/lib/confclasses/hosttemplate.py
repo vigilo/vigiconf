@@ -60,10 +60,6 @@ class HostTemplate(object):
                     "services": {},
                 },
                 "tags": {},
-                "weight": None, # Poids par défaut de l'hôte
-                "default_service_weight": None, # Poids par défaut des services
-                "default_service_warning_weight": None, # Poids warning par
-                                                        # défaut des services
             }
         self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
@@ -92,8 +88,7 @@ class HostTemplate(object):
             p = [ p, ]
         self.data["parent"].extend(p)
 
-    def add_test(self, testname, args=None, weight=None, warning_weight=None,
-                 directives=None):
+    def add_test(self, testname, args=None, directives=None):
         """
         Add a test to this host template
         @param testname: the test name
@@ -112,8 +107,6 @@ class HostTemplate(object):
         t_dict = {"name": testname}
         if args:
             t_dict["args"] = args
-        t_dict["weight"] = weight
-        t_dict["warning_weight"] = warning_weight
         t_dict["directives"] = directives
         self.data["tests"].append(t_dict)
 
@@ -139,19 +132,6 @@ class HostTemplate(object):
         if not self.data.has_key("classes"):
             self.data["classes"] = []
         self.data["classes"].append(classname)
-
-    def add_weight(self, type, weight):
-        """
-        Ajoute un poids à l'hôte.
-
-        @param type: type de poids, fait partie de ["weight",
-                     "default_service_weight",
-                     "default_service_warning_weight"]
-        @type type: C{str}
-        @param weight: nouveau poids pour le type donné.
-        @type weight: C{int}
-        """
-        self.data[type] = weight
 
     def add(self, prop, key, value):
         """
@@ -381,11 +361,6 @@ class HostTemplateFactory(object):
 
                     name = get_attrib(elem, 'name')
                     cur_tpl = HostTemplate(name)
-                    weight = {
-                            "weight": None,
-                            "default_service_weight": None,
-                            "default_service_warning_weight": None
-                            }
 
                 elif elem.tag == "nagios":
                     process_nagios = True
@@ -443,24 +418,6 @@ class HostTemplateFactory(object):
 
                 elif elem.tag == "test":
                     test_name = get_attrib(elem, 'name')
-                    test_weight = { "weight": None,
-                                    "warning_weight": None }
-                    for k in test_weight.keys():
-                        v = get_attrib(elem, k)
-                        try:
-                            test_weight[k] = int(v)
-                        except ValueError:
-                            raise ParsingError(
-                                    _("Invalid value for %(type)s in test "
-                                    "%(test)s in template %(tpl)s: %(value)r") %
-                                        {'type': k,
-                                         'test': test_name,
-                                         'tpl': cur_tpl.name,
-                                         'value': v,
-                                         })
-                        except TypeError:
-                            # C'est None, on laisse prendre la valeur par défaut
-                            pass
 
                     args = {}
                     for arg in elem.getchildren():
@@ -482,27 +439,8 @@ class HostTemplateFactory(object):
                         # qu'on récupère ici.
                         else:
                             args[arg_name] = get_text(arg)
-                    cur_tpl.add_test(test_name, args, test_weight["weight"],
-                                     test_weight["warning_weight"],
-                                     test_directives)
+                    cur_tpl.add_test(test_name, args, test_directives)
                     test_name = None
-
-                elif elem.tag in weight:
-                    value = get_text(elem)
-                    try:
-                        weight[elem.tag] = int(value)
-                    except ValueError:
-                        raise ParsingError(_("Invalid value for %(type)s in "
-                            "template %(tpl)s: %(value)r") % {
-                            'type': elem.tag,
-                            'tpl': cur_tpl.name,
-                            'value': value,
-                        })
-                    except TypeError:
-                        # C'est None, on laisse prendre la valeur par défaut
-                        pass
-
-                    cur_tpl.add_weight(elem.tag, weight[elem.tag])
 
                 elif elem.tag == "nagios":
                     process_nagios = False
@@ -578,25 +516,12 @@ class HostTemplateFactory(object):
                                "testname": testdict["name"]})
 
                 test_args = testdict.get("args", {})
-                test_weight = testdict.get("weight")
-                test_warn_weight = testdict.get("warning_weight")
-
-                host.add_tests(test_list, args=test_args, weight=test_weight,
-                               warning_weight=test_warn_weight,
-                               directives=testdict["directives"])
+                host.add_tests(test_list, args=test_args, directives=testdict["directives"])
 
         # tags
         if tpl.has_key("tags"):
             for target in tpl['tags']:
                 for name, value in tpl['tags'][target].iteritems():
                     host.add_tag(target, name, value)
-
-        # Poids
-        host_weight = [ "weight",
-                        "default_service_weight",
-                        "default_service_warning_weight" ]
-        for k in host_weight:
-            if tpl.get(k) is not None:
-                host.set_attribute(k, tpl[k])
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

@@ -156,7 +156,6 @@ class HostLoader(DBLoader):
                         address=unicode(hostdata['address']),
                         snmpport=hostdata['snmpPort'],
                         snmpoidsperpdu=hostdata['snmpOIDsPerPDU'],
-                        weight=hostdata['weight'],
                         snmpversion=unicode(hostdata['snmpVersion']),
                         conffile=self.conffiles[unicode(relfilename)],
                     )
@@ -534,28 +533,8 @@ class ServiceLoader(DBLoader):
                     reRoutedBy['host'], reRoutedBy['service'])
 
             service = unicode(service)
-            weight = conf.hostsConf[self.host.name]['services'] \
-                [service]['weight']
-            warning_weight = conf.hostsConf[self.host.name]['services'] \
-                [service]['warning_weight']
-            if weight is None:
-                weight = conf.hostsConf[self.host.name][
-                        "default_service_weight"]
-            if warning_weight is None:
-                warning_weight = conf.hostsConf[self.host.name][
-                        "default_service_warning_weight"]
-            if warning_weight > weight:
-                raise ParsingError(_("warning_weight (%(warning_weight)d) must "
-                    "be less than or equal to weight (%(weight)d) "
-                    "for test '%(test)s' on host '%(host)s'") % {
-                        'test': service,
-                        'host': self.host.name,
-                        'warning_weight': warning_weight,
-                        'weight': weight,
-                        })
 
-            lls = dict(host=self.host, servicename=service,
-                       weight=weight, warning_weight=warning_weight)
+            lls = dict(host=self.host, servicename=service)
             if isinstance(reroute, int):
                 lls['idcollector'] = reroute
             elif reroute != None:
