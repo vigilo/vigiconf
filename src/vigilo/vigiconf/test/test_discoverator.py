@@ -170,18 +170,17 @@ class DiscoveratorLinux(DiscoveratorBaseTest, unittest.TestCase):
         for testdict in self.disc.tests:
             if testdict["name"] != "Partition":
                 continue
-            args.append({ "partname": testdict["args"]["partname"],
-                          "label": testdict["args"]["label"] })
-        goodargs = [
-                    {"partname": "/",
-                     "label": "/"},
-                    {"partname": "/mnt/fake",
-                     "label": "/mnt/fake"},
-                    {"partname": "/var",
-                     "label": "/var"},
-                   ]
-        args.sort()
-        goodargs.sort()
+            args.append(testdict['args'])
+        goodargs = [[
+                        ("label", "/"),
+                        ("partname", "/",)
+                    ], [
+                        ("label", "/mnt/fake"),
+                        ("partname", "/mnt/fake"),
+                    ], [
+                        ("label", "/var"),
+                        ("partname", "/var"),
+                    ]]
         self.assertEqual(args, goodargs,
                          "Arguments are not properly detected:\n%s\n%s"
                          % (str(args), str(goodargs)))
@@ -192,16 +191,14 @@ class DiscoveratorLinux(DiscoveratorBaseTest, unittest.TestCase):
         for testdict in self.disc.tests:
             if testdict["name"] != "Interface":
                 continue
-            args.append({ "ifname": testdict["args"]["ifname"],
-                          "label": testdict["args"]["label"] })
-        goodargs = [
-                    {"ifname": "eth0",
-                     "label": "eth0"},
-                    {"ifname": "eth1",
-                     "label": "eth1"},
-                   ]
-        args.sort()
-        goodargs.sort()
+            args.append(testdict["args"])
+        goodargs = [[
+                        ("ifname", "eth0"),
+                        ("label", "eth0"),
+                    ], [
+                        ("ifname", "eth1"),
+                        ("label", "eth1"),
+                   ]]
         self.assertEqual(args, goodargs,
                          "Arguments are not properly detected:\n%s\n%s"
                          % (str(args), str(goodargs)))

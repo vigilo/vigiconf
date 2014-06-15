@@ -44,6 +44,10 @@ class SnmpwalkNotInstalled(DiscoveratorError):
     """The snmpwalk command is not installed"""
     pass
 
+def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
+    return [int(text) if text.isdigit() else text.lower()
+            for text in re.split(_nsre, s)]
+
 class Discoverator(object):
     """
     Scan a host or file containing the hosts' SNMP walk to find the host
@@ -233,13 +237,13 @@ class Discoverator(object):
                 if detected is True:
                     self.tests.append({"class": test,
                                        "name": test.__name__,
-                                       "args": {},
+                                       "args": [],
                                       })
                 elif isinstance(detected, list):
                     for arglist in detected:
                         self.tests.append({"class": test,
                                            "name": test.__name__,
-                                           "args": arglist,
+                                           "args": sorted(arglist.items()),
                                           })
 
     def find_hclasses(self):
@@ -324,7 +328,16 @@ class Discoverator(object):
                 continue # doublon
             new_tests.append(testdict)
             seen.append((testdict["name"], testdict["args"]))
-        self.tests = new_tests
+        # Trie les tests :
+        # - par leur nom en premier lieu
+        # - par la valeur de leurs arguments ensuite
+        #
+        # Le tri se fait selon l'ordre naturel (plus pertinent pour les
+        # interfaces réseau par exemple) plutôt que purement alphabétique.
+        self.tests = sorted(new_tests, key=lambda test: (
+                natural_sort_key(test['name']),
+                [natural_sort_key(val) for arg, val in test['args']]
+            ))
 
     def declaration(self):
         """Generate the textual declaration for Vigiconf"""
@@ -352,7 +365,7 @@ class Discoverator(object):
         for testdict in self.tests:
             _test = ET.SubElement(decl, "test")
             _test.set("name", testdict["name"])
-            for arg, val in testdict["args"].iteritems():
+            for arg, val in testdict["args"]:
                 _arg = ET.SubElement(_test, "arg")
                 _arg.set("name", arg)
                 _arg.text = val

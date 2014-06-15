@@ -284,7 +284,7 @@ class Test(object):
             return False
         for cur_oid in walk.keys():
             for test_oid in cls.oids:
-                if cur_oid.startswith(test_oid):
+                if cur_oid == test_oid or cur_oid.startswith(test_oid + "."):
                     return True
         return False
 
@@ -297,7 +297,8 @@ class Test(object):
 
         @param walk: the SNMP walk to check against
         @type  walk: C{dict}
-        @rtype: dict of attributes to values.
+        @return: A dictionary mapping attributes to their values.
+        @rtype: C{dict}
         """
         pass
 
