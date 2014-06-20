@@ -368,7 +368,13 @@ class Discoverator(object):
             for arg, val in testdict["args"]:
                 _arg = ET.SubElement(_test, "arg")
                 _arg.set("name", arg)
-                _arg.text = val
+                if isinstance(val, list):
+                    for item in val:
+                        if item:
+                            _arg_item = ET.SubElement(_arg, "item")
+                            _arg_item.text = item
+                else:
+                    _arg.text = val
         #tree = ET.ElementTree(decl)
         return decl
 
