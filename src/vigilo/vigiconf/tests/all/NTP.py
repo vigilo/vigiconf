@@ -13,7 +13,7 @@ _ = translate(__name__)
 class NTP(Test):
     """Check if the NTP service is up"""
 
-    def add_test(self):
+    def add_test(self, **kwargs):
         skipclasses = [ "spectracom_netclock", "spectracom_securesync",
                 "windows" ]
         for skipclass in skipclasses:
