@@ -59,6 +59,7 @@ class HostTemplate(object):
                     "host": {},
                     "services": {},
                 },
+                "tags": {},
                 "weight": None, # Poids par défaut de l'hôte
                 "default_service_weight": None, # Poids par défaut des services
                 "default_service_warning_weight": None, # Poids warning par
@@ -210,6 +211,23 @@ class HostTemplate(object):
             self.data[prop][subprop] = {}
         self.data[prop][subprop].update({key: value})
 
+    def add_tag(self, service, name, value):
+        """
+        Add a tag to a host or a service. This tag is associated with a value.
+        @param service: the service to add the tag to. If it is the string
+            "Host", then the tag is added to the host itself.
+        @type  service: C{str}
+        @param name: the tag name
+        @type  name: C{str}
+        @param value: the tag value
+        @type  value: C{str}
+        """
+        if not service or service.lower() == "host":
+            target = None
+        else:
+            target = service
+        self.add_sub("tags", target, name, value)
+
     def add_nagios_directive(self, name, value, target="host"):
         """ Add a generic nagios directive
 
@@ -350,6 +368,11 @@ class HostTemplateFactory(object):
         cur_tpl = None
         test_directives = {}
         process_nagios = False
+        weight = {
+                "weight": None,
+                "default_service_weight": None,
+                "default_service_warning_weight": None
+                }
 
         for event, elem in etree.iterparse(source, events=("start", "end")):
             if event == "start":
@@ -402,6 +425,11 @@ class HostTemplateFactory(object):
                     # directive nagios spécifique à un service
                     test_directives[dname] = dvalue
 
+                elif elem.tag == "tag":
+                    service = None
+                    if 'service' in elem.attrib:
+                        service = get_attrib(elem, 'service')
+                    cur_tpl.add_tag(service, get_attrib(elem, 'name'), get_text(elem))
 
                 elif elem.tag == "attribute":
                     value = get_text(elem)
@@ -549,6 +577,13 @@ class HostTemplateFactory(object):
                 host.add_tests(test_list, args=test_args, weight=test_weight,
                                warning_weight=test_warn_weight,
                                directives=testdict["directives"])
+
+        # tags
+        if tpl.has_key("tags"):
+            for target in tpl['tags']:
+                for name, value in tpl['tags'][target].iteritems():
+                    host.add_tag(target, name, value)
+
         # Poids
         host_weight = [ "weight",
                         "default_service_weight",
