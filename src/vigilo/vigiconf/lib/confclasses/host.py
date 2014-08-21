@@ -829,11 +829,17 @@ class Host(object):
         @param name: the tag name
         @type  name: C{str}
         @param value: the tag value
-        @type  value: C{int}
+        @type  value: C{str}
         """
         if not service or service.lower() == "host":
             target = self.hosts[self.name]
         else:
+            if not self.hosts[self.name]["services"].has_key(service):
+                raise ParsingError(_('Cannot add tag "%(tag)s" to non-existing '
+                                     'service "%(service)s"') % {
+                                        'tag': name,
+                                        'service': service,
+                                    })
             target = self.hosts[self.name]["services"][service]
         if not target.has_key("tags"):
             target["tags"] = {}

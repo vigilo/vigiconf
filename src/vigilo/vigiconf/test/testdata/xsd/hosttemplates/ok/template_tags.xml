@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<templates>
+<template name="tags">
+    <tag service="service" name="tag1">value1</tag>
+    <tag service="host" name="tag2">value2</tag>
+    <tag service="" name="tag3">value3</tag>
+    <tag name="tag4">value4</tag>
+</template>
+</templates>

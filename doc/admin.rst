@@ -572,10 +572,7 @@ Syntaxe:
 La balise ``tag`` permet d'affecter une étiquette à un hôte ou un service.
 L'attribut ``name`` permet de préciser le nom de l'étiquette à ajouter. Il doit
 correspondre au nom d'une image (**privée de son extension**) à afficher dans
-VigiMap. Cette image doit se trouver dans
-:samp:`{Python}/site-packages/vigilo/themes/public/vigimap/images/tags`,
-où *Python* vaut par exemple :file:`/usr/lib/python2.5` pour une installation
-standard de Python 2.5.
+VigiMap. Cette image doit se trouver dans :samp:`/etc/vigilo/vigimap/public/images/tags`.
 
 L'attribut ``service`` permet, quant à lui, d'indiquer le nom du service auquel
 cette étiquette sera affectée. Utilisez la valeur "``host``" si l'étiquette
@@ -710,6 +707,7 @@ Un bloc de données *hosttemplate* contient les blocs suivants, en respectant l'
 
 - ``parent`` (0 ou un)
 - ``attribute`` (0 ou plus)
+- ``tag`` (0 ou plus)
 - ``group`` (0 ou plus)
 - ``class`` (0 ou plus)
 - ``test`` (0 ou plus)
@@ -741,6 +739,33 @@ Exemple:
 ..  sourcecode:: xml
 
     <attribute name="snmpOIDsPerPDU">10</attribute>
+
+Balise "``tag``"
+^^^^^^^^^^^^^^^^
+Syntaxe:
+
+..  sourcecode:: xml
+
+        <tag service="service" name="étiquette"/>
+
+        <tag service="service" name="étiquette">valeur</tag>
+
+La balise ``tag`` permet d'affecter une étiquette à un hôte ou un service.
+L'attribut ``name`` permet de préciser le nom de l'étiquette à ajouter. Il doit
+correspondre au nom d'une image (**privée de son extension**) à afficher dans
+VigiMap. Cette image doit se trouver dans :samp:`/etc/vigilo/vigimap/public/images/tags`.
+
+L'attribut ``service`` permet, quant à lui, d'indiquer le nom du service auquel
+cette étiquette sera affectée. Utilisez la valeur "``host``" si l'étiquette
+doit porter sur l'hôte en lui-même et non pas sur l'un de ses services.
+
+Enfin, la valeur de l'étiquette est facultative et fait office de méta-donnée.
+Exemple, pour associer à un hôte l'étiquette de MCO (l'image ``mco.png`` est
+fournie dans toute installation standard de Vigilo):
+
+..  sourcecode:: xml
+
+    <tag service="host" name="mco"/>
 
 Balise "``group``"
 ^^^^^^^^^^^^^^^^^^

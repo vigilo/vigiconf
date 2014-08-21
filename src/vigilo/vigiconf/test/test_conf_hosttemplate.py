@@ -206,3 +206,4 @@ class HostTemplates(unittest.TestCase):
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertEqual("passive",
                 conf.hostsConf["testserver1"]["services"]["HTTP"]["type"])
+
