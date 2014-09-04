@@ -426,6 +426,14 @@ avec VigiConf. Par défaut, les attributs suivants sont disponibles :
     - "``oxe_password``": le mot de passe allant de paire avec le nom
       d'utilisateur permettant de se connecter à l'hôte en utilisant le
       protocole Telnet ;
+    - "``QOS_mainClassName``": la liste des classes de services utilisées pour
+      la qualité de service. Pour chaque classe, il est possible de définir le
+      libellé affiché dans les graphes, en utilisant la syntaxe
+      "nom_de_la_classe|libellé".
+    - "``QOS_subClassName``": la liste des sous-classes de services utilisées
+      pour la qualité de service. Pour chaque sous-classe, il est possible de
+      définir le libellé affiché dans les graphes, en utilisant la syntaxe
+      "nom_de_la_sous_classe|libellé".
     - "``timeout``": délai d'attente utilisé lors des connexions Telnet
       à l'hôte.
 
@@ -1709,8 +1717,8 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
           </attribute>
 
           <test name="Interface">
-            <arg name="ifname">eth0</arg>
-            <arg name="label">eth0</arg>
+            <arg name="ifname">TenGigabitEthernet4/0/0</arg>
+            <arg name="label">Te4/0/0 - QOS</arg>
           </test>
 
           <test name="QOS_Interface">
@@ -1745,14 +1753,55 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
           </attribute>
 
           <test name="Interface">
-            <arg name="ifname">eth0</arg>
-            <arg name="label">eth0</arg>
+            <arg name="ifname">GigabitEthernet0/0</arg>
+            <arg name="label">GE0/0</arg>
           </test>
 
           <test name="QOS_Interface">
             <arg name="ifname">GigabitEthernet0/0</arg>
-            <arg name="label">GE0/1</arg>
+            <arg name="label">GE0/0</arg>
             <arg name="direction">OUT</arg>
+          </test>
+          <group>/Servers/Linux servers</group>
+        </host>
+
+    Classes de Service (une interface utilise les classes de service par
+    défaut, l'autre a une définition spécifique des classes de service)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    ..  sourcecode:: xml
+
+        <host name="_HOSTNAME_" address="X.X.X.X">
+          <class>cisco_ios</class>
+          <attribute name="snmpCommunity">_SNMP_COMMUNITY_</attribute>
+
+          <attribute name="QOS_mainClassName">
+            <item>Groupe_1|GR1</item>
+            <item>Groupe_2|GR2</item>
+            <item>Groupe_3|GR3</item>
+          </attribute>
+
+          <test name="Interface">
+            <arg name="ifname">GigabitEthernet0/0</arg>
+            <arg name="label">GE0/0</arg>
+          </test>
+          <test name="Interface">
+            <arg name="ifname">GigabitEthernet0/1</arg>
+            <arg name="label">GE0/1</arg>
+          </test>
+
+          <test name="QOS_Interface">
+            <arg name="ifname">GigabitEthernet0/0</arg>
+            <arg name="label">GE0/0</arg>
+          </test>
+          <test name="QOS_Interface">
+            <arg name="ifname">GigabitEthernet0/1</arg>
+            <arg name="label">GE0/1</arg>
+            <arg name="QOS_mainClassName">
+                <item>Groupe_4|GR4</item>
+                <item>Groupe_5|GR5</item>
+                <item>Groupe_6|GR6</item>
+            </arg>
           </test>
           <group>/Servers/Linux servers</group>
         </host>
