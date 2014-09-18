@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2014-10-08 18:36+0200\n"
+"PO-Revision-Date: 2014-10-09 12:48+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -258,7 +258,11 @@ msgstr ""
 "%(msg)s\n"
 "La commande était : %(cmd)s"
 
-#: src/vigilo/vigiconf/applications/rrd/generator.py:141
+#: src/vigilo/vigiconf/applications/connector_metro/generator.py:173
+#, python-format
+msgid "Unknown RRA template %s"
+msgstr "Modèle de RRA inconnu %s"
+
 #: src/vigilo/vigiconf/applications/vigirrd/generator.py:88
 #, python-format
 msgid "Some datasources are not on a graph: %s"
@@ -400,8 +404,8 @@ msgid ""
 "Next attempt for %(action)s action in %(interval)d second(s) (attempt "
 "#%(attempt)d)"
 msgstr ""
-"Prochaine tentative pour l'action %(action)s dans \"\n"
-"\"%(interval)d second(s) (tentative n°%(attempt)d)"
+"Prochaine tentative pour l'action %(action)s dans "
+"%(interval)d second(s) (tentative n°%(attempt)d)"
 
 #: src/vigilo/vigiconf/lib/systemcommand.py:127
 #, python-format
@@ -567,15 +571,18 @@ msgstr ""
 #: src/vigilo/vigiconf/lib/confclasses/host.py:838
 #, python-format
 msgid "Cannot add tag \"%(tag)s\" to non-existing service \"%(service)s\""
-msgstr "Impossible d'ajouter l'étiquette \"%(tag)s\" à un service inexistant \"%(service)s\""
+msgstr ""
+"Impossible d'ajouter l'étiquette \"%(tag)s\" à un service inexistant "
+"\"%(service)s\""
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:861
 #, python-format
 msgid ""
 "Empty value given for directive %(directive)s with target %(target)s on "
 "host %(host)s"
-msgstr "Une valeur vide a été passée à la directive %(directive)s "
-"avec la cible %(target)s sur l'hôte %(host)s"
+msgstr ""
+"Une valeur vide a été passée à la directive %(directive)s avec la cible "
+"%(target)s sur l'hôte %(host)s"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:929
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:321
@@ -1056,8 +1063,8 @@ msgstr "Chargement des hôtes"
 #, python-format
 msgid "Registering new configuration file '%(relative)s' (from %(absolute)s)"
 msgstr ""
-"Enregistrement du fichier de configuration '%(relative)s' \"\n"
-"\"(depuis %(absolute)s)"
+"Enregistrement du fichier de configuration '%(relative)s' "
+"(depuis %(absolute)s)"
 
 #: src/vigilo/vigiconf/loaders/host.py:151
 #, python-format

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 3.5\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2014-10-08 18:36+0200\n"
-"PO-Revision-Date: 2014-10-08 18:36+0200\n"
+"POT-Creation-Date: 2014-10-09 12:48+0200\n"
+"PO-Revision-Date: 2014-10-09 12:48+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -252,7 +252,11 @@ msgstr ""
 "  %(msg)s\n"
 "The command was: %(cmd)s"
 
-#: src/vigilo/vigiconf/applications/rrd/generator.py:141
+#: src/vigilo/vigiconf/applications/connector_metro/generator.py:173
+#, python-format
+msgid "Unknown RRA template %s"
+msgstr "Unknown RRA template %s"
+
 #: src/vigilo/vigiconf/applications/vigirrd/generator.py:88
 #, python-format
 msgid "Some datasources are not on a graph: %s"

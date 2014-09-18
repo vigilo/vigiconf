@@ -29,7 +29,12 @@ import stat
 import sqlite3
 
 from vigilo.vigiconf import conf
-from vigilo.vigiconf.lib.generators import Generator
+from vigilo.vigiconf.lib.generators import Generator, GenerationError
+from vigilo.common.logging import get_logger
+LOGGER = get_logger(__name__)
+
+from vigilo.common.gettext import translate
+_ = translate(__name__)
 
 
 class ConnectorMetroGen(Generator):
@@ -118,7 +123,7 @@ class ConnectorMetroGen(Generator):
                          name TEXT NOT NULL,
                          hostname VARCHAR(255) NOT NULL,
                          type VARCHAR(255) NOT NULL,
-                         step INTEGER NOT NULL,
+                         PDP_step INTEGER NOT NULL,
                          heartbeat INTEGER NOT NULL,
                          min FLOAT,
                          max FLOAT,
@@ -138,7 +143,7 @@ class ConnectorMetroGen(Generator):
                          idrra INTEGER NOT NULL,
                          type VARCHAR(255) NOT NULL,
                          xff FLOAT,
-                         step INTEGER NOT NULL,
+                         RRA_step INTEGER NOT NULL,
                          rows INTEGER NOT NULL,
                          PRIMARY KEY (idrra)
                      )""")
@@ -162,28 +167,34 @@ class ConnectorMetroGen(Generator):
 
     def db_add_ds(self, cursor, data, rra_template=None):
         config = self.application.getConfig()
+        if rra_template is None:
+            rra_template = "basic"
+        elif rra_template not in config["rra"]:
+            msg = _("Unknown RRA template %s") % rra_template
+            raise GenerationError(msg)
+        rra_template = config["rra"][rra_template]
+        rras = rra_template["rras"]
+
+
+        PDP_step = rra_template.get("PDP_step", config["PDP_step"])
+        heartbeat = rra_template.get("heartbeat", config["heartbeat"])
         cursor.execute("INSERT INTO perfdatasource VALUES ("
                        "NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                        (data["dsName"], data["host"], data["dsType"],
-                        config["step"], config["heartbeat"],
+                        PDP_step, heartbeat,
                         data["min"], data["max"], data["factor"],
                         data["warningThreshold"], data["criticalThreshold"],
                         data["nagiosName"], data['vserver']))
         ds_id = cursor.lastrowid
 
-        if rra_template is None or rra_template not in config["rra"]:
-            rras = config["rra"]["basic"]
-        else:
-            rras = config["rra"][rra_template]
-
         for index, rra in enumerate(rras):
             cursor.execute("SELECT idrra FROM rra WHERE type = ? AND xff = ? "
-                           "AND step = ? AND rows = ?",
-                           (rra["type"], rra["xff"], rra["step"], rra["rows"]))
+                           "AND RRA_step = ? AND rows = ?",
+                           (rra["type"], rra["xff"], rra["RRA_step"], rra["rows"]))
             rra_id = cursor.fetchone()
             if rra_id is None:
                 cursor.execute("INSERT INTO rra VALUES (NULL, ?, ?, ?, ?)",
-                           (rra["type"], rra["xff"], rra["step"], rra["rows"]))
+                           (rra["type"], rra["xff"], rra["RRA_step"], rra["rows"]))
                 rra_id = cursor.lastrowid
             else:
                 rra_id = rra_id[0]
