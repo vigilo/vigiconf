@@ -407,14 +407,13 @@ class HostTemplateFactory(object):
                 elif elem.tag == "directive":
                     if not process_nagios:
                         continue
-                    dname = get_attrib(elem, 'name').strip()
+
+                    dname = get_attrib(elem, 'name')
                     if not dname:
                         continue
 
                     dtarget = get_attrib(elem, 'target')
-                    if dtarget is not None:
-                        dtarget = dtarget.strip()
-                    dvalue = get_text(elem).strip()
+                    dvalue = get_text(elem)
 
                     # directive nagios générique pour un hôte ou sur
                     # l'ensemble des services (suivant la target)

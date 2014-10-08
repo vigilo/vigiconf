@@ -857,6 +857,14 @@ class Host(object):
         """
         if target is None:
             target = "host"
+        if value is None:
+            raise ParsingError(_('Empty value given for directive '
+                                 '%(directive)s with target %(target)s '
+                                 'on host %(host)s') % {
+                                    'directive': name,
+                                    'target': target,
+                                    'host': self.name,
+                                })
         self.add_sub(self.name, "nagiosDirectives", target, name, str(value))
 
 
@@ -1108,14 +1116,13 @@ class HostFactory(object):
                 elif elem.tag == "directive":
                     if not process_nagios:
                         continue
-                    dname = get_attrib(elem, 'name').strip()
+
+                    dname = get_attrib(elem, 'name')
                     if not dname:
                         continue
 
                     dtarget = get_attrib(elem, 'target')
-                    if dtarget is not None:
-                        dtarget = dtarget.strip()
-                    dvalue = get_text(elem).strip()
+                    dvalue = get_text(elem)
 
                     # directive nagios générique pour un hôte ou sur
                     # l'ensemble des services (suivant la target)
