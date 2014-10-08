@@ -9,6 +9,7 @@ import unittest
 import shutil
 import glob
 import subprocess
+import pprint
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -95,7 +96,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assert_(self.hostsConf.has_key("testserver1"),
                 "host is not properly parsed")
         self.assert_(self.hostsConf["testserver1"]["name"] == "testserver1",
@@ -116,7 +117,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertTrue(self.hostsConf["testserver1"]["force-passive"],
                 "L'attribut force-passive n'est pas correctement parsé")
 
@@ -131,7 +132,7 @@ class ParseHost(unittest.TestCase):
         self.hosttemplatefactory.register(htpl)
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertTrue("Linux servers" in
                         self.hostsConf["testserver1"]["otherGroups"],
                         "The \"template\" tag is not properly parsed")
@@ -148,7 +149,7 @@ class ParseHost(unittest.TestCase):
         self.hosttemplatefactory.register(htpl)
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertTrue(self.hostsConf["testserver1"]["force-passive"],
                 "L'attribut force-passive n'est pas conservé après "
                 "application d'un template")
@@ -162,7 +163,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assert_(self.hostsConf["testserver1"].has_key("cpulist") and
                      self.hostsConf["testserver1"]["cpulist"] == "2",
                      "The \"attribute\" tag is not properly parsed")
@@ -176,7 +177,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assert_("tags" in self.hostsConf["testserver1"] and
                "important" in self.hostsConf["testserver1"]["tags"] and
                 self.hostsConf["testserver1"]["tags"]["important"] == "2",
@@ -194,7 +195,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assert_("host" in self.hostsConf["testserver1"]["nagiosDirectives"] and
                "obsess_over_host" in self.hostsConf["testserver1"]["nagiosDirectives"]["host"] and
                 self.hostsConf["testserver1"]["nagiosDirectives"]["host"]["obsess_over_host"] == "1",
@@ -212,11 +213,25 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assert_("host" in self.hostsConf["testserver1"]["nagiosDirectives"] and
                "obsess_over_service" in self.hostsConf["testserver1"]["nagiosDirectives"]["services"] and
                 self.hostsConf["testserver1"]["nagiosDirectives"]["services"]["obsess_over_service"] == "1",
                 "The \"directive\" for services is not properly parsed")
+
+    def test_empty_nagios_directive(self):
+        """Pas d'erreur en cas de directive Nagios vide (#1293)."""
+        self.host.write("""<?xml version="1.0"?>
+        <host name="testserver1" address="192.168.1.1" ventilation="Servers">
+            <nagios>
+                <directive name="obsess_over_host"></directive>
+            </nagios>
+            <test name="UpTime"/>
+            <group>/Servers</group>
+        </host>""")
+        self.host.close()
+        self.assertRaises(ParsingError, self.hostfactory._loadhosts,
+                          os.path.join(self.tmpdir, "hosts", "host.xml"))
 
     def test_tag_service(self):
         self.host.write("""<?xml version="1.0"?>
@@ -245,7 +260,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertTrue("Linux servers" in
                 self.hostsConf["testserver1"]["otherGroups"],
                 "The \"group\" tag is not properly parsed")
@@ -260,7 +275,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertTrue("Linux servers" in
                 self.hostsConf["testserver1"]["otherGroups"]
                 and "AIX servers" in
@@ -279,7 +294,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertTrue(('Interface eth0', 'service') in
                 self.hostsConf["testserver1"]["SNMPJobs"],
                 "The \"test\" tag is not properly parsed")
@@ -296,7 +311,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertEquals(
                 self.hostsConf["testserver1"]["services"] \
                               ["UpTime"]["weight"],
@@ -318,7 +333,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertEquals(
                 self.hostsConf["testserver1"]["services"] \
                               ["UpTime"]["weight"],
@@ -338,7 +353,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assertEquals(
                 self.hostsConf["testserver1"]["services"] \
                               ["UpTime"]["warning_weight"],
@@ -394,7 +409,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         # L'attribut ventilation a été donné explicitement.
         self.assertEqual(self.hostsConf['foo']['serverGroup'], 'Vigilo')
 
@@ -461,7 +476,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assert_("weight" in self.hostsConf["testserver1"],
                      "L'attribut weight n'est pas chargé")
         self.assertEquals(self.hostsConf["testserver1"]["weight"], 42,
@@ -476,7 +491,7 @@ class ParseHost(unittest.TestCase):
         self.host.close()
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
-        print self.hostsConf
+        pprint.pprint(self.hostsConf)
         self.assert_("weight" in self.hostsConf["testserver1"],
                      "L'attribut weight n'est pas réglé par défaut")
         self.assertEquals(self.hostsConf["testserver1"]["weight"], 1,
@@ -928,7 +943,7 @@ class ParseHostTemplate(unittest.TestCase):
         self.ht.close()
         self.hosttemplatefactory.load_templates()
         testdata = self.hosttemplatefactory.templates["test"]
-        print testdata
+        pprint.pprint(testdata)
         self.assertTrue("weight" in testdata,
                      "L'attribut weight n'est pas réglé par défaut")
         self.assertEquals(testdata["weight"], None,

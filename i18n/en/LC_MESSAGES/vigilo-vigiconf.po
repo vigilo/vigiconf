@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: vigilo-vigiconf 3.3\n"
+"Project-Id-Version: vigilo-vigiconf 3.5\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
-"POT-Creation-Date: 2014-02-10 10:32+0100\n"
-"PO-Revision-Date: 2014-02-10 10:32+0100\n"
+"POT-Creation-Date: 2014-10-08 18:36+0200\n"
+"PO-Revision-Date: 2014-10-08 18:36+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -219,16 +219,16 @@ msgstr "Loading XML configuration"
 msgid "Error loading configuration"
 msgstr "Error loading configuration"
 
-#: src/vigilo/vigiconf/discoverator.py:157
+#: src/vigilo/vigiconf/discoverator.py:161
 #, python-format
 msgid "%s: No such file"
 msgstr "%s: No such file"
 
-#: src/vigilo/vigiconf/discoverator.py:162
+#: src/vigilo/vigiconf/discoverator.py:166
 msgid "Can't find the hostname using SNMPv2-MIB::sysName.0"
 msgstr "Can't find the hostname using SNMPv2-MIB::sysName.0"
 
-#: src/vigilo/vigiconf/discoverator.py:166
+#: src/vigilo/vigiconf/discoverator.py:170
 #, python-format
 msgid ""
 "Invalid HOSTNAME detected in SNMPv2-MIB::sysName.0: \"%s\" (blank "
@@ -237,11 +237,11 @@ msgstr ""
 "Invalid HOSTNAME detected in SNMPv2-MIB::sysName.0: \"%s\" (blank "
 "character not allowed)"
 
-#: src/vigilo/vigiconf/discoverator.py:196
+#: src/vigilo/vigiconf/discoverator.py:200
 msgid "The \"snmpwalk\" command is not installed."
 msgstr "The \"snmpwalk\" command is not installed."
 
-#: src/vigilo/vigiconf/discoverator.py:200
+#: src/vigilo/vigiconf/discoverator.py:204
 #, python-format
 msgid ""
 "SNMP walk command failed with error status %(status)s and message:\n"
@@ -497,7 +497,7 @@ msgid "%(filesWritten)d files have been generated in %(dirsCreated)d directories
 msgstr "%(filesWritten)d files have been generated in %(dirsCreated)d directories"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:141
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:179
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:180
 #, python-format
 msgid ""
 "The \"%(old_attribute)s\" attribute has been deprecated. Please use "
@@ -530,15 +530,15 @@ msgstr "host '%(host)s': wrong datasource in graph '%(graph)s': %(ds)s"
 msgid "CDEF name must be ASCII-only: %s"
 msgstr "CDEF name must be ASCII-only: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:771
+#: src/vigilo/vigiconf/lib/confclasses/host.py:769
 msgid "Cannot override general configuration."
 msgstr "Cannot override general configuration."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:781
+#: src/vigilo/vigiconf/lib/confclasses/host.py:779
 msgid "oxe_login and oxe_password cannot be empty"
 msgstr "oxe_login and oxe_password cannot be empty"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:784
+#: src/vigilo/vigiconf/lib/confclasses/host.py:782
 #, python-format
 msgid ""
 "Value for '%(attr)s' (%(value)s) could not be cast into an integer. Using"
@@ -547,17 +547,31 @@ msgstr ""
 "Value for '%(attr)s' (%(value)s) could not be cast into an integer. Using"
 " default value (%(default)d)."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:917
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:303
+#: src/vigilo/vigiconf/lib/confclasses/host.py:838
+#, python-format
+msgid "Cannot add tag \"%(tag)s\" to non-existing service \"%(service)s\""
+msgstr "Cannot add tag \"%(tag)s\" to non-existing service \"%(service)s\""
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:861
+#, python-format
+msgid ""
+"Empty value given for directive %(directive)s with target %(target)s on "
+"host %(host)s"
+msgstr ""
+"Empty value given for directive %(directive)s with target %(target)s on "
+"host %(host)s"
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:929
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:321
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:97
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr "Invalid XML validation schema %(schema)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:923
-#: src/vigilo/vigiconf/lib/confclasses/host.py:943
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:309
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:329
+#: src/vigilo/vigiconf/lib/confclasses/host.py:935
+#: src/vigilo/vigiconf/lib/confclasses/host.py:955
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:327
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:347
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:103
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:123
 #, python-format
@@ -568,42 +582,42 @@ msgstr ""
 "Error reading %(file)s, make sure the permissions are set "
 "correctly.Message: %(error)s."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:940
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:326
+#: src/vigilo/vigiconf/lib/confclasses/host.py:952
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:344
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:120
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "XML syntax error in %(file)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:951
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:337
+#: src/vigilo/vigiconf/lib/confclasses/host.py:963
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:355
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:131
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr "XML validation failed: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1012
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1024
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Invalid ventilation group: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1053
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1065
 #, python-format
 msgid "Invalid value for %(type)s in test %(test)s on host %(host)s: %(value)r"
 msgstr "Invalid value for %(type)s in test %(test)s on host %(host)s: %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1129
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:129
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1140
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:130
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Invalid group name (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1138
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1149
 #, python-format
 msgid "Invalid value for %(type)s on host %(host)s: %(value)r"
 msgstr "Invalid value for %(type)s on host %(host)s: %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1188
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1199
 #, python-format
 msgid ""
 "Host '%(host)s' inherits from both the '%(tpl1)s' and '%(tpl2)s' "
@@ -614,17 +628,17 @@ msgstr ""
 "templates (in this order), but '%(tpl1)s' already inherits from "
 "'%(tpl2)s'. The templates will be reordered to satisfy dependencies."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1214
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1225
 #, python-format
 msgid "Unable to load templates for %(host)s. Possible cycle."
 msgstr "Unable to load templates for %(host)s. Possible cycle."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1231
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1242
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "You must associate host \"%s\" with at least one group."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1242
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1253
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
@@ -633,21 +647,21 @@ msgstr ""
 "Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
 "class ?"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:294
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:312
 msgid "A cycle has been detected in templates"
 msgstr "A cycle has been detected in templates"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:427
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:454
 #, python-format
 msgid "Invalid value for %(type)s in test %(test)s in template %(tpl)s: %(value)r"
 msgstr "Invalid value for %(type)s in test %(test)s in template %(tpl)s: %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:468
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:495
 #, python-format
 msgid "Invalid value for %(type)s in template %(tpl)s: %(value)r"
 msgstr "Invalid value for %(type)s in template %(tpl)s: %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:538
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:565
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s (added by template "
@@ -656,19 +670,19 @@ msgstr ""
 "Can't add test %(testname)s to host %(hostname)s (added by template "
 "%(tplname)s). Maybe a missing host class ?"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:332
+#: src/vigilo/vigiconf/lib/confclasses/test.py:333
 #, python-format
 msgid "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 msgstr "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:383
+#: src/vigilo/vigiconf/lib/confclasses/test.py:384
 #, python-format
 msgid "Invalid hostclass \"%s\". Missing __init__.py?"
 msgstr "Invalid hostclass \"%s\". Missing __init__.py?"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:395
-#: src/vigilo/vigiconf/lib/confclasses/test.py:428
-#: src/vigilo/vigiconf/lib/confclasses/test.py:569
+#: src/vigilo/vigiconf/lib/confclasses/test.py:396
+#: src/vigilo/vigiconf/lib/confclasses/test.py:429
+#: src/vigilo/vigiconf/lib/confclasses/test.py:570
 #, python-format
 msgid "Unable to load %(file)s: %(error)s"
 msgstr "Unable to load %(file)s: %(error)s"
@@ -928,11 +942,11 @@ msgstr "Server %s cannot be disabled"
 msgid "Server %s cannot be enabled"
 msgstr "Server %s cannot be enabled"
 
-#: src/vigilo/vigiconf/lib/server/factory.py:75
+#: src/vigilo/vigiconf/lib/server/factory.py:96
 msgid "On the Community Edition, you can only use localhost"
 msgstr "On the Community Edition, you can only use localhost"
 
-#: src/vigilo/vigiconf/lib/server/factory.py:89
+#: src/vigilo/vigiconf/lib/server/factory.py:110
 msgid ""
 "Remote server management is not possible with the Community edition. This"
 " feature is only available in the Enterprise edition. Aborting."
@@ -1075,8 +1089,8 @@ msgstr "Done loading Vigilo servers"
 msgid "Import test was successful"
 msgstr "Import test was successful"
 
-#: src/vigilo/vigiconf/tests/all/Interface.py:86
-#: src/vigilo/vigiconf/tests/all/Interface.py:94
+#: src/vigilo/vigiconf/tests/all/Interface.py:91
+#: src/vigilo/vigiconf/tests/all/Interface.py:99
 #, python-format
 msgid ""
 "Invalid value \"%(value)s\" for %(param)s. Expected one of: "
@@ -1093,4 +1107,8 @@ msgstr "Test NTP has been deprecated. Please use NagiosPlugin instead"
 #, python-format
 msgid "\"%s\" should be a list with two values"
 msgstr "\"%s\" should be a list with two values"
+
+#: src/vigilo/vigiconf/tests/all/UpTime.py:40
+msgid "Invalid thresholds. Expected 0 < crit < warn"
+msgstr "Invalid thresholds. Expected 0 < crit < warn"
 
