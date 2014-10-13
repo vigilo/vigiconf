@@ -109,43 +109,6 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(h.name, u'testserver1')
         self.assertEqual(h.address, u'192.168.1.1')
 
-    def test_export_host_confitem(self):
-        host_dict = conf.hostsConf[u'testserver1']
-        host_dict['nagiosDirectives'] = {u"max_check_attempts": u"8",
-                                         u"check_interval": u"2"}
-
-        self.hostloader.load()
-
-        ci = ConfItem.by_host_confitem_name(u"testserver1",
-                                            u"max_check_attempts")
-        self.assertNotEqual(ci, None, "confitem max_check_attempts must exist")
-        self.assertEqual(ci.value, "8", "max_check_attempts=8")
-
-        ci = ConfItem.by_host_confitem_name(u"testserver1", u"check_interval")
-        self.assertNotEqual(ci, None, "confitem check_interval must exist")
-        self.assertEquals(ci.value, "2", "check_interval=2")
-
-    def test_export_service_confitem(self):
-        self.host.add_external_sup_service("Interface eth0")
-        host_dict = conf.hostsConf[u'testserver1']
-        host_dict['nagiosSrvDirs'][u'Interface eth0'] = {
-                            u"max_check_attempts": u"7",
-                            u"retry_interval": u"3"}
-
-        self.hostloader.load()
-
-        ci = ConfItem.by_host_service_confitem_name(
-                            u'testserver1', u'Interface eth0',
-                            u"max_check_attempts")
-        self.assertTrue(ci, "confitem max_check_attempts must exist")
-        self.assertEquals(ci.value, "7", "max_check_attempts=7")
-
-        ci = ConfItem.by_host_service_confitem_name(
-                            u'testserver1', u'Interface eth0',
-                            u"retry_interval")
-        self.assertTrue(ci, "confitem retry_interval must exist")
-        self.assertEquals(ci.value, "3", "retry_interval=3")
-
     def test_remove_conffile_on_missing_files(self):
         ConfFile.get_or_create(u"dummy2.xml")
         self.hostloader.load()
