@@ -197,12 +197,6 @@ class HostLoader(DBLoader):
             service_loader = ServiceLoader(host)
             service_loader.load()
 
-            # directives Nagios de l'hôte
-            LOGGER.debug("Loading nagios conf for host %s", hostname)
-            nagiosconf_loader = NagiosConfLoader(host,
-                                    hostdata['nagiosDirectives'])
-            nagiosconf_loader.load()
-
             # données de performance
             LOGGER.debug("Loading perfdatasources for host %s", hostname)
             pds_loader = PDSLoader(host)
@@ -572,13 +566,6 @@ class ServiceLoader(DBLoader):
             # services passifs à venir qui en dépendent.
             if service == 'Collector':
                 collector = lls
-
-            # directives Nagios du service
-            nagios_directives = conf.hostsConf[self.host.name]['nagiosSrvDirs']
-            if nagios_directives.has_key(service):
-                nagiosconf_loader = NagiosConfLoader(lls,
-                                        nagios_directives[service])
-                nagiosconf_loader.load()
 
             # tags
             if service in conf.hostsConf[self.host.name]['services']:
