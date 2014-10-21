@@ -14,6 +14,12 @@ class NTP(Test):
     """Check if the NTP service is up"""
 
     def add_test(self, **kwargs):
+        """Arguments:
+        @param warn:    WARNING threshold in milliseconds.
+        @type warn:     C{int}
+        @param crit:    CRITICAL threshold in milliseconds.
+        @type crit:     C{int}
+        """
         skipclasses = [ "spectracom_netclock", "spectracom_securesync",
                 "windows" ]
         for skipclass in skipclasses:
