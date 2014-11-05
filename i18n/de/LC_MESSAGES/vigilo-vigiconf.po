@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2010-11-19 13:19+0100\n"
-"PO-Revision-Date: 2014-10-08 18:36+0200\n"
+"PO-Revision-Date: 2014-11-05 17:09+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
@@ -251,6 +251,11 @@ msgstr ""
 "Fehlschlagen des SNMP Laufbefehls mit Status %(status)s und Meldung:\n"
 " %(msg)s\n"
 "Befehl war: %(cmd)s"
+
+#: src/vigilo/vigiconf/applications/connector_metro/generator.py:173
+#, python-format
+msgid "Unknown RRA template %s"
+msgstr ""
 
 #: src/vigilo/vigiconf/applications/rrd/generator.py:141
 #: src/vigilo/vigiconf/applications/vigirrd/generator.py:88
@@ -641,7 +646,14 @@ msgstr ""
 msgid "Invalid value for %(type)s in template %(tpl)s: %(value)r"
 msgstr ""
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:565
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:537
+#, python-format
+msgid ""
+"Can't add template \"%(template)s\" to host \"%(hostname)s\": no such "
+"template"
+msgstr ""
+
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:573
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s (added by template "
@@ -1010,17 +1022,17 @@ msgstr ""
 msgid "Loading host %s"
 msgstr "Host %s wird geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:431
+#: src/vigilo/vigiconf/loaders/host.py:425
 msgid "Done loading hosts"
 msgstr "Hosts sind geladen"
 
-#: src/vigilo/vigiconf/loaders/host.py:445
+#: src/vigilo/vigiconf/loaders/host.py:439
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Unbekannte Gruppe \"%(group)s\" in Host \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:474
-#: src/vigilo/vigiconf/loaders/host.py:486
+#: src/vigilo/vigiconf/loaders/host.py:468
+#: src/vigilo/vigiconf/loaders/host.py:480
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
@@ -1029,7 +1041,7 @@ msgstr ""
 "Syntaxfehler in Host %(host)s: Es konnte keine zu diesem Pfad : "
 "\"%(path)s\" passende Gruppe gefunden werden"
 
-#: src/vigilo/vigiconf/loaders/host.py:554
+#: src/vigilo/vigiconf/loaders/host.py:548
 #, python-format
 msgid ""
 "warning_weight (%(warning_weight)d) must be less than or equal to weight "
@@ -1077,7 +1089,7 @@ msgid ""
 "%(candidates)s."
 msgstr ""
 
-#: src/vigilo/vigiconf/tests/all/NTP.py:22
+#: src/vigilo/vigiconf/tests/all/NTP.py:28
 msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
 msgstr ""
 
@@ -1089,4 +1101,9 @@ msgstr ""
 #: src/vigilo/vigiconf/tests/all/UpTime.py:40
 msgid "Invalid thresholds. Expected 0 < crit < warn"
 msgstr ""
+
+#~ msgid ""
+#~ "Can't add template \"%(template)s\" to "
+#~ "host %(hostname)s: no such template"
+#~ msgstr ""
 

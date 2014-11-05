@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact@projet-vigilo.org\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2014-10-08 18:36+0200\n"
+"PO-Revision-Date: 2014-11-05 17:09+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -258,6 +258,11 @@ msgstr ""
 "%(msg)s\n"
 "La commande était : %(cmd)s"
 
+#: src/vigilo/vigiconf/applications/connector_metro/generator.py:173
+#, python-format
+msgid "Unknown RRA template %s"
+msgstr "Modèle de RRA inconnu %s"
+
 #: src/vigilo/vigiconf/applications/rrd/generator.py:141
 #: src/vigilo/vigiconf/applications/vigirrd/generator.py:88
 #, python-format
@@ -400,8 +405,8 @@ msgid ""
 "Next attempt for %(action)s action in %(interval)d second(s) (attempt "
 "#%(attempt)d)"
 msgstr ""
-"Prochaine tentative pour l'action %(action)s dans \"\n"
-"\"%(interval)d second(s) (tentative n°%(attempt)d)"
+"Prochaine tentative pour l'action %(action)s dans %(interval)d second(s) "
+"(tentative n°%(attempt)d)"
 
 #: src/vigilo/vigiconf/lib/systemcommand.py:127
 #, python-format
@@ -683,7 +688,16 @@ msgstr ""
 msgid "Invalid value for %(type)s in template %(tpl)s: %(value)r"
 msgstr "Valeur invalide pour %(type)s du modèle %(tpl)s : %(value)r"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:565
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:537
+#, python-format
+msgid ""
+"Can't add template \"%(template)s\" to host \"%(hostname)s\": no such "
+"template"
+msgstr ""
+"Impossible d'ajouter le modèle \"%(template)s\" à l'hôte \"%(hostname)s\" : "
+"modèle introuvable"
+
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:573
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s (added by template "
@@ -1056,25 +1070,25 @@ msgstr "Chargement des hôtes"
 #, python-format
 msgid "Registering new configuration file '%(relative)s' (from %(absolute)s)"
 msgstr ""
-"Enregistrement du fichier de configuration '%(relative)s' \"\n"
-"\"(depuis %(absolute)s)"
+"Enregistrement du fichier de configuration '%(relative)s' (depuis "
+"%(absolute)s)"
 
 #: src/vigilo/vigiconf/loaders/host.py:151
 #, python-format
 msgid "Loading host %s"
 msgstr "Chargement de l'hôte %s"
 
-#: src/vigilo/vigiconf/loaders/host.py:431
+#: src/vigilo/vigiconf/loaders/host.py:425
 msgid "Done loading hosts"
 msgstr "Chargement des hôtes terminé"
 
-#: src/vigilo/vigiconf/loaders/host.py:445
+#: src/vigilo/vigiconf/loaders/host.py:439
 #, python-format
 msgid "Unknown group \"%(group)s\" in host \"%(host)s\"."
 msgstr "Groupe inconnu \"%(group)s\" sur l'hôte \"%(host)s\"."
 
-#: src/vigilo/vigiconf/loaders/host.py:474
-#: src/vigilo/vigiconf/loaders/host.py:486
+#: src/vigilo/vigiconf/loaders/host.py:468
+#: src/vigilo/vigiconf/loaders/host.py:480
 #, python-format
 msgid ""
 "syntax error in host %(host)s: could not find a group matching path "
@@ -1083,7 +1097,7 @@ msgstr ""
 "erreur de syntaxe sur l'hôte %(host)s : impossible de trouver un groupe "
 "correspondant au chemin \"%(path)s\""
 
-#: src/vigilo/vigiconf/loaders/host.py:554
+#: src/vigilo/vigiconf/loaders/host.py:548
 #, python-format
 msgid ""
 "warning_weight (%(warning_weight)d) must be less than or equal to weight "
@@ -1139,7 +1153,7 @@ msgstr ""
 "Valeur invalide \"%(value)s\" pour %(param)s. L'une de ces valeurs était "
 "attendue : %(candidates)s."
 
-#: src/vigilo/vigiconf/tests/all/NTP.py:22
+#: src/vigilo/vigiconf/tests/all/NTP.py:28
 msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
 msgstr ""
 "Le test NTP a été rendu obsolète. Veuillez utiliser le test NagiosPlugin "

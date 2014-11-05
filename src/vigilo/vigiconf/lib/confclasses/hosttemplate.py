@@ -531,7 +531,15 @@ class HostTemplateFactory(object):
         """
         if not self.templates:
             self.load_templates()
-        tpl = self.templates[tplname]
+        try:
+            tpl = self.templates[tplname]
+        except (KeyError, ValueError):
+            raise ParsingError(_('Can\'t add template "%(template)s" to host '
+                                 '"%(hostname)s": no such template') % {
+                                    "template": tplname,
+                                    "hostname": host.name,
+                                })
+
 
         # force-passive
         if tpl.has_key("force-passive"):
