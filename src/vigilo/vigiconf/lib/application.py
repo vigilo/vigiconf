@@ -761,11 +761,13 @@ class ApplicationManager(object):
                     LOGGER.info(msg)
                     sleep(self.interval)
                     for e in timedout:
-                        app = e.application
-                        act = e.action
-                        servers = e.servers
+                        timeout_app = e.application
+                        timeout_act = e.action
+                        timeout_servers = e.servers
                         # relance des exécutions précédemment en time out
-                        results.append(app.execute(act, servers, async=True))
+                        results.append(
+                            timeout_app.execute(timeout_act, timeout_servers,
+                                                           async=True))
                 timedout = []
                 for result in results:
                     try:
