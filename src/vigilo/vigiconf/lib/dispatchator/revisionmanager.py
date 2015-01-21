@@ -244,6 +244,8 @@ class RevisionManager(object):
         version_obj = Version.by_object_name(self.version_key)
         if version_obj is None:
             version_obj = Version(name=self.version_key)
+        if self.deploy_revision == "HEAD":
+            self.deploy_revision = self.last_revision()
         version_obj.version = self.deploy_revision
         DBSession.add(version_obj)
         DBSession.flush()
