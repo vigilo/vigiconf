@@ -688,22 +688,31 @@ class GraphLoader(DBLoader):
                         )
             graph = self.add(graph)
 
-    def insert(self, data):
+    def add(self, data):
         """
-        En plus de l'ajout classique, on règle les PerfDataSources et les
-        GraphGroups
+        Ajoute ou met à jour les liens vers les PerfDataSources et les
+        GraphGroups, en plus de la création/mise à jour du graphe lui-même.
+
+        @param data: Dictionnaire contenant les attributs du graphe
+            et leurs nouvelles valeurs.
+        @type data: C{dict}
+        @return: Instance du graphe créé ou mis à jour.
+        @rtype: C{Graph}
         """
-        graph = super(GraphLoader, self).insert(data)
+        graph = super(GraphLoader, self).add(data)
         graphname = data["name"]
         graphdata = conf.hostsConf[self.host.name]['graphItems'][graphname]
 
         # lien avec les PerfDataSources
-        for dsname in graphdata['ds']:
-            graph.perfdatasources.append(self.pds[dsname])
+        graph.perfdatasources = [self.pds[dsname]
+                                 for dsname in graphdata['ds']]
 
         # lien avec les GraphGroups
+        groups = []
         for groupname, graphnames in \
             conf.hostsConf[self.host.name]['graphGroups'].iteritems():
-            if graphname not in graphnames:
-                continue
-            graph.groups.append(self.graphgroups[groupname])
+            if graphname in graphnames:
+                groups.append(self.graphgroups[groupname])
+        graph.groups = groups
+
+        return graph
