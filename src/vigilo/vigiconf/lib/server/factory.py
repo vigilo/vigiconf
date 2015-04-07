@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ################################################################################
 #
-# ConfigMgr Data Consistancy dispatchator
+# VigiConf server factory
 # Copyright (C) 2007-2015 CS-SI
 #
 # This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,10 @@ L{ServerManagerLocal} sont disponibles.
 from __future__ import absolute_import
 
 import socket
+try:
+    import netifaces
+except ImportError:
+    netifaces = None
 from pkg_resources import working_set
 
 from vigilo.common.logging import get_logger
@@ -45,34 +49,68 @@ class ServerFactory(object):
     """
     I{Factory} pour L{Server<base.Server>}: retourne une instance de la bonne
     sous-classe.
+
+    @cvar localnames: Ensemble des noms/adresses faisant référence
+        à la machine locale.
+    @type localnames: C{set}
     """
+
+    localnames = set()
 
     def __init__(self):
         self.remote_class = self.find_remote_class()
-        names = set(['::1', '127.0.0.1', 'localhost', socket.gethostname()])
-        self.localnames = names.copy()
 
-        # IPs/noms d'hôtes déterminés grâce aux entrées précédentes.
-        for name in names:
+        if not self.localnames:
+            # L'union permet ici de modifier le set de la classe "en place",
+            # ce qui a le même effet qu'un cache.
+            self.localnames |= self._find_local_names()
+
+    def _find_local_names(self):
+        """
+        Retourne l'ensemble des noms et des adresses
+        faisant référence à la machine locale.
+
+        @return: Ensemble des noms et adresses de la machine locale.
+        @rtype: C{set}
+        """
+        localnames = set([socket.gethostname(), 'localhost'])
+        addresses = set(['127.0.0.1', '::1'])
+
+        # Permet de garder un fonctionnement minimum lorsque le paquet
+        # netifaces n'est pas disponible (cas de certaines anciennes
+        # distributions Linux).
+        if netifaces:
+            # Récupération de la liste des addresses (IPv4/IPv6)
+            # des différentes interfaces réseau de la machine locale.
+            for iface in netifaces.interfaces():
+                families = netifaces.ifaddresses(iface)
+                for family in families:
+                    # On ne garde que les addresses IPv4/IPv6.
+                    if family not in (netifaces.AF_INET, netifaces.AF_INET6):
+                        continue
+                    for entry in families[family]:
+                        if 'addr' in entry:
+                            addresses.add(entry['addr'])
+
+        # Les adresses IPs de la machine sont reconnues
+        # comme "aliases" de la machine.
+        localnames |= addresses
+
+        # Résolution inverse des adresses IP
+        # pour obtenir le reste des aliases.
+        for address in addresses:
             try:
-                name = socket.gethostbyname(name)
-                self.localnames.add(name)
+                aliases = socket.gethostbyaddr(address)
+
+                # Nom principal correspondant à l'adresse.
+                localnames.add(aliases[0])
+
+                # Autres aliases pour cette adresse.
+                localnames |= set(aliases[1])
             except socket.error:
                 continue
-            try:
-                for alias in socket.gethostbyaddr(name):
-                    if isinstance(alias, list):
-                        self.localnames |= set(alias)
-                    else:
-                        self.localnames.add(alias)
-            except socket.error:
-                pass
 
-        # FQDN
-        try:
-            self.localnames.add(socket.getfqdn())
-        except socket.error:
-            pass
+        return localnames
 
     def find_remote_class(self): # pylint: disable-msg=R0201
         for entry in working_set.iter_entry_points(

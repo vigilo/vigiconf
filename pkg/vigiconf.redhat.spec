@@ -34,6 +34,7 @@ Requires:   vigilo-common
 Requires:   net-snmp-utils
 Requires:   sqlite >= 3
 Requires:   python26-initgroups
+Requires:   python26-netifaces
 
 Requires(pre): shadow-utils
 

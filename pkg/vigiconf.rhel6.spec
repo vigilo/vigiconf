@@ -27,6 +27,7 @@ Requires:   vigilo-common
 Requires:   net-snmp-utils
 Requires:   sqlite >= 3
 Requires:   python-initgroups
+Requires:   python-netifaces
 
 Requires(pre): shadow-utils
 

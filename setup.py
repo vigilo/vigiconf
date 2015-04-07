@@ -20,6 +20,7 @@ install_requires=[
     "vigilo-common",
     "vigilo-models",
     "networkx",
+    "netifaces",
     ]
 if tuple(python_version_tuple()) < ('2', '6'):
     install_requires.append("multiprocessing")
