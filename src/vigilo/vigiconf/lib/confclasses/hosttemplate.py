@@ -298,8 +298,8 @@ class HostTemplateFactory(object):
                     if not f.endswith(".xml") or f.startswith("__"):
                         continue
                     tplfile = os.path.join(root, f)
-                    self._validate(tplfile, xsd)
-                    self._load(tplfile)
+                    sourcetree = self._validate(tplfile, xsd)
+                    self._load(sourcetree)
         self._resolve_dependencies()
 
     def _resolve_dependencies(self):
@@ -357,11 +357,11 @@ class HostTemplateFactory(object):
                                 })
         return source_doc
 
-    def _load(self, source):
+    def _load(self, sourcetree):
         """
-        Load a template from XML
-        @param source: an XML file (or stream)
-        @type  source: C{str} or C{file}
+        Load a template from an XML tree
+        @param source: an XML tree
+        @type  source: L{etree.ElementTree}
         @todo: mettre en commun avec le parsing dans host.py
         """
         test_name = None
@@ -374,7 +374,7 @@ class HostTemplateFactory(object):
                 "default_service_warning_weight": None
                 }
 
-        for event, elem in etree.iterparse(source, events=("start", "end")):
+        for event, elem in etree.iterwalk(sourcetree, events=("start", "end")):
             if event == "start":
                 if elem.tag == "template":
                     test_name = None
