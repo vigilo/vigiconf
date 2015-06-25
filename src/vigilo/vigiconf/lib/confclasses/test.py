@@ -463,7 +463,7 @@ class TestFactory(object):
 
     def get_hclasses(self):
         """
-        Get the host classes where tests are using the provided oid.
+        Get the host classes where tests are using the provided oids.
         @rtype: C{set}
         """
         hclasses = set()
@@ -508,8 +508,9 @@ class TestFactory(object):
            will be matched against the SNMPv2-MIB::sysDescr.0
            (.1.3.6.1.2.1.1.1.0) result. Be careful to include leading and
            ending wildcards (.*) as needed.
-         - the second technique is an attribute named "oid": if this OID is
-           present in a host's SNMP walk, then the host class applies to it.
+         - the second technique is an attribute named "oids": if one of the OIDs
+           in the attribute "oids" is found in the OIDS hashmap's keys, then the
+           host class applies to it.
          - the third technique is a detect_snmp() function, for more complex
            matching.  This function is given the whole SNMP result map, and
            returns True or False if the host class applies to this result.
@@ -531,7 +532,7 @@ class TestFactory(object):
                 hclassdir = os.path.join(pathdir, hclass)
                 self.hclasschecks[hclass] = {
                     "sysdescr": None,
-                    "oid": None,
+                    "oids": None,
                     "detect_snmp": None,
                 }
 
