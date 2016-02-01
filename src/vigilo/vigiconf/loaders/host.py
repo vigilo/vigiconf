@@ -3,6 +3,7 @@
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 import os
+import itertools
 
 from sqlalchemy import or_
 
@@ -631,6 +632,26 @@ class GraphLoader(DBLoader):
             pds[datasource.name] = datasource
         self.pds = pds
 
+        # Récupération de tous les noms de métriques de l'hôte depuis
+        # la table "vigilo_graphperfdatasource".
+        pds = DBSession.query(PerfDataSource.name).join(
+                    (GRAPH_PERFDATASOURCE_TABLE, \
+                        GRAPH_PERFDATASOURCE_TABLE.c.idperfdatasource
+                            == PerfDataSource.idperfdatasource),
+                ).filter(PerfDataSource.idhost == self.host.idhost).all()
+        pds_in_host_db = set(p.name for p in pds)
+
+        # Récupération de toutes les métriques de l'hôte depuis
+        # sa configuration XML.
+        pds = (graphdata['ds']
+               for graphname, graphdata in \
+               conf.hostsConf[self.host.name]['graphItems'].iteritems())
+        pds_in_host_conf = set(itertools.chain(*pds))
+
+        # On positionne self.has_new_pds à True si de nouvelles métriques
+        # ont été insérées.
+        self.has_new_pds = pds_in_host_db != pds_in_host_conf
+
     def _list_db(self):
         """Charge toutes les instances depuis la base de données"""
         return DBSession.query(self._class).join(
@@ -667,10 +688,12 @@ class GraphLoader(DBLoader):
         graphname = data["name"]
         graphdata = conf.hostsConf[self.host.name]['graphItems'][graphname]
 
+        if not self.has_new_pds:
+            return graph
+
         # lien avec les PerfDataSources
         graph.perfdatasources = [self.pds[dsname]
                                  for dsname in graphdata['ds']]
-
         # lien avec les GraphGroups
         groups = []
         for groupname, graphnames in \
