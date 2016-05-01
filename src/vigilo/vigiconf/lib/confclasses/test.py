@@ -401,10 +401,8 @@ class TestFactory(object):
                     else:
                         for current_test_name, current_test_class \
                             in inspect.getmembers(mod, self._filter_tests):
-                            if not self.tests.has_key(current_test_name):
-                                self.tests[current_test_name] = {}
-                            self.tests[current_test_name][hclass] = \
-                                current_test_class
+                            tests = self.tests.setdefault(current_test_name, {})
+                            tests[hclass] = current_test_class
                         testfiles.add(mod_name)
                     finally:
                         # find_module() ouvre un descripteur de fichier
