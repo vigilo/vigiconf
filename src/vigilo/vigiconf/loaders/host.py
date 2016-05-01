@@ -137,7 +137,7 @@ class HostLoader(DBLoader):
             LOGGER.debug(_("Loading host %s"), hostname)
             hostname = unicode(hostname)
             host = dict(name=hostname,
-                        hosttpl=unicode(hostdata['hostTPL']),
+                        hosttpl=unicode(hostdata['nagiosDirectives']['host']['use']),
                         snmpcommunity=unicode(hostdata['snmpCommunity']),
                         address=unicode(hostdata['address']),
                         snmpport=hostdata['snmpPort'],

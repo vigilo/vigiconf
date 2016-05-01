@@ -2,19 +2,23 @@
 <!-- Default host template, for the whole domain -->
 <templates>
 <template name="default">
-    <!-- Nagios host template -->
-    <attribute name="hostTPL">generic-active-host</attribute>
-    <!-- Nagios host availablility check -->
     <nagios>
+        <!-- Nagios host template -->
+        <directive name="use">generic-active-host</directive>
+        <!-- Nagios host availablility check -->
         <directive name="check_command">check-host-alive</directive>
     </nagios>
+
     <!-- Default SNMP values -->
     <attribute name="snmpVersion">2</attribute>
     <attribute name="snmpCommunity">public</attribute>
     <attribute name="snmpPort">161</attribute>
     <attribute name="snmpOIDsPerPDU">10</attribute>
+
     <!-- SNMP Collector timeout -->
     <attribute name="collectorTimeout">3</attribute>
+
+    <!-- Default tests -->
     <test name="UpTime"/>
 </template>
 </templates>

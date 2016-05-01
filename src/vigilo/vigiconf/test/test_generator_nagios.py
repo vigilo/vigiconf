@@ -99,7 +99,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
 
     def test_passive_host(self):
         """Nagios: génération d'un hôte passif"""
-        self.host.set_attribute("hostTPL", "generic-passive-host")
+        self.host.add_nagios_directive("use", "generic-passive-host")
 
         self._generate()
         nagiosconffile = os.path.join(self.basedir, "localhost",

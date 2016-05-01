@@ -79,13 +79,15 @@ class Host(object):
                 "netflow"        : {},
                 "graphGroups"    : {},
                 "reports"        : {},
-                "hostTPL"        : "generic-active-host",
                 "snmpVersion"    : "2",
                 "snmpCommunity"  : "public",
                 "snmpPort"       : 161,
                 "snmpOIDsPerPDU" : 10,
                 "nagiosDirectives": {
-                    "host": {"check_command": "check-host-alive"},
+                    "host": {
+                        "check_command": "check-host-alive",
+                        "use": "generic-active-host",
+                    },
                     "services": {},
                 },
                 "nagiosSrvDirs"  : {},
@@ -1171,14 +1173,15 @@ class HostFactory(object):
                                        "testname": test_params[0]})
                         cur_host.add_tests(test_list, *test_params[1:])
 
+                    if cur_host.get_attribute("force-passive"):
+                        cur_host.add_nagios_directive("use", "generic-passive-host")
+
                     for (dname, dvalue) in directives.iteritems():
                         cur_host.add_nagios_directive(dname, dvalue)
 
                     for (service, tagname, tagvalue) in tags:
                         cur_host.add_tag(service, tagname, tagvalue)
 
-                    if cur_host.get_attribute("force-passive"):
-                        cur_host.set_attribute("hostTPL", "generic-passive-host")
                     LOGGER.debug("Loaded host %(host)s, address %(address)s" %
                                  {'host': cur_host.name,
                                   'address': cur_host.get_attribute('address'),
