@@ -8,4 +8,4 @@ if [ ! -f "$confdir/nagios/nagios.cfg" ]; then
     echo "No Nagios configuration file, not starting Nagios"
     exit 0
 fi
-sudo '%%(nagios_init)s' start
+sudo service '%%(nagios_svc)s' start

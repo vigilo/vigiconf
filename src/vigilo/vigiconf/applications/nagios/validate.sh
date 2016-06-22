@@ -5,7 +5,7 @@
 BASEDIR=$1
 
 if [ "$2" = "local" ]; then
-    if [ ! -e '%%(nagios_init)s' ]; then
+    if [ ! -e '%%(nagios_bin)s' ]; then
         echo "Nagios is not installed"
         exit 1
     fi

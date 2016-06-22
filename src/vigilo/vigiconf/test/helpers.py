@@ -200,7 +200,7 @@ class GeneratorBaseTestCase(TestCase):
         self.genmanager = GeneratorManager(self.apps.values())
         self.substitutions = {
             'nagios_bin': 'nagios',
-            'nagios_init': '/etc/init.d/nagios',
+            'nagios_svc': 'nagios',
             'targetconfdir': '/etc/vigilo/vigiconf/',
             'nagios_cfg': '/etc/nagios/nagios.cfg',
         }

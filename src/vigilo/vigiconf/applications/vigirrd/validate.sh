@@ -2,8 +2,11 @@
 # Copyright (C) 2007-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export PATH
+
 if [ "$2" == "local" ]; then
-    if [ ! -e '%%(httpd_init)s' ]; then
+    if [ ! which '%%(httpd_bin)s' >/dev/null 2>&1 ]; then
         exit 1
     fi
 fi

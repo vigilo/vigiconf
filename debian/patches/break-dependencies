@@ -2,12 +2,11 @@ Description: remove some dependencies to be able to generate the doc package.
 Forwarded: not-needed
 --- a/setup.py
 +++ b/setup.py
-@@ -13,12 +13,7 @@
+@@ -14,11 +14,7 @@
  
  install_requires=[
      # order is important
 -    "setuptools",
--    "argparse",
 -    "lxml",
      "vigilo-common",
 -    "vigilo-models",

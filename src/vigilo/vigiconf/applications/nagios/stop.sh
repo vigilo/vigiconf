@@ -2,7 +2,7 @@
 # Copyright (C) 2011-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-sudo '%%(nagios_init)s' stop
+sudo service '%%(nagios_svc)s' stop
 for i in `seq 20`; do
     pgrep -u %%(nagios_user)s '%%(nagios_bin)s' >/dev/null || exit 0
     sleep 1

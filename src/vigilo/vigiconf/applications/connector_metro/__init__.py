@@ -17,7 +17,7 @@ class ConnectorMetro(Application):
     name = "connector-metro"
     priority = -1
     validation = "validate.sh"
-    start_command = "sudo '%%(metro_init)s' reload"
+    start_command = "sudo service '%%(metro_svc)s' restart"
     stop_command = None
     generator = generator.ConnectorMetroGen
     group = "metrology"

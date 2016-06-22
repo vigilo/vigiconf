@@ -15,7 +15,6 @@ cronext = os.getenv("CRONEXT", ".cron")
 install_requires=[
     # order is important
     "setuptools",
-    "argparse",
     "lxml",
     "vigilo-common",
     "vigilo-models",
@@ -26,6 +25,7 @@ if tuple(python_version_tuple()) < ('2', '6'):
     install_requires.append("multiprocessing")
 if tuple(python_version_tuple()) < ('2', '7'):
     install_requires.append("initgroups")
+    install_requires.append("argparse")
 
 tests_require = [
     'coverage',

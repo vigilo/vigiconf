@@ -17,7 +17,7 @@ class VigiRRD(Application):
     name = "vigirrd"
     priority = -1
     validation = "validate.sh"
-    start_command = "sudo '%%(httpd_init)s' reload"
+    start_command = "sudo service '%%(httpd_svc)s' reload"
     stop_command = None
     generator = generator.VigiRRDGen
     group = "metrology"
