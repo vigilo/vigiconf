@@ -382,8 +382,10 @@ class RevisionManagerTest(unittest.TestCase):
         print status
         expected = {
             "added": [],
-            # "svn diff" n'affiche pas les sous-arbres impactés,
-            # donc "testfile" n'apparait pas ici.
+            # Avec svn 1.6, "svn diff" n'affiche pas les sous-arbres
+            # impactés, donc "testfile" n'apparait pas ici.
+            # Ils sont désormais affichés depuis svn 1.7, mais on les
+            # filtre dans le revision manager pour la compatibilité.
             "removed": [testdir],
             "modified": [],
         }

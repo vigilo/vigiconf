@@ -96,9 +96,16 @@ class RevisionManager(object):
             "deleted": "removed",
             "modified": "modified",
         }
+        removed_dirs = []
         output = ET.fromstring(_command.getResult(stderr=False))
         for entry in output.findall(".//path"):
-            status[mapping[entry.get("item")]].append(entry.text)
+            change = entry.get("item")
+            if change == "deleted":
+                if os.path.dirname(entry.text) not in removed_dirs:
+                    status[mapping[change]].append(entry.text)
+                removed_dirs.append(entry.text)
+            else:
+                status[mapping[change]].append(entry.text)
         self._status = status
         return status
 
@@ -125,6 +132,7 @@ class RevisionManager(object):
 
         status = {"toadd": [], "added": [],
                   "toremove": [], "removed": [], 'modified': []}
+        removed_dirs = []
         if _command.getResult():
             output = ET.fromstring(_command.getResult(stderr=False))
             for entry in output.findall(".//entry"):
@@ -141,7 +149,20 @@ class RevisionManager(object):
                 elif state == "added":
                     status["added"].append(entry.get("path"))
                 elif state == "missing":
-                    status["toremove"].append(entry.get("path"))
+                    # FIXME: lors d'une suppression manuelle de dossier
+                    # sous subversion 1.7.x, svn renvoit désormais la liste
+                    # des fichiers comme faisant partie de la suppression.
+                    #
+                    # On élimine ces fichiers (inattendus par VigiConf)
+                    # de la liste, pour rester compatible avec svn 1.6.
+                    # On s'appuie pour cela sur le fait que la liste
+                    # retournée par svn est triée (parents puis enfants).
+                    #
+                    # Idéalement, il ne faudrait plus supporter svn 1.6.
+                    path = entry.get("path")
+                    if os.path.dirname(path) not in removed_dirs:
+                        status["toremove"].append(path)
+                    removed_dirs.append(path)
                 elif state == "deleted":
                     status["removed"].append(entry.get("path"))
                 elif state == "modified":
