@@ -36,8 +36,8 @@ install_permissions:
 	chmod 755 $(DESTDIR)$(VARDIR)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(VARDIR)
 	# Les autres utilisateurs du groupe peuvent prendre le verrou (cf. #1108).
-	chmod 775 $(DESTDIR)$(LOCALSTATEDIR)/lock/$(PKGNAME)
-	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/lock/$(PKGNAME)
+	chmod 775 $(DESTDIR)$(LOCALSTATEDIR)/lock/subsys/$(PKGNAME)
+	chown -R $(NAME):$(NAME) $(DESTDIR)$(LOCALSTATEDIR)/lock/subsys/$(PKGNAME)
 	chown -R $(NAME):$(NAME) $(DESTDIR)$(CONFDIR)
 	chmod 755 $(DESTDIR)$(VIGICONFPATH)/applications/*/*.sh
 

@@ -48,8 +48,6 @@ make install_pkg \
     SYSCONFDIR=%{_sysconfdir} \
     LOCALSTATEDIR=%{_localstatedir} \
     PYTHON=%{__python}
-mkdir -p $RPM_BUILD_ROOT/%{_tmpfilesdir}
-install -m 644 pkg/%{name}.conf $RPM_BUILD_ROOT/%{_tmpfilesdir}
 
 %find_lang %{name}
 
@@ -58,9 +56,6 @@ getent group %{module} >/dev/null || groupadd -r %{module}
 getent passwd %{module} >/dev/null || \
     useradd -r -g %{module} -d %{_localstatedir}/lib/vigilo/%{module} -s /bin/bash %{module}
 exit 0
-
-%post
-%tmpfiles_create %{_tmpfilesdir}/%{name}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -82,12 +77,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
 # Les autres utilisateurs du groupe peuvent prendre le verrou (cf. #1108).
-%attr(644,root,root) %{_tmpfilesdir}/%{name}.conf
+%attr(775,%{module},%{module}) %{_localstatedir}/lock/subsys/vigilo-%{module}
 
 
 %changelog
-* Thu Mar 23 2017 Yves Ouattara <yves.ouattara@c-s.fr>
-- Rebuild for RHEL7.
-
 * Fri Jan 21 2011 Vincent Quéméner <vincent.quemener@c-s.fr>
 - Rebuild for RHEL6.

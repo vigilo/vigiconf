@@ -6,5 +6,5 @@ from Config import addFilter
 addFilter("[EW]: explicit-lib-dependency libxml2(-utils)?")
 
 # Verrou accessible depuis le groupe (#1518)
-addFilter("E: non-standard-dir-perm /var/lock/vigilo-vigiconf 0775L")
+addFilter("E: non-standard-dir-perm /var/lock/subsys/vigilo-vigiconf 0775L")
 

@@ -407,7 +407,7 @@ def main(): # pragma: no cover
 
     if args.func != discover:
         lockfile = settings["vigiconf"].get("lockfile",
-                            "/var/lock/vigilo-vigiconf/vigiconf.token")
+                            "/var/lock/subsys/vigilo-vigiconf/vigiconf.token")
         lock_result = grab_lock(lockfile)
         if not lock_result:
             sys.exit(1)

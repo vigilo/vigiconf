@@ -14,7 +14,7 @@ targetconfdir = @SYSCONFDIR@/vigilo/vigiconf
 pluginsdir = @SYSCONFDIR@/vigilo/vigiconf/plugins
 
 # Emplacement du fichier contenant le verrou de VigiConf.
-lockfile = @LOCALSTATEDIR@/lock/vigilo-vigiconf/vigiconf.token
+lockfile = @LOCALSTATEDIR@/lock/subsys/vigilo-vigiconf/vigiconf.token
 
 # Emplacement du dépôt SVN contenant l'historique
 # de la configuration du parc supervisé.

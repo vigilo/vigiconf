@@ -84,4 +84,4 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_localstatedir}/lib/vigilo
 %attr(-,%{module},%{module}) %{_localstatedir}/lib/vigilo/%{module}
 # Les autres utilisateurs du groupe peuvent prendre le verrou (cf. #1108).
-%attr(775,%{module},%{module}) %{_localstatedir}/lock/vigilo-%{module}
+%attr(775,%{module},%{module}) %{_localstatedir}/lock/subsys/vigilo-%{module}

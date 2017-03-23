@@ -211,7 +211,7 @@ l'arrêt de VigiConf.
 
 La directive "``lockfile``" permet de spécifier l'emplacement du fichier qui
 correspondra au verrou. Dans la configuration fournie par défaut avec VigiConf,
-le verrou est enregistré dans :file:`/var/lock/vigilo-vigiconf/vigiconf.token`.
+le verrou est enregistré dans :file:`/var/lock/subsys/vigilo-vigiconf/vigiconf.token`.
 
 Mode de simulation des opérations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
