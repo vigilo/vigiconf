@@ -118,18 +118,6 @@ défaut de Vigilo::
     D'autres SGBD peuvent également fonctionner, mais aucun support ne
     sera fourni pour ceux-ci.
 
-Préfixe pour les tables
-^^^^^^^^^^^^^^^^^^^^^^^
-Il est recommandé de ne pas utiliser de préfixe pour les noms des tables mais
-de privilégier l'installation de Vigilo dans une base de données séparée.
-Néanmoins, vous pouvez choisir un préfixe qui sera appliqué aux noms des tables
-de la base de données en indiquant ce préfixe dans la clé ``db_basename`` sous
-la section ``[database]``.
-
-Utilisez de préférence un préfixe ne contenant que des caractères
-alpha-numériques ou le caractère "_". Exemple de préfixe valide :
-"``vigilo_``".
-
 
 Configuration du dépôt pour le suivi des évolutions
 ---------------------------------------------------
@@ -1340,12 +1328,6 @@ Le rôle de chacun de ces attributs est précisé ci-dessous :
             nouvelle version et que la nouvelle version du test VigiloDatabase
             n'a pas encore été déployée sur les serveurs de collecte pour prendre
             en charge cette nouvelle version du schéma.
-
-    - Un préfixe optionnel (paramètre "``prefix``") utilisé devant les noms de
-      toutes les tables de Vigilo. Il s'agit du même préfixe que celui défini dans
-      l'option "``db_basename``" du fichier settings.ini de VigiConf (voir chapitre
-      ). Par défaut, la valeur de l'option "``db_basename``" dans le fichier de
-      configuration de VigiConf est utilisée automatiquement.
 
     Mise en place des mails d'alertes pour les problèmes de bus
     -----------------------------------------------------------
