@@ -68,7 +68,13 @@ class RevisionManager(object):
         """
         if self._status is not None:
             return self._status
-        old_rev = Version.by_object_name(self.version_key).version
+
+        old_rev = Version.by_object_name(self.version_key)
+        if old_rev is None:
+            old_rev = 0
+        else:
+            old_rev = old_rev.version
+
         new_rev = self.last_revision()
         confdir = settings["vigiconf"].get("confdir")
         _cmd = [
