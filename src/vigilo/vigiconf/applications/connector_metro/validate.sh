@@ -5,7 +5,9 @@
 export BASE=$1
 
 if [ "$2" == "local" ]; then
-    if [ ! -e '%%(metro_init)s' ]; then
+    which vigilo-connector-metro 2> /dev/null >&2
+    if [ $? -ne 0 ]; then
+        echo "vigilo-connector-metro n'est pas installé sur la machine"
         exit 1
     fi
 fi
