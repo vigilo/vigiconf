@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import unittest
@@ -399,8 +399,8 @@ class ParseHost(unittest.TestCase):
         try:
             self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                         "host.xml"))
-        except ParsingError, e:
-            print e
+        except ParsingError as e:
+            print(e)
             self.fail("L'ordre des balises class et template est important")
         self.assertTrue("RAID" in self.hostsConf["testserver1"]["services"],
                         "L'ordre des balises class et template est important")

@@ -2,6 +2,7 @@
 # Copyright (C) 2006-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import print_function
 import os
 import sys
 import shutil
@@ -239,8 +240,8 @@ class GeneratorBaseTestCase(TestCase):
             fh = open(validation_script, 'w')
             fh.write(contents % self.substitutions)
             fh.close()
-            print appname
+            print(appname)
             proc = Popen(["sh", validation_script, deploydir],
                         stdout=PIPE, stderr=STDOUT)
-            print proc.communicate()[0]
+            print(proc.communicate()[0])
             self.assertEqual(proc.returncode, 0)

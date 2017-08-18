@@ -377,7 +377,7 @@ class Application(object):
         """
         try:
             getattr(self, "%sServer" % action)(servername)
-        except ApplicationError, e: # if it fails
+        except ApplicationError as e:
             LOGGER.error(get_error_message(e))
             thread = current_thread()
             try:
@@ -415,7 +415,7 @@ class Application(object):
         _command.simulate = settings["vigiconf"].as_bool("simulate")
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             error = ApplicationError(
                         _("%(app)s: validation failed for server "
                           "'%(server)s': %(reason)s")
@@ -445,7 +445,7 @@ class Application(object):
         _command = server.createCommand(_command)
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             error = ApplicationError(_("%(app)s : Qualification failed on "
                                         "'%(server)s' - REASON: %(reason)s") % {
                                         'app': self.name,
@@ -480,7 +480,7 @@ class Application(object):
         _command = server.createCommand(_command)
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             error = ApplicationError(_("Can't Start %(app)s on %(server)s "
                                         "- REASON %(reason)s") % {
                 'app': self.name,
@@ -514,7 +514,7 @@ class Application(object):
         _command = server.createCommand(_command)
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             error = ApplicationError(_("Can't Stop %(app)s on %(server)s "
                                         "- REASON %(reason)s") % {
                 'app': self.name,
@@ -756,7 +756,7 @@ class ApplicationManager(object):
                 for result in results:
                     try:
                         status = status and result.get()
-                    except ApplicationTimeOutError, e:
+                    except ApplicationTimeOutError as e:
                         LOGGER.info(get_error_message(e))
                         status = status and e.status
                         timedout.append(e)

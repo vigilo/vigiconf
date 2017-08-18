@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2011-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 from vigilo.vigiconf.applications.collector import Collector
@@ -30,5 +30,5 @@ class CollectorGeneratorTestCase(GeneratorBaseTestCase):
         cfgfile = os.path.join(self.basedir, "localhost", "collector",
                                "testserver1.pm")
         cfg = open(cfgfile).read()
-        print cfg
+        print(cfg)
         self.assertFalse("\\" in cfg)

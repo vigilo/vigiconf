@@ -522,7 +522,7 @@ class Host(object):
         })
         try:
             return Cdef(name, cdef)
-        except (UnicodeEncodeError, UnicodeDecodeError), e:
+        except (UnicodeEncodeError, UnicodeDecodeError) as e:
             try:
                 errmsg = unicode(e)
             except UnicodeDecodeError:
@@ -874,13 +874,13 @@ class HostFactory(object):
         try:
             xsd_doc = etree.parse(xsd_path)
             xsd = etree.XMLSchema(xsd_doc)
-        except (etree.XMLSyntaxError, etree.XMLSchemaParseError), e:
+        except (etree.XMLSyntaxError, etree.XMLSchemaParseError) as e:
             raise ParsingError(_("Invalid XML validation schema %(schema)s: "
                                 "%(error)s") % {
                                     'schema': xsd_path,
                                     'error': str(e),
                                 })
-        except IOError, e:
+        except IOError as e:
             raise ParsingError(_("Error reading %(file)s, make sure the "
                                  "permissions are set correctly."
                                  "Message: %(error)s.") % {
@@ -897,10 +897,10 @@ class HostFactory(object):
         """
         try:
             source_doc = etree.parse(source)
-        except etree.XMLSyntaxError, e:
+        except etree.XMLSyntaxError as e:
             raise ParsingError(_("XML syntax error in %(file)s: %(error)s") %
                                { 'file': source, 'error': str(e) })
-        except IOError, e:
+        except IOError as e:
             raise ParsingError(_("Error reading %(file)s, make sure the "
                                  "permissions are set correctly."
                                  "Message: %(error)s.") % {

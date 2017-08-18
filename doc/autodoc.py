@@ -2,6 +2,7 @@
 # Copyright (C) 2011-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import print_function
 import sys, os, inspect
 from epydoc.markup import epytext
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
@@ -91,21 +92,21 @@ def write_autodoc():
             hclass = test_factory.get_hclass(test_cls)
             test_doc = test_cls.__doc__ or ""
             if not test_doc:
-                print >> sys.stderr, \
-                    "WARNING: aucune description pour le test '%(test)s' " \
-                    "de la classe d'hôtes '%(hclass)s'" % {
+                print("WARNING: aucune description pour le test '%(test)s' "
+                      "de la classe d'hôtes '%(hclass)s'" % {
                         'test': test,
                         'hclass': hclass,
-                    }
+                      }, file=sys.stderr)
+
             errors = []
             test_doc = epytext.parse_docstring(test_doc, errors)
             if errors:
-                print   >> sys.stderr, \
-                        "WARNING: impossible de lire la documentation du " \
-                        "test '%(test)s' de la classe d'hôtes '%(hclass)s'" % {
-                            'test': test,
-                            'hclass': hclass,
-                        }
+                print("WARNING: impossible de lire la documentation du "
+                      "test '%(test)s' de la classe d'hôtes '%(hclass)s'" % {
+                        'test': test,
+                        'hclass': hclass,
+                      }, file=sys.stderr)
+
                 tests_doc[test]['doc'] = ""
             else:
                 tests_doc[test]['doc'] = \
@@ -142,37 +143,36 @@ def write_autodoc():
 
             errors = []
             if not test_cls.add_test.__doc__:
-                print   >> sys.stderr, \
-                        "WARNING: les paramètres du test '%(test)s' de la " \
-                        "classe d'hôtes '%(hclass)s' ne sont pas documentés" % {
-                            'test': test,
-                            'hclass': hclass,
-                        }
+                print("WARNING: les paramètres du test '%(test)s' de la "
+                      "classe d'hôtes '%(hclass)s' ne sont pas documentés" % {
+                        'test': test,
+                        'hclass': hclass,
+                      }, file=sys.stderr)
+
                 continue
 
             doc = epytext.parse_docstring(test_cls.add_test.__doc__, errors)
             if errors:
-                print   >> sys.stderr, \
-                        "WARNING: impossible de lire la documentation des " \
-                        "paramètres du test '%(test)s' de la classe " \
-                        "d'hôtes '%(hclass)s'" % {
-                            'test': test,
-                            'hclass': hclass,
-                        }
+                print("WARNING: impossible de lire la documentation des "
+                      "paramètres du test '%(test)s' de la classe "
+                      "d'hôtes '%(hclass)s'" % {
+                        'test': test,
+                        'hclass': hclass,
+                      }, file=sys.stderr)
+
                 continue
 
             fields = doc.split_fields()
             for field in fields[1]:
                 # Si un paramètre inconnu est documenté...
                 if field.arg() not in tests_doc[test]['params']:
-                    print   >> sys.stderr, \
-                            "WARNING: paramètre '%(param)s' inconnu " \
-                            "(mais documenté !) dans le test '%(test)s' " \
-                            "de la classe d'hôtes '%(hclass)s'" % {
-                                'param': field.arg(),
-                                'test': test,
-                                'hclass': hclass,
-                            }
+                    print("WARNING: paramètre '%(param)s' inconnu "
+                          "(mais documenté !) dans le test '%(test)s' "
+                          "de la classe d'hôtes '%(hclass)s'" % {
+                            'param': field.arg(),
+                            'test': test,
+                            'hclass': hclass,
+                          }, file=sys.stderr)
                     continue
                 tests_doc[test]['params'][field.arg()]['doc'] = \
                     field.body().to_plaintext(None).strip().replace('\n', ' ')
@@ -180,14 +180,13 @@ def write_autodoc():
             for param in tests_doc[test]['params']:
                 if tests_doc[test]['params'][param]['doc']:
                     continue
-                print   >> sys.stderr, \
-                        "WARNING: le paramètre '%(param)s' n'est pas " \
-                        "documenté dans le test '%(test)s' de la classe " \
-                        "d'hôtes '%(hclass)s'" % {
-                            'param': param,
-                            'test': test,
-                            'hclass': hclass,
-                        }
+                print("WARNING: le paramètre '%(param)s' n'est pas "
+                      "documenté dans le test '%(test)s' de la classe "
+                      "d'hôtes '%(hclass)s'" % {
+                        'param': param,
+                        'test': test,
+                        'hclass': hclass,
+                      }, file=sys.stderr)
 
     # PHASE 2 : transformation de la documentation en tableau
     #           avec les données formatées en reStructuredText.

@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import unittest
@@ -51,7 +51,7 @@ class TestFactoryTest(unittest.TestCase):
         default_path = os.path.normpath(os.path.join(
                             os.path.dirname(__file__), "..", "tests"))
         sysadmin_path = os.path.join(settings["vigiconf"]["confdir"], "tests")
-        print self.testfactory.path
+        print(self.testfactory.path)
         self.assertTrue(len(self.testfactory.path) >= 2)
         self.assertEqual(self.testfactory.path[0], default_path)
         self.assertEqual(self.testfactory.path[-1], sysadmin_path)
@@ -76,7 +76,7 @@ class TestFactoryImportsTest(unittest.TestCase):
         """
         Les imports doivent correctement être gérés par la TestFactory.
         """
-        print self.testfactory.path
+        print(self.testfactory.path)
         self.testfactory.load_tests()
         testclasses = self.testfactory.get_test('Error', 'imports')
         self.assertEquals(1, len(testclasses))
@@ -86,9 +86,9 @@ class TestFactoryImportsTest(unittest.TestCase):
         # des classes dans TestFactory.
         try:
             test.add_test()
-        except VigiConfError, e:
+        except VigiConfError as e:
             self.assertEquals(_("Import test was successful"), unicode(e))
-        except Exception, e:
+        except Exception as e:
             self.fail("Unexpected exception of type %r" % type(e))
         else:
             self.fail("Expected VigiConfError exception")

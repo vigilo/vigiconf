@@ -60,9 +60,9 @@ class TestLoader(unittest.TestCase):
         error = None
         try:
             self.hostloader.load()
-        except ParsingError, e:
+        except ParsingError as e:
             error = e.args[0]
-        except Exception, e:
+        except Exception as e:
             self.fail("Excepted a ParsingError, got %s" % type(e))
         else:
             self.fail("Expected a ParsingError")

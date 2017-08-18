@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import unittest
 
@@ -44,8 +44,8 @@ class XSDTest(unittest.TestCase):
         if expect == "ko":
             self.assertNotEquals(0, r, "file %s is invalid" % filepath)
         elif expect == "ok" and r != 0:
-            print "Failed to validate %s" % filepath
-            print cmd
+            print("Failed to validate %s" % filepath)
+            print(cmd)
             return False
         return True
 

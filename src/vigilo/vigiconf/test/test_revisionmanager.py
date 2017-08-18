@@ -6,7 +6,7 @@
 """
 Tests sur le gestionnaire de dépôt SVN (RevisionManager)
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import shutil
@@ -163,7 +163,7 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["commit", "-m", "test", self.confdir])
         self._run_svn(["rm", testdir])
         status = self.rev_mgr.sync()
-        print status
+        print(status)
         self.assertEqual(status["removed"], [testdir, testfile])
         self.assertEqual(status["toremove"], [])
 
@@ -175,7 +175,7 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["commit", "-m", "test", self.confdir])
         self._run_svn(["rm", testfile])
         status = self.rev_mgr.sync()
-        print status
+        print(status)
         self.assertEqual(status["toremove"], [])
         self.assertEqual(status["removed"], [testfile])
 
@@ -188,7 +188,7 @@ class RevisionManagerTest(unittest.TestCase):
         newname = os.path.join(self.confdir, "dummy2.xml")
         os.rename(oldname, newname)
         status = self.rev_mgr.sync()
-        print status
+        print(status)
         self.assertEqual(status["toremove"], [oldname, ])
         self.assertEqual(status["removed"], [])
         self.assertEqual(status["toadd"], [newname, ])
@@ -204,7 +204,7 @@ class RevisionManagerTest(unittest.TestCase):
         f.write("dummy\n")
         f.close()
         status = self.rev_mgr.sync()
-        print status
+        print(status)
         self.assertEqual(status["modified"], [testfile, ])
 
     def test_sync_no_svnrepository(self):
@@ -243,7 +243,7 @@ class RevisionManagerTest(unittest.TestCase):
             ["svn", "add", test2],
             ["svn", "remove", test1],
         ]
-        print cmdlogger.executed
+        print(cmdlogger.executed)
         # On ne peut pas comparer directement les listes parce que l'ordre des
         # "svn add" peut être différent
         self.assertEqual(len(cmdlogger.executed), len(expected))
@@ -261,7 +261,7 @@ class RevisionManagerTest(unittest.TestCase):
         self._run_svn(["commit", "-m", "test", self.confdir])
         shutil.rmtree(testdir)
         status = self.rev_mgr.sync()
-        print status
+        print(status)
         self.assertEqual(status["toremove"], [testdir])
         self.assertEqual(status["removed"], [])
 
@@ -379,7 +379,7 @@ class RevisionManagerTest(unittest.TestCase):
         ))
         DBSession.flush()
         status = self.rev_mgr.status()
-        print status
+        print(status)
         expected = {
             "added": [],
             # Avec svn 1.6, "svn diff" n'affiche pas les sous-arbres

@@ -77,13 +77,13 @@ class XMLLoader(DBLoader):
         try:
             xsd_doc = etree.parse(xsd_path)
             xsd = etree.XMLSchema(xsd_doc)
-        except (etree.XMLSyntaxError, etree.XMLSchemaParseError), e:
+        except (etree.XMLSyntaxError, etree.XMLSchemaParseError) as e:
             raise ParsingError(_("Invalid XML validation schema %(schema)s: "
                                 "%(error)s") % {
                                     'schema': xsd_path,
                                     'error': str(e),
                                 })
-        except IOError, e:
+        except IOError as e:
             raise ParsingError(_("Error reading %(file)s, make sure the "
                                  "permissions are set correctly."
                                  "Message: %(error)s.") % {
@@ -100,10 +100,10 @@ class XMLLoader(DBLoader):
         """
         try:
             source_doc = etree.parse(xmlfile)
-        except etree.XMLSyntaxError, e:
+        except etree.XMLSyntaxError as e:
             raise ParsingError(_("XML syntax error in %(file)s: %(error)s") %
                                { 'file': xmlfile, 'error': str(e) })
-        except IOError, e:
+        except IOError as e:
             raise ParsingError(_("Error reading %(file)s, make sure the "
                                  "permissions are set correctly."
                                  "Message: %(error)s.") % {
@@ -169,7 +169,7 @@ class XMLLoader(DBLoader):
                             'end': elem.tag,
                         })
             DBSession.flush()
-        except ParsingError, e:
+        except ParsingError as e:
             raise ParsingError(_('Syntax error in "%(path)s": %(error)s') % {
                 'path': path,
                 'error': e,

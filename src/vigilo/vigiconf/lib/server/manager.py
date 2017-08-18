@@ -83,7 +83,7 @@ class ServerManager(object):
         server = self.servers[servername]
         try:
             getattr(server, action)(*args)
-        except VigiConfError, e: # if it fails
+        except VigiConfError as e:
             self.returns_queue.put(e.value)
         self.commands_queue.task_done()
 

@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import re
@@ -75,7 +75,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
                 \}                                  # End of the host definition
             """,
             re.MULTILINE | re.VERBOSE)
-        print nagios
+        print(nagios)
         self.assert_(regexp_coll.search(nagios) is not None,
             "add_metro_service does not generate proper nagios conf "
             "(Collector service)")
@@ -92,7 +92,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         nagiosconffile = os.path.join(self.basedir, "localhost",
                                       "nagios", "nagios.cfg")
         nagiosconf = open(nagiosconffile).read()
-        print nagiosconf
+        print(nagiosconf)
 
         self.assertTrue(re.search("^\s*use\s+generic-passive-service\s*$",
                                   nagiosconf, re.M))
@@ -105,7 +105,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         nagiosconffile = os.path.join(self.basedir, "localhost",
                                       "nagios", "nagios.cfg")
         nagiosconf = open(nagiosconffile).read()
-        print nagiosconf
+        print(nagiosconf)
 
         self.assertTrue(re.search("^\s*use\s+generic-passive-host\s*$",
                                   nagiosconf, re.M))
@@ -122,7 +122,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         self.assert_(os.path.exists(nagiosconffile),
                      "Nagios conf file was not generated")
         nagiosconf = open(nagiosconffile).read()
-        print nagiosconf
+        print(nagiosconf)
 
         self.assertTrue("max_check_attempts      5" in nagiosconf)
         self.assertTrue("check_interval          10" in nagiosconf)
@@ -139,7 +139,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         self.assert_(os.path.exists(nagiosconffile),
                      "Nagios conf file was not generated")
         nagiosconf = open(nagiosconffile).read()
-        print nagiosconf
+        print(nagiosconf)
 
         self.assertTrue("obsess_over_service     1" in nagiosconf)
 
@@ -154,7 +154,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         self.assert_(os.path.exists(nagiosconffile),
                      "Nagios conf file was not generated")
         nagiosconf = open(nagiosconffile).read()
-        print nagiosconf
+        print(nagiosconf)
         self.assertTrue("testdirective           testdirvalue" in nagiosconf)
 
     def test_nagios_service_directives_external(self):
@@ -167,7 +167,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         self.assert_(os.path.exists(nagiosconffile),
                      "Nagios conf file was not generated")
         nagiosconf = open(nagiosconffile).read()
-        print nagiosconf
+        print(nagiosconf)
         self.assertTrue("testdirective           testdirvalue" in nagiosconf)
 
     def test_parents_directive(self):
@@ -187,6 +187,6 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
         self.assert_(os.path.exists(nagiosconffile),
                      "Nagios conf file was not generated")
         nagiosconf = open(nagiosconffile).read()
-        print nagiosconf
+        print(nagiosconf)
         self.assertTrue(re.search("^\s*parents\s+testserver2\s*$",
                         nagiosconf, re.M))

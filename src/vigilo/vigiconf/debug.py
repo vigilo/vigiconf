@@ -5,7 +5,7 @@
 This module is used to test the different parts of VigiConf
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -16,7 +16,7 @@ import os
 def main():
     """ main function """
     if len(sys.argv) != 2:
-        print "Usage: debug.py <module>"
+        print("Usage: debug.py <module>")
         sys.exit(2)
 
     os.environ["VIGICONF_MAINCONF"] = os.path.join(
@@ -30,13 +30,13 @@ def main():
         import pprint
 
         conf.loadConf()
-        print "hostsConf="
+        print("hostsConf=")
         pprint.pprint(conf.hostsConf)
-#        print "groupsHierarchy="
+#        print("groupsHierarchy=")
 #        pprint.pprint(conf.groupsHierarchy)
-        print "dependencies="
+        print("dependencies=")
         pprint.pprint(conf.dependencies)
-        print "dynamic groups="
+        print("dynamic groups=")
         pprint.pprint(conf.dynamicGroups)
 
     elif module == "generator":

@@ -82,7 +82,7 @@ class GeneratorManager(object):
             generator = app.generator(app, vba)
             try:
                 generator.generate()
-            except SkipGenerator, e:
+            except SkipGenerator as e:
                 LOGGER.warning(e)
                 LOGGER.warning(_("Skipping %s generator"), app.name)
             else:
@@ -160,7 +160,7 @@ class GeneratorManager(object):
             generator = app.generator(app, {})
             try:
                 generator.generate()
-            except SkipGenerator, e:
+            except SkipGenerator as e:
                 transaction.abort()
                 LOGGER.warning(e)
                 LOGGER.warning(_("Skipping %s generator"), app.name)
@@ -214,7 +214,7 @@ def _run_db_generator(appclass):
     generator = app.generator(app, {})
     try:
         generator.generate()
-    except SkipGenerator, e:
+    except SkipGenerator as e:
         LOGGER.warning(e)
         LOGGER.warning(_("Skipping %s generator"), app.name)
         transaction.abort()

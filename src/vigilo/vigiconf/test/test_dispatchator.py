@@ -6,7 +6,7 @@
 """
 Test that the dispatchator works properly
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import locale
@@ -90,5 +90,5 @@ class DispatchatorTest(unittest.TestCase):
         locale.setlocale(locale.LC_ALL, 'C')
         self.dispatchator.rev_mgr.last_revision = lambda: 43
         state = self.dispatchator.getState()
-        print state
+        print(state)
         self.assertEqual(len(state), 2)

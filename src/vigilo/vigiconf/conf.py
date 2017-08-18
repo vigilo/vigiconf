@@ -76,11 +76,9 @@ def load_general_conf():
             files = glob.glob(os.path.join(settings["vigiconf"].get("confdir"),
                                            confsubdir, "*.py"))
             files.sort()
-            #print files
             for fileF in files:
                 execfile(fileF, conf)
-                #print "Sucessfully parsed %s"%fileF
-        except Exception, e:
+        except Exception as e:
             sys.stderr.write("Error while parsing %s: %s\n"%(fileF, str(e)))
             raise e
     # On répercute la configuration dans l'environnement global.
@@ -106,7 +104,7 @@ def load_xml_conf(validation=True):
     # Parse hosts
     try:
         hostfactory.load(validation=validation)
-    except ParsingError, e:
+    except ParsingError as e:
         LOGGER.error(_("Error loading configuration"))
         raise e
 

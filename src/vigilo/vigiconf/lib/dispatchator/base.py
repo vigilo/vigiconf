@@ -126,7 +126,7 @@ class Dispatchator(object):
             self.rev_mgr.db_commit()
             transaction.commit()
             LOGGER.info(_("Database commit successful"))
-        except Exception, e:
+        except Exception as e:
             transaction.abort()
             LOGGER.debug("Transaction rollbacked: %s", e)
             raise DispatchatorError(_("Database commit failed"))
@@ -159,7 +159,7 @@ class Dispatchator(object):
         for servername, server in self.srv_mgr.servers.items():
             try:
                 state.append(server.get_state_text(_revision))
-            except Exception, e: # pylint: disable-msg=W0703
+            except Exception as e: # pylint: disable-msg=W0703
                 try:
                     error_msg = unicode(e)
                 except UnicodeDecodeError:

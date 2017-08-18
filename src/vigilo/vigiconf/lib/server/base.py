@@ -123,7 +123,7 @@ class Server(object):
         _command = self.createCommand(cmd)
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise ServerError(_("Can't activate the configuration on "
                                 "%(server)s. COMMAND \"%(cmd)s\" FAILED. "
                                 "REASON: %(reason)s") % {
@@ -143,7 +143,7 @@ class Server(object):
         cmd = SystemCommand(cmd)
         try:
             cmd.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise ServerError(_("Can't tar config for server "
                                 "%(server)s: %(error)s") % {
                                     'server': self.getName(),
@@ -175,7 +175,7 @@ class Server(object):
             pass
         try:
             shutil.copyfile(source, destination)
-        except Exception, e:
+        except Exception as e:
             raise ServerError(_("Cannot copy files (%(from)s to %(to)s): "
                                 "%(error)s.") % {
                 'from': source,
@@ -238,7 +238,7 @@ class Server(object):
             _file = open(self._rev_filename, 'wb')
             _file.write("Revision: %d\n" % self.revisions["conf"])
             _file.close()
-        except Exception, e: # pylint: disable-msg=W0703
+        except Exception as e: # pylint: disable-msg=W0703
             LOGGER.exception(_("Cannot write the revision file: %s"), e)
 
     def get_state_text(self, last_revision):

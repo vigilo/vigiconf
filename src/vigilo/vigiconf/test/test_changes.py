@@ -6,7 +6,7 @@
 """
 Gestion du changement lors du chargement des fichiers XML
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import unittest
 
@@ -48,7 +48,7 @@ class ChangeManagementTest(unittest.TestCase):
     def test_change_dependencies_add(self):
         grouploader = GroupLoader()
         grouploader.load_dir(self.datadir)
-        print DBSession.query(SupItemGroup).all()
+        print(DBSession.query(SupItemGroup).all())
         first_group = DBSession.query(SupItemGroup).first()
         assert first_group is not None
         DBSession.delete(first_group)

@@ -359,7 +359,7 @@ class TestFactory(object):
                             *mod_info)
                 except KeyboardInterrupt:
                     raise
-                except Exception, e:
+                except Exception as e:
                     LOGGER.warning(
                         _("Unable to load %(file)s: %(error)s") % {
                             'file': hclassdir,
@@ -391,7 +391,7 @@ class TestFactory(object):
                             *mod_info)
                     except KeyboardInterrupt:
                         raise
-                    except Exception, e:
+                    except Exception as e:
                         raise
                         LOGGER.warning(
                             _("Unable to load %(file)s: %(error)s") % {
@@ -532,7 +532,7 @@ class TestFactory(object):
                             *mod_info)
                 except KeyboardInterrupt:
                     raise
-                except Exception, e:
+                except Exception as e:
                     LOGGER.warning(
                         _("Unable to load %(file)s: %(error)s") % {
                             'file': hclassdir,

@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import unittest
@@ -291,7 +291,7 @@ class HostMethods(unittest.TestCase):
         self.assertTrue("testcdef" in
                         conf.hostsConf["testserver1"]["dataSources"])
         graph = self.host.add_graph("testgraph", [cdef], "lines", "test")
-        print conf.hostsConf["testserver1"]["graphItems"]["testgraph"]["cdefs"]
+        print(conf.hostsConf["testserver1"]["graphItems"]["testgraph"]["cdefs"])
         self.assertEqual(conf.hostsConf["testserver1"]["graphItems"][
                 "testgraph"]["cdefs"], [{"name": "testcdef", "cdef": "1,1,+"}])
 
@@ -334,7 +334,7 @@ class HostFactoryMethods(unittest.TestCase):
                 self.testfactory,
             )
         hosts = f.load()
-        print hosts
+        print(hosts)
         self.assertTrue(hosts.has_key('localhost'),
                         "localhost defined in conf")
 
@@ -356,13 +356,13 @@ class HostFactoryMethods(unittest.TestCase):
         hosts = f.load(validation=True)
         testserver = hosts['example-nagios-spec.xml']
         nagios_hdirs = testserver.get('nagiosDirectives')["host"]
-        print nagios_hdirs
+        print(nagios_hdirs)
         self.assertEquals(nagios_hdirs['max_check_attempts'], "5")
         self.assertEquals(nagios_hdirs['check_interval'], "10")
         self.assertEquals(nagios_hdirs['retry_interval'], "1")
 
         nagios_sdirs = testserver.get('nagiosSrvDirs')
-        print nagios_sdirs
+        print(nagios_sdirs)
         self.assertEquals(nagios_sdirs['Interface eth0']['max_check_attempts'],
                           "5")
         self.assertEquals(nagios_sdirs['Interface eth0']['check_interval'],
@@ -414,7 +414,7 @@ class HostFactoryMethods(unittest.TestCase):
             )
 
         hosts = f.load()
-        print hosts
+        print(hosts)
         # La communauté SNMP doit valoir "not-public"
         # (elle ne doit pas avoir été réinitialisée à "public").
         self.assertEquals(
@@ -474,7 +474,7 @@ class HostAndHosttemplatesInheritance(unittest.TestCase):
         """)
         xmlfile.close()
         hosts = self.hostfactory.load()
-        print hosts
+        print(hosts)
         self.assertTrue("UpTime" in hosts['localhost']['services'],
                         "inheritance does not work with tests")
 
@@ -502,7 +502,7 @@ class HostAndHosttemplatesInheritance(unittest.TestCase):
         """)
         xmlfile.close()
         hosts = self.hostfactory.load()
-        print hosts
+        print(hosts)
         self.assertTrue("Test Group" in
                 hosts["localhost"]["otherGroups"],
                 "inheritance does not work with groups")
@@ -533,7 +533,7 @@ class HostAndHosttemplatesInheritance(unittest.TestCase):
         """)
         xmlfile.close()
         hosts = self.hostfactory.load()
-        print hosts
+        print(hosts)
         self.assertTrue(hosts['localhost'].has_key("TestAttr"),
                 "inheritance does not work with attributes")
         self.assertEqual(hosts['localhost']["TestAttr"], "TestVal",
@@ -567,7 +567,7 @@ class HostAndHosttemplatesInheritance(unittest.TestCase):
         """)
         xmlfile.close()
         hosts = self.hostfactory.load()
-        print hosts
+        print(hosts)
         self.assertTrue(hosts['localhost'].has_key("TestAttr"),
                 "inheritance does not work with attributes")
         self.assertEqual(hosts['localhost']["TestAttr"], "TestVal2",
@@ -600,7 +600,7 @@ class HostAndHosttemplatesInheritance(unittest.TestCase):
         """)
         xmlfile.close()
         hosts = self.hostfactory.load()
-        print hosts
+        print(hosts)
 
         for svc in ("Interface Label0", "Interface Label1"):
             self.assertTrue(svc in hosts['localhost']['services'],

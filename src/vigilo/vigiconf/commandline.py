@@ -6,7 +6,7 @@
 Ce module contient l'interface ligne de commande de VigiConf
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import sys
 import os
@@ -121,7 +121,7 @@ def info(args):
     state = dispatchator.getState()
     encoding = sys.getfilesystemencoding() or "ISO-8859-1"
     encoding = encoding.lower()
-    print "\n".join([s.encode(encoding) for s in state])
+    print("\n".join([s.encode(encoding) for s in state]))
 
 def list_tests(args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory
@@ -132,9 +132,9 @@ def list_tests(args):
         subsequent_indent=' ' * 4,
         break_long_words=False,
     )
-    print _("Available host classes:")
+    print(_("Available host classes:"))
     for line in wrapper.wrap(", ".join(available_hclasses) + "."):
-        print line
+        print(line)
 
     if not args.classes:
         hclasses = available_hclasses
@@ -151,9 +151,9 @@ def list_tests(args):
 
     for hclass in hclasses:
         testnames = sorted(testfactory.get_testnames([hclass]))
-        print "\n" + (_("Tests for host class '%s':") % hclass)
+        print("\n" + (_("Tests for host class '%s':") % hclass))
         for line in wrapper.wrap(", ".join(testnames) + "."):
-            print line
+            print(line)
 
 def discover(args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory

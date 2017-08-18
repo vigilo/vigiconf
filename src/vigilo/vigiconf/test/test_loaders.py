@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0212,R0904
 # Copyright (C) 2006-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import unittest
@@ -42,7 +42,7 @@ class GroupLoaderTest(XMLLoaderTest):
         self.assertTrue(g, "root_group is not created.")
         n = len(g.get_children())
         #c = SupItemGroup.by_group_name(u'hgroup1')
-        print g.get_children()
+        print(g.get_children())
         self.assertEquals(n, 3, "rootgroup has 3 children (%d)" % n)
 
         g = SupItemGroup.by_group_name(u'root_group3')
@@ -67,6 +67,6 @@ class GroupLoaderTest(XMLLoaderTest):
         self.grouploader.load_dir(os.path.join(TESTDATADIR,
                                   'xsd/hostgroups/ok'))
         gh = self.grouploader._in_conf
-        print gh
+        print(gh)
         self.assertTrue("/root_group3/hgroup31" in gh)
         self.assertTrue("/root_group3/hgroup33/Linux servers 3" in gh)

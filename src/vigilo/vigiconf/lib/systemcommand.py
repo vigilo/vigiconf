@@ -66,7 +66,6 @@ class SystemCommand(object):
     def execute(self):
         """Executes the command"""
         if self.simulate:
-            #print self.getCommand()
             return self.getCommand()
         newenv = os.environ.copy()
         newenv["LANG"] = "C"

@@ -47,7 +47,7 @@ class ServerLocal(Server):
         cmd = self.createCommand(["vigiconf-local", "receive-conf", tar])
         try:
             cmd.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise ServerError(_("Can't deploy the tar archive for server "
                                 "%(server)s: %(error)s") % {
                                     'server': self.getName(),

@@ -6,7 +6,7 @@
 """
 Test de l'objet Server
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import shutil
@@ -74,7 +74,7 @@ class ServerTest(unittest.TestCase):
         """
         self.server.is_enabled = lambda: False
         state = self.server.get_state_text(0)
-        print state
+        print(state)
         # On ne peut pas tester directement à cause de la traduction
         self.assertEqual(state.count("\n"), 4)
 
@@ -86,5 +86,5 @@ class ServerTest(unittest.TestCase):
         try:
             self.server.disable()
             self.server.enable()
-        except AttributeError, e:
+        except AttributeError as e:
             self.fail(str(e))

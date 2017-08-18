@@ -86,7 +86,7 @@ class RevisionManager(object):
         _command = self.command_class(_cmd)
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise DispatchatorError(
                 _("can't compute SVN differences "
                   "for the configuration dir: %s")
@@ -131,7 +131,7 @@ class RevisionManager(object):
         _command = self.command_class(_cmd)
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise DispatchatorError(
                 _("can't get SVN status for the configuration dir: %s")
                   % e.value)
@@ -195,7 +195,7 @@ class RevisionManager(object):
         _command = self.command_class(_cmd)
         try:
             result = _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise DispatchatorError(
                     _("Can't add %(path)s in repository: %(error)s") % {
                         'path': path,
@@ -216,7 +216,7 @@ class RevisionManager(object):
         _command = self.command_class(_cmd)
         try:
             result = _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             if e.returncode == 1 and not os.path.exists(path):
                 return # déjà supprimé (probablement un ctrl-c précédent)
             raise DispatchatorError(
@@ -241,7 +241,7 @@ class RevisionManager(object):
         _command = self.command_class(_cmd)
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise DispatchatorError(
                     _("can't commit the configuration dir in SVN: %s")
                       % e.value)
@@ -272,7 +272,7 @@ class RevisionManager(object):
         _command = self.command_class(_cmd)
         try:
             result = _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise DispatchatorError(_("can't execute the request to update the "
                                     "local copy. COMMAND %(cmd)s FAILED. "
                                     "REASON: %(reason)s") % {
@@ -312,7 +312,7 @@ class RevisionManager(object):
         _command = self.command_class(_cmd)
         try:
             _command.execute()
-        except SystemCommandError, e:
+        except SystemCommandError as e:
             raise DispatchatorError(_("can't execute the request to get the "
                                       "current revision: %s") % e.value)
 

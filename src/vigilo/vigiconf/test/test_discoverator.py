@@ -2,7 +2,7 @@
 # pylint: disable-msg=C0111,W0211,R0904
 # Copyright (C) 2006-2016 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os, unittest, shutil, socket
 from xml.etree import ElementTree as ET
@@ -49,7 +49,7 @@ class TestDiscoveratorBasics(unittest.TestCase):
             self.disc.scanhost("test", "public", "v2c")
         except (ValueError, TypeError):
             self.fail("Discoverator chokes on empty SNMP walks")
-        print self.disc.oids
+        print(self.disc.oids)
         self.assertEqual(len(self.disc.oids), 0)
 
     def test_wrapped_line(self):
@@ -80,7 +80,7 @@ class TestDiscoveratorBasics(unittest.TestCase):
         self.disc.testfactory.hclasschecks["test_hclass"] = {
                 "sysdescr": ".*Test HClass.*"}
         self.disc.find_hclasses_sysdescr()
-        print self.disc.hclasses
+        print(self.disc.hclasses)
         self.assertTrue("test_hclass" in self.disc.hclasses)
 
     def test_detect_homonyms(self):
