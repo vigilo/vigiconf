@@ -85,6 +85,13 @@ def load_general_conf(subdirs=None):
         except Exception as e:
             sys.stderr.write("Error while parsing %s: %s\n"%(fileF, str(e)))
             raise e
+
+    for appsgroups in ('appsGroupsByServer', 'appsGroupsBackup'):
+        for function in conf.get(appsgroups, {}):
+            for group in list(conf[appsgroups][function].keys()):
+                conf[appsgroups][function][group] = \
+                    [v.lower() for v in conf[appsgroups][function][group]]
+
     # On répercute la configuration dans l'environnement global.
     for conf_key in conf_keys:
         globals()[conf_key] = conf[conf_key]

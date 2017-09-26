@@ -57,7 +57,7 @@ class ServerFactory(object):
         @return: Ensemble des noms et adresses de la machine locale.
         @rtype: C{set}
         """
-        localnames = set([socket.gethostname(), 'localhost'])
+        localnames = set([self._get_hostname(), 'localhost'])
         addresses = set(['127.0.0.1', '::1'])
 
         # Permet de garder un fonctionnement minimum lorsque le paquet
@@ -94,7 +94,19 @@ class ServerFactory(object):
             except socket.error:
                 continue
 
+        localnames = set(value.lower() for value in localnames)
+
         return localnames
+
+    def _get_hostname(self):
+        """
+        Retourne le résultat de gethostname(). Utile pour les tests unitaires
+
+        @return: Résultat de socket.gethostname()
+        @rtype: C{str}
+        """
+
+        return socket.gethostname()
 
     def find_remote_class(self): # pylint: disable-msg=R0201
         for entry in working_set.iter_entry_points(
