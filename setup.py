@@ -74,7 +74,7 @@ def get_data_files():
     files.append( (os.path.join(sysconfdir, "vigilo/vigiconf"),
                 ["settings.ini", "src/vigilo/vigiconf/conf.d/README.post-install"]) )
     files.append( (os.path.join(sysconfdir, "vigilo/vigiconf/plugins"), []) )
-    files.append(("/etc/cron.d", ["pkg/vigilo-vigiconf%s" % cronext]))
+    files.append((os.path.join(sysconfdir, 'cron.d'), ["pkg/vigilo-vigiconf%s" % cronext]))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/deploy"), []))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/revisions"), []))
     files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/tmp"), []))
