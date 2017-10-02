@@ -42,11 +42,11 @@ class TestTestParamsConversion(unittest.TestCase):
     def test_as_float(self):
         """Conversion d'un paramètre en flottant."""
         # Les floats de Python doivent être acceptés et retournés en l'état.
-        self.assertEquals(3.14, Test.as_float(3.14))
+        self.assertEqual(3.14, Test.as_float(3.14))
 
         # Les valeurs compatibles doivent être converties sans erreur.
         for value, res in (('3.14', 3.14), ('-4', -4.0)):
-            self.assertEquals(res, Test.as_float(value))
+            self.assertEqual(res, Test.as_float(value))
 
         # Toute autre valeur doit lever une erreur d'analyse.
         for value in ('', 'test', '+', '-', '-.'):
@@ -56,12 +56,12 @@ class TestTestParamsConversion(unittest.TestCase):
         """Conversion d'un paramètre en entier."""
         # Les floats et autres valeurs de Python compatibles
         # doivent être acceptés et retournés en l'état.
-        self.assertEquals(3, Test.as_int(3.14))
-        self.assertEquals(-2, Test.as_int(-2))
+        self.assertEqual(3, Test.as_int(3.14))
+        self.assertEqual(-2, Test.as_int(-2))
 
         # Les valeurs compatibles doivent être converties sans erreur.
         for value, res in (('3', 3), ('-4', -4)):
-            self.assertEquals(res, Test.as_int(value))
+            self.assertEqual(res, Test.as_int(value))
 
         # Toute autre valeur doit lever une erreur d'analyse.
         for value in ('', 'test', '+', '-', '-.', '3.14'):

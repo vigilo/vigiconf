@@ -39,7 +39,7 @@ class TestSplitGroup(unittest.TestCase):
             ).one()
 
         children = split_group.children
-        self.assertEquals(2, len(children), "2 groupes fils attendus")
+        self.assertEqual(2, len(children), "2 groupes fils attendus")
         names = [c.name for c in children]
         names.sort()
-        self.assertEquals([u'bar', u'foo'], names)
+        self.assertEqual([u'bar', u'foo'], names)

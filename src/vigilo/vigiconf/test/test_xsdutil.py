@@ -34,7 +34,7 @@ class XSDTest(unittest.TestCase):
 
     def test_xmllint_present(self):
         result = subprocess.call("xmllint --version 2> /dev/null", shell="True")
-        self.assertEquals(0, result, "xmllint must be installed")
+        self.assertEqual(0, result, "xmllint must be installed")
 
     def _run_command(self, filepath, expect):
         xsd_path = os.path.join(self._xsd_basedir, self.xsd_file)

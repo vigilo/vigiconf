@@ -43,7 +43,7 @@ class ChangeManagementTest(unittest.TestCase):
         grouploader.load_dir(self.datadir)
         grouploader.cleanup()
         after = DBSession.query(SupItemGroup).count()
-        self.assertEquals(after, before - 1)
+        self.assertEqual(after, before - 1)
 
     def test_change_dependencies_add(self):
         grouploader = GroupLoader()
@@ -59,7 +59,7 @@ class ChangeManagementTest(unittest.TestCase):
         grouploader = GroupLoader()
         grouploader.load_dir(self.datadir)
         after = DBSession.query(SupItemGroup).count()
-        self.assertEquals(after, before + 1)
+        self.assertEqual(after, before + 1)
 
     def test_change_dependencies_nothing(self):
         grouploader = GroupLoader()
@@ -70,4 +70,4 @@ class ChangeManagementTest(unittest.TestCase):
         grouploader = GroupLoader()
         grouploader.load_dir(self.datadir)
         after = DBSession.query(SupItemGroup).count()
-        self.assertEquals(after, before)
+        self.assertEqual(after, before)

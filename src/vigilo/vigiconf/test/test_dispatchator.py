@@ -79,7 +79,7 @@ class DispatchatorTest(unittest.TestCase):
         rev_mgr.command_class = DummyCommand
         svn_cmd = rev_mgr.update()
 
-        self.assertEquals(svn_cmd,
+        self.assertEqual(svn_cmd,
                     ["svn", "update", "--username", "user1",
                      "--password", "pass1", "-r", "1234",
                      settings["vigiconf"]["confdir"]],

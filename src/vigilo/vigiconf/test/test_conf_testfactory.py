@@ -79,7 +79,7 @@ class TestFactoryImportsTest(unittest.TestCase):
         print(self.testfactory.path)
         self.testfactory.load_tests()
         testclasses = self.testfactory.get_test('Error', 'imports')
-        self.assertEquals(1, len(testclasses))
+        self.assertEqual(1, len(testclasses))
         test = testclasses[0](self.host, None)
 
         # On ne peut pas utiliser self.assertRaises à cause du rebinding
@@ -87,7 +87,7 @@ class TestFactoryImportsTest(unittest.TestCase):
         try:
             test.add_test()
         except VigiConfError as e:
-            self.assertEquals(_("Import test was successful"), unicode(e))
+            self.assertEqual(_("Import test was successful"), unicode(e))
         except Exception as e:
             self.fail("Unexpected exception of type %r" % type(e))
         else:

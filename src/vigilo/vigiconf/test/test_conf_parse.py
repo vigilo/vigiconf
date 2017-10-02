@@ -44,7 +44,7 @@ class ValidateXSD(unittest.TestCase):
             valid = subprocess.call(["xmllint", "--noout", "--schema",
                         os.path.join(self.dtddir, "host.xsd"), host],
                         stdout=devnull, stderr=subprocess.STDOUT)
-            self.assertEquals(valid, 0, "Validation of host \"%s\" failed"
+            self.assertEqual(valid, 0, "Validation of host \"%s\" failed"
                               % os.path.basename(host))
         devnull.close()
 
@@ -56,7 +56,7 @@ class ValidateXSD(unittest.TestCase):
             valid = subprocess.call(["xmllint", "--noout", "--schema",
                         os.path.join(self.dtddir, "hosttemplate.xsd"), ht],
                         stdout=devnull, stderr=subprocess.STDOUT)
-            self.assertEquals(valid, 0, "Validation of hosttemplate \"%s\" "
+            self.assertEqual(valid, 0, "Validation of hosttemplate \"%s\" "
                               "failed" % os.path.basename(ht))
         devnull.close()
 
@@ -513,7 +513,7 @@ class ParseHost(unittest.TestCase):
                 "all": ArgListTest}
         path = os.path.join(self.tmpdir, "hosts", "host.xml")
         self.hostfactory._loadhosts(path)
-        self.assertEquals(ArgListTest.args, ('a', 'b'))
+        self.assertEqual(ArgListTest.args, ('a', 'b'))
 
 
 class ParseHostTemplate(unittest.TestCase):
@@ -581,7 +581,7 @@ class ParseHostTemplate(unittest.TestCase):
             self.hosttemplatefactory.load_templates()
         except KeyError:
             self.fail("The \"test\" tag is not properly parsed")
-        self.assertEquals("TestTest",
+        self.assertEqual("TestTest",
                self.hosttemplatefactory.templates["test"]["tests"][0]["name"],
                "The \"test\" tag is not properly parsed")
 

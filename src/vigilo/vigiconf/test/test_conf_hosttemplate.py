@@ -110,8 +110,8 @@ class HostTemplates(unittest.TestCase):
         # Reload the templates
         self.hosttemplatefactory.load_templates()
         tpldata = self.hosttemplatefactory.templates["testtpl1"]
-        self.failIf(tpldata["attributes"].has_key("TestAttr2"),
-                "inheritence taints parent templates")
+        self.assertFalse(tpldata["attributes"].has_key("TestAttr2"),
+                         "inheritence taints parent templates")
 
     def test_defined_templates(self):
         self.hosttemplatefactory.load_templates()
@@ -132,7 +132,7 @@ class HostTemplates(unittest.TestCase):
         """Test for the add_nagios_directive method"""
         self.tpl.add_nagios_directive("max_check_attempts", "5")
         tpldata = self.hosttemplatefactory.templates["testtpl1"]
-        self.assertEquals(
+        self.assertEqual(
                 tpldata["nagiosDirectives"]["host"]["max_check_attempts"],
                 "5")
 
@@ -142,7 +142,7 @@ class HostTemplates(unittest.TestCase):
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         testserver1 = conf.hostsConf['testserver1']
         nagios_hdirs = testserver1.get('nagiosDirectives')["host"]
-        self.assertEquals(nagios_hdirs['retry_interval'], "8",
+        self.assertEqual(nagios_hdirs['retry_interval'], "8",
                           "retry_interval=8")
 
 
@@ -150,7 +150,7 @@ class HostTemplates(unittest.TestCase):
         """Nagios service directives for tests"""
         self.tpl.add_nagios_directive("retry_interval", "8", target="services")
         tpldata = self.hosttemplatefactory.templates["testtpl1"]
-        self.assertEquals(
+        self.assertEqual(
                 tpldata["nagiosDirectives"]["services"]["retry_interval"],
                 "8")
 
@@ -179,7 +179,7 @@ class HostTemplates(unittest.TestCase):
         """
         self.tpl.add_attribute("snmpCommunity", "comm1")
         self.hosttemplatefactory.apply(self.host, "testtpl1")
-        self.assertEquals(conf.hostsConf['testserver1']['snmpCommunity'],
+        self.assertEqual(conf.hostsConf['testserver1']['snmpCommunity'],
                 "comm1", "La communauté SNMP doit être celle du dernier "
                 "template et pas celle d'un de ses parents")
 

@@ -43,21 +43,21 @@ class GroupLoaderTest(XMLLoaderTest):
         n = len(g.get_children())
         #c = SupItemGroup.by_group_name(u'hgroup1')
         print(g.get_children())
-        self.assertEquals(n, 3, "rootgroup has 3 children (%d)" % n)
+        self.assertEqual(n, 3, "rootgroup has 3 children (%d)" % n)
 
         g = SupItemGroup.by_group_name(u'root_group3')
         self.assertTrue(g, "root_group3 created.")
         n = len(g.get_children())
-        self.assertEquals(n, 3, "rootgroup3 has 3 children (%d)" % n)
+        self.assertEqual(n, 3, "rootgroup3 has 3 children (%d)" % n)
 
         g = SupItemGroup.by_group_name(u'root_group2')
         self.assertTrue(g, "root_group2 created.")
         n = len(g.get_children())
-        self.assertEquals(n, 3, "rootgroup2 has 3 children (%d)" % n)
+        self.assertEqual(n, 3, "rootgroup2 has 3 children (%d)" % n)
 
         num = DBSession.query(SupItemGroup).filter_by(
                     name=u"Linux servers 4").count()
-        self.assertEquals(num, 2, "Linux servers 4 is not doubled in DB")
+        self.assertEqual(num, 2, "Linux servers 4 is not doubled in DB")
 
     def test_hostgroups_hierarchy(self):
         """
