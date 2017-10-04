@@ -95,23 +95,16 @@ class RevisionManager(object):
         if not _command.getResult():
             return status
 
-        # Associe le type de changement dans SVN
-        # au type de changement dans Vigilo.
-        mapping = {
-            "added": "added",
-            "deleted": "removed",
-            "modified": "modified",
-        }
-        removed_dirs = []
+        removed = []
         output = ET.fromstring(_command.getResult(stderr=False))
         for entry in output.findall(".//path"):
             change = entry.get("item")
             if change == "deleted":
-                if os.path.dirname(entry.text) not in removed_dirs:
-                    status[mapping[change]].append(entry.text)
-                removed_dirs.append(entry.text)
+                removed.append(entry.text)
             else:
-                status[mapping[change]].append(entry.text)
+                status[change].append(entry.text)
+        status['removed'] = [e for e in removed
+                             if os.path.dirname(e) not in removed]
         self._status = status
         return status
 
