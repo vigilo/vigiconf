@@ -75,7 +75,7 @@ def flatten(lst):
     return res
 
 def get_dispatchator(args, restrict=True):
-    conf.load_general_conf()
+    conf.load_general_conf(['general'])
     dispatchator = make_dispatchator()
     if restrict and args.server:
         try:

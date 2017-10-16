@@ -22,11 +22,13 @@ _ = translate(__name__)
 class TestFactoryTest(unittest.TestCase):
 
     def setUp(self):
+        conf.load_general_conf() # Réinitialisation de la configuration
         setup_db()
         self.testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
         self.host = Host(
             conf.hostsConf,
-            "dummy", "testserver1",
+            "dummy",
+            "testserver1",
             "192.168.1.1", "Servers",
         )
 
@@ -59,6 +61,7 @@ class TestFactoryTest(unittest.TestCase):
 
 class TestFactoryImportsTest(unittest.TestCase):
     def setUp(self):
+        conf.load_general_conf() # Réinitialisation de la configuration
         setup_db()
         tests_path = os.path.normpath(os.path.join(
                         os.path.dirname(__file__), "testdata"))

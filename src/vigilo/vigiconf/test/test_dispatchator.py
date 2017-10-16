@@ -27,6 +27,7 @@ from .helpers import setup_db, teardown_db
 class DispatchatorTest(unittest.TestCase):
 
     def setUp(self):
+        conf.load_general_conf() # Réinitialisation de la configuration
         setup_db()
         self.tmpdir = setup_tmpdir()
         self.old_conf_path = settings["vigiconf"]["confdir"]

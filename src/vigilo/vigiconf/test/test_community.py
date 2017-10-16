@@ -36,6 +36,7 @@ class CommunityEdition(unittest.TestCase):
     """Test the Community Edition aspects"""
 
     def setUp(self):
+        conf.load_general_conf() # Réinitialisation de la configuration
         setup_db()
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")

@@ -23,6 +23,7 @@ from .helpers import setup_tmpdir
 class ConnectorMetroTest(unittest.TestCase):
 
     def setUp(self):
+        conf.load_general_conf() # Réinitialisation de la configuration
         self.tmpdir = setup_tmpdir()
         self.basedir = os.path.join(self.tmpdir, "deploy")
         self.host = Host(conf.hostsConf, "dummy.xml", "testserver1",

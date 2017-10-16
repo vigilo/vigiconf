@@ -21,12 +21,13 @@ from vigilo.vigiconf.lib.exceptions import ParsingError, VigiConfError
 
 from .helpers import setup_db, teardown_db, setup_tmpdir, TESTDATADIR
 
-
 class HostMethods(unittest.TestCase):
 
     def setUp(self):
+        conf.load_general_conf() # Réinitialisation de la configuration
         setup_db()
         self.testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
+
         self.host = Host(conf.hostsConf, "dummy", u"testserver1",
                          u"192.168.1.1", u"Servers")
         self.expected = {
@@ -303,11 +304,22 @@ class HostMethods(unittest.TestCase):
         self.assertRaises(VigiConfError, self.host.make_rrd_cdef,
                           "test éèçà", "1,1,+")
 
+    def test_host_redefinition(self):
+        """Tentative de re-définition d'un hôte"""
+        Host(conf.hostsConf, "dummy", u"twice",
+             u"192.168.1.2", "Servers")
+
+        # La détection des doublons se fait en utilisant le nom.
+        # Pour s'en assurer, on fait varier l'adresse IP.
+        self.assertRaises(VigiConfError, Host,
+            conf.hostsConf, "dummy", u"twice",
+            u"192.168.1.3", "Servers")
 
 
 class HostFactoryMethods(unittest.TestCase):
 
     def setUp(self):
+        conf.load_general_conf() # Réinitialisation de la configuration
         setup_db()
         self.tmpdir = setup_tmpdir()
         self.testfactory = TestFactory(confdir=self.tmpdir)
@@ -430,6 +442,7 @@ class HostAndHosttemplatesInheritance(unittest.TestCase):
     """
 
     def setUp(self):
+        conf.load_general_conf() # Réinitialisation de la configuration
         setup_db()
         testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
         self.tmpdir = setup_tmpdir()

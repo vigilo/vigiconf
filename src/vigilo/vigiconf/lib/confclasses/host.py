@@ -50,6 +50,16 @@ class Host(object):
         self.hosts = hosts
         self.name = name
         self.classes = [ "all" ]
+
+        if self.name in self.hosts:
+            raise VigiConfError(_("Host '%(host)s' defined in multiple "
+                                  "files (%(file1)s and %(file2)s)") %
+                                {
+                                    'host': self.name,
+                                    'file1': self.hosts[name]['filename'],
+                                    'file2': filename,
+                                })
+
         self.hosts[name] = {
                 "filename": unicode(filename),
                 "name": name,

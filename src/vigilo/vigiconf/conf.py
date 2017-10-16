@@ -53,10 +53,10 @@ hostsConf = {}
 
 
 def loadConf():
-    load_general_conf()
+    load_general_conf(['general'])
     load_xml_conf()
 
-def load_general_conf():
+def load_general_conf(subdirs=None):
     # General configuration
     conf = {
         'apps': set(),
@@ -71,7 +71,11 @@ def load_general_conf():
         'appsGroupsBackup': {},
     }
     conf_keys = conf.keys()
-    for confsubdir in [ "general", ]:
+
+    if subdirs is None:
+        subdirs = []
+
+    for confsubdir in subdirs:
         try:
             files = glob.glob(os.path.join(settings["vigiconf"].get("confdir"),
                                            confsubdir, "*.py"))

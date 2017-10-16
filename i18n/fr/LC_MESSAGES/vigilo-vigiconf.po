@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: vigilo-vigiconf 2.0.0\n"
 "Report-Msgid-Bugs-To: contact.vigilo@c-s.fr\n"
 "POT-Creation-Date: 2010-07-12 15:40+0200\n"
-"PO-Revision-Date: 2017-08-24 12:17+0200\n"
+"PO-Revision-Date: 2017-10-30 17:20+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -217,11 +217,11 @@ msgstr "Erreur dans VigiConf : %s"
 msgid "VigiConf is done."
 msgstr "VigiConf se termine"
 
-#: src/vigilo/vigiconf/conf.py:94
+#: src/vigilo/vigiconf/conf.py:98
 msgid "Loading XML configuration"
 msgstr "Chargement de la configuration XML"
 
-#: src/vigilo/vigiconf/conf.py:108
+#: src/vigilo/vigiconf/conf.py:112
 msgid "Error loading configuration"
 msgstr "Impossible de charger la configuration"
 
@@ -515,7 +515,14 @@ msgstr ""
 msgid "%(filesWritten)d files have been generated in %(dirsCreated)d directories"
 msgstr "%(filesWritten)d fichiers ont été générés dans %(dirsCreated)d dossiers"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:119
+#: src/vigilo/vigiconf/lib/confclasses/host.py:55
+#, python-format
+msgid "Host '%(host)s' defined in multiple files (%(file1)s and %(file2)s)"
+msgstr ""
+"L'hôte '%(host)s' est défini dans plusieurs fichiers (%(file1)s et "
+"%(file2)s)"
+
+#: src/vigilo/vigiconf/lib/confclasses/host.py:129
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:145
 #, python-format
 msgid ""
@@ -525,12 +532,12 @@ msgstr ""
 "L'attribut \"%(old_attribute)s\" est obsolète. Veuillez utiliser "
 "l'attribut \"%(replacement)s\" à la place."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:134
+#: src/vigilo/vigiconf/lib/confclasses/host.py:144
 #, python-format
 msgid "In host %(host)s: attribute name %(attribute)s is reserved"
 msgstr "Hôte %(host)s : le nom d'attribut %(attribute)s est réservé"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:181
+#: src/vigilo/vigiconf/lib/confclasses/host.py:191
 #, python-format
 msgid ""
 "Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
@@ -539,27 +546,27 @@ msgstr ""
 "Le test \"%(test_name)s\" sur \"%(host)s\" nécessite les arguments "
 "suivants: %(args)s (et uniquement ceux-là)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:506
+#: src/vigilo/vigiconf/lib/confclasses/host.py:516
 #, python-format
 msgid "host '%(host)s': wrong datasource in graph '%(graph)s': %(ds)s"
 msgstr ""
 "hôte '%(host)s' : source de données incorrecte sur le graphe '%(graph)s' "
 ": %(ds)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:530
+#: src/vigilo/vigiconf/lib/confclasses/host.py:540
 #, python-format
 msgid "CDEF name must be ASCII-only: %s"
 msgstr "le nom CDEF doit être en ASCII pur: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:719
+#: src/vigilo/vigiconf/lib/confclasses/host.py:729
 msgid "Cannot override general configuration."
 msgstr "Impossible d'écraser la configuration générale."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:729
+#: src/vigilo/vigiconf/lib/confclasses/host.py:739
 msgid "oxe_login and oxe_password cannot be empty"
 msgstr "oxe_login et oxe_password ne peuvent pas être vides"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:732
+#: src/vigilo/vigiconf/lib/confclasses/host.py:742
 #, python-format
 msgid ""
 "Value for '%(attr)s' (%(value)s) could not be cast into an integer. Using"
@@ -568,14 +575,14 @@ msgstr ""
 "La valeur de l'attibut '%(attr)s' (%(value)s) n'a pas pu être convertie "
 "en entier. Utilisation de la valeur par défaut (%(default)d)."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:787
+#: src/vigilo/vigiconf/lib/confclasses/host.py:797
 #, python-format
 msgid "Cannot add tag \"%(tag)s\" to non-existing service \"%(service)s\""
 msgstr ""
 "Impossible d'ajouter l'étiquette \"%(tag)s\" à un service inexistant "
 "\"%(service)s\""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:810
+#: src/vigilo/vigiconf/lib/confclasses/host.py:820
 #, python-format
 msgid ""
 "Empty value given for directive %(directive)s with target %(target)s on "
@@ -584,15 +591,15 @@ msgstr ""
 "Une valeur vide a été passée à la directive %(directive)s avec la cible "
 "%(target)s sur l'hôte %(host)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:878
+#: src/vigilo/vigiconf/lib/confclasses/host.py:888
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:286
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:81
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr "Le schéma %(schema)s n'est pas valide : %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:884
-#: src/vigilo/vigiconf/lib/confclasses/host.py:904
+#: src/vigilo/vigiconf/lib/confclasses/host.py:894
+#: src/vigilo/vigiconf/lib/confclasses/host.py:914
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:292
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:312
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:87
@@ -605,32 +612,32 @@ msgstr ""
 "Erreur lors de la lecture du fichier %(file)s, assurez-vous que les "
 "permissions sur le fichier sont correctement réglées. Erreur : %(error)s."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:901
+#: src/vigilo/vigiconf/lib/confclasses/host.py:911
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:309
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:104
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "Erreur de syntaxe XML dans \"%(file)s\" : %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:912
+#: src/vigilo/vigiconf/lib/confclasses/host.py:922
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:320
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:115
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr "Échec de la validation XML : %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:967
+#: src/vigilo/vigiconf/lib/confclasses/host.py:977
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Groupe de ventilation non valide : %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1063
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1073
 #: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Nom de groupe non valide (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1107
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1117
 #, python-format
 msgid ""
 "Host '%(host)s' inherits from both the '%(tpl1)s' and '%(tpl2)s' "
@@ -641,19 +648,19 @@ msgstr ""
 "(dans cet ordre), mais '%(tpl1)s' hérite déjà de '%(tpl2)s'. Les modèles "
 "vont être réordonnés afin de satisfaire les dépendances."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1133
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1143
 #, python-format
 msgid "Unable to load templates for %(host)s. Possible cycle."
 msgstr ""
 "Impossible de charger les modèles pour %(host)s. Peut-être un problème de"
 " cycles."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1150
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1160
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "Vous devez associer l'hôte \"%s\" avec au moins un groupe."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1157
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1167
 #, python-format
 msgid ""
 "Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
@@ -767,28 +774,28 @@ msgstr ""
 "impossible de calculer les différences SVN du dossier de configuration : "
 "%s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:125
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:118
 msgid "Not updating because the 'svnrepository' configuration parameter is empty"
 msgstr ""
 "Pas de mise à jour car le paramètre 'svnrepository' de la configuration "
 "est vide"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:136
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:129
 #, python-format
 msgid "can't get SVN status for the configuration dir: %s"
 msgstr "impossible d'obtenir le status SVN du dossier de configuration : %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:200
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:193
 #, python-format
 msgid "Can't add %(path)s in repository: %(error)s"
 msgstr "Impossible d'ajouter %(path)s au dépôt : %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:223
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:216
 #, python-format
 msgid "can't remove %(path)s from repository: %(error)s"
 msgstr "impossible de supprimer %(path)s du dépôt : %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:234
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:227
 msgid ""
 "Not committing because the 'svnrepository' configuration parameter is "
 "empty"
@@ -796,16 +803,16 @@ msgstr ""
 "Pas d'enregistrement car le paramètre 'svnrepository' de la configuration"
 " est vide"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:246
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:239
 #, python-format
 msgid "can't commit the configuration dir in SVN: %s"
 msgstr "impossible d'enregistrer le dossier de configuration sur le dépôt : %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:251
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:244
 msgid "SVN commit successful"
 msgstr "Enregistrement SVN réussi"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:276
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:269
 #, python-format
 msgid ""
 "can't execute the request to update the local copy. COMMAND %(cmd)s "
@@ -814,7 +821,7 @@ msgstr ""
 "impossible de mettre à jour la copie locale. ÉCHEC DE LA COMMANDE "
 "%(cmd)s. RAISON : %(reason)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:316
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:309
 #, python-format
 msgid "can't execute the request to get the current revision: %s"
 msgstr "impossible d'obtenir la révision courante : %s"
@@ -1107,7 +1114,7 @@ msgstr "Chargement des serveurs Vigilo"
 msgid "Done loading Vigilo servers"
 msgstr "Chargement des serveurs Vigilo terminé"
 
-#: src/vigilo/vigiconf/test/test_conf_testfactory.py:90
+#: src/vigilo/vigiconf/test/test_conf_testfactory.py:93
 #: src/vigilo/vigiconf/test/testdata/tests/imports/Error.py:20
 msgid "Import test was successful"
 msgstr "Le test d'import a fonctionné"
@@ -1136,35 +1143,4 @@ msgstr "\"%s\" doit être une liste avec deux valeurs"
 #: src/vigilo/vigiconf/tests/all/UpTime.py:40
 msgid "Invalid thresholds. Expected 0 < crit < warn"
 msgstr "Seuils non valides. Attendu : 0 < crit < warn"
-
-#~ msgid "Invalid value for %(type)s in test %(test)s on host %(host)s: %(value)r"
-#~ msgstr ""
-#~ "Valeur invalide pour %(type)s dans le"
-#~ " test %(test)s sur l'hôte %(host)s :"
-#~ " %(value)r"
-
-#~ msgid "Invalid value for %(type)s on host %(host)s: %(value)r"
-#~ msgstr "Valeur invalide pour %(type)s sur l'hôte : %(value)r"
-
-#~ msgid ""
-#~ "Invalid value for %(type)s in test "
-#~ "%(test)s in template %(tpl)s: %(value)r"
-#~ msgstr ""
-#~ "Valeur invalide pour %(type)s dans le"
-#~ " test %(test)s du modèle %(tpl)s :"
-#~ " %(value)r"
-
-#~ msgid "Invalid value for %(type)s in template %(tpl)s: %(value)r"
-#~ msgstr "Valeur invalide pour %(type)s du modèle %(tpl)s : %(value)r"
-
-#~ msgid ""
-#~ "warning_weight (%(warning_weight)d) must be "
-#~ "less than or equal to weight "
-#~ "(%(weight)d) for test '%(test)s' on host"
-#~ " '%(host)s'"
-#~ msgstr ""
-#~ "warning_weight (%(warning_weight)d) doit être "
-#~ "inférieur ou égal à weight (%(weight)d)"
-#~ " pour le test '%(test)s' sur l'hôte"
-#~ " '%(host)s'"
 
