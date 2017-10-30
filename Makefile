@@ -52,7 +52,6 @@ prepare_sphinxdoc: bin/vigilo-autodoc
 
 sphinxdoc_html: bin/python prepare_sphinxdoc
 sphinxdoc_pdf: bin/python prepare_sphinxdoc
-sphinxdoc_odt: bin/python prepare_sphinxdoc
 
 .PHONY: \
 	all build clean \
@@ -60,6 +59,6 @@ sphinxdoc_odt: bin/python prepare_sphinxdoc
 	install_pkg install_python install_python_pkg \
 	tests lint \
 	doc apidoc \
-	prepare_sphinxdoc sphinxdoc_html sphinxdoc_pdf sphinxdoc_odt \
+	prepare_sphinxdoc sphinxdoc_html sphinxdoc_pdf \
 
 # vim: set noexpandtab :
