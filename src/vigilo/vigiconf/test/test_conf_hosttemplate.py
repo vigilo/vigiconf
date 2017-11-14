@@ -38,14 +38,14 @@ class HostTemplates(unittest.TestCase):
 
     def test_add_test_simple(self):
         """Test for the add_test method, without test arguments"""
-        self.tpl.add_test("UpTime")
+        self.tpl.add_test("all.UpTime")
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertTrue(conf.hostsConf["testserver1"]["services"].has_key(
                         "UpTime"), "add_test does not work without test args")
 
     def test_add_test_args(self):
         """Test for the add_test method, with test arguments"""
-        self.tpl.add_test("Interface", {"label":"Loopback", "ifname":"lo"})
+        self.tpl.add_test("all.Interface", {"label":"Loopback", "ifname":"lo"})
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertTrue(conf.hostsConf["testserver1"]["SNMPJobs"]
                 [('Interface Loopback', 'service')]["params"]
@@ -79,16 +79,16 @@ class HostTemplates(unittest.TestCase):
                          "TestVal", "add_attribute does not work")
 
     def test_inherit_redefine_test(self):
-        self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label1"})
+        self.tpl.add_test("all.Interface", {"ifname":"eth0", "label":"Label1"})
         tpl2 = HostTemplate("testtpl2")
         tpl2.add_parent("testtpl1")
-        tpl2.add_test("Interface", {"ifname":"eth0", "label":"Label2"})
+        tpl2.add_test("all.Interface", {"ifname":"eth0", "label":"Label2"})
         self.hosttemplatefactory.register(tpl2)
         # Reload the templates
         self.hosttemplatefactory.load_templates()
         intftest = None
         for test in self.hosttemplatefactory.templates["testtpl2"]["tests"]:
-            if test["name"] == "Interface":
+            if test["name"] == "all.Interface":
                 intftest = test
         self.assertTrue(intftest is not None,
                         "inheritance does not work with tests")
@@ -157,7 +157,7 @@ class HostTemplates(unittest.TestCase):
 
     def test_nagios_srvdirs_apply_on_service(self):
         """Nagios directives for tests"""
-        self.tpl.add_test("UpTime", directives={"testdir": "testdirvalue"})
+        self.tpl.add_test("all.UpTime", directives={"testdir": "testdirvalue"})
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         ndirs = conf.hostsConf["testserver1"]["nagiosSrvDirs"]
         self.assertTrue("UpTime" in ndirs)
@@ -169,7 +169,7 @@ class HostTemplates(unittest.TestCase):
         """
         Une exception doit être levée si on cherche à ajouter un test inexistant.
         """
-        self.tpl.add_test("NonExistant")
+        self.tpl.add_test("all.NonExistant")
         self.assertRaises(ParsingError, self.hosttemplatefactory.apply,
                           self.host, "testtpl1")
 
@@ -186,7 +186,7 @@ class HostTemplates(unittest.TestCase):
     def test_add_test_simple_active(self):
         """Ajout d'un service actif sur un hôte avec force-passive"""
         self.host.set_attribute("force-passive", True)
-        self.tpl.add_test("HTTP")
+        self.tpl.add_test("all.HTTP")
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertEqual("passive",
                 conf.hostsConf["testserver1"]["services"]["HTTP"]["type"])

@@ -43,7 +43,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_metro_service(self):
         """Test for the add_metro_service host method"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":"eth1", "ifname":"eth1"})
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         self.assertEqual(
@@ -62,7 +62,7 @@ class HostMethods(unittest.TestCase):
 
     def test_priority_host_hosttemplate(self):
         """Test priorite du parametrage des hosts sur les hosttemplates"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"})
         self.host.add_metro_service("Traffic in eth0", "ineth0", 10, 20)
         self.assertEqual(
@@ -71,7 +71,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_metro_service_INTF(self):
         """Test for the add_metro_service function in the Interface test"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0",
                                         "warn": (10, 20), "crit": (30, 40)})
         self.assertEqual(
@@ -104,7 +104,7 @@ class HostMethods(unittest.TestCase):
 
     def test_invalid_INTF_admin_value(self):
         """Valeurs autorisées pour le paramètre 'admin' du test Interface."""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
 
         # Les valeurs i/w/c doivent être acceptées.
         for value in ('i', 'w', 'c'):
@@ -122,7 +122,7 @@ class HostMethods(unittest.TestCase):
 
     def test_invalid_INTF_dormant_value(self):
         """Valeurs autorisées pour le paramètre 'dormant' du test Interface."""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
 
         # Les valeurs i/w/c doivent être acceptées.
         for value in ('i', 'w', 'c'):
@@ -146,7 +146,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_tag_services(self):
         """Test for the add_tag method on services"""
-        test_list = self.testfactory.get_test("UpTime", self.host.classes)
+        test_list = self.testfactory.get_test("all.UpTime")
         self.host.add_tests(test_list)
         self.host.add_tag("UpTime", "security", 1)
         self.assertEqual({"security": 1},
@@ -274,7 +274,7 @@ class HostMethods(unittest.TestCase):
 
     def test_add_nagios_service_directive_INTF(self):
         """Nagios directives for tests"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"},
                             directives={"testdirective": "testdirvalue"})
         nsd = conf.hostsConf["testserver1"]["nagiosSrvDirs"]
@@ -471,7 +471,7 @@ class HostAndHosttemplatesInheritance(unittest.TestCase):
         L'hôte "localhost" importe le template "testtpl2".
         Le test "UpTime" doit donc être appliqué à "localhost".
         """
-        self.tpl.add_test("UpTime")
+        self.tpl.add_test("all.UpTime")
         tpl2 = HostTemplate("testtpl2")
         tpl2.add_parent("testtpl1")
         self.hosttemplatefactory.register(tpl2)
@@ -594,9 +594,9 @@ class HostAndHosttemplatesInheritance(unittest.TestCase):
         définissant chacun 1 test. On s'assure que l'hôte hérite correctement
         des 2 tests.
         """
-        self.tpl.add_test("Interface", {"ifname":"eth0", "label":"Label0"})
+        self.tpl.add_test("all.Interface", {"ifname":"eth0", "label":"Label0"})
         tpl2 = HostTemplate("testtpl2")
-        tpl2.add_test("Interface", {"ifname":"eth1", "label":"Label1"})
+        tpl2.add_test("all.Interface", {"ifname":"eth1", "label":"Label1"})
         self.hosttemplatefactory.register(tpl2)
         tpl3 = HostTemplate("testtpl3")
         tpl3.add_parent(["testtpl1", "testtpl2"])

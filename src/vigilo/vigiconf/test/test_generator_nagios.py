@@ -22,7 +22,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
 
     def test_basic(self):
         """Nagios: fonctionnement nominal"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"})
         self._generate()
         nagiosconf = os.path.join(self.basedir, "localhost",
@@ -33,7 +33,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
 
     def test_unicode(self):
         """Nagios: caractères unicode"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":u"aàeéècç",
                                         "ifname":u"aàeéècç"})
         self._generate()
@@ -45,7 +45,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
 
     def test_add_metro_service(self):
         """Nagios: add_metro_service"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":"eth1", "ifname":"eth1"})
         self.host.add_metro_service("Traffic in eth1", "ineth1", 10, 20)
         self._generate()
@@ -131,7 +131,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
     def test_nagios_services_directives(self):
         """Nagios: host directives"""
         self.host.add_nagios_directive("obsess_over_service", "1", target="services")
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"},)
         self._generate()
         nagiosconffile = os.path.join(self.basedir, "localhost",
@@ -145,7 +145,7 @@ class NagiosGeneratorTestCase(GeneratorBaseTestCase):
 
     def test_nagios_service_directives_collector(self):
         """Nagios: service directives"""
-        test_list = self.testfactory.get_test("Interface", self.host.classes)
+        test_list = self.testfactory.get_test("all.Interface")
         self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"},
                             directives={"testdirective": "testdirvalue"})
         self._generate()

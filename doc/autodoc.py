@@ -3,7 +3,7 @@
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 from __future__ import print_function
-import sys, os, inspect
+import sys, os, inspect, itertools
 from epydoc.markup import epytext
 from vigilo.vigiconf.lib.confclasses.test import TestFactory
 from logging import getLogger
@@ -71,122 +71,113 @@ def write_autodoc():
                  "           disponibles dans Vigilo\n\n")
 
     test_factory = TestFactory('/')
-    tests = test_factory.get_testnames()
+    tests = test_factory.get_tests()
 
     # PHASE 1 : récupération de la documentation des tests.
+    # Ce dictionnaire contiendra la documentation de chaque test
+    # et de ses paramètres.
     tests_doc = {}
-    for test in tests:
-        # On ignore la classe de test générique.
-        if test == 'Test':
-            continue
-
-        tests_doc[test] = {
-            'params': {},
+    for testname, test in sorted((t.get_fullname(), t) for t in tests):
+        print("INFO: traitement du test '%s'" % testname)
+        tests_doc[testname] = {
             'doc': '',
-            'hclasses': [],
+            'optional_params': {},
+            'required_params': {},
+            'defaults': {},
         }
 
-        for test_cls in test_factory.get_test(test):
-            # Recopie la documentation de la classe,
-            # qui devient celle du test représenté.
-            hclass = test_factory.get_hclass(test_cls)
-            test_doc = test_cls.__doc__ or ""
-            if not test_doc:
-                print("WARNING: aucune description pour le test '%(test)s' "
-                      "de la classe d'hôtes '%(hclass)s'" % {
-                        'test': test,
-                        'hclass': hclass,
-                      }, file=sys.stderr)
+        # Recopie la documentation de la classe,
+        # qui devient celle du test représenté.
+        test_doc = test.__doc__ or ""
+        if not test_doc:
+            print("WARNING: aucune description pour le test '%(test)s'" % {
+                    'test': testname,
+                  }, file=sys.stderr)
 
-            errors = []
-            test_doc = epytext.parse_docstring(test_doc, errors)
-            if errors:
-                print("WARNING: impossible de lire la documentation du "
-                      "test '%(test)s' de la classe d'hôtes '%(hclass)s'" % {
-                        'test': test,
-                        'hclass': hclass,
-                      }, file=sys.stderr)
+        errors = []
+        test_doc = epytext.parse_docstring(test_doc, errors)
+        if errors:
+            print("WARNING: impossible de lire la documentation "
+                  "du test '%(test)s'" % {
+                    'test': testname,
+                  }, file=sys.stderr)
 
-                tests_doc[test]['doc'] = ""
-            else:
-                tests_doc[test]['doc'] = \
-                    test_doc.to_plaintext(None).strip().replace('\n', ' ')
+            tests_doc[testname]['doc'] = ""
+        else:
+            tests_doc[testname]['doc'] = \
+                test_doc.to_plaintext(None).strip().replace('\n', ' ')
 
-            # Détermine les noms des paramètres
-            # obligatoires et optionnels du test
-            # pour cette classe d'équipements.
-            specs = list(inspect.getargspec(test_cls.add_test))
-            specs[0] = specs[0][1:] # "self" est toujours présent.
-            optional = isinstance(specs[3], tuple) and len(specs[3]) or 0
-            optional = specs[0][:-optional]
-            required = specs[0][: len(specs[0]) - len(optional)]
+        # Détermine les noms des paramètres
+        # obligatoires et optionnels du test
+        # pour cette classe d'équipements.
+        specs = list(inspect.getargspec(test.add_test))
+        specs[0] = specs[0][1:] # "self" est toujours présent.
+        optional = isinstance(specs[3], tuple) and len(specs[3]) or 0
+        optional = specs[0][-optional:]
+        required = specs[0][:-len(optional)]
 
-            # Prépare un espace pour stocker la documentation
-            # sur les paramètres obligatoires et optionnels
-            # de ce test.
-            #
-            # @XXX: Ce code suppose que la documentation d'un argument donné
-            #       ne varie pas en fonction de la classe (ie: est constante).
-            tests_doc[test]['hclasses'].append(hclass)
-            for param in required:
-                tests_doc[test]['params'].setdefault(param, {
-                    'doc': '',
-                    'hclasses': {},
-                })
-                tests_doc[test]['params'][param]['hclasses'][hclass] = True
-            for param in optional:
-                tests_doc[test]['params'].setdefault(param, {
-                    'doc': '',
-                    'hclasses': {},
-                })
-                tests_doc[test]['params'][param]['hclasses'][hclass] = False
+        # Prépare la liste des paramètres obligatoires/optionnels
+        params = dict()
+        params.update(zip(required, ('required_params', ) * len(required)))
+        params.update(zip(optional, ('optional_params', ) * len(optional)))
 
-            errors = []
-            if not test_cls.add_test.__doc__:
-                print("WARNING: les paramètres du test '%(test)s' de la "
-                      "classe d'hôtes '%(hclass)s' ne sont pas documentés" % {
-                        'test': test,
-                        'hclass': hclass,
-                      }, file=sys.stderr)
+        # Liste des valeurs par défaut
+        default_values = dict(zip(optional, specs[3] or ()))
 
+        # Prépare un espace pour stocker la documentation
+        # sur les paramètres de ce test.
+        for param, category in params.items():
+            tests_doc[testname][category][param] = dict(
+                doc='',
+                type=None,
+                default=default_values.get(param)
+            )
+
+        errors = []
+        doc = epytext.parse_docstring(test.add_test.__doc__ or '', errors)
+        if errors:
+            print("WARNING: impossible de lire la documentation des "
+                  "paramètres du test '%(test)s'" % {
+                    'test': testname,
+                  }, file=sys.stderr)
+            continue
+
+        unknown = []
+        for field in doc.split_fields()[1]:
+            # Si un paramètre inconnu est documenté...
+            argname = field.arg()
+            if field.tag() in ('param', 'type') and argname not in params:
+                print(repr(field))
+                unknown.append(str(argname))
                 continue
 
-            doc = epytext.parse_docstring(test_cls.add_test.__doc__, errors)
-            if errors:
-                print("WARNING: impossible de lire la documentation des "
-                      "paramètres du test '%(test)s' de la classe "
-                      "d'hôtes '%(hclass)s'" % {
-                        'test': test,
-                        'hclass': hclass,
-                      }, file=sys.stderr)
-
-                continue
-
-            fields = doc.split_fields()
-            for field in fields[1]:
-                # Si un paramètre inconnu est documenté...
-                if field.arg() not in tests_doc[test]['params']:
-                    print("WARNING: paramètre '%(param)s' inconnu "
-                          "(mais documenté !) dans le test '%(test)s' "
-                          "de la classe d'hôtes '%(hclass)s'" % {
-                            'param': field.arg(),
-                            'test': test,
-                            'hclass': hclass,
-                          }, file=sys.stderr)
-                    continue
-                tests_doc[test]['params'][field.arg()]['doc'] = \
+            if field.tag() == 'param':
+                tests_doc[testname][params[argname]][argname]['doc'] = \
                     field.body().to_plaintext(None).strip().replace('\n', ' ')
 
-            for param in tests_doc[test]['params']:
-                if tests_doc[test]['params'][param]['doc']:
-                    continue
-                print("WARNING: le paramètre '%(param)s' n'est pas "
-                      "documenté dans le test '%(test)s' de la classe "
-                      "d'hôtes '%(hclass)s'" % {
-                        'param': param,
-                        'test': test,
-                        'hclass': hclass,
-                      }, file=sys.stderr)
+            elif field.tag() == 'type':
+                tests_doc[testname][params[argname]][argname]['type'] = \
+                    field.body().to_plaintext(None).strip()
+
+        if unknown:
+            print("WARNING: les paramètres suivants du test '%(test)s' "
+                  "sont inconnus mais documentés : '%(params)s'" % {
+                    'params': ', '.join(unknown),
+                    'test': testname,
+                  }, file=sys.stderr)
+
+        undocumented = []
+        for param, category in params.items():
+            if tests_doc[testname][category][param]['doc']:
+                continue
+            undocumented.append(param)
+
+        if undocumented:
+            print("WARNING: les paramètres suivants du test '%(test)s' "
+                  "ne sont pas documentés: %(params)s" % {
+                    'params': ', '.join(undocumented),
+                    'test': testname,
+                  }, file=sys.stderr)
 
     # PHASE 2 : transformation de la documentation en tableau
     #           avec les données formatées en reStructuredText.
@@ -196,36 +187,53 @@ def write_autodoc():
         # Nom du test (colonne 1).
         cells[0].append('**%s**' % test)
 
-        # Classes d'équipements (colonne 2).
-        hclasses = sorted(tests_doc[test]['hclasses'], key=keynat)
-        for hclass in hclasses:
-            if hclass == 'all':
-                cells[1].append('* %s' % '*Toutes*')
-            else:
-                cells[1].append('* %s' % hclass)
+        # Description du test (colonne 2).
+        cells[1].append(tests_doc[test]['doc'])
 
-        # Description du test (colonne 3).
-        cells[2].append(tests_doc[test]['doc'])
-        # Description des paramètres du test (colonne 3).
-        params = sorted(tests_doc[test]['params'].iterkeys(), key=keynat)
+        # Description des paramètres obligatoires du test (colonne 2).
+        params = sorted(tests_doc[test]['required_params'].iterkeys(), key=keynat)
         if params:
-            cells[2].append("")
-            cells[2].append("Paramètres acceptés par le test :")
-        for param in params:
-            cells[2].append("")
-            param_doc = "``%s``: %s" % (
-                    param,
-                    tests_doc[test]['params'][param]['doc']
-                )
-            param_hclasses = sorted(
-                                tests_doc[test]['params'][param]['hclasses'],
-                                key=keynat)
-            if set(param_hclasses) != set(hclasses):
-                param_doc += " (uniquement pour les classes suivantes: %s)" % \
-                    ", ".join(param_hclasses)
-            cells[2].append(param_doc)
+            cells[1].append("")
+            cells[1].append("Paramètres obligatoires du test :")
 
-        padding = max(len(cells[0]), len(cells[1]), len(cells[2]))
+        for param in params:
+            cells[1].append("")
+
+            if tests_doc[test]['required_params'][param]['type']:
+                type_info = "*%s* " % tests_doc[test]['required_params'][param]['type']
+            else:
+                type_info = ''
+
+            param_doc = "* %s**%s**: %s" % (
+                    type_info,
+                    param,
+                    tests_doc[test]['required_params'][param]['doc'],
+                )
+            cells[1].append(param_doc)
+
+        # Description des paramètres optionnels du test (colonne 2).
+        params = sorted(tests_doc[test]['optional_params'].iterkeys(), key=keynat)
+        if params:
+            cells[1].append("")
+            cells[1].append("Paramètres optionnels du test :")
+
+        for param in params:
+            cells[1].append("")
+
+            if tests_doc[test]['optional_params'][param]['type']:
+                type_info = "*%s* " % tests_doc[test]['optional_params'][param]['type']
+            else:
+                type_info = ''
+
+            param_doc = "* %s**%s**: %s. Valeur par défaut: %r" % (
+                    type_info,
+                    param,
+                    tests_doc[test]['optional_params'][param]['doc'].rstrip('.'),
+                    tests_doc[test]['optional_params'][param]['default'],
+                )
+            cells[1].append(param_doc)
+
+        padding = max(len(cells[0]), len(cells[1]))
         for i in xrange(3):
             if len(cells[i]) != padding:
                 cells[i].extend([""] * (padding - len(cells[i])))
@@ -233,17 +241,15 @@ def write_autodoc():
         # Marque la fin de la documentation de ce test.
         cells[0].append(None)
         cells[1].append(None)
-        cells[2].append(None)
 
     # PHASE 3 : représentation du tableau dans le fichier final.
     widths = []
     header = (
         "Nom du test",
-        "Classes disponibles",
-        "Détails",
+        "Description",
     )
 
-    for i in xrange(3):
+    for i in xrange(2):
         # Détermine la largeur à utiliser pour chacune des colonnes.
         # Il s'agit du max des largeurs des différentes entrées
         # de la colonne, y compris l'en-tête, plus deux (+2).
@@ -270,10 +276,10 @@ def write_autodoc():
         # Si les cellules d'une ligne ne contiennent que des None,
         # on insère le délimiteur d'entrées à la place
         # (cf. formatage des tableaux en reStructuredText).
-        if cells[0][i] is None and cells[1][i] is None and cells[2][i] is None:
+        if cells[0][i] is None and cells[1][i] is None:
             data.append(new_line)
             continue
-        data.append( (cells[0][i], cells[1][i], cells[2][i]) )
+        data.append( (cells[0][i], cells[1][i] ) )
 
     # Écrit le contenu du tableau ligne par ligne.
     for line in data:
@@ -297,5 +303,3 @@ def write_autodoc():
 
 if __name__ == "__main__":
     sys.exit(write_autodoc())
-else:
-    write_autodoc()

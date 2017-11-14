@@ -72,16 +72,6 @@
                     <element name="group"><text/></element>
                 </zeroOrMore>
 
-                <!--
-                    Classes d'équipements auxquelles cet hôte appartient.
-                    Les classes d'équipements permettent de sélectionner les
-                    variantes de tests de supervision les plus pertinentes
-                    pour un type d'équipement.
-                -->
-                <zeroOrMore>
-                    <element name="class"><text/></element>
-                </zeroOrMore>
-
                 <!-- Tests de supervision qui seront activés sur cet hôte. -->
                 <zeroOrMore>
                     <element name="test">

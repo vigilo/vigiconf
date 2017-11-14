@@ -2,10 +2,9 @@
 <hosts>
 <host name="interleaved-tags.xml" address="192.168.1.1" ventilation="Servers">
     <group>Linux servers</group>
-    <test name="UpTime"/>
+    <test name="all.UpTime"/>
     <template>linux</template>
-    <class>linux</class>
     <attribute name="cpulist">2</attribute>
-    <class>ucd</class>
+    <test name="all.Ping"/>
 </host>
 </hosts>

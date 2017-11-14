@@ -19,7 +19,9 @@ class Load(Test):
         values by removing respectively 1 and 2 units.
 
         @param warn:    WARNING threshold
+        @type  warn:    C{float}
         @param crit:    CRITICAL threshold
+        @type  crit:    C{float}
         """
         warn = self.as_float(warn)
         crit = self.as_float(crit)

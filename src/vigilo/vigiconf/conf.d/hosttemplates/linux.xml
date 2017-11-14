@@ -1,30 +1,28 @@
 <?xml version="1.0"?>
 <templates>
 <template name="linux">
-    <class>linux</class>
-    <class>ucd</class>
     <attribute name="snmpOIDsPerPDU">10</attribute>
     <group>Linux servers</group>
-    <test name="Interface">
+    <test name="all.Interface">
         <arg name="label">Loopback</arg>
         <arg name="ifname">lo</arg>
     </test>
-    <test name="Partition">
+    <test name="all.Partition">
         <arg name="label">Root</arg>
         <arg name="partname">/</arg>
     </test>
-    <test name="CPU"/>
-    <test name="DiskIO"/>
-    <test name="TotalProcesses"/>
-    <test name="Swap"/>
-    <test name="Ping"/>
-    <test name="RAM"/>
-    <test name="Load"/>
-    <test name="NTPSync"/>
-    <test name="Users"/>
-    <test name="SSH"/>
-    <test name="InterrCS"/>
-    <test name="TCPConn"/>
-    <test name="RAID"/>
+    <test name="all.TotalProcesses"/>
+    <test name="all.Swap"/>
+    <test name="all.Ping"/>
+    <test name="all.NTPSync"/>
+    <test name="all.Users"/>
+    <test name="all.SSH"/>
+    <test name="all.TCPConn"/>
+    <test name="ucd.InterrCS"/>
+    <test name="ucd.DiskIO"/>
+    <test name="ucd.RAM"/>
+    <test name="ucd.Load"/>
+    <test name="linux.CPU"/>
+    <test name="linux.RAID"/>
 </template>
 </templates>

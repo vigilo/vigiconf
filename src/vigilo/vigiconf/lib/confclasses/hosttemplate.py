@@ -37,7 +37,6 @@ class HostTemplate(object):
         self.data = {
                 "parent": [],
                 "tests": [],
-                "classes": [],
                 "groups": [],
                 "attributes": {},
                 "nagiosDirectives": {
@@ -107,16 +106,6 @@ class HostTemplate(object):
             if not parse_path(group):
                 raise ParsingError(_('Invalid group name (%s)') % group)
             self.data["groups"].append(group)
-
-    def add_class(self, classname):
-        """
-        Add a class name to this host template
-        @param classname: the class name to add
-        @type  classname: C{str}
-        """
-        if not self.data.has_key("classes"):
-            self.data["classes"] = []
-        self.data["classes"].append(classname)
 
     def add(self, prop, key, value):
         """
@@ -361,9 +350,6 @@ class HostTemplateFactory(object):
                 if elem.tag == "parent":
                     cur_tpl.add_parent(get_text(elem))
 
-                elif elem.tag == "class":
-                    cur_tpl.add_class(get_text(elem))
-
                 elif elem.tag == "directive":
                     if not process_nagios:
                         continue
@@ -478,11 +464,6 @@ class HostTemplateFactory(object):
             for name, value in tpl["nagiosDirectives"][target].iteritems():
                 host.add_nagios_directive(name, value, target=target)
 
-        # class
-        if tpl.has_key("classes"):
-            for class_ in tpl["classes"]:
-                host.add_class(class_)
-
         # attributes
         if tpl.has_key("attributes"):
             host.update_attributes(tpl["attributes"])
@@ -490,18 +471,15 @@ class HostTemplateFactory(object):
         # tests
         if tpl.has_key("tests"):
             for testdict in tpl["tests"]:
-                test_list = self.testfactory.get_test(testdict["name"],
-                                                      host.classes)
-                if not test_list:
-                    raise ParsingError(_("Can't add test %(testname)s to host "
-                            "%(hostname)s (added by template %(tplname)s). "
-                            "Maybe a missing host class ?")
-                            % {"tplname": tplname,
-                               "hostname": host.name,
-                               "testname": testdict["name"]})
-
-                test_args = testdict.get("args", {})
-                host.add_tests(test_list, args=test_args, directives=testdict["directives"])
+                testclass = self.testfactory.get_test(testdict["name"])
+                if not testclass:
+                    raise ParsingError(_("No such test '%(testname)s' on host"
+                                 "%(hostname)s (from template '%(tplname)s')")
+                                % {"tplname": tplname,
+                                   "hostname": host.name,
+                                   "testname": testdict["name"]})
+                host.add_tests(testclass, args=testdict.get("args", {}),
+                               directives=testdict["directives"])
 
         # tags
         if tpl.has_key("tags"):

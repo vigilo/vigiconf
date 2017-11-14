@@ -84,7 +84,7 @@ class TestTemplates(unittest.TestCase):
         """Les tags peuvent être hérités depuis le template par défaut."""
         default = """<?xml version="1.0"?><templates>
                     <template name="default">
-                        <test name="Ping"/>
+                        <test name="all.Ping"/>
                         <tag name="host_tag">host_value</tag>
                         <tag service="Ping" name="svc_tag">svc_value</tag>
                     </template></templates>"""
@@ -112,7 +112,7 @@ class TestTemplates(unittest.TestCase):
                     <template name="test">
                         <tag name="host_tag">host_value_tpl</tag>
                         <tag service="Ping" name="svc_tag">svc_value_tpl</tag>
-                        <test name="Ping"/>
+                        <test name="all.Ping"/>
                     </template></templates>"""
         self.xml(hosts=hosts, templates=tpls)
 

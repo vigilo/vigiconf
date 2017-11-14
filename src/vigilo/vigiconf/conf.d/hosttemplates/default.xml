@@ -19,6 +19,6 @@
     <attribute name="collectorTimeout">3</attribute>
 
     <!-- Default tests -->
-    <test name="UpTime"/>
+    <test name="all.UpTime"/>
 </template>
 </templates>

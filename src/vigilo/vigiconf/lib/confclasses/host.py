@@ -42,14 +42,11 @@ class Host(object):
     @type hosts: C{dict}
     @ivar name: the hostname
     @type name: C{str}
-    @ivar classes: the host classes
-    @type classes: C{list} of C{str}
     """
 
     def __init__(self, hosts, filename, name, address, servergroup):
         self.hosts = hosts
         self.name = name
-        self.classes = [ "all" ]
 
         if self.name in self.hosts:
             raise VigiConfError(_("Host '%(host)s' defined in multiple "
@@ -161,12 +158,12 @@ class Host(object):
         for attr_name, attr_value in attributes.iteritems():
             self.set_attribute(attr_name, attr_value)
 
-    def add_tests(self, test_list, args=None, directives=None):
+    def add_tests(self, test_class, args=None, directives=None):
         """
         Add a list of tests to this host, with the provided arguments
 
-        @param test_list: the list of tests
-        @type  test_list: C{list} of C{Test<.test.Test>}
+        @param test_class: a test class to add
+        @type  test_class: C{Test<.test.Test>}
         @param args: the test arguments
         @type  args: C{dict}
         @param directives: A dictionary of directives to be passed on
@@ -177,26 +174,28 @@ class Host(object):
             directives = {}
         if args is None:
             args = {}
-        for test_class in test_list:
-            inst = test_class(self, directives)
-            try:
-                inst.add_test(**args)
-            except TypeError:
-                spec = inspect.getargspec(inst.add_test)
-                # On récupère la liste des arguments obligatoires,
-                # en prenant soin de supprimer l'argument "self".
-                defaults = spec[3]
-                if defaults is None:
-                    args = spec[0][1:]
-                else:
-                    args = spec[0][1:-len(defaults)]
-                message = _('Test "%(test_name)s" on "%(host)s" needs the '
-                            'following arguments: %(args)s (and only those)') \
-                          % {'test_name': str(test_class.__name__),
-                             'host': self.name,
-                             'args': ', '.join(args),
-                            }
-                raise VigiConfError(message)
+
+        inst = test_class(self, directives)
+        try:
+            inst.add_test(**args)
+        except TypeError:
+            spec = inspect.getargspec(inst.add_test)
+            # On récupère la liste des arguments obligatoires,
+            # en prenant soin de supprimer l'argument "self".
+            defaults = spec[3]
+            if defaults is None:
+                args = spec[0][1:]
+            else:
+                args = spec[0][1:-len(defaults)]
+            hclass = test_class.__module__.rsplit('.', 2)[-2]
+            message = _('Test "%(class)s.%(test)s" on "%(host)s" needs the '
+                        'following arguments: %(args)s (and only those)') \
+                      % {'class': hclass,
+                         'test': str(test_class.__name__),
+                         'host': self.name,
+                         'args': ', '.join(args),
+                        }
+            raise VigiConfError(message)
 
 
 #### Access the global dicts ####
@@ -209,15 +208,6 @@ class Host(object):
         """
         group_name = unicode(group_name)
         self.hosts[self.name]['otherGroups'].add(group_name)
-
-    def add_class(self, class_name):
-        """
-        Add a class to the host
-        @param class_name: the class name to be added to
-        @type  class_name: C{str}
-        """
-        if self.classes.count(class_name) == 0:
-            self.classes.append(class_name)
 
 #### Access the hosts dict ####
 
@@ -1014,9 +1004,6 @@ class HostFactory(object):
                 if elem.tag == "template":
                     templates.append(get_text(elem))
 
-                elif elem.tag == "class":
-                    cur_host.classes.append(get_text(elem))
-
                 elif elem.tag == "test":
                     test_name = get_attrib(elem, 'name')
 
@@ -1173,15 +1160,13 @@ class HostFactory(object):
                             'with at least one group.') % cur_host.name)
 
                     for test_params in tests:
-                        test_list = self.testfactory.get_test(test_params[0],
-                                          cur_host.classes)
-                        if not test_list:
-                            raise ParsingError(_("Can't add test %(testname)s "
-                                    "to host %(hostname)s. Maybe a missing "
-                                    "host class ?")
+                        testclass = self.testfactory.get_test(test_params[0])
+                        if not testclass:
+                            raise ParsingError(_("No such test '%(testname)s' "
+                                    "on host %(hostname)s")
                                     % {"hostname": cur_host.name,
                                        "testname": test_params[0]})
-                        cur_host.add_tests(test_list, *test_params[1:])
+                        cur_host.add_tests(testclass, *test_params[1:])
 
                     if cur_host.get_attribute("force-passive"):
                         cur_host.add_nagios_directive("use", "generic-passive-host")

@@ -51,7 +51,6 @@ hosts element contains one ore more host elements
         <xs:element name="template" type="xs:string"/>
         <!-- nagios host specific bloc -->
         <xs:element ref="nagios"/>
-        <xs:element name="class" type="xs:string"/>
         <xs:element name="force-passive" />
 
         <xs:element name="attribute">

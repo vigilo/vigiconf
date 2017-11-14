@@ -50,8 +50,6 @@
 
                         <xs:element name="group" type="xs:string"/>
 
-                        <xs:element name="class" type="xs:string"/>
-
                         <xs:element name="test">
                             <xs:complexType>
                                 <xs:sequence>

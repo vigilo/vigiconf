@@ -11,11 +11,14 @@ class DiskIO(Test):
 
     def add_test(self, diskname="hdisk0", warn=None, crit=None):
         """
-        @param diskname: disk name. Default: hdisk0
+        @param diskname: disk name
+        @type  diskname: C{str}
         @param warn: tuple containing the thresholds for WARNING status. Ex:
             (limit_reads, limit_writes)
+        @type  warn: C{list}
         @param crit: tuple containing the thresholds for CRITICAL status. Ex:
             (limit_reads, limit_writes)
+        @type  crit: C{list}
         """
         # Metrology
         self.add_collector_metro("IO Reads", "directValue", [],

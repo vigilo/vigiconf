@@ -1,27 +1,25 @@
 <?xml version="1.0"?>
 <hosts>
 <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-    <class>linux</class>
-    <class>ucd</class>
     <template>linux</template>
     <attribute name="cpulist">2</attribute>
-    <test name="Interface">
+    <test name="all.Interface">
         <arg name="label">eth0</arg>
         <arg name="ifname">eth0</arg>
         <arg name="warn">10,20</arg>
         <arg name="crit">30,40</arg>
     </test>
-    <test name="Interface">
+    <test name="all.Interface">
         <arg name="label">eth1</arg>
         <arg name="ifname">eth1</arg>
     </test>
-    <test name="Metro">
+    <test name="all.Metro">
         <arg name="servicename">Traffic in eth1</arg>
         <arg name="metroname">ineth1</arg>
         <arg name="warn">10</arg>
         <arg name="crit">20</arg>
     </test>
-    <test name="UpTime"/>
+    <test name="all.UpTime"/>
     <tag service="UpTime" name="security">1</tag>
     <tag service="Host" name="important">2</tag>
     <group>Linux servers</group>
@@ -29,7 +27,7 @@
 <host name="switchalcatel0S6400" address="192.168.1.2" ventilation="Telecom">
     <class>alcatel</class>
     <template>alcatel</template>
-    <test name="Interface">
+    <test name="all.Interface">
         <arg name="ifname">Alcatel-Lucent 2/11 6.4.2.807.R01</arg>
         <arg name="label">2/11</arg>
     </test>
@@ -38,18 +36,15 @@
     <attribute name="cpulist">
         <item>1</item>
     </attribute>
-    <class>accelerator</class>
-    <class>ucd</class>
     <template>accelerator3930</template>
-    <test name="Interface">
+    <test name="all.Interface">
         <arg name="ifname">eth3</arg>
         <arg name="label">eth3</arg>
     </test>
 </host>
 <host address="routeurcisco2921" name="192.168.1.4" ventilation="Telecom">
-    <class>cisco</class>
     <template>cisco</template>
-    <test name="Interface">
+    <test name="all.Interface">
         <arg name="label">GE0/0</arg>
         <arg name="ifname">GigabitEthernet0/0</arg>
     </test>

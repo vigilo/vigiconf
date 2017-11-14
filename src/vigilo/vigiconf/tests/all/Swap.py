@@ -19,10 +19,6 @@ class Swap(Test):
         """
         Teste la quantité de Swap utilisée.
         """
-        # Pour les machines Windows, on dispose d'un test plus pertinent.
-        if 'windows' in self.host.classes:
-            return
-
         self.add_collector_metro("Swap", "m_table_mult",
                 ["[Ss]wap [Ss]pace"],
                 ["WALK/.1.3.6.1.2.1.25.2.3.1.4",

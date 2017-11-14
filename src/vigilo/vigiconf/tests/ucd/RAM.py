@@ -3,10 +3,10 @@
 # Copyright (C) 2006-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.vigiconf.tests.all.RAM import RAM as all_RAM
 
 
-class RAM(Test):
+class RAM(all_RAM):
     """Check the RAM usage of a host"""
 
     oids = [".1.3.6.1.4.1.2021.4"]
@@ -14,13 +14,10 @@ class RAM(Test):
     def add_test(self, warn=80, crit=90):
         """
         @param warn: WARNING threshold
+        @type  warn:    C{float}
         @param crit: CRITICAL threshold
+        @type  crit:    C{float}
         """
-        # Ces classes ont de meilleurs tests de RAM.
-        skipclasses = [ "bigip" ]
-        for skipclass in skipclasses:
-            if skipclass in self.host.classes:
-                return
         warn = self.as_float(warn)
         crit = self.as_float(crit)
 

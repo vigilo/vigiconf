@@ -40,7 +40,7 @@ class DispatchatorTest(unittest.TestCase):
         self.host = Host(conf.hostsConf, "dummy", u"testserver1",
                          u"192.168.1.1", u"Servers")
         testfactory = TestFactory(confdir=settings["vigiconf"]["confdir"])
-        test_list = testfactory.get_test("UpTime", self.host.classes)
+        test_list = testfactory.get_test("all.UpTime")
         self.host.add_tests(test_list)
         self.dispatchator = make_dispatchator()
         # Disable qualification, validation, stop and start scripts

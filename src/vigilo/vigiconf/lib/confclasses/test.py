@@ -270,6 +270,10 @@ class Test(object):
         """
         pass
 
+    @classmethod
+    def get_fullname(cls):
+        return "%s.%s" % (cls.__module__.rsplit('.', 2)[-2], cls.__name__)
+
 
 class TestImporter(object):
     """
@@ -471,25 +475,17 @@ class TestFactory(object):
         return tests_list
 
 
-    def get_test(self, test_name=None, hclasses=None):
+    def get_test(self, test_name):
         """
-        Get a list of classes implementing a test on various host classes.
-        Can be filtered either by test name or by host class.
-        @param test_name: test name to filter against
+        Checks whether a given test exists.
+        Returns the test's name if it does exist, or C{None}.
+
+        @param test_name: test name to look for (in the form "class.Test")
         @type  test_name: C{str}
-        @param hclasses: host classes to filter against
-        @type  hclasses: C{list}
-        @rtype: C{list}
+        @rtype: C{str}
         """
-        test_list = []
-        for current_test_name in self.tests:
-            if test_name is not None and test_name != current_test_name:
-                continue
-            for hclass in self.tests[current_test_name]:
-                if hclasses is not None and hclass not in hclasses:
-                    continue
-                test_list.append(self.tests[current_test_name][hclass])
-        return test_list
+        hclass, sep_, test_name = test_name.rpartition('.')
+        return self.tests.get(test_name, {}).get(hclass)
 
     def get_hclasses(self):
         """
@@ -523,10 +519,8 @@ class TestFactory(object):
         @param testclass: the test class to get the host class from
         @type  testclass: L{Test}
         """
-        for test_name in self.tests:
-            for hclass, curtestclass in self.tests[test_name].iteritems():
-                if testclass is curtestclass:
-                    return hclass
+        
+        return testclass.__module__.rsplit('.', 2)[-2]
 
     def load_hclasses_checks(self):
         """

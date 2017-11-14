@@ -108,14 +108,6 @@ class Interface(Test):
             snmp_oids["in"]  = ".1.3.6.1.2.1.2.2.1.10"
             snmp_oids["out"] = ".1.3.6.1.2.1.2.2.1.16"
 
-        if "nokia" in self.host.classes:
-            errors = False # Not supported on Nokia hardware
-            del snmp_oids["inDisc"]
-            del snmp_oids["outDisc"]
-            del snmp_oids["inErrs"]
-            del snmp_oids["outErrs"]
-
-
         if staticindex:
             collector_function = "staticIfOperStatus"
             for snmpname, snmpoid in snmp_oids.iteritems():

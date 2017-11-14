@@ -3,8 +3,7 @@
 <hosts>
 <host name="localhost_passive.xml" address="127.0.0.1" ventilation="Vigilo">
     <force-passive />
-    <class>ucd</class>
-    <test name="Interface">
+    <test name="all.Interface">
         <arg name="label">eth0</arg>
         <arg name="ifname">eth0</arg>
     </test>

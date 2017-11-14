@@ -189,7 +189,7 @@ class ParseHost(unittest.TestCase):
             <nagios>
                 <directive name="obsess_over_host">1</directive>
             </nagios>
-            <test name="UpTime"/>
+            <test name="all.UpTime"/>
             <group>/Servers</group>
         </host>""")
         self.host.close()
@@ -207,7 +207,7 @@ class ParseHost(unittest.TestCase):
             <nagios>
                 <directive target="services" name="obsess_over_service">1</directive>
             </nagios>
-            <test name="UpTime"/>
+            <test name="all.UpTime"/>
             <group>/Servers</group>
         </host>""")
         self.host.close()
@@ -226,7 +226,7 @@ class ParseHost(unittest.TestCase):
             <nagios>
                 <directive name="obsess_over_host"></directive>
             </nagios>
-            <test name="UpTime"/>
+            <test name="all.UpTime"/>
             <group>/Servers</group>
         </host>""")
         self.host.close()
@@ -236,7 +236,7 @@ class ParseHost(unittest.TestCase):
     def test_tag_service(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <test name="UpTime"/>
+            <test name="all.UpTime"/>
             <tag service="UpTime" name="important">2</tag>
             <group>/Servers</group>
         </host>""")
@@ -285,7 +285,7 @@ class ParseHost(unittest.TestCase):
     def test_test(self):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
-            <test name="Interface">
+            <test name="all.Interface">
                 <arg name="label">eth0</arg>
                 <arg name="ifname">eth0</arg>
             </test>
@@ -317,7 +317,7 @@ class ParseHost(unittest.TestCase):
         GroupLoader().load()
         self.host.write("""<?xml version="1.0"?>
         <host name="foo" address="127.0.0.1" ventilation="Vigilo">
-            <test name="Interface" weight="42" warning_weight="41">
+            <test name="all.Interface" weight="42" warning_weight="41">
                 <arg name="label">eth0</arg>
                 <arg name="ifname">eth0</arg>
             </test>
@@ -335,7 +335,7 @@ class ParseHost(unittest.TestCase):
         """Hôte associé à aucun groupe opérationnel."""
         self.host.write("""<?xml version="1.0"?>
         <host name="foo" address="127.0.0.1" ventilation="Vigilo">
-            <test name="Interface" weight="41" warning_weight="42">
+            <test name="all.Interface" weight="41" warning_weight="42">
                 <arg name="label">eth0</arg>
                 <arg name="ifname">eth0</arg>
             </test>
@@ -389,12 +389,11 @@ class ParseHost(unittest.TestCase):
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1" ventilation="Servers">
             <template>linux</template>
-            <class>linux</class>
         </host>""")
         self.host.close()
         htpl = HostTemplate("linux")
         htpl.add_group("Linux servers")
-        htpl.add_test("RAID")
+        htpl.add_test("linux.RAID")
         self.hosttemplatefactory.register(htpl)
         try:
             self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
@@ -454,7 +453,7 @@ class ParseHost(unittest.TestCase):
                 "all": AttributeUsingTest}
         htpl = HostTemplate("linux")
         htpl.add_group("Linux servers")
-        htpl.add_test("AttributeUsingTest")
+        htpl.add_test("all.AttributeUsingTest")
         self.hosttemplatefactory.register(htpl)
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
@@ -480,7 +479,7 @@ class ParseHost(unittest.TestCase):
         htpl = HostTemplate("linux")
         htpl.add_group("Linux servers")
         htpl.add_attribute("attribute_in_conf", "right_value")
-        htpl.add_test("AttributeUsingTest")
+        htpl.add_test("all.AttributeUsingTest")
         self.hosttemplatefactory.register(htpl)
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
                                     "host.xml"))
@@ -493,7 +492,7 @@ class ParseHost(unittest.TestCase):
         """
         self.host.write("""<?xml version="1.0"?>
         <host name="testserver1" address="192.168.1.1">
-            <test name="ArgListTest">
+            <test name="all.ArgListTest">
                 <arg name="multi">
                     <item>a</item>
                     <item>b</item>

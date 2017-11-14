@@ -18,7 +18,9 @@ class InterrCS(Test):
         max_context_switches)}.
 
         @param warn: WARNING threshold
+        @type  warn: C{list}
         @param crit: CRITICAL threshold
+        @type  crit: C{list}
         """
         # Metrology
         self.add_collector_metro("Interrupts", "directValue", [],

@@ -23,7 +23,6 @@ class TestDiscoveratorBasics(unittest.TestCase):
         testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
         self.disc = Discoverator(testfactory, group="Test")
         self.disc.testfactory.load_hclasses_checks()
-        self.testnames = [ t["name"] for t in self.disc.tests ]
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -74,50 +73,6 @@ class TestDiscoveratorBasics(unittest.TestCase):
         self.assertEqual(self.disc.oids[".1.42"],
                     "First line\nSecond line\nThird line\n")
 
-    def test_detect_hclasses_wrapped_line(self):
-        self.disc.oids[".1.3.6.1.2.1.1.1.0"] = "l1\nTest HClass\nl3\n"
-        self.disc.testfactory.tests["faketest"] = {"test_hclass": None}
-        self.disc.testfactory.hclasschecks["test_hclass"] = {
-                "sysdescr": ".*Test HClass.*"}
-        self.disc.find_hclasses_sysdescr()
-        print(self.disc.hclasses)
-        self.assertTrue("test_hclass" in self.disc.hclasses)
-
-    def test_detect_homonyms(self):
-        """
-        Détection des tests avec homonymie.
-
-        Si plusieurs classes d'hôtes fournissent le même test avec une méthode
-        de détection, chacune de ces méthodes de détection doit être appelée.
-        """
-        class FakeTest(Test):
-            oids = [".1.3.6.1.2.1.1.1.0"]
-        class FakeTest2(FakeTest):
-            pass
-        # On fait en sorte que les 2 tests soient vus
-        # comme ayant le même nom.
-        FakeTest2.__name__ = FakeTest.__name__
-        self.disc.oids[".1.3.6.1.2.1.1.1.0"] = ""
-        self.disc.testfactory.tests["faketest"] = {
-            "testclass1": FakeTest,
-            "testclass2": FakeTest2,
-        }
-        self.disc.find_tests()
-        self.disc.find_hclasses()
-        self.assertTrue("testclass1" in self.disc.hclasses,
-            str(self.disc.hclasses))
-        self.assertTrue("testclass2" in self.disc.hclasses,
-            str(self.disc.hclasses))
-        # Il ne doit y avoir qu'un seul test dans le résultat
-        self.disc.deduplicate_tests()
-        decl = self.disc.declaration()
-        testlines = []
-        for elem in decl:
-            if elem.tag != "test":
-                continue
-            testlines.append(ET.tostring(elem))
-        self.assertEqual(testlines, ['<test name="FakeTest" />'])
-
 
 class DiscoveratorBaseTest(object):
     testmib = None
@@ -132,6 +87,7 @@ class DiscoveratorBaseTest(object):
         self.disc.scanfile(walkfile)
         self.disc.detect()
         self.testnames = [ t["name"] for t in self.disc.tests ]
+        print("Detected tests:", self.testnames)
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -150,25 +106,21 @@ class DiscoveratorBaseTest(object):
 class DiscoveratorLinux(DiscoveratorBaseTest, unittest.TestCase):
     testmib = "linux.walk"
 
-    def test_classes(self):
-        """Test the host classes detection on Linux"""
-        self.assertEqual(self.disc.hclasses, set(["all", "ucd", "linux"]),
-               "Host classes are not properly detected: %s"
-               % str(self.disc.hclasses))
-
     def test_simple_test_detection(self):
         """Test the simple test detection on Linux
         This uses the test's detect_oid() method"""
-        for test in [ "Load", "CPU", "TotalProcesses", "Users", "RAM",
-                      "UpTime", "Swap", "Partition", "Interface" ]:
+        for test in [ "ucd.Load", "ucd.CPU", "all.TotalProcesses",
+                      "all.Users", "ucd.RAM", "all.UpTime", "all.Swap",
+                      "all.Partition", "all.Interface" ]:
             self.assertTrue(test in self.testnames,
                             "Test %s is not detected" % test)
+        self.assertFalse("all.RAM" in self.testnames, "Test all.RAM is detected")
 
     def test_partition_args(self):
         """Test the args of the Partition test detection on Linux"""
         args = []
         for testdict in self.disc.tests:
-            if testdict["name"] != "Partition":
+            if testdict["name"] != "all.Partition":
                 continue
             args.append(testdict['args'])
         goodargs = [[
@@ -189,7 +141,7 @@ class DiscoveratorLinux(DiscoveratorBaseTest, unittest.TestCase):
         """Test the args of the Interface test detection on Linux"""
         args = []
         for testdict in self.disc.tests:
-            if testdict["name"] != "Interface":
+            if testdict["name"] != "all.Interface":
                 continue
             args.append(testdict["args"])
         goodargs = [[
@@ -220,24 +172,23 @@ class DiscoveratorSpecificTest(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
         teardown_db()
 
-
     def test_multiple_test_detection(self):
-        """Test the simple test detection on Linux
+        """Teste la détection de plusieurs tests pour Linux
         This uses the test's detect_oid() method"""
         self.disc.detect(["Swap", "Partition", "Interface"])
         self.testnames = [ t["name"] for t in self.disc.tests ]
 
-        for test in [ "Swap", "Partition", "Interface" ]:
+        for test in [ "all.Swap", "all.Partition", "all.Interface" ]:
             self.assertTrue(test in self.testnames,
                             "Test %s is not detected" % test)
 
     def test_single_test_detection(self):
-        """Test the simple test detection on Linux
+        """Teste la détection d'un test unique pour Linux
         This uses the test's detect_oid() method"""
         self.disc.detect([ "Partition" ])
         self.testnames = [ t["name"] for t in self.disc.tests ]
 
-        self.assertTrue("Partition" in self.testnames,
+        self.assertTrue("all.Partition" in self.testnames,
                 "Test %s is not detected" % "Partition")
-        self.assertFalse("Interface" in self.testnames,
+        self.assertFalse("all.Interface" in self.testnames,
                 "Test %s is detected" % "Interface")

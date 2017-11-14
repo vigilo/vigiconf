@@ -10,37 +10,29 @@ class CPU(Test):
     """Check the CPU usage of a host (service only)"""
 
     def add_test(self, warn=70, crit=90):
-        """Arguments:
-            warn:   WARNING threshold
-            crit:   CRITICAL threshold
+        """
+        @param warn: WARNING threshold
+        @type  warn: C{float}
+        @param crit: CRITICAL threshold
+        @type  crit: C{float}
         """
         warn = self.as_float(warn)
         crit = self.as_float(crit)
 
-        check_cpu_perf_data = True
-        if "ucd" in self.host.classes:
-            # ucd donne des informations de métrologie plus complètes.
-            check_cpu_perf_data = False
-
         self.add_external_sup_service( "Sys CPU",
                     "check_nrpe!check_cpu_args!%s %s %d" %
-                    (warn, crit, check_cpu_perf_data) )
+                    (warn, crit, True) )
 
-        if check_cpu_perf_data:
-            activities = ('User', 'Kernel', 'Idle', 'Wait')
-            for activity in activities:
-                self.add_perfdata_handler(
-                    "Sys CPU",
-                    'CPU %s' % activity,
-                    'CPU %s' % activity,
-                    activity,
-                    'GAUGE')
-            self.add_graph("CPU usage (by type)",
-                           [ "CPU %s" % a for a in activities ],
-                           "stacks", "usage (%)", group="Performance")
-
-        # Dans le cas contraire, ucd ajoutera lui-même le graphe,
-        # avec des indicateurs plus granulaires.
-
+        activities = ('User', 'Kernel', 'Idle', 'Wait')
+        for activity in activities:
+            self.add_perfdata_handler(
+                "Sys CPU",
+                'CPU %s' % activity,
+                'CPU %s' % activity,
+                activity,
+                'GAUGE')
+        self.add_graph("CPU usage (by type)",
+                       [ "CPU %s" % a for a in activities ],
+                       "stacks", "usage (%)", group="Performance")
 
 # vim:set expandtab tabstop=4 shiftwidth=4:

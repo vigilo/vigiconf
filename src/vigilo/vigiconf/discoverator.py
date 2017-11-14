@@ -13,6 +13,7 @@ import os
 import subprocess
 import re
 import socket
+import inspect
 from xml.etree import ElementTree as ET # Python 2.5
 #from pprint import pprint
 
@@ -197,64 +198,57 @@ class Discoverator(object):
     def detect(self, tests=None):
         """
         Start the detection on this host
-        @param tests: list des tests spécifiques (None si tous les tests
+        @param tests: Liste des tests spécifiques (None si tous les tests
             doivent être détectés)
         @type  tests: C{list}
         """
-        self.find_tests(tests)
+        self.find_tests(tests, self.find_hclasses())
         self.find_attributes()
-        self.find_hclasses()
         self.deduplicate_tests()
 
-    def find_tests(self, tests=None):
+    def find_tests(self, tests=None, hclasses=None):
         """
         Find the applicable tests using the test's detect() function
         @param tests: Liste des tests spécifiques (None si tous les tests
             doivent être détectés).
         @type  tests: C{list} of C{str}
         """
-        for test in self.testfactory.get_tests():
+        for test in self.testfactory.get_tests(hclasses):
             # is it one of the tests "specifically wanted" to be detected ?
             if tests and test.__name__ not in tests:
                 continue
+
             detected = test.detect(self.oids)
             if detected:
                 if detected is True:
                     self.tests.append({"class": test,
-                                       "name": test.__name__,
+                                       "name": test.get_fullname(),
                                        "args": [],
                                       })
                 elif isinstance(detected, list):
                     for arglist in detected:
                         self.tests.append({"class": test,
-                                           "name": test.__name__,
+                                           "name": test.get_fullname(),
                                            "args": sorted(arglist.items()),
                                           })
 
     def find_hclasses(self):
-        """Get the host classes"""
-        self.find_hclasses_from_tests()
-        self.find_hclasses_sysdescr()
-        self.find_hclasses_oids()
-        self.find_hclasses_function()
-
-    def find_hclasses_from_tests(self):
-        """Get the host classes from the detected tests"""
-        for testdict in self.tests:
-            test_hclass = self.testfactory.get_hclass(testdict["class"])
-            if test_hclass:
-                self.hclasses.add(test_hclass)
+        hclasses  = self.find_hclasses_sysdescr()
+        hclasses &= self.find_hclasses_oids()
+        hclasses &= self.find_hclasses_function()
+        return hclasses
 
     def find_hclasses_sysdescr(self):
         """Get the host classes from the sysDescr matching"""
+        hclasses = set()
         for hclass in self.testfactory.get_hclasses():
-            if not self.testfactory.hclasschecks.has_key(hclass):
-                continue
-            sysdescrre = self.testfactory.hclasschecks[hclass]["sysdescr"]
+            checks = self.testfactory.hclasschecks.get(hclass, {})
+            sysdescrre = checks.get("sysdescr")
             if sysdescrre is None or ".1.3.6.1.2.1.1.1.0" not in self.oids:
-                continue
-            if re.match(sysdescrre, self.oids[".1.3.6.1.2.1.1.1.0"], re.S):
-                self.hclasses.add(hclass)
+                hclasses.add(hclass)
+            elif re.match(sysdescrre, self.oids[".1.3.6.1.2.1.1.1.0"], re.S):
+                hclasses.add(hclass)
+        return hclasses
 
     def _find_oids(self, oids):
         """Return True if one of the oids match"""
@@ -264,31 +258,28 @@ class Discoverator(object):
                     return True
         return False
 
-
     def find_hclasses_oids(self):
         """Get the host classes by testing the OID presence"""
+        hclasses = set()
         for hclass in self.testfactory.get_hclasses():
-            if not self.testfactory.hclasschecks.has_key(hclass):
-                continue
-            if not self.testfactory.hclasschecks[hclass].has_key("oids"):
-                continue
-            oids = self.testfactory.hclasschecks[hclass]["oids"]
-            if oids is None:
-                continue
-            if self._find_oids(oids):
-                self.hclasses.add(hclass)
+            oids = self.testfactory.hclasschecks.get(hclass, {}).get("oids")
+            if not oids:
+                hclasses.add(hclass)
+            elif self._find_oids(oids):
+                hclasses.add(hclass)
+        return hclasses
 
     def find_hclasses_function(self):
-        """Get the host classes from a hardcoded mapping"""
+        """Get the host classes using a detection function"""
+        hclasses = set()
         for hclass in self.testfactory.get_hclasses():
-            if not self.testfactory.hclasschecks.has_key(hclass):
-                continue
-            detect_snmp = self.testfactory.hclasschecks[hclass]["detect_snmp"]
+            checks = self.testfactory.hclasschecks.get(hclass, {})
+            detect_snmp = checks.get("detect_snmp")
             if detect_snmp is None:
-                continue
-            result = detect_snmp(self.oids)
-            if result:
-                self.hclasses.add(hclass)
+                hclasses.add(hclass)
+            elif detect_snmp(self.oids):
+                hclasses.add(hclass)
+        return hclasses
 
     def find_attributes(self):
         """Find attributes about the host (number of CPUs, partitions, ...)"""
@@ -317,13 +308,32 @@ class Discoverator(object):
                 pass
 
     def deduplicate_tests(self):
+        """
+        Cette méthode élimine les doublons dans les définitions des tests.
+        Elle élimine également les tests qui sont des parents d'autres tests.
+        """
         new_tests = []
-        seen = []
+        seen_tests = []
+        seen_classes = set()
+
+        # Trie les tests selon la profondeur de leur hiérarchie de classes
+        # (de la plus longue à la plus courte), pour traiter d'abord les
+        # descendants, puis leurs parents, etc. en remontant.
+        self.tests.sort(key=lambda x: len(inspect.getmro(x["class"])),
+                        reverse=True)
         for testdict in self.tests:
-            if (testdict["name"], testdict["args"]) in seen:
-                continue # doublon
+            key = (testdict["name"], testdict["args"])
+            if key in seen_tests:
+                continue # doublon du test (même classe, nom et arguments)
+
+            if repr(testdict["class"]) in seen_classes:
+                continue # un test héritant de cette classe est déjà présent
+
             new_tests.append(testdict)
-            seen.append((testdict["name"], testdict["args"]))
+            seen_tests.append(key)
+            seen_classes |= set( repr(cls) for cls
+                                 in inspect.getmro(testdict["class"])[1:] )
+
         # Trie les tests :
         # - par leur nom en premier lieu
         # - par la valeur de leurs arguments ensuite
@@ -337,17 +347,12 @@ class Discoverator(object):
 
     def declaration(self):
         """Generate the textual declaration for Vigiconf"""
-        if "all" in self.hclasses:
-            self.hclasses.remove("all")
         decl = ET.Element("host")
         decl.set("name", self.hostname)
         if self.ipaddr is not None:
             decl.set("address", self.ipaddr)
         group = ET.SubElement(decl, "group")
         group.text = self.group
-        for hclass in self.hclasses:
-            _class = ET.SubElement(decl, "class")
-            _class.text = hclass
         for attr, val in self.attributes.iteritems():
             _attr = ET.SubElement(decl, "attribute")
             _attr.set("name", attr)

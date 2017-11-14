@@ -57,16 +57,6 @@
                 </zeroOrMore>
 
                 <!--
-                    Classes d'équipements auxquelles cet hôte appartient.
-                    Les classes d'équipements permettent de sélectionner les
-                    variantes de tests de supervision les plus pertinentes
-                    pour un type d'équipement.
-                -->
-                <zeroOrMore>
-                    <element name="class"><text/></element>
-                </zeroOrMore>
-
-                <!--
                     Attributs de l'hôte, généralement déterminés à l'aide de
                     la commande de découverte de VigiConf (vigiconf discover).
                 -->
