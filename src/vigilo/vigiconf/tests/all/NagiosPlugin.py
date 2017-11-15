@@ -12,8 +12,14 @@ class NagiosPlugin(Test):
 
     def add_test(self, name, command, metrics=None, unit=''):
         """
-        @param name: Le nom du service dans Nagios (service_description)
+        @param name:    Le nom du service dans Nagios (service_description)
+        @type  name:    C{str}
         @param command: Le nom de la commande à utiliser (check_command)
+        @type  command: C{str}
+        @param metrics: Liste de métriques retournées par la sonde à grapher.
+        @type  metrics: C{list}
+        @param unit:    Unité des métriques retournées
+        @type  unit:    C{str}
         """
         # Service
         self.add_external_sup_service(name, command)

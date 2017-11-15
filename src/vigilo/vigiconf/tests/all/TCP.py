@@ -11,9 +11,11 @@ class TCP(Test):
     """Check if the requested TCP port is open"""
 
     def add_test(self, port, label=None):
-        """Arguments:
-            port:  the TCP port to test
-            label: the label to display
+        """
+        @param port:  TCP port to test
+        @type  port:  C{int}
+        @param label: Service name
+        @type  label: C{str}
         """
         port = self.as_int(port)
         if label is None:

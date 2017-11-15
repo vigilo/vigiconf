@@ -11,10 +11,13 @@ class Proxy(Test):
     """Check if the HTTP proxy works as expected"""
 
     def add_test(self, port=8080, url="http://www.google.com", auth=False):
-        """Arguments:
-            port:  the TCP port to test
-            url:   the URL to check
-            auth:  use authentication or not
+        """
+        @param port:  TCP port used by the HTTP proxy
+        @type  port:  C{int}
+        @param url:   URL to check
+        @type  url:   C{str}
+        @param auth:  Whether to use authentication or not
+        @type  auth:  C{bool}
         """
         port = self.as_int(port)
         auth = self.as_bool(auth)

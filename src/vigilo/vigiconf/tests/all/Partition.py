@@ -17,12 +17,18 @@ class Partition(Test):
     def add_test(self, label, partname, max=None, warn=80, crit=95, percent=True):
         """
         @param label:    the displayed name for the partition (ex: C{Data})
+        @type  label     C{str}
         @param partname: the SNMP name of the partition (ex: C{/var})
+        @type  partname: C{str}
         @param max:      total size of the partition
+        @type  max:      C{int}
         @param warn:     WARNING threshold
+        @type  warn:     C{float}
         @param crit:     CRITICAL threshold
+        @type  crit:     C{float}
         @param percent:  if True, the thresholds apply to the percent. If
             C{False}, they apply to the number of bytes
+        @type  percent:  C{bool}
         """
         warn = self.as_float(warn)
         crit = self.as_float(crit)

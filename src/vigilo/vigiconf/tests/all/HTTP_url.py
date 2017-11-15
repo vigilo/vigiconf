@@ -14,9 +14,12 @@ class HTTP_url(Test):
     def add_test(self, service, port=80, url="/"):
         """
         @param service: Le nom du service à utiliser dans Nagios.
+        @type  service: C{str}
         @param port:    Le port sur lequel le serveur web écoute
                         (80 par défaut).
+        @type  port:    C{int}
         @param url:     L'URL à demander au serveur web.
+        @type url:      C{str}
         """
         port = self.as_int(port)
 

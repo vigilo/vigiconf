@@ -13,6 +13,7 @@ class Metro(Test):
     def add_test(self, servicename, metroname, warn, crit, factor=1):
         """
         Set a threshold on metrology values
+
         @param servicename: the name of the Nagios service
         @type  servicename: C{str}
         @param metroname: the name of the metrology datasource to test
@@ -22,7 +23,7 @@ class Metro(Test):
         @param crit: the CRITICAL threshold.
         @type  crit: C{str}
         @param factor: the factor to use, if any
-        @type  factor: C{int} or C{float}
+        @type  factor: C{float}
         """
         factor = self.as_float(factor)
         self.add_metro_service(servicename, metroname, warn, crit, factor)

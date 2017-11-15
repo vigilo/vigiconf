@@ -11,10 +11,7 @@ class RAM(Test):
 
     oids = [".1.3.6.1.2.1.25.2.3.1.2"]
 
-    def add_test(self, **kw):
-        """
-        @param kw: unused (compatibility layer for other RAM tests)
-        """
+    def add_test(self):
         # Recherche du type "hrStorageRam"
         self.add_collector_metro("Used RAM", "m_table_mult", [".1.3.6.1.2.1.25.2.1.2"],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4", "WALK/.1.3.6.1.2.1.25.2.3.1.6",

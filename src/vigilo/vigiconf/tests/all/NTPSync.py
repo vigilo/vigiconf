@@ -8,7 +8,7 @@ from vigilo.vigiconf.lib.confclasses.test import Test
 
 
 class NTPSync(Test):
-    """Check if a host's time is synchronized with the NTP server (uses NRPE)"""
+    """Check if a host's time is synchronized with the NTP server (using NRPE)"""
 
     def add_test(self):
         self.add_external_sup_service("NTP sync", "check_nrpe_1arg!check_ntp_time")

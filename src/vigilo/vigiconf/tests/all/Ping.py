@@ -16,8 +16,10 @@ class Ping(Test):
         """
         @param warn: La limite WARNING sous la forme d'une liste contenant
             deux éléments : C{round_trip_average, packet_loss_percent}
+        @type  warn: C{list}
         @param crit: La limite CRITICAL sous la forme d'une liste contenant
             deux éléments : C{round_trip_average, packet_loss_percent}
+        @type  crit: C{list}
         """
         # Seuils par défaut.
         if warn is None:

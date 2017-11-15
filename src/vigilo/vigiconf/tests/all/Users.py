@@ -13,9 +13,11 @@ class Users(Test):
     oids = [".1.3.6.1.2.1.25.1.5.0"]
 
     def add_test(self, warn=50, crit=100):
-        """Arguments:
-            warn: WARNING threshold
-            crit: CRITICAL threshold
+        """
+        @param warn: WARNING threshold
+        @type  warn: C{int}
+        @param crit: CRITICAL threshold
+        @type  crit: C{int}
         """
         warn = self.as_int(warn)
         crit = self.as_int(crit)

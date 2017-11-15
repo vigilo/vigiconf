@@ -13,9 +13,11 @@ class TCPConn(Test):
     oids = [".1.3.6.1.2.1.6.9.0"]
 
     def add_test(self, warn=1000, crit=3000):
-        """Arguments:
-            warn: WARNING threshold
-            crit: CRITICAL threshold
+        """
+        @param warn: WARNING threshold
+        @type  warn: C{int}
+        @param crit: CRITICAL threshold
+        @type  crit: C{int}
         """
         warn = self.as_int(warn)
         crit = self.as_int(crit)

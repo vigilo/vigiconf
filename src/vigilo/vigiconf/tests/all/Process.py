@@ -15,10 +15,15 @@ class Process(Test):
     def add_test(self, processname, section="name", label=None, warn="", crit="@0"):
         """
         @param processname: the name of the process
+        @type  processname: C{str}
         @param section: the section to search in the SNMP table
+        @type  section: C{str}
         @param label:   the label to display
+        @type  label:   C{str}
         @param warn:    WARNING threshold
+        @type  warn:    C{threshold}
         @param crit:    CRITICAL threshold
+        @type  crit:    C{threshold}
         """
         if label is None:
             label = processname

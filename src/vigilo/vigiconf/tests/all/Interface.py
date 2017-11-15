@@ -30,31 +30,43 @@ class Interface(Test):
         for the discard and error counters.
 
         @param label: Label to display
+        @type  label: C{str}
         @param ifname: SNMP name for the interface
+        @type  ifname: C{str}
         @param max: the maximum bandwidth available through this interface, in
             bits/s
+        @type  max: C{int}
         @param errors: create a graph for interface errors
+        @type  errors: C{bool}
         @param staticindex: consider the ifname as the static SNMP index instead
             of the interface name. It's not recommanded, but it can be
             necessary as some OS (Windows among others) assign the same name to
             different interfaces.
+        @type  staticindex: C{bool}
         @param warn: WARNING threshold. See description for the format.
+        @type  warn: C{list}
         @param crit: CRITICAL threshold. See description for the format.
-        @param counter32: to use Counter32bits specifically for this interface.
+        @type  crit: C{list}
+        @param counter32: Query the 32-bit counters instead of the 64-bit ones
+            for this interface.
+        @type  counter32: C{bool}
         @param teststate: Used to deactivate the interface state control. (When
             you only need statistics.)
+        @type  teststate: C{bool}
         @param admin: Indique l'état à retourner pour une interface
             marquée comme "désactivée par l'administrateur". Les valeurs
             possibles sont "i" (ignorer / l'interface est vue comme étant
             dans l'état "OK"), "w" (l'interface est vue comme étant dans
             l'état "WARNING") ou bien "c" (l'interface est vue comme étant
             dans l'état "CRITICAL"). La valeur par défaut est "i".
+        @type  admin: C{str}
         @param dormant: Indique l'état à retourner pour une interface
             marquée comme "dormante". Les valeurs possibles sont "i"
             (ignorer / l'interface est vue comme étant dans l'état "OK"),
             "w" (l'interface est vue comme étant dans l'état "WARNING")
             ou bien "c" (l'interface est vue comme étant dans l'état
             "CRITICAL"). La valeur par défaut est "c".
+        @type  dormant: C{str}
         """
         errors = self.as_bool(errors)
         staticindex = self.as_bool(staticindex)
