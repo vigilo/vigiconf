@@ -1788,17 +1788,67 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
     ..  sourcecode:: xml
 
         <host name="_HOSTNAME_" address="X.X.X.X">
-          <class>linux</class>
-          <template>linux</template>
-          <attribute name="cpulist">2</attribute>
-          <test name="Interface">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
-          </test>
+          <!--
+            Application d'un test sur l'uptime de l'agent SNMP
+            en utilisant l'interrogation SNMP standard (GET).
+          -->
+          <test name="UpTime"/>
+
+          <!--
+            Traitement des traps SNMP pour accélérer la détection
+            de certains événements impactant l'état de l'agent SNMP.
+            Note : le service qui sera mis à jour est celui correspondant
+                   au test "UpTime" déclaré ci-dessus.
+          -->
           <test name="Trap">
-            <arg name="OID">.1.3.6.1.1.2.1.1.2</arg>
-            <arg name="command">/var/lib/vigilo/snmptt/get_trap_upload</arg>
-            <arg name="service">Upload</arg>
+            <arg name="trap">warmStart</arg>
+            <arg name="state">WARNING</arg>
+            <arg name="service">UpTime</arg>
+            <arg name="message">La configuration de l'agent a été rechargée</arg>
+          </test>
+
+          <test name="Trap">
+            <arg name="trap">coldStart</arg>
+            <arg name="state">CRITICAL</arg>
+            <arg name="service">UpTime</arg>
+            <arg name="message">L'agent SNMP a redémarré</arg>
+          </test>
+
+          <!--
+            Les exemples qui suivent sont plus complets et montrent comment
+            utiliser des conditions et inclure des variables du trap SNMP
+            dans le message.
+          -->
+          <test name="Trap">
+            <arg name="trap">EXAMPLE-MIB::exampleTrap</arg>
+            <arg name="state">OK</arg>
+            <arg name="service">exampleTrap</arg>
+            <arg name="message">Un trap d'exemple a été reçu avec la priorité {var:EXAMPLE-MIB::priority}</arg>
+            <arg name="conditions">
+                <item><![CDATA[EXAMPLE-MIB::priority >= 0]]></item>
+                <item><![CDATA[EXAMPLE-MIB::priority < 50]]></item>
+            </arg>
+          </test>
+
+          <test name="Trap">
+            <arg name="trap">EXAMPLE-MIB::exampleTrap</arg>
+            <arg name="state">WARNING</arg>
+            <arg name="service">exampleTrap</arg>
+            <arg name="message">Un trap d'exemple a été reçu avec la priorité {var:EXAMPLE-MIB::priority}</arg>
+            <arg name="conditions">
+                <item><![CDATA[EXAMPLE-MIB::priority >= 50]]></item>
+                <item><![CDATA[EXAMPLE-MIB::priority < 100]]></item>
+            </arg>
+          </test>
+
+          <test name="Trap">
+            <arg name="trap">EXAMPLE-MIB::exampleTrap</arg>
+            <arg name="state">CRITICAL</arg>
+            <arg name="service">exampleTrap</arg>
+            <arg name="message">Un trap d'exemple a été reçu avec la priorité {var:EXAMPLE-MIB::priority}</arg>
+            <arg name="conditions">
+                <item><![CDATA[EXAMPLE-MIB::priority >= 100]]></item>
+            </arg>
           </test>
         </host>
 

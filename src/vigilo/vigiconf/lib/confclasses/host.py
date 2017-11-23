@@ -265,32 +265,42 @@ class Host(object):
             self.hosts[hostname][prop][subprop] = {}
         self.hosts[hostname][prop][subprop].update({key: value})
 
-    def add_trap(self, service, oid, data=None):
+    def add_trap(self, oid, state, service=None, message=None, conditions=None,
+                 directives=None):
         """
-        Add a SNMPT Trap handler (for snmptt).
-        @param service: the service description (nagios service)
-        @type service: C{str}
-        @param oid: as name. For identify snmp trap.
+        Add a trap handler.
+        @param oid: Trap to handle
         @type oid: C{str}
-        @param data: the dictionnary contains :
-            path to script to execute C{str},
-            label: snmp trap event name C{str}
-            address: ip address to match in snmptt C{str}
-            service: service description (nagios service) C{str} (to remove?)
-        @type data: C{dict}
+        @param state: State to use for this trap
+        @type state: C{str}
+        @param service: Service to update in Nagios
+        @type service: C{str}
+        @param message: Message associated with the trap
+        @type message: C{str}
+        @param conditions: Conditions for the trap
+        @type conditions: C{list}
+        @param directives: A dictionary of directives to be passed on
+            to Nagios.
+        @type  directives: C{dict}
         """
-        if data is None:
-            data = {}
-        if not self.hosts[self.name].has_key("snmpTrap"):
-            self.hosts[self.name]["snmpTrap"] = {}
-        if not self.hosts[self.name]["snmpTrap"].has_key(service):
-            self.hosts[self.name]["snmpTrap"][service] = {}
-        self.hosts[self.name]["snmpTrap"][service][oid] = {}
+        if conditions is None:
+            conditions = []
 
-        if not "address" in data.keys():
-            data["address"] = self.hosts[self.name]["address"]
-        for key, value in data.iteritems():
-            self.hosts[self.name]["snmpTrap"][service][oid].update({key: value})
+        if directives is None:
+            directives = {}
+
+        if service and service not in self.hosts[self.name]["services"]:
+            self.add_custom_service(service, "passive")
+
+        target = "nagiosSrvDirs" if service else "nagiosDirectives"
+        for (name, value) in directives.iteritems():
+            self.add_sub(self.name, target, service or "host", name, str(value))
+        self.add_sub(self.name, target, service or "host",
+                     "passive_checks_enabled", "1")
+
+        self.hosts[self.name]["snmpTrap"].setdefault(service, []).append(
+            (oid, state, message, conditions)
+        )
 
     def add_netflow(self, data=None):
         """

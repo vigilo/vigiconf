@@ -154,13 +154,13 @@ class HostMethods(unittest.TestCase):
 
     def test_add_trap(self):
         """Test for the add_trap method on hosts"""
-        data = {}
-        data["command"] = "test_path_to_script"
-        data["service"] = "test_serv"
-        data["label"] = "test.label"
-        self.host.add_trap("test_serv", "1.2.3.4.5.6.7.8.9", data)
-        trapdata = conf.hostsConf["testserver1"]["snmpTrap"]["test_serv"]
-        self.assertEqual(trapdata["1.2.3.4.5.6.7.8.9"]["label"], "test.label")
+        self.host.add_trap(".1.2.3", "CRITICAL", None, None, [])
+        expected = {
+            None: [
+                (".1.2.3", "CRITICAL", None, []),
+            ],
+        }
+        self.assertEqual(expected, conf.hostsConf["testserver1"]["snmpTrap"])
 
     def test_add_group(self):
         """Test for the add_group method on hosts"""
