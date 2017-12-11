@@ -271,6 +271,94 @@ class Test(object):
         pass
 
 
+class TestImporter(object):
+    """
+    Classe permettant le chargement des modules contenant les tests
+    de supervision de Vigilo
+    """
+
+    def __init__(self, paths):
+        """
+        Initialisation du chargeur de modules.
+
+        @param paths: Liste de chemins de recherche des tests.
+        @type paths: C{list}
+        """
+        self.paths = paths
+
+    def find_module(self, fullname, path):
+        """
+        Localise le chargeur à utiliser pour charger un module.
+
+        @param fullname: Nom complet du module
+        @type fullname: C{str}
+        @param path: Chemin sur le disque du module ayant demandé l'import.
+        @type path: C{str}
+        @return: Le chargeur permettant de charger le module, ou C{None}
+            si aucun chargeur spécialisé n'a pu être localisé.
+        """
+        if not fullname.startswith('vigilo.vigiconf.tests.'):
+            return None
+
+        # Génère l'emplacement du sous-dossier qui doit contenir
+        # le code à importer.
+        # Par exemple : "vigilo.vigiconf.tests.foo.bar.Test" -> ["foo", "bar"]
+        parent, sep_, mod_name = fullname.rpartition('.')
+        subdirs = parent.split(".")[3:]
+
+        # On tente d'obtenir un descripteur pointant vers le module.
+        try:
+            mod_info = imp.find_module(mod_name,
+                                       [os.path.join(path, *subdirs)
+                                        for path in self.paths])
+        except ImportError:
+            # Le test n'existe pas parmi nos chemins de recherche.
+            return None
+        return self
+
+    def load_module(self, fullname):
+        """
+        Procède au chargement d'un module et le retourne.
+
+        @param fullname: Nom complet du module à charger
+        @type fullname: C{str}
+        @return: Le module chargé ou C{None} en cas d'échec.
+        @rtype: C{module}
+        """
+        # Génère l'emplacement du sous-dossier qui doit contenir
+        # le code à importer.
+        # Par exemple : "vigilo.vigiconf.tests.foo.bar.Test" -> ["foo", "bar"]
+        parent, sep_, mod_name = fullname.rpartition('.')
+        subdirs = parent.split(".")[3:]
+
+        # On charge les parents si nécessaire
+        __import__(parent)
+
+        # On tente d'obtenir un descripteur pointant vers le module.
+        try:
+            mod_info = imp.find_module(mod_name,
+                                       [os.path.join(path, *subdirs)
+                                        for path in self.paths])
+        except ImportError:
+            # Le fichier n'existe nulle part.
+            raise
+
+        # Chargement et enregistrement du module
+        try:
+            mod = imp.load_module(fullname, *mod_info)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            raise
+        else:
+            return mod
+        finally:
+            # find_module() ouvre un descripteur de fichier
+            # en cas de succès et c'est à nous de le refermer.
+            if mod_info[0]:
+                mod_info[0].close()
+
+
 class TestFactory(object):
     """
     Handle our test library
@@ -290,6 +378,7 @@ class TestFactory(object):
         self.hclasschecks = {}
         self.path = self._list_test_paths(confdir)
         if not self.tests:
+            sys.meta_path.append(TestImporter(self.path))
             self.load_tests()
 
     def _list_test_paths(self, confdir):
@@ -306,7 +395,7 @@ class TestFactory(object):
                                })
                 continue
             paths.append(path)
-        paths.append(os.path.join(confdir, "tests"))
+        paths.insert(0, os.path.join(confdir, "tests"))
         return paths
 
     def _filter_tests(self, obj):
@@ -337,78 +426,36 @@ class TestFactory(object):
         for pathdir in self.path:
             if not os.path.exists(pathdir):
                 continue
+
             for hclass in os.listdir(pathdir):
                 if hclass.startswith("."):
                     continue
+
                 hclassdir = os.path.join(pathdir, hclass)
                 if not os.path.isdir(hclassdir):
                     continue
 
-                # On charge d'abord la classe d'équipements.
-                try:
-                    mod_info = imp.find_module(hclass, [pathdir])
-                except ImportError:
-                    LOGGER.warning(
-                        _('Invalid hostclass "%s". Missing __init__.py?') %
-                        hclass
-                    )
-                    continue
-                try:
-                    mod = imp.load_module(
-                            "vigilo.vigiconf.tests.%s" % hclass,
-                            *mod_info)
-                except KeyboardInterrupt:
-                    raise
-                except Exception as e:
-                    LOGGER.warning(
-                        _("Unable to load %(file)s: %(error)s") % {
-                            'file': hclassdir,
-                            'error': get_error_message(e),
-                         })
-                    continue
-
-                # Puis les tests qu'elle contient.
                 testfiles = set()
                 for testfile in os.listdir(hclassdir):
                     if (not testfile.endswith((".py", ".pyc", ".pyo"))) or \
                             testfile.startswith("__"):
                         continue
-                    mod_name = testfile.rpartition('.')[0]
+
                     # Évite de charger plusieurs fois le même test
                     # (depuis le .py et depuis le .pyc par exemple).
-                    if mod_name in testfiles:
-                        continue
-                    # Load the file and get the class name
-                    try:
-                        mod_info = imp.find_module(mod_name, [hclassdir])
-                    except ImportError:
-                        # On ignore silencieusement l'erreur.
+                    modname = testfile.rpartition('.')[0]
+                    if modname in testfiles:
                         continue
 
-                    try:
-                        mod = imp.load_module(
-                            "vigilo.vigiconf.tests.%s.%s" % (hclass, mod_name),
-                            *mod_info)
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception as e:
-                        raise
-                        LOGGER.warning(
-                            _("Unable to load %(file)s: %(error)s") % {
-                                'file': os.path.join(hclassdir, testfile),
-                                'error': get_error_message(e),
-                             })
-                    else:
-                        for current_test_name, current_test_class \
-                            in inspect.getmembers(mod, self._filter_tests):
-                            tests = self.tests.setdefault(current_test_name, {})
-                            tests[hclass] = current_test_class
-                        testfiles.add(mod_name)
-                    finally:
-                        # find_module() ouvre un descripteur de fichier
-                        # en cas de succès et c'est à nous de le refermer.
-                        if mod_info[0]:
-                            mod_info[0].close()
+                    fullname = "vigilo.vigiconf.tests.%s.%s" % (hclass, modname)
+                    __import__(fullname, level=0)
+                    mod = sys.modules[fullname]
+
+                    for current_test_name, current_test_class \
+                        in inspect.getmembers(mod, self._filter_tests):
+                        tests = self.tests.setdefault(current_test_name, {})
+                        tests[hclass] = current_test_class
+                    testfiles.add(modname)
 
     def get_testnames(self, hclasses=None):
         """

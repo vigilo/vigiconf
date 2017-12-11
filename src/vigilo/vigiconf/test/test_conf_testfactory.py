@@ -55,8 +55,8 @@ class TestFactoryTest(unittest.TestCase):
         sysadmin_path = os.path.join(settings["vigiconf"]["confdir"], "tests")
         print(self.testfactory.path)
         self.assertTrue(len(self.testfactory.path) >= 2)
-        self.assertEqual(self.testfactory.path[0], default_path)
-        self.assertEqual(self.testfactory.path[-1], sysadmin_path)
+        self.assertEqual(self.testfactory.path[0], sysadmin_path)
+        self.assertEqual(self.testfactory.path[1], default_path)
 
 
 class TestFactoryImportsTest(unittest.TestCase):
