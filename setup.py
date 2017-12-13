@@ -107,6 +107,7 @@ setup(name='vigilo-vigiconf',
         entry_points={
             'console_scripts': [
                 'vigiconf = vigilo.vigiconf.commandline:main',
+                'vigiconf-migrate = vigilo.vigiconf.migrate_tests_5_0_0:main',
                 ],
             'vigilo.vigiconf.applications': [
                 'collector = vigilo.vigiconf.applications.collector:Collector',
