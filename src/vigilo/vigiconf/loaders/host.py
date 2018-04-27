@@ -2,13 +2,16 @@
 # Copyright (C) 2007-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import print_function
 import os
+import sys
 import itertools
 
 from sqlalchemy import or_
 
 from vigilo.common.conf import settings
 from vigilo.common.logging import get_logger
+import logging
 LOGGER = get_logger(__name__)
 
 from vigilo.common.gettext import translate
@@ -169,6 +172,9 @@ class HostLoader(DBLoader):
         for graphgroup in DBSession.query(GraphGroup).all():
             graphgroups[graphgroup.name] = graphgroup
 
+        debug_mode = LOGGER.isEnabledFor(logging.DEBUG)
+        processed = 0
+        num_hosts = len(hostnames)
         for hostname in hostnames:
             hostdata = conf.hostsConf[hostname]
             host = hosts[hostname]
@@ -191,6 +197,15 @@ class HostLoader(DBLoader):
             LOGGER.debug("Loading graphs for host %s", hostname)
             graph_loader = GraphLoader(host, graphgroups)
             graph_loader.load()
+
+            # En mode debug, on n'affiche pas les indicateurs de progression
+            # car d'autres messages plus détaillés sont déjà affichés.
+            if not debug_mode:
+                print(".", end="", sep="")
+                sys.stdout.flush()
+                processed +=1
+                if processed % 50 == 0 or processed == num_hosts:
+                    print("%s [%d/%d]" % (' ' * ((50 - processed) % 50), processed, num_hosts))
 
         # Suppression des fichiers de configuration retirés du SVN
         # ainsi que de leurs hôtes (par CASCADE).
