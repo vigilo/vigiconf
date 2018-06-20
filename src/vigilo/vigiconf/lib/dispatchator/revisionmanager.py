@@ -37,13 +37,15 @@ class RevisionManager(object):
     """
     version_key = u'vigiconf.configuration'
 
-    def __init__(self, force=None):
+    def __init__(self, author=None, message=None, force=None):
         if force is None:
             force = ()
         self._status = None # cache
         self.force = force
         self.deploy_revision = "HEAD"
         self.command_class = SystemCommand
+        self.commit_author = author
+        self.commit_message = message
 
     def prepare(self):
         """
@@ -229,7 +231,12 @@ class RevisionManager(object):
             return 0
         confdir = settings["vigiconf"].get("confdir")
         _cmd = self._get_auth_svn_cmd_prefix('ci')
-        _cmd.extend(["-m", "Auto generate configuration %s" % confdir])
+        if self.commit_message:
+            _cmd.extend(["-m", "%s committed: %s" %
+                                (self.commit_author, self.commit_message)])
+        else:
+            _cmd.extend(["-m", "Auto-generated from %s on behalf of %s" %
+                                (confdir, self.commit_author)])
         _cmd.append(confdir)
         _command = self.command_class(_cmd)
         try:

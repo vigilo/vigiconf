@@ -41,7 +41,7 @@ def get_dispatchator_class():
         return DispatchatorLocal
 
 
-def make_dispatchator():
+def make_dispatchator(user=None, message=None):
     """
     I{Factory} du L{Dispatchator<base.Dispatchator>}. Retourne l'implémentation
     correspondante à l'édition de Vigilo utilisée.
@@ -54,7 +54,7 @@ def make_dispatchator():
     app_mgr = ApplicationManager()
     app_mgr.list()
     # revision
-    rev_mgr = RevisionManager()
+    rev_mgr = RevisionManager(user, message)
     # generators
     gen_mgr = GeneratorManager(app_mgr.applications)
     # instanciation

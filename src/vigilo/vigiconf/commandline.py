@@ -10,6 +10,7 @@ from __future__ import absolute_import, print_function
 
 import sys
 import os
+import pwd
 import textwrap
 import argparse
 import warnings
@@ -74,9 +75,9 @@ def flatten(lst):
             res.append(item)
     return res
 
-def get_dispatchator(args, restrict=True):
+def get_dispatchator(user, args, restrict=True):
     conf.load_general_conf(['general'])
-    dispatchator = make_dispatchator()
+    dispatchator = make_dispatchator(user, getattr(args, 'message', None))
     if restrict and args.server:
         try:
             dispatchator.restrict(args.server)
@@ -90,8 +91,8 @@ def get_dispatchator(args, restrict=True):
         LOGGER.warning(_("No server to manage."))
     return dispatchator
 
-def deploy(args):
-    dispatchator = get_dispatchator(args)
+def deploy(user, args):
+    dispatchator = get_dispatchator(user, args)
     conf.load_xml_conf()
     if args.simulate:
         settings["vigiconf"]["simulate"] = True
@@ -103,27 +104,27 @@ def deploy(args):
     dispatchator.force = tuple(flatten(args.force))
     dispatchator.run(stop_after=args.stop_after, with_dbonly=args.dbonly)
 
-def apps(args):
-    dispatchator = get_dispatchator(args)
+def apps(user, args):
+    dispatchator = get_dispatchator(user, args)
     if args.stop or args.restart:
         dispatchator.apps_mgr.start_or_stop("stop")
     if args.start or args.restart:
         dispatchator.apps_mgr.start_or_stop("start")
 
-#def undo(args):
+#def undo(user, args):
 #    args.revision = "PREV"
-#    return deploy(args)
-#    #dispatchator = get_dispatchator(args)
+#    return deploy(user, args)
+#    #dispatchator = get_dispatchator(user, args)
 #    #dispatchator.undo()
 
-def info(args):
-    dispatchator = get_dispatchator(args)
+def info(user, args):
+    dispatchator = get_dispatchator(user, args)
     state = dispatchator.getState()
     encoding = sys.getfilesystemencoding() or "ISO-8859-1"
     encoding = encoding.lower()
     print("\n".join([s.encode(encoding) for s in state]))
 
-def list_tests(args):
+def list_tests(user, args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory
     testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
     available_hclasses = sorted(testfactory.get_hclasses())
@@ -155,7 +156,7 @@ def list_tests(args):
         for line in wrapper.wrap(", ".join(testnames) + "."):
             print(line)
 
-def discover(args):
+def discover(user, args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory
     from vigilo.vigiconf.discoverator import Discoverator, indent
     from vigilo.vigiconf.discoverator import DiscoveratorError
@@ -181,8 +182,8 @@ def discover(args):
     if len(args.target) > 1:
         args.output.write("</hosts>\n")
 
-def server(args):
-    dispatchator = get_dispatchator(args, restrict=False)
+def server(user, args):
+    dispatchator = get_dispatchator(user, args, restrict=False)
     conf.load_xml_conf() # les générateurs (nagios) en ont besoin
     dispatchator.server_status(args.server, args.status, args.no_deploy)
 
@@ -289,6 +290,8 @@ def parse_args(): # pragma: no cover
                         default=[], const=force_choices,
                         help=N_("Force the given operations. This can be used "
                                 "to return VigiConf to a known good state."))
+    parser_deploy.add_argument("-m", "--message", default=None,
+                        help=N_("Add a reason/description for this deployment."))
     parser_deploy.add_argument("-n", "--dry-run", action="store_true",
                         dest="simulate",
                         help=N_("Simulate only, no copy will "
@@ -346,6 +349,7 @@ def change_user(username="vigiconf"): # pragma: no cover
     # unitaires (mock)
     # pylint: disable-msg=W0621,W0404
     import os, pwd
+
     uid = os.getuid()
     # Vigiconf est lancé en tant que "root",
     # on bascule sur un compte utilisateur
@@ -397,6 +401,18 @@ def main(): # pragma: no cover
         import logging
         LOGGER.parent.setLevel(logging.DEBUG)
 
+    # On mémorise l'identité de l'utilisateur ayant exécuté VigiConf,
+    # pour pouvoir assurer la traçabilité plus tard.
+    try:
+        uid = os.getuid()
+        user = pwd.getpwuid(uid).pw_name
+        # Si la commande semble avoir été exécutée via "sudo",
+        # on récupère l'identité de l'utilisateur initial.
+        if uid == 0 and os.environ.get('SUDO_USER'):
+            user = os.environ['SUDO_USER']
+    except:
+        user = None
+
     # Pour la commande discover, il n'est pas nécessaire de poser un verrou
     # ou de changer d'utilisateur car la commande ne se connecte pas en SSH
     # aux autres machines (voir #705).
@@ -413,7 +429,7 @@ def main(): # pragma: no cover
             sys.exit(1)
 
     try:
-        args.func(args)
+        args.func(user, args)
     except VigiConfError, e:
         if args.debug:
             LOGGER.exception(_("VigiConf error: %s"), e.value)
