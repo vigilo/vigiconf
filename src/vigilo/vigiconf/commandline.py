@@ -11,9 +11,9 @@ from __future__ import absolute_import, print_function
 import sys
 import os
 import pwd
-import textwrap
 import argparse
 import warnings
+from pkg_resources import working_set
 
 from vigilo.common.conf import settings
 settings.load_module(__name__)
@@ -128,15 +128,6 @@ def list_tests(user, args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory
     testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
     available_hclasses = sorted(testfactory.get_hclasses())
-    wrapper = textwrap.TextWrapper(
-        initial_indent=' ' * 4,
-        subsequent_indent=' ' * 4,
-        break_long_words=False,
-    )
-    print(_("Available host classes:"))
-    for line in wrapper.wrap(", ".join(available_hclasses) + "."):
-        print(line)
-
     if not args.classes:
         hclasses = available_hclasses
     else:
@@ -147,14 +138,13 @@ def list_tests(user, args):
             else:
                 hclasses.add(hclass)
 
-    if not hclasses:
-        return
-
-    for hclass in hclasses:
-        testnames = sorted(testfactory.get_testnames([hclass]))
-        print("\n" + (_("Tests for host class '%s':") % hclass))
-        for line in wrapper.wrap(", ".join(testnames) + "."):
-            print(line)
+    for ep in working_set.iter_entry_points('vigilo.vigiconf.lib.testdumpers', args.format):
+        func = ep.load()
+        func(testfactory, hclasses, available_hclasses)
+        sys.exit(0)
+    else:
+        LOGGER.error(_("Unknown format '%s'"), args.format)
+        sys.exit(1)
 
 def discover(user, args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory
@@ -213,12 +203,21 @@ def parse_args(): # pragma: no cover
                             "not specified."))
 
     # LIST-TESTS
+    supported_formats = set()
+    for ep in working_set.iter_entry_points('vigilo.vigiconf.lib.testdumpers'):
+        try:
+            ep.load()
+            supported_formats.add(ep.name)
+        except:
+            pass
     parser_list_tests = subparsers.add_parser("list-tests",
                     add_help=False,
                     parents=[common_args_parser],
                     help=N_("Lists tests available for certain host classes."))
     parser_list_tests.add_argument('classes', nargs='*',
                     help=N_("Host classes to query."))
+    parser_list_tests.add_argument("--format", choices=sorted(supported_formats),
+                        default='text', help=N_("Set the output format."))
     parser_list_tests.set_defaults(func=list_tests)
 
     # @deprecated: la commande 'apps' n'est pas utilisée en v2

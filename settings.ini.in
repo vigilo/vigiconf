@@ -66,7 +66,7 @@ propagate = 0
 class = StreamHandler
 level = DEBUG
 formatter = consoleFormatter
-args = (sys.stdout, )
+args = (sys.stderr, )
 
 [handler_syslog]
 class = handlers.SysLogHandler

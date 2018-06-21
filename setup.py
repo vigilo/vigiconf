@@ -109,6 +109,10 @@ setup(name='vigilo-vigiconf',
                 'vigiconf = vigilo.vigiconf.commandline:main',
                 'vigiconf-migrate = vigilo.vigiconf.migrate_tests_5_0_0:main',
                 ],
+            'vigilo.vigiconf.lib.testdumpers': [
+                'text = vigilo.vigiconf.lib.testdumpers.text:dump',
+                'json = vigilo.vigiconf.lib.testdumpers.json:dump',
+            ],
             'vigilo.vigiconf.applications': [
                 'collector = vigilo.vigiconf.applications.collector:Collector',
                 'connector-metro = vigilo.vigiconf.applications.connector_metro:ConnectorMetro',
