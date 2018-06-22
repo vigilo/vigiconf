@@ -279,8 +279,7 @@ La liste suivante décrit les méthodes appartenant à la deuxième catégorie
 
 :py:func:`add_trap`
     Ajoute un service passif dans Nagios, dont l'état changera sur réception
-    d'un trap SNMP. Cette méthode ajoute également des éléments de configuration
-    dans le fichier :file:`snmptt.conf` utilisé pour traiter les traps SNMP.
+    d'un trap SNMP.
 
 ..  note::
     Un service Nagios actif est un service pour lequel l'exécution du test
