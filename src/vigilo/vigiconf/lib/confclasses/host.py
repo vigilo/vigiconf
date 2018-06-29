@@ -731,14 +731,14 @@ class Host(object):
             raise VigiConfError(_("Cannot override general configuration."))
         # Ajout de la configuration générale du collector-telnet.
         if "General" not in self.hosts[self.name].get("telnetJobs"):
-            oxe_login = self.get_attribute("oxe_login", None)
-            oxe_pass = self.get_attribute("oxe_password", None)
+            telnetLogin = self.get_attribute("telnetLogin", None)
+            telnetPassword = self.get_attribute("telnetPassword", None)
             timeout = self.get_attribute("timeout", 10)
             prompt_timeout = self.get_attribute("prompt_timeout", 5)
 
-            if oxe_login is None or oxe_pass is None:
+            if telnetLogin is None or telnetPassword is None:
                 raise VigiConfError(
-                    _("oxe_login and oxe_password cannot be empty")
+                    _("telnetLogin and telnetPassword cannot be empty")
                 )
 
             error_msg = _("Value for '%(attr)s' (%(value)s) could not be cast "
@@ -766,8 +766,8 @@ class Host(object):
                 prompt_timeout = default
 
             self.add(self.name, "telnetJobs", "General", {
-                "login": oxe_login,
-                "pass": oxe_pass,
+                "login": telnetLogin,
+                "pass": telnetPassword,
                 "timeout": timeout,
                 "prompt_timeout": prompt_timeout,
             })
