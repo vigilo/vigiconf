@@ -71,7 +71,6 @@ class Host(object):
                 "metro_services" : {},
                 "graphItems"     : {},
                 "routeItems"     : {},
-                "trapItems"      : {},
                 "snmpTrap"       : {},
                 "netflow"        : {},
                 "graphGroups"    : {},
