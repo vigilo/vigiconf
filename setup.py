@@ -84,7 +84,7 @@ def get_data_files():
 
 
 setup(name='vigilo-vigiconf',
-        version='4.0.3',
+        version='4.0.4',
         author='Vigilo Team',
         author_email='contact@projet-vigilo.org',
         url='http://www.projet-vigilo.org/',
