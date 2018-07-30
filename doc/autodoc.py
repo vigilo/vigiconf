@@ -225,11 +225,21 @@ def write_autodoc():
             else:
                 type_info = ''
 
-            param_doc = "* %s**%s**: %s. Valeur par défaut: %r" % (
+            param_doc = tests_doc[test]['optional_params'][param]['doc'].rstrip('.')
+            param_def = tests_doc[test]['optional_params'][param]['default']
+
+            if isinstance(type_info, unicode):
+                type_info = type_info.encode('utf-8')
+            if isinstance(param_doc, unicode):
+                param_doc = param_doc.encode('utf-8')
+            if isinstance(param_def, unicode):
+                param_def = param_def.encode('utf-8')
+
+            param_doc = "* %s**%s**: %s. Valeur par défaut: %s" % (
                     type_info,
                     param,
-                    tests_doc[test]['optional_params'][param]['doc'].rstrip('.'),
-                    tests_doc[test]['optional_params'][param]['default'],
+                    param_doc,
+                    param_def,
                 )
             cells[1].append(param_doc)
 
