@@ -412,21 +412,22 @@ def main(): # pragma: no cover
     except:
         user = None
 
-    # Pour la commande discover, il n'est pas nécessaire de poser un verrou
-    # ou de changer d'utilisateur car la commande ne se connecte pas en SSH
-    # aux autres machines (voir #705).
+    # Pour la commande discover, on ne change pas d'utilisateur
+    # pour éviter une erreur lorsque le fichier de destination
+    # n'est pas accessible par l'utilisateur "vigiconf" (cf. #705).
     if args.func != discover and not args.nochuid:
         change_user()
 
-    LOGGER.debug("VigiConf starting...")
-
-    if args.func != discover:
+    # Pour les commandes basiques qui ne font pas d'écritures,
+    # il n'est pas nécessaire de poser un verrou.
+    if args.func not in (list_tests, discover):
         lockfile = settings["vigiconf"].get("lockfile",
                             "/var/lock/subsys/vigilo-vigiconf/vigiconf.token")
         lock_result = grab_lock(lockfile)
         if not lock_result:
             sys.exit(1)
 
+    LOGGER.debug("VigiConf starting...")
     try:
         args.func(user, args)
     except VigiConfError, e:
