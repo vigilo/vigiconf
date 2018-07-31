@@ -12,21 +12,19 @@ _ = translate(__name__)
 class Ping(Test):
     """Check if a host is up with a ping"""
 
-    def add_test(self, warn=None, crit=None):
+    def add_test(self, warn=(3000, 20), crit=(5000, 100)):
         """
         @param warn: La limite WARNING sous la forme d'une liste contenant
-            deux éléments : C{round_trip_average, packet_loss_percent}
+            deux éléments. Le premier élément correspond aux RTA (temps moyen
+            d'aller-retour d'un paquet en millisecondes). Le second élément
+            correspond au pourcentage de perte de paquets (entre 0 et 100).
         @type  warn: C{list}
         @param crit: La limite CRITICAL sous la forme d'une liste contenant
-            deux éléments : C{round_trip_average, packet_loss_percent}
+            deux éléments. Le premier élément correspond aux RTA (temps moyen
+            d'aller-retour d'un paquet en millisecondes). Le second élément
+            correspond au pourcentage de perte de paquets (entre 0 et 100).
         @type  crit: C{list}
         """
-        # Seuils par défaut.
-        if warn is None:
-            warn = (3000, 20)
-        if crit is None:
-            crit = (5000, 100)
-
         # Validation des arguments.
         thresholds = {'warn': warn, 'crit': crit}
         for param, value in thresholds.iteritems():
