@@ -79,6 +79,7 @@ class Host(object):
                 "snmpCommunity"  : "public",
                 "snmpPort"       : 161,
                 "snmpOIDsPerPDU" : 10,
+                "collectorTimeout": 3,
                 "nagiosDirectives": {
                     "host": {
                         "check_command": "check-host-alive",
@@ -91,6 +92,7 @@ class Host(object):
             }
         self.attr_types = {"snmpPort": int,
                            "snmpOIDsPerPDU": int,
+                           "collectorTimeout": int,
                           }
         self.deprecated_attr = {
             "community": "snmpCommunity",
