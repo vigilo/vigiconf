@@ -443,6 +443,11 @@ class HostTemplateFactory(object):
         try:
             tpl = self.templates[tplname]
         except (KeyError, ValueError):
+            # Le template "default" est ajouté automatiquement
+            # aux machines/autres templates.
+            # On ne veut pas déclencher une erreur s'il n'est pas défini.
+            if tplname == "default":
+                return
             raise ParsingError(_('Can\'t add template "%(template)s" to host '
                                  '"%(hostname)s": no such template') % {
                                     "template": tplname,

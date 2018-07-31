@@ -989,6 +989,7 @@ class HostFactory(object):
                         address,
                         ventilation
                     )
+
                     self.hosttemplatefactory.apply(cur_host, "default")
 
                 elif elem.tag == "nagios":
