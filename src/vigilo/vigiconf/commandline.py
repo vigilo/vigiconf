@@ -146,16 +146,18 @@ def list_tests(user, args):
         LOGGER.error(_("Unknown format '%s'"), args.format)
         sys.exit(1)
 
+
 def discover(user, args):
     from vigilo.vigiconf.lib.confclasses.test import TestFactory
     from vigilo.vigiconf.discoverator import Discoverator, indent
     from vigilo.vigiconf.discoverator import DiscoveratorError
     from vigilo.vigiconf.discoverator import SnmpwalkNotInstalled
+
     testfactory = TestFactory(confdir=settings["vigiconf"].get("confdir"))
     discoverator = Discoverator(testfactory, args.group)
     discoverator.testfactory.load_hclasses_checks()
-    if len(args.target) > 1:
-        args.output.write("<hosts>\n")
+
+    root = ET.Element("hosts")
     for target in args.target:
         try:
             discoverator.scan(target, args.community, args.version)
@@ -167,10 +169,10 @@ def discover(user, args):
             LOGGER.error(e.value)
         discoverator.detect(args.test)
         elements = discoverator.declaration()
-        indent(elements)
-        args.output.write(ET.tostring(elements, encoding="utf8"))
-    if len(args.target) > 1:
-        args.output.write("</hosts>\n")
+        root.append(elements)
+    indent(root)
+    args.output.write(ET.tostring(root, encoding="utf8"))
+
 
 def server(user, args):
     dispatchator = get_dispatchator(user, args, restrict=False)
