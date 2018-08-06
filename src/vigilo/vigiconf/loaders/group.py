@@ -54,8 +54,7 @@ class GroupLoader(XMLLoader):
         hierarchy = {}
         for grouphierarchy in instances:
             parent = grouphierarchy[0]
-            # TODO: cette variable ne semble pas utilisée ?
-            parent_name = groupnames.setdefault(
+            groupnames.setdefault(
                 parent.idgroup,
                 parent.name
                     .replace('\\', '\\\\')
