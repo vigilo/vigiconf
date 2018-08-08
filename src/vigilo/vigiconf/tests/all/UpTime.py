@@ -3,10 +3,12 @@
 # Copyright (C) 2011-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import unicode_literals
+
+from vigilo.vigiconf.lib.confclasses.validators import arg, Threshold
 from vigilo.vigiconf.lib.confclasses.test import Test
 from vigilo.vigiconf.lib import VigiConfError
-
-from vigilo.common.gettext import translate
+from vigilo.common.gettext import translate, l_
 _ = translate(__name__)
 
 
@@ -16,29 +18,25 @@ class UpTime(Test):
 
     oids = [".1.3.6.1.2.1.1.3.0"]
 
+    @arg(
+        'warn', Threshold,
+        l_('WARNING threshold'),
+        l_("""
+            A WARNING alarm will be generated if the duration (in seconds)
+            since the device or SNMP agent's last restart is outside the
+            specified threshold.
+        """)
+    )
+    @arg(
+        'crit', Threshold,
+        l_('CRITICAL threshold'),
+        l_("""
+            A CRITICAL alarm will be generated if the duration (in seconds)
+            since the device or SNMP agent's last restart is outside the
+            specified threshold.
+        """)
+    )
     def add_test(self, warn=900, crit=400):
-        """
-        Teste la disponibilité de l'équipement (durée depuis son dernier
-        redémarrage, ou en réalité, depuis le dernier redémarrage de
-        son agent SNMP).
-
-        @param warn: Durée en secondes pendant laquelle une alerte
-            de niveau WARNING est émise après le redémarrage
-            de l'équipement ou de l'agent SNMP.
-        @type  warn: C{int}
-        @param crit: Durée en secondes pendant laquelle une alerte
-            de niveau CRITICAL est émise après le redémarrage
-            de l'équipement ou de l'agent SNMP.
-            Cette valeur doit être strictement inférieure à celle
-            du paramètre L{warn}.
-        @type  crit: C{int}
-        """
-        warn = self.as_int(warn)
-        crit = self.as_int(crit)
-
-        if warn < 0 or crit < 0 or warn < crit:
-            raise VigiConfError(_('Invalid thresholds. Expected 0 < crit < warn'))
-
         self.add_collector_service("UpTime", "sysUpTime", [crit, warn],
                             ["GET/.1.3.6.1.2.1.1.3.0"])
         self.add_collector_metro("sysUpTime", "m_sysUpTime", [],

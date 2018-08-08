@@ -3,22 +3,19 @@
 # Copyright (C) 2011-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import unicode_literals
+
+from vigilo.vigiconf.lib.confclasses.validators import arg, Integer
 from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class CPU(Test):
     """Check the CPU usage of a host (service only)"""
 
+    @arg('warn', Integer, l_('WARNING threshold'))
+    @arg('crit', Integer, l_('CRITICAL threshold'))
     def add_test(self, warn=70, crit=90):
-        """
-        @param warn: WARNING threshold
-        @type  warn: C{float}
-        @param crit: CRITICAL threshold
-        @type  crit: C{float}
-        """
-        warn = self.as_float(warn)
-        crit = self.as_float(crit)
-
         self.add_external_sup_service( "Sys CPU",
                     "check_nrpe!check_cpu_args!%s %s %d" %
                     (warn, crit, True) )

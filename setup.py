@@ -26,6 +26,7 @@ if tuple(python_version_tuple()) < ('2', '6'):
 if tuple(python_version_tuple()) < ('2', '7'):
     install_requires.append("initgroups")
     install_requires.append("argparse")
+    install_requires.append("ordereddict")
 
 tests_require = [
     'coverage',

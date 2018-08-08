@@ -3,9 +3,15 @@
 # Copyright (C) 2006-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import unicode_literals
+
 import re
 
+from vigilo.vigiconf.lib.confclasses.validators import (
+    arg, String, Threshold, Bool, Integer
+)
 from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 
@@ -14,26 +20,51 @@ class Partition(Test):
 
     oids = [".1.3.6.1.2.1.25.2.3.1.3"]
 
-    def add_test(self, label, partname, max=None, warn=80, crit=95, percent=True):
-        """
-        @param label:    the displayed name for the partition (ex: C{Data})
-        @type  label     C{str}
-        @param partname: the SNMP name of the partition (ex: C{/var})
-        @type  partname: C{str}
-        @param max:      total size of the partition
-        @type  max:      C{int}
-        @param warn:     WARNING threshold
-        @type  warn:     C{float}
-        @param crit:     CRITICAL threshold
-        @type  crit:     C{float}
-        @param percent:  if True, the thresholds apply to the percent. If
-            C{False}, they apply to the number of bytes
-        @type  percent:  C{bool}
-        """
-        warn = self.as_float(warn)
-        crit = self.as_float(crit)
-        percent = self.as_bool(percent)
+    @arg(
+        'warn', Threshold,
+        l_('WARNING threshold'),
+        l_("""
+            Trigger a WARNING alarm whenever the amount
+            of remaining free space is outside the configured threshold.
+        """)
+    )
+    @arg(
+        'crit', Threshold,
+        l_('CRITICAL threshold'),
+        l_("""
+            Trigger a CRITICAL alarm whenever the amount
+            of remaining free space is outside the configured threshold.
+        """)
+    )
+    @arg(
+        'label', String,
+        l_('Display name'),
+        l_("""
+            Name to display in the GUI.
 
+            This setting also controls the name of the service
+            created in Nagios (service_description).
+        """)
+    )
+    @arg(
+        'partname', String,
+        l_('Partition name'),
+        l_("SNMP name for the partition (eg. C{/var})")
+    )
+    @arg(
+        'max', Integer(min=0),
+        l_('Total size'),
+        l_("Total size of the partition (in bytes)")
+    )
+    @arg(
+        'percent', Bool,
+        l_('Use percentages'),
+        l_("""
+            If enabled, the WARNING and CRITICAL thresholds use percentages.
+            Otherwise, they represent the minimum free space expected in bytes.
+        """)
+    )
+    def add_test(self, label, partname, max=None, warn=80, crit=95, percent=True):
         self.add_collector_service("Partition %s" % label, "storage",
                     [partname, warn, crit, int(percent)],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.3",
@@ -44,7 +75,7 @@ class Partition(Test):
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.4",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.6",
                      "WALK/.1.3.6.1.2.1.25.2.3.1.3"],
-                    'GAUGE', label=label, max_value=max)
+                    'GAUGE', label=label, max_value=max or None)
         self.add_graph("%s partition usage" % label, [ "%s part"%label ],
                        "lines", "bytes", "Storage")
 

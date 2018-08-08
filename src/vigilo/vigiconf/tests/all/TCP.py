@@ -3,22 +3,33 @@
 # Copyright (C) 2011-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-from vigilo.vigiconf.lib.confclasses.test import Test
+from __future__ import unicode_literals
 
+from vigilo.vigiconf.lib.confclasses.validators import arg, String, Port
+from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class TCP(Test):
     """Check if the requested TCP port is open"""
 
+    @arg(
+        'label', String,
+        l_('Display name'),
+        l_("""
+            Name to display in the GUI.
+
+            This settings also controls the name of the service
+            created in Nagios (service_description).
+        """)
+    )
+    @arg(
+        'port', Port,
+        l_('Port number'),
+        l_("TCP port to test")
+    )
     def add_test(self, port, label=None):
-        """
-        @param port:  TCP port to test
-        @type  port:  C{int}
-        @param label: Service name
-        @type  label: C{str}
-        """
-        port = self.as_int(port)
-        if label is None:
+        if not label:
             label = "TCP %d" % port
         self.add_external_sup_service(label, "check_tcp!%d" % port)
 

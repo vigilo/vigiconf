@@ -3,8 +3,11 @@
 # Copyright (C) 2006-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-from vigilo.vigiconf.lib.confclasses.test import Test
+from __future__ import unicode_literals
 
+from vigilo.vigiconf.lib.confclasses.validators import arg, Float
+from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class Load(Test):
@@ -12,20 +15,25 @@ class Load(Test):
 
     oids = [".1.3.6.1.4.1.2021.10.1.5.1"]
 
+    @arg(
+        'warn', Float,
+        l_('WARNING threshold'),
+        l_("""
+            The WARNING and CRITICAL thresholds apply to the "Load 01" value,
+            and are automatically computed for the "Load 05" and "Load 15"
+            values by removing respectively 1 and 2 units.
+        """)
+    )
+    @arg(
+        'crit', Float,
+        l_('CRITICAL threshold'),
+        l_("""
+            The WARNING and CRITICAL thresholds apply to the "Load 01" value,
+            and are automatically computed for the "Load 05" and "Load 15"
+            values by removing respectively 1 and 2 units.
+        """)
+    )
     def add_test(self, warn=20, crit=30):
-        """
-        The warning and critical thresholds apply to the "Load 01" value,
-        and are automatically computed for the "Load 05" and "Load 15"
-        values by removing respectively 1 and 2 units.
-
-        @param warn:    WARNING threshold
-        @type  warn:    C{float}
-        @param crit:    CRITICAL threshold
-        @type  crit:    C{float}
-        """
-        warn = self.as_float(warn)
-        crit = self.as_float(crit)
-
         # Load 01
         self.add_collector_service("Load 01", "simple_factor",
                     [warn, crit, 1.0/100, "Load: %2.2f"],

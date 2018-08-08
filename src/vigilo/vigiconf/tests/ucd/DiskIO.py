@@ -3,12 +3,43 @@
 # Copyright (C) 2006-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import unicode_literals
+
+from vigilo.vigiconf.lib.confclasses.validators import (
+    arg, List, Threshold, String
+)
 from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class DiskIO(Test):
     """Monitor the disks Input/Output"""
 
+    @arg(
+        'warn', List(min=0, max=2, types=Threshold),
+        l_('WARNING threshold'),
+        l_("""
+            A list containing up to 2 thresholds for the WARNING state.
+            The first threshold applies to reads.
+            The second threshold applies to writes.
+
+            Note: the number of WARNING and CRITICAL thresholds
+            must be the same.
+        """)
+    )
+    @arg(
+        'crit', List(min=0, max=2, types=Threshold),
+        l_('CRITICAL threshold'),
+        l_("""
+            A list containing up to 2 thresholds for the CRITICAL state.
+            The first threshold applies to reads.
+            The second threshold applies to writes.
+
+            Note: the number of WARNING and CRITICAL thresholds
+            must be the same.
+        """)
+    )
+    @arg('diskname', String, l_('Disk name'))
     def add_test(self, diskname="hdisk0", warn=None, crit=None):
         """
         @param diskname: disk name

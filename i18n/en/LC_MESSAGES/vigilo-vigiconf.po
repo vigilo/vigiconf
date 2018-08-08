@@ -1,72 +1,69 @@
 # English translations for vigilo-vigiconf.
-# Copyright (C) 2017 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the vigilo-vigiconf
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: vigilo-vigiconf 4.1.0\n"
 "Report-Msgid-Bugs-To: contact.vigilo@c-s.fr\n"
-"POT-Creation-Date: 2017-10-30 17:20+0100\n"
-"PO-Revision-Date: 2017-10-30 17:20+0100\n"
+"POT-Creation-Date: 2018-08-09 15:25+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.4\n"
+"Generated-By: Babel 2.5.1\n"
 
-#: src/vigilo/vigiconf/commandline.py:57
+#: src/vigilo/vigiconf/commandline.py:58
 #, python-format
 msgid "%(option)s has been deprecated. Please use --stop-after=%(value)s instead."
 msgstr "%(option)s has been deprecated. Please use --stop-after=%(value)s instead."
 
-#: src/vigilo/vigiconf/commandline.py:87
+#: src/vigilo/vigiconf/commandline.py:88
 #, python-format
 msgid "ERROR: %s"
 msgstr "ERROR: %s"
 
-#: src/vigilo/vigiconf/commandline.py:90
+#: src/vigilo/vigiconf/commandline.py:91
 msgid "No server to manage."
 msgstr "No server to manage."
 
-#: src/vigilo/vigiconf/commandline.py:135
-msgid "Available host classes:"
-msgstr "Available host classes:"
-
-#: src/vigilo/vigiconf/commandline.py:145
+#: src/vigilo/vigiconf/commandline.py:137
 #, python-format
 msgid "No such host class '%s'"
 msgstr "No such host class '%s'"
 
-#: src/vigilo/vigiconf/commandline.py:154
+#: src/vigilo/vigiconf/commandline.py:146
 #, python-format
-msgid "Tests for host class '%s':"
-msgstr "Tests for host class '%s':"
+msgid "Unknown format '%s'"
+msgstr "Unknown format '%s'"
 
-#: src/vigilo/vigiconf/commandline.py:194
+#: src/vigilo/vigiconf/commandline.py:187
 msgid "Debug mode."
 msgstr "Debug mode."
 
-#: src/vigilo/vigiconf/commandline.py:196
+#: src/vigilo/vigiconf/commandline.py:189
 msgid "Don't try to switch to the correct user."
 msgstr "Don't try to switch to the correct user."
 
-#: src/vigilo/vigiconf/commandline.py:201
+#: src/vigilo/vigiconf/commandline.py:194
 msgid "Vigilo configuration manager"
 msgstr "Vigilo configuration manager"
 
-#: src/vigilo/vigiconf/commandline.py:202
+#: src/vigilo/vigiconf/commandline.py:195
 msgid "Subcommands"
 msgstr "Subcommands"
 
-#: src/vigilo/vigiconf/commandline.py:208
+#: src/vigilo/vigiconf/commandline.py:201
 msgid "Prints a summary of the current configuration."
 msgstr "Prints a summary of the current configuration."
 
-#: src/vigilo/vigiconf/commandline.py:211
+#: src/vigilo/vigiconf/commandline.py:204
 msgid "Supervision servers to query, all of them if not specified."
 msgstr "Supervision servers to query, all of them if not specified."
 
@@ -78,11 +75,15 @@ msgstr "Lists tests available for certain host classes."
 msgid "Host classes to query."
 msgstr "Host classes to query."
 
-#: src/vigilo/vigiconf/commandline.py:264
+#: src/vigilo/vigiconf/commandline.py:222
+msgid "Set the output format."
+msgstr "Set the output format."
+
+#: src/vigilo/vigiconf/commandline.py:266
 msgid "Deploys the configuration on each server if the configuration has changed."
 msgstr "Deploys the configuration on each server if the configuration has changed."
 
-#: src/vigilo/vigiconf/commandline.py:270
+#: src/vigilo/vigiconf/commandline.py:272
 msgid ""
 "[DEPRECATED] Stop the process after the file generation, before pushing "
 "the files."
@@ -90,7 +91,7 @@ msgstr ""
 "[DEPRECATED] Stop the process after the file generation, before pushing "
 "the files."
 
-#: src/vigilo/vigiconf/commandline.py:276
+#: src/vigilo/vigiconf/commandline.py:278
 msgid ""
 "[DEPRECATED] Stop after pushing the files to the remote servers, before "
 "services are restarted."
@@ -98,20 +99,20 @@ msgstr ""
 "[DEPRECATED] Stop after pushing the files to the remote servers, before "
 "services are restarted."
 
-#: src/vigilo/vigiconf/commandline.py:281
+#: src/vigilo/vigiconf/commandline.py:283
 msgid "OPERATION"
 msgstr "OPERATION"
 
-#: src/vigilo/vigiconf/commandline.py:282
+#: src/vigilo/vigiconf/commandline.py:284
 #, python-format
 msgid "Stop after the given OPERATION (one of '%s')"
 msgstr "Stop after the given OPERATION (one of '%s')"
 
-#: src/vigilo/vigiconf/commandline.py:285
+#: src/vigilo/vigiconf/commandline.py:287
 msgid "Deploy the given revision"
 msgstr "Deploy the given revision"
 
-#: src/vigilo/vigiconf/commandline.py:290
+#: src/vigilo/vigiconf/commandline.py:292
 msgid ""
 "Force the given operations. This can be used to return VigiConf to a "
 "known good state."
@@ -119,11 +120,15 @@ msgstr ""
 "Force the given operations. This can be used to return VigiConf to a "
 "known good state."
 
-#: src/vigilo/vigiconf/commandline.py:294
+#: src/vigilo/vigiconf/commandline.py:295
+msgid "Add a reason/description for this deployment."
+msgstr "Add a reason/description for this deployment."
+
+#: src/vigilo/vigiconf/commandline.py:298
 msgid "Simulate only, no copy will actually be made, no commit in the database."
 msgstr "Simulate only, no copy will actually be made, no commit in the database."
 
-#: src/vigilo/vigiconf/commandline.py:298
+#: src/vigilo/vigiconf/commandline.py:302
 msgid ""
 "Disable generators marked as requiring only the database to operate "
 "(dbonly)."
@@ -131,38 +136,38 @@ msgstr ""
 "Disable generators marked as requiring only the database to operate "
 "(dbonly)."
 
-#: src/vigilo/vigiconf/commandline.py:301
+#: src/vigilo/vigiconf/commandline.py:305
 msgid "Supervision servers to deploy to, all of them if not specified."
 msgstr "Supervision servers to deploy to, all of them if not specified."
 
-#: src/vigilo/vigiconf/commandline.py:308
+#: src/vigilo/vigiconf/commandline.py:312
 msgid "Discover the services available on a remote server."
 msgstr "Discover the services available on a remote server."
 
-#: src/vigilo/vigiconf/commandline.py:313
+#: src/vigilo/vigiconf/commandline.py:317
 msgid "Output file. Default: standard output."
 msgstr "Output file. Default: standard output."
 
-#: src/vigilo/vigiconf/commandline.py:315
+#: src/vigilo/vigiconf/commandline.py:319
 #, python-format
 msgid "SNMP community. Default: %(default)s."
 msgstr "SNMP community. Default: %(default)s."
 
-#: src/vigilo/vigiconf/commandline.py:317
+#: src/vigilo/vigiconf/commandline.py:321
 #, python-format
 msgid "SNMP version. Default: %(default)s."
 msgstr "SNMP version. Default: %(default)s."
 
-#: src/vigilo/vigiconf/commandline.py:319
+#: src/vigilo/vigiconf/commandline.py:323
 #, python-format
 msgid "Main group. Default: %(default)s."
 msgstr "Main group. Default: %(default)s."
 
-#: src/vigilo/vigiconf/commandline.py:321
+#: src/vigilo/vigiconf/commandline.py:325
 msgid "Tests to check."
 msgstr "Tests to check."
 
-#: src/vigilo/vigiconf/commandline.py:323
+#: src/vigilo/vigiconf/commandline.py:327
 msgid ""
 "Hosts or files to scan. The files must be the result of an snmpwalk "
 "command on the '.1' OID with the '-OnQe' options."
@@ -170,65 +175,65 @@ msgstr ""
 "Hosts or files to scan. The files must be the result of an snmpwalk "
 "command on the '.1' OID with the '-OnQe' options."
 
-#: src/vigilo/vigiconf/commandline.py:331
+#: src/vigilo/vigiconf/commandline.py:335
 msgid "Enables or disables a Vigilo server"
 msgstr "Enables or disables a Vigilo server"
 
-#: src/vigilo/vigiconf/commandline.py:334
+#: src/vigilo/vigiconf/commandline.py:338
 msgid "Don't re-deploy the configuration, only set the status."
 msgstr "Don't re-deploy the configuration, only set the status."
 
-#: src/vigilo/vigiconf/commandline.py:337
+#: src/vigilo/vigiconf/commandline.py:341
 msgid "New status"
 msgstr "New status"
 
-#: src/vigilo/vigiconf/commandline.py:339
+#: src/vigilo/vigiconf/commandline.py:343
 msgid "Server name(s) to enable/disable"
 msgstr "Server name(s) to enable/disable"
 
-#: src/vigilo/vigiconf/commandline.py:354
+#: src/vigilo/vigiconf/commandline.py:359
 #, python-format
 msgid "VigiConf was launched as user 'root'. Switching to user '%s' instead."
 msgstr "VigiConf was launched as user 'root'. Switching to user '%s' instead."
 
-#: src/vigilo/vigiconf/commandline.py:359
+#: src/vigilo/vigiconf/commandline.py:364
 #, python-format
 msgid "Unable to switch to user '%s'. Aborting."
 msgstr "Unable to switch to user '%s'. Aborting."
 
-#: src/vigilo/vigiconf/commandline.py:384
+#: src/vigilo/vigiconf/commandline.py:389
 #, python-format
 msgid "VigiConf was not launched as user '%s'. Aborting."
 msgstr "VigiConf was not launched as user '%s'. Aborting."
 
-#: src/vigilo/vigiconf/commandline.py:419
-#: src/vigilo/vigiconf/commandline.py:421
+#: src/vigilo/vigiconf/commandline.py:437
+#: src/vigilo/vigiconf/commandline.py:439
 #, python-format
 msgid "VigiConf error: %s"
 msgstr "VigiConf error: %s"
 
-#: src/vigilo/vigiconf/commandline.py:425
+#: src/vigilo/vigiconf/commandline.py:443
 msgid "VigiConf is done."
 msgstr "VigiConf is done."
 
-#: src/vigilo/vigiconf/conf.py:98
+#: src/vigilo/vigiconf/conf.py:105
 msgid "Loading XML configuration"
 msgstr "Loading XML configuration"
 
-#: src/vigilo/vigiconf/conf.py:112
+#: src/vigilo/vigiconf/conf.py:119
 msgid "Error loading configuration"
 msgstr "Error loading configuration"
 
-#: src/vigilo/vigiconf/discoverator.py:146
+#: src/vigilo/vigiconf/discoverator.py:147
 #, python-format
 msgid "%s: No such file"
 msgstr "%s: No such file"
 
-#: src/vigilo/vigiconf/discoverator.py:151
+#: src/vigilo/vigiconf/discoverator.py:152
 msgid "Can't find the hostname using SNMPv2-MIB::sysName.0"
 msgstr "Can't find the hostname using SNMPv2-MIB::sysName.0"
 
-#: src/vigilo/vigiconf/discoverator.py:155
+#: src/vigilo/vigiconf/discoverator.py:156
 #, python-format
 msgid ""
 "Invalid HOSTNAME detected in SNMPv2-MIB::sysName.0: \"%s\" (blank "
@@ -237,11 +242,11 @@ msgstr ""
 "Invalid HOSTNAME detected in SNMPv2-MIB::sysName.0: \"%s\" (blank "
 "character not allowed)"
 
-#: src/vigilo/vigiconf/discoverator.py:185
+#: src/vigilo/vigiconf/discoverator.py:186
 msgid "The \"snmpwalk\" command is not installed."
 msgstr "The \"snmpwalk\" command is not installed."
 
-#: src/vigilo/vigiconf/discoverator.py:189
+#: src/vigilo/vigiconf/discoverator.py:190
 #, python-format
 msgid ""
 "SNMP walk command failed with error status %(status)s and message:\n"
@@ -500,13 +505,13 @@ msgstr ""
 msgid "%(filesWritten)d files have been generated in %(dirsCreated)d directories"
 msgstr "%(filesWritten)d files have been generated in %(dirsCreated)d directories"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:55
+#: src/vigilo/vigiconf/lib/confclasses/host.py:52
 #, python-format
 msgid "Host '%(host)s' defined in multiple files (%(file1)s and %(file2)s)"
 msgstr "Host '%(host)s' defined in multiple files (%(file1)s and %(file2)s)"
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:129
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:145
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:134
 #, python-format
 msgid ""
 "The \"%(old_attribute)s\" attribute has been deprecated. Please use "
@@ -520,34 +525,34 @@ msgstr ""
 msgid "In host %(host)s: attribute name %(attribute)s is reserved"
 msgstr "In host %(host)s: attribute name %(attribute)s is reserved"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:191
+#: src/vigilo/vigiconf/lib/confclasses/host.py:193
 #, python-format
 msgid ""
-"Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
-"%(args)s (and only those)"
+"Test \"%(class)s.%(test)s\" on \"%(host)s\" needs the following "
+"arguments: %(args)s"
 msgstr ""
-"Test \"%(test_name)s\" on \"%(host)s\" needs the following arguments: "
-"%(args)s (and only those)"
+"Test \"%(class)s.%(test)s\" on \"%(host)s\" needs the following "
+"arguments: %(args)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:516
+#: src/vigilo/vigiconf/lib/confclasses/host.py:520
 #, python-format
 msgid "host '%(host)s': wrong datasource in graph '%(graph)s': %(ds)s"
 msgstr "host '%(host)s': wrong datasource in graph '%(graph)s': %(ds)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:540
+#: src/vigilo/vigiconf/lib/confclasses/host.py:544
 #, python-format
 msgid "CDEF name must be ASCII-only: %s"
 msgstr "CDEF name must be ASCII-only: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:729
+#: src/vigilo/vigiconf/lib/confclasses/host.py:733
 msgid "Cannot override general configuration."
 msgstr "Cannot override general configuration."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:739
-msgid "oxe_login and oxe_password cannot be empty"
-msgstr "oxe_login and oxe_password cannot be empty"
+#: src/vigilo/vigiconf/lib/confclasses/host.py:743
+msgid "telnetLogin and telnetPassword cannot be empty"
+msgstr "telnetLogin and telnetPassword cannot be empty"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:742
+#: src/vigilo/vigiconf/lib/confclasses/host.py:746
 #, python-format
 msgid ""
 "Value for '%(attr)s' (%(value)s) could not be cast into an integer. Using"
@@ -556,12 +561,12 @@ msgstr ""
 "Value for '%(attr)s' (%(value)s) could not be cast into an integer. Using"
 " default value (%(default)d)."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:797
+#: src/vigilo/vigiconf/lib/confclasses/host.py:801
 #, python-format
 msgid "Cannot add tag \"%(tag)s\" to non-existing service \"%(service)s\""
 msgstr "Cannot add tag \"%(tag)s\" to non-existing service \"%(service)s\""
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:820
+#: src/vigilo/vigiconf/lib/confclasses/host.py:824
 #, python-format
 msgid ""
 "Empty value given for directive %(directive)s with target %(target)s on "
@@ -570,17 +575,17 @@ msgstr ""
 "Empty value given for directive %(directive)s with target %(target)s on "
 "host %(host)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:888
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:286
+#: src/vigilo/vigiconf/lib/confclasses/host.py:892
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:275
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:81
 #, python-format
 msgid "Invalid XML validation schema %(schema)s: %(error)s"
 msgstr "Invalid XML validation schema %(schema)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:894
-#: src/vigilo/vigiconf/lib/confclasses/host.py:914
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:292
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:312
+#: src/vigilo/vigiconf/lib/confclasses/host.py:898
+#: src/vigilo/vigiconf/lib/confclasses/host.py:918
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:281
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:301
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:87
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:107
 #, python-format
@@ -591,32 +596,32 @@ msgstr ""
 "Error reading %(file)s, make sure the permissions are set "
 "correctly.Message: %(error)s."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:911
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:309
+#: src/vigilo/vigiconf/lib/confclasses/host.py:915
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:298
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:104
 #, python-format
 msgid "XML syntax error in %(file)s: %(error)s"
 msgstr "XML syntax error in %(file)s: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:922
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:320
+#: src/vigilo/vigiconf/lib/confclasses/host.py:926
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:309
 #: src/vigilo/vigiconf/lib/loaders/xmlloader.py:115
 #, python-format
 msgid "XML validation failed: %(error)s"
 msgstr "XML validation failed: %(error)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:977
+#: src/vigilo/vigiconf/lib/confclasses/host.py:981
 #, python-format
 msgid "Invalid ventilation group: %s"
 msgstr "Invalid ventilation group: %s"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1073
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:108
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1075
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:107
 #, python-format
 msgid "Invalid group name (%s)"
 msgstr "Invalid group name (%s)"
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1117
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1119
 #, python-format
 msgid ""
 "Host '%(host)s' inherits from both the '%(tpl1)s' and '%(tpl2)s' "
@@ -627,30 +632,26 @@ msgstr ""
 "templates (in this order), but '%(tpl1)s' already inherits from "
 "'%(tpl2)s'. The templates will be reordered to satisfy dependencies."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1143
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1145
 #, python-format
 msgid "Unable to load templates for %(host)s. Possible cycle."
 msgstr "Unable to load templates for %(host)s. Possible cycle."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1160
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1162
 #, python-format
 msgid "You must associate host \"%s\" with at least one group."
 msgstr "You must associate host \"%s\" with at least one group."
 
-#: src/vigilo/vigiconf/lib/confclasses/host.py:1167
+#: src/vigilo/vigiconf/lib/confclasses/host.py:1168
 #, python-format
-msgid ""
-"Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
-"class ?"
-msgstr ""
-"Can't add test %(testname)s to host %(hostname)s. Maybe a missing host "
-"class ?"
+msgid "No such test '%(testname)s' on host %(hostname)s"
+msgstr "No such test '%(testname)s' on host %(hostname)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:277
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:266
 msgid "A cycle has been detected in templates"
 msgstr "A cycle has been detected in templates"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:460
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:451
 #, python-format
 msgid ""
 "Can't add template \"%(template)s\" to host \"%(hostname)s\": no such "
@@ -659,31 +660,45 @@ msgstr ""
 "Can't add template \"%(template)s\" to host \"%(hostname)s\": no such "
 "template"
 
-#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:496
+#: src/vigilo/vigiconf/lib/confclasses/hosttemplate.py:481
 #, python-format
 msgid ""
-"Can't add test %(testname)s to host %(hostname)s (added by template "
-"%(tplname)s). Maybe a missing host class ?"
+"No such test '%(testname)s' on host%(hostname)s (from template "
+"'%(tplname)s')"
 msgstr ""
-"Can't add test %(testname)s to host %(hostname)s (added by template "
-"%(tplname)s). Maybe a missing host class ?"
+"No such test '%(testname)s' on host%(hostname)s (from template "
+"'%(tplname)s')"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:301
+#: src/vigilo/vigiconf/lib/confclasses/test.py:325
 #, python-format
 msgid "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 msgstr "Invalid entry point %(epname)s in package %(eppkg)s: %(epmodname)s"
 
-#: src/vigilo/vigiconf/lib/confclasses/test.py:352
-#, python-format
-msgid "Invalid hostclass \"%s\". Missing __init__.py?"
-msgstr "Invalid hostclass \"%s\". Missing __init__.py?"
-
-#: src/vigilo/vigiconf/lib/confclasses/test.py:364
-#: src/vigilo/vigiconf/lib/confclasses/test.py:397
-#: src/vigilo/vigiconf/lib/confclasses/test.py:537
+#: src/vigilo/vigiconf/lib/confclasses/test.py:509
 #, python-format
 msgid "Unable to load %(file)s: %(error)s"
 msgstr "Unable to load %(file)s: %(error)s"
+
+#: src/vigilo/vigiconf/lib/confclasses/validators.py:52
+#, python-format
+msgid "Invalid value for '%(arg)s': %(value)r"
+msgstr "Invalid value for '%(arg)s': %(value)r"
+
+#: src/vigilo/vigiconf/lib/confclasses/validators.py:157
+#: src/vigilo/vigiconf/lib/confclasses/validators.py:264
+#, python-format
+msgid "Invalid step parameter: %r"
+msgstr "Invalid step parameter: %r"
+
+#: src/vigilo/vigiconf/lib/confclasses/validators.py:550
+#, python-format
+msgid "Unknown argument for %(cls)s.%(method)s: \"%(arg)s\""
+msgstr "Unknown argument for %(cls)s.%(method)s: \"%(arg)s\""
+
+#: src/vigilo/vigiconf/lib/confclasses/validators.py:585
+#, python-format
+msgid "Not all arguments documented in %(cls)s.%(method)s"
+msgstr "Not all arguments documented in %(cls)s.%(method)s"
 
 #: src/vigilo/vigiconf/lib/dispatchator/base.py:94
 msgid "Generation failed!"
@@ -731,7 +746,7 @@ msgstr ""
 "Vigilo server management is only available in the Enterprise edition. "
 "Aborting."
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:55
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:57
 msgid ""
 "you can't go back to a former revision if you have modified your "
 "configuration. Use 'svn revert' to cancel your modifications"
@@ -739,31 +754,31 @@ msgstr ""
 "you can't go back to a former revision if you have modified your "
 "configuration. Use 'svn revert' to cancel your modifications"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:91
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:93
 #, python-format
 msgid "can't compute SVN differences for the configuration dir: %s"
 msgstr "can't compute SVN differences for the configuration dir: %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:118
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:120
 msgid "Not updating because the 'svnrepository' configuration parameter is empty"
 msgstr "Not updating because the 'svnrepository' configuration parameter is empty"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:129
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:131
 #, python-format
 msgid "can't get SVN status for the configuration dir: %s"
 msgstr "can't get SVN status for the configuration dir: %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:193
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:195
 #, python-format
 msgid "Can't add %(path)s in repository: %(error)s"
 msgstr "Can't add %(path)s in repository: %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:216
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:218
 #, python-format
 msgid "can't remove %(path)s from repository: %(error)s"
 msgstr "can't remove %(path)s from repository: %(error)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:227
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:229
 msgid ""
 "Not committing because the 'svnrepository' configuration parameter is "
 "empty"
@@ -771,16 +786,16 @@ msgstr ""
 "Not committing because the 'svnrepository' configuration parameter is "
 "empty"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:239
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:246
 #, python-format
 msgid "can't commit the configuration dir in SVN: %s"
 msgstr "can't commit the configuration dir in SVN: %s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:244
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:251
 msgid "SVN commit successful"
 msgstr "SVN commit successful"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:269
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:276
 #, python-format
 msgid ""
 "can't execute the request to update the local copy. COMMAND %(cmd)s "
@@ -789,7 +804,7 @@ msgstr ""
 "can't execute the request to update the local copy. COMMAND %(cmd)s "
 "FAILED. REASON: %(reason)s"
 
-#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:309
+#: src/vigilo/vigiconf/lib/dispatchator/revisionmanager.py:316
 #, python-format
 msgid "can't execute the request to get the current revision: %s"
 msgstr "can't execute the request to get the current revision: %s"
@@ -940,11 +955,11 @@ msgstr "Server %s cannot be disabled"
 msgid "Server %s cannot be enabled"
 msgstr "Server %s cannot be enabled"
 
-#: src/vigilo/vigiconf/lib/server/factory.py:118
+#: src/vigilo/vigiconf/lib/server/factory.py:130
 msgid "On the Community Edition, you can only use localhost"
 msgstr "On the Community Edition, you can only use localhost"
 
-#: src/vigilo/vigiconf/lib/server/factory.py:132
+#: src/vigilo/vigiconf/lib/server/factory.py:144
 msgid ""
 "Remote server management is not possible with the Community edition. This"
 " feature is only available in the Enterprise edition. Aborting."
@@ -980,6 +995,30 @@ msgstr ""
 #: src/vigilo/vigiconf/lib/server/manager.py:153
 msgid "Switch directories was not successful on each server."
 msgstr "Switch directories was not successful on each server."
+
+#: src/vigilo/vigiconf/lib/testdumpers/json.py:37
+#, python-format
+msgid "Could not parse documentation about '%s'"
+msgstr "Could not parse documentation about '%s'"
+
+#: src/vigilo/vigiconf/lib/testdumpers/json.py:67
+#, python-format
+msgid "Not all arguments documented in '%s'"
+msgstr "Not all arguments documented in '%s'"
+
+#: src/vigilo/vigiconf/lib/testdumpers/json.py:75
+#, python-format
+msgid "Could not parse documentation about argument '%(arg)s' for test '%(test)s'"
+msgstr "Could not parse documentation about argument '%(arg)s' for test '%(test)s'"
+
+#: src/vigilo/vigiconf/lib/testdumpers/text.py:23
+msgid "Available host classes:"
+msgstr "Available host classes:"
+
+#: src/vigilo/vigiconf/lib/testdumpers/text.py:33
+#, python-format
+msgid "Tests for host class '%s':"
+msgstr "Tests for host class '%s':"
 
 #: src/vigilo/vigiconf/loaders/application.py:29
 msgid "Loading applications"
@@ -1078,26 +1117,742 @@ msgstr "Done loading Vigilo servers"
 msgid "Import test was successful"
 msgstr "Import test was successful"
 
-#: src/vigilo/vigiconf/tests/all/Interface.py:91
-#: src/vigilo/vigiconf/tests/all/Interface.py:99
-#, python-format
+#: src/vigilo/vigiconf/tests/all/HTTP_url.py:19
+#: src/vigilo/vigiconf/tests/all/Metro.py:22
+#: src/vigilo/vigiconf/tests/all/NagiosPlugin.py:20
+#: src/vigilo/vigiconf/tests/all/Partition.py:41
+#: src/vigilo/vigiconf/tests/all/Process.py:24
+#: src/vigilo/vigiconf/tests/all/TCP.py:18
+msgid "Display name"
+msgstr "Display name"
+
+#: src/vigilo/vigiconf/tests/all/HTTP_url.py:20
+#: src/vigilo/vigiconf/tests/all/Metro.py:23
+#: src/vigilo/vigiconf/tests/all/NagiosPlugin.py:21
+#: src/vigilo/vigiconf/tests/all/Partition.py:42
 msgid ""
-"Invalid value \"%(value)s\" for %(param)s. Expected one of: "
-"%(candidates)s."
+"\n"
+"            Name to display in the GUI.\n"
+"\n"
+"            This setting also controls the name of the service\n"
+"            created in Nagios (service_description).\n"
+"        "
 msgstr ""
-"Invalid value \"%(value)s\" for %(param)s. Expected one of: "
-"%(candidates)s."
+"\n"
+"            Name to display in the GUI.\n"
+"\n"
+"            This setting also controls the name of the service\n"
+"            created in Nagios (service_description).\n"
+"        "
 
-#: src/vigilo/vigiconf/tests/all/NTP.py:28
-msgid "Test NTP has been deprecated. Please use NagiosPlugin instead"
-msgstr "Test NTP has been deprecated. Please use NagiosPlugin instead"
+#: src/vigilo/vigiconf/tests/all/HTTP_url.py:29
+#: src/vigilo/vigiconf/tests/all/Proxy.py:20
+#: src/vigilo/vigiconf/tests/all/TCP.py:28
+msgid "Port number"
+msgstr "Port number"
 
-#: src/vigilo/vigiconf/tests/all/Ping.py:33
-#, python-format
-msgid "\"%s\" should be a list with two values"
-msgstr "\"%s\" should be a list with two values"
+#: src/vigilo/vigiconf/tests/all/HTTP_url.py:30
+msgid "Port number the web server is listening on"
+msgstr "Port number the web server is listening on"
 
-#: src/vigilo/vigiconf/tests/all/UpTime.py:40
+#: src/vigilo/vigiconf/tests/all/HTTP_url.py:34
+msgid "URL"
+msgstr "URL"
+
+#: src/vigilo/vigiconf/tests/all/HTTP_url.py:35
+msgid "URL to request from the server"
+msgstr "URL to request from the server"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:27
+#: src/vigilo/vigiconf/tests/all/Ping.py:20
+msgid "WARNING thresholds"
+msgstr "WARNING thresholds"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:28
+#: src/vigilo/vigiconf/tests/all/Interface.py:50
+msgid ""
+"\n"
+"            A list containing either 0, 2, 4 or 6 values,\n"
+"            representing the thresholds for the WARNING state.\n"
+"\n"
+"            The thresholds apply (in order) to:\n"
+"                -   Incoming traffic (in bits/s)\n"
+"                -   Outgoing traffic (in bits/s)\n"
+"                -   Discards on incoming traffic\n"
+"                -   Discards on outgoing traffic\n"
+"                -   Errors on incoming traffic\n"
+"                -   Errors on outgoing traffic\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"\n"
+"            Note: sub-interfaces (VLANs) do not support SNMP requests\n"
+"            on the discards and errors counters.\n"
+"        "
+msgstr ""
+"\n"
+"            A list containing either 0, 2, 4 or 6 values,\n"
+"            representing the thresholds for the WARNING state.\n"
+"\n"
+"            The thresholds apply (in order) to:\n"
+"                -   Incoming traffic (in bits/s)\n"
+"                -   Outgoing traffic (in bits/s)\n"
+"                -   Discards on incoming traffic\n"
+"                -   Discards on outgoing traffic\n"
+"                -   Errors on incoming traffic\n"
+"                -   Errors on outgoing traffic\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"\n"
+"            Note: sub-interfaces (VLANs) do not support SNMP requests\n"
+"            on the discards and errors counters.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:49
+#: src/vigilo/vigiconf/tests/all/Ping.py:29
+msgid "CRITICAL thresholds"
+msgstr "CRITICAL thresholds"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:71
+msgid "Use a static index"
+msgstr "Use a static index"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:72
+msgid ""
+"\n"
+"            When true, indicates that the interface name\n"
+"            actually refers to the interface's static SNMP index.\n"
+"\n"
+"            This is sometimes necessary as some operating systems\n"
+"            (eg. Microsoft Windows) may assign the same name to\n"
+"            several interfaces.\n"
+"        "
+msgstr ""
+"\n"
+"            When true, indicates that the interface name\n"
+"            actually refers to the interface's static SNMP index.\n"
+"\n"
+"            This is sometimes necessary as some operating systems\n"
+"            (eg. Microsoft Windows) may assign the same name to\n"
+"            several interfaces.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:82
+msgid "Interface name"
+msgstr "Interface name"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:83
+msgid ""
+"\n"
+"            SNMP name for the interface.\n"
+"            An index number may be used instead if static indexes are "
+"enabled.\n"
+"        "
+msgstr ""
+"\n"
+"            SNMP name for the interface.\n"
+"            An index number may be used instead if static indexes are "
+"enabled.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:89
+msgid "Maximum bandwidth available for this interface, in bits/s"
+msgstr "Maximum bandwidth available for this interface, in bits/s"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:92
+msgid "Test state"
+msgstr "Test state"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:93
+msgid ""
+"\n"
+"            This setting can be used to disable the interface state "
+"check.\n"
+"            This is useful when you only want to graph usage statistics.\n"
+"        "
+msgstr ""
+"\n"
+"            This setting can be used to disable the interface state "
+"check.\n"
+"            This is useful when you only want to graph usage statistics.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:99
+msgid "Graph errors"
+msgstr "Graph errors"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:100
+msgid ""
+"\n"
+"            When true, indicates that a graph should be created for "
+"errors\n"
+"            and discards.\n"
+"\n"
+"            Please note that sub-interfaces (VLANs) do not support\n"
+"            SNMP queries for the discard and error counters.\n"
+"        "
+msgstr ""
+"\n"
+"            When true, indicates that a graph should be created for "
+"errors\n"
+"            and discards.\n"
+"\n"
+"            Please note that sub-interfaces (VLANs) do not support\n"
+"            SNMP queries for the discard and error counters.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:109
+msgid "Use 32-bit counters"
+msgstr "Use 32-bit counters"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:110
+msgid ""
+"\n"
+"            Query the 32-bit counters instead of the 64-bit ones\n"
+"            for this interface. This is sometimes necessary on older\n"
+"            devices where 64-bit interface counters are not available.\n"
+"        "
+msgstr ""
+"\n"
+"            Query the 32-bit counters instead of the 64-bit ones\n"
+"            for this interface. This is sometimes necessary on older\n"
+"            devices where 64-bit interface counters are not available.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:118
+#: src/vigilo/vigiconf/tests/all/Interface.py:133
+msgid "Ignore"
+msgstr "Ignore"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:119
+#: src/vigilo/vigiconf/tests/all/Interface.py:134
+msgid "WARNING alarm"
+msgstr "WARNING alarm"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:120
+#: src/vigilo/vigiconf/tests/all/Interface.py:135
+msgid "CRITICAL alarm"
+msgstr "CRITICAL alarm"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:122
+msgid "Admin state handling"
+msgstr "Admin state handling"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:123
+msgid ""
+"\n"
+"            Indicates how to handle network interfaces which have been\n"
+"            disabled by an administrator.\n"
+"\n"
+"            You may either ignore this condition or generate\n"
+"            a WARNING or CRITICAL alarm.\n"
+"        "
+msgstr ""
+"\n"
+"            Indicates how to handle network interfaces which have been\n"
+"            disabled by an administrator.\n"
+"\n"
+"            You may either ignore this condition or generate\n"
+"            a WARNING or CRITICAL alarm.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:137
+msgid "Dormant state handling"
+msgstr "Dormant state handling"
+
+#: src/vigilo/vigiconf/tests/all/Interface.py:138
+msgid ""
+"\n"
+"            Indicates how to handle network interfaces which are seen\n"
+"            as dormant by the device.\n"
+"\n"
+"            You may either ignore this condition or generate\n"
+"            a WARNING or CRITICAL alarm.\n"
+"        "
+msgstr ""
+"\n"
+"            Indicates how to handle network interfaces which are seen\n"
+"            as dormant by the device.\n"
+"\n"
+"            You may either ignore this condition or generate\n"
+"            a WARNING or CRITICAL alarm.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/LDAP.py:18
+#: src/vigilo/vigiconf/tests/all/LDAPS.py:18
+msgid "Search base"
+msgstr "Search base"
+
+#: src/vigilo/vigiconf/tests/all/LDAP.py:19
+#: src/vigilo/vigiconf/tests/all/LDAPS.py:19
+msgid "Search base inside the directory"
+msgstr "Search base inside the directory"
+
+#: src/vigilo/vigiconf/tests/all/LDAPS.py:23
+msgid "Use STARTTLS"
+msgstr "Use STARTTLS"
+
+#: src/vigilo/vigiconf/tests/all/LDAPS.py:24
+msgid ""
+"\n"
+"            Specifies how the encrypted session is established.\n"
+"\n"
+"            When enabled, a plain connection is first established\n"
+"            and the STARTTLS extension is then used to negotiate\n"
+"            the encryption.\n"
+"\n"
+"            Otherwise, an SSL/TLS session is negotiated directly\n"
+"            as part of the connection process.\n"
+"        "
+msgstr ""
+"\n"
+"            Specifies how the encrypted session is established.\n"
+"\n"
+"            When enabled, a plain connection is first established\n"
+"            and the STARTTLS extension is then used to negotiate\n"
+"            the encryption.\n"
+"\n"
+"            Otherwise, an SSL/TLS session is negotiated directly\n"
+"            as part of the connection process.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Metro.py:18
+#: src/vigilo/vigiconf/tests/all/Partition.py:25
+#: src/vigilo/vigiconf/tests/all/Process.py:20
+#: src/vigilo/vigiconf/tests/all/TCPConn.py:18
+#: src/vigilo/vigiconf/tests/all/TotalProcesses.py:18
+#: src/vigilo/vigiconf/tests/all/UpTime.py:23
+#: src/vigilo/vigiconf/tests/all/Users.py:18
+#: src/vigilo/vigiconf/tests/linux/CPU.py:16
+#: src/vigilo/vigiconf/tests/ucd/DiskIO.py:20
+#: src/vigilo/vigiconf/tests/ucd/InterrCS.py:20
+#: src/vigilo/vigiconf/tests/ucd/Load.py:20
+#: src/vigilo/vigiconf/tests/ucd/RAM.py:18
+msgid "WARNING threshold"
+msgstr "WARNING threshold"
+
+#: src/vigilo/vigiconf/tests/all/Metro.py:19
+#: src/vigilo/vigiconf/tests/all/Partition.py:33
+#: src/vigilo/vigiconf/tests/all/Process.py:21
+#: src/vigilo/vigiconf/tests/all/TCPConn.py:19
+#: src/vigilo/vigiconf/tests/all/TotalProcesses.py:19
+#: src/vigilo/vigiconf/tests/all/UpTime.py:32
+#: src/vigilo/vigiconf/tests/all/Users.py:19
+#: src/vigilo/vigiconf/tests/linux/CPU.py:17
+#: src/vigilo/vigiconf/tests/ucd/DiskIO.py:32
+#: src/vigilo/vigiconf/tests/ucd/InterrCS.py:32
+#: src/vigilo/vigiconf/tests/ucd/Load.py:29
+#: src/vigilo/vigiconf/tests/ucd/RAM.py:19
+msgid "CRITICAL threshold"
+msgstr "CRITICAL threshold"
+
+#: src/vigilo/vigiconf/tests/all/Metro.py:32
+msgid "Metric"
+msgstr "Metric"
+
+#: src/vigilo/vigiconf/tests/all/Metro.py:33
+msgid "Name of the metrology metric whose value must be tested"
+msgstr "Name of the metrology metric whose value must be tested"
+
+#: src/vigilo/vigiconf/tests/all/Metro.py:37
+msgid "Factor"
+msgstr "Factor"
+
+#: src/vigilo/vigiconf/tests/all/Metro.py:38
+msgid "Factor to apply to the raw value before the test"
+msgstr "Factor to apply to the raw value before the test"
+
+#: src/vigilo/vigiconf/tests/all/MySQL.py:19
+msgid "Login"
+msgstr "Login"
+
+#: src/vigilo/vigiconf/tests/all/MySQL.py:20
+msgid ""
+"\n"
+"            Login to use during the connection to the server.\n"
+"\n"
+"            Note: both a login and a password must be defined\n"
+"            for this setting to have any effect.\n"
+"        "
+msgstr ""
+"\n"
+"            Login to use during the connection to the server.\n"
+"\n"
+"            Note: both a login and a password must be defined\n"
+"            for this setting to have any effect.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/MySQL.py:29
+msgid "Password"
+msgstr "Password"
+
+#: src/vigilo/vigiconf/tests/all/MySQL.py:30
+msgid ""
+"\n"
+"            Password.to use during the connection.\n"
+"\n"
+"            Note: both a login and a password must be defined\n"
+"            for this setting to have any effect.\n"
+"        "
+msgstr ""
+"\n"
+"            Password.to use during the connection.\n"
+"\n"
+"            Note: both a login and a password must be defined\n"
+"            for this setting to have any effect.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/NagiosPlugin.py:30
+msgid "Command"
+msgstr "Command"
+
+#: src/vigilo/vigiconf/tests/all/NagiosPlugin.py:31
+msgid "Command to execute to call the plugin (check_command)"
+msgstr "Command to execute to call the plugin (check_command)"
+
+#: src/vigilo/vigiconf/tests/all/NagiosPlugin.py:35
+msgid "Metrics"
+msgstr "Metrics"
+
+#: src/vigilo/vigiconf/tests/all/NagiosPlugin.py:36
+msgid "List of metrics returned by the plugin that should be graphed"
+msgstr "List of metrics returned by the plugin that should be graphed"
+
+#: src/vigilo/vigiconf/tests/all/NagiosPlugin.py:40
+msgid "Unit"
+msgstr "Unit"
+
+#: src/vigilo/vigiconf/tests/all/NagiosPlugin.py:41
+msgid "Unit used by the plugin's metrics"
+msgstr "Unit used by the plugin's metrics"
+
+#: src/vigilo/vigiconf/tests/all/Partition.py:26
+msgid ""
+"\n"
+"            Trigger a WARNING alarm whenever the amount\n"
+"            of remaining free space is less than this value.\n"
+"        "
+msgstr ""
+"\n"
+"            Trigger a WARNING alarm whenever the amount\n"
+"            of remaining free space is less than this value.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Partition.py:34
+msgid ""
+"\n"
+"            Trigger a CRITICAL alarm whenever the amount\n"
+"            of remaining free space is less than this value.\n"
+"        "
+msgstr ""
+"\n"
+"            Trigger a CRITICAL alarm whenever the amount\n"
+"            of remaining free space is less than this value.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Partition.py:51
+msgid "Partition name"
+msgstr "Partition name"
+
+#: src/vigilo/vigiconf/tests/all/Partition.py:52
+msgid "SNMP name for the partition (eg. C{/var})"
+msgstr "SNMP name for the partition (eg. C{/var})"
+
+#: src/vigilo/vigiconf/tests/all/Partition.py:56
+msgid "Total size"
+msgstr "Total size"
+
+#: src/vigilo/vigiconf/tests/all/Partition.py:57
+msgid "Total size of the partition (in bytes)"
+msgstr "Total size of the partition (in bytes)"
+
+#: src/vigilo/vigiconf/tests/all/Partition.py:61
+msgid "Use percentages"
+msgstr "Use percentages"
+
+#: src/vigilo/vigiconf/tests/all/Partition.py:62
+msgid ""
+"\n"
+"            If enabled, the WARNING and CRITICAL thresholds use "
+"percentages.\n"
+"            Otherwise, they represent the minimum free space expected in "
+"bytes.\n"
+"        "
+msgstr ""
+"\n"
+"            If enabled, the WARNING and CRITICAL thresholds use "
+"percentages.\n"
+"            Otherwise, they represent the minimum free space expected in "
+"bytes.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Ping.py:21
+msgid ""
+"\n"
+"            A list containing two WARNING thresholds.\n"
+"            The first one applies to the probes' round-trip average (in "
+"ms).\n"
+"            The second one applies to packet loss (as a percentage).\n"
+"        "
+msgstr ""
+"\n"
+"            A list containing two WARNING thresholds.\n"
+"            The first one applies to the probes' round-trip average (in "
+"ms).\n"
+"            The second one applies to packet loss (as a percentage).\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Ping.py:30
+msgid ""
+"\n"
+"            A list containing two CRITICAL thresholds.\n"
+"            The first one applies to the probes' round-trip average (in "
+"ms).\n"
+"            The second one applies to packet loss (as a percentage).\n"
+"        "
+msgstr ""
+"\n"
+"            A list containing two CRITICAL thresholds.\n"
+"            The first one applies to the probes' round-trip average (in "
+"ms).\n"
+"            The second one applies to packet loss (as a percentage).\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Process.py:25
+msgid ""
+"\n"
+"            Name to display in the GUI. Defaults to the process name.\n"
+"\n"
+"            This settings also controls the name of the service\n"
+"            created in Nagios (service_description).\n"
+"        "
+msgstr ""
+"\n"
+"            Name to display in the GUI. Defaults to the process name.\n"
+"\n"
+"            This settings also controls the name of the service\n"
+"            created in Nagios (service_description).\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Process.py:32
+msgid "Process name"
+msgstr "Process name"
+
+#: src/vigilo/vigiconf/tests/all/Process.py:34
+msgid "Process names"
+msgstr "Process names"
+
+#: src/vigilo/vigiconf/tests/all/Process.py:35
+msgid "Full executable path"
+msgstr "Full executable path"
+
+#: src/vigilo/vigiconf/tests/all/Process.py:36
+msgid "Process parameters"
+msgstr "Process parameters"
+
+#: src/vigilo/vigiconf/tests/all/Process.py:38
+msgid "Section"
+msgstr "Section"
+
+#: src/vigilo/vigiconf/tests/all/Process.py:39
+msgid ""
+"\n"
+"            Section in the SNMP table where the process will be looked "
+"for.\n"
+"\n"
+"            Note: some processes may alter their name during their "
+"execution.\n"
+"            In that case, the new name actually replaces the full\n"
+"            executable's path.\n"
+"\n"
+"            Note: on some operating systems, the executable path\n"
+"            may be truncated (eg. to 15 characters on Linux).\n"
+"        "
+msgstr ""
+"\n"
+"            Section in the SNMP table where the process will be looked "
+"for.\n"
+"\n"
+"            Note: some processes may alter their name during their "
+"execution.\n"
+"            In that case, the new name actually replaces the full\n"
+"            executable's path.\n"
+"\n"
+"            Note: on some operating systems, the executable path\n"
+"            may be truncated (eg. to 15 characters on Linux).\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/Proxy.py:21
+msgid "TCP port used by the HTTP proxy"
+msgstr "TCP port used by the HTTP proxy"
+
+#: src/vigilo/vigiconf/tests/all/Proxy.py:23
+msgid "URL to check"
+msgstr "URL to check"
+
+#: src/vigilo/vigiconf/tests/all/Proxy.py:24
+msgid "Use authentication"
+msgstr "Use authentication"
+
+#: src/vigilo/vigiconf/tests/all/TCP.py:19
+msgid ""
+"\n"
+"            Name to display in the GUI.\n"
+"\n"
+"            This settings also controls the name of the service\n"
+"            created in Nagios (service_description).\n"
+"        "
+msgstr ""
+"\n"
+"            Name to display in the GUI.\n"
+"\n"
+"            This settings also controls the name of the service\n"
+"            created in Nagios (service_description).\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/TCP.py:29
+msgid "TCP port to test"
+msgstr "TCP port to test"
+
+#: src/vigilo/vigiconf/tests/all/UpTime.py:24
+msgid ""
+"\n"
+"            A WARNING alarm will be generated whenever the device\n"
+"            or SNMP agent was last restarted less than that amount\n"
+"            of time ago (in seconds).\n"
+"        "
+msgstr ""
+"\n"
+"            A WARNING alarm will be generated whenever the device\n"
+"            or SNMP agent was last restarted less than that amount\n"
+"            of time ago (in seconds).\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/UpTime.py:33
+msgid ""
+"\n"
+"            A CRITICAL alarm will be generated whenever the device\n"
+"            or SNMP agent was last restarted less than that amount\n"
+"            of time ago (in seconds).\n"
+"\n"
+"            Note: this value must be less than the value of the\n"
+"            WARNING threshold.\n"
+"        "
+msgstr ""
+"\n"
+"            A CRITICAL alarm will be generated whenever the device\n"
+"            or SNMP agent was last restarted less than that amount\n"
+"            of time ago (in seconds).\n"
+"\n"
+"            Note: this value must be less than the value of the\n"
+"            WARNING threshold.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/all/UpTime.py:50
 msgid "Invalid thresholds. Expected 0 < crit < warn"
 msgstr "Invalid thresholds. Expected 0 < crit < warn"
+
+#: src/vigilo/vigiconf/tests/ucd/DiskIO.py:21
+msgid ""
+"\n"
+"            A list containing up to 2 thresholds for the WARNING state.\n"
+"            The first threshold applies to reads.\n"
+"            The second threshold applies to writes.\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"        "
+msgstr ""
+"\n"
+"            A list containing up to 2 thresholds for the WARNING state.\n"
+"            The first threshold applies to reads.\n"
+"            The second threshold applies to writes.\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/ucd/DiskIO.py:33
+msgid ""
+"\n"
+"            A list containing up to 2 thresholds for the CRITICAL state.\n"
+"            The first threshold applies to reads.\n"
+"            The second threshold applies to writes.\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"        "
+msgstr ""
+"\n"
+"            A list containing up to 2 thresholds for the CRITICAL state.\n"
+"            The first threshold applies to reads.\n"
+"            The second threshold applies to writes.\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/ucd/DiskIO.py:42
+msgid "Disk name"
+msgstr "Disk name"
+
+#: src/vigilo/vigiconf/tests/ucd/InterrCS.py:21
+msgid ""
+"\n"
+"            A list containing up to 2 thresholds for the WARNING state.\n"
+"            The first threshold applies to interrupts.\n"
+"            The second threshold applies to context switches.\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"        "
+msgstr ""
+"\n"
+"            A list containing up to 2 thresholds for the WARNING state.\n"
+"            The first threshold applies to interrupts.\n"
+"            The second threshold applies to context switches.\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/ucd/InterrCS.py:33
+msgid ""
+"\n"
+"            A list containing up to 2 thresholds for the CRITICAL state.\n"
+"            The first threshold applies to interrupts.\n"
+"            The second threshold applies to context switches.\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"        "
+msgstr ""
+"\n"
+"            A list containing up to 2 thresholds for the CRITICAL state.\n"
+"            The first threshold applies to interrupts.\n"
+"            The second threshold applies to context switches.\n"
+"\n"
+"            Note: the number of WARNING and CRITICAL thresholds\n"
+"            must be the same.\n"
+"        "
+
+#: src/vigilo/vigiconf/tests/ucd/Load.py:21
+#: src/vigilo/vigiconf/tests/ucd/Load.py:30
+msgid ""
+"\n"
+"            The WARNING and CRITICAL thresholds apply to the \"Load 01\" "
+"value,\n"
+"            and are automatically computed for the \"Load 05\" and \"Load"
+" 15\"\n"
+"            values by removing respectively 1 and 2 units.\n"
+"        "
+msgstr ""
+"\n"
+"            The WARNING and CRITICAL thresholds apply to the \"Load 01\" "
+"value,\n"
+"            and are automatically computed for the \"Load 05\" and \"Load"
+" 15\"\n"
+"            values by removing respectively 1 and 2 units.\n"
+"        "
 

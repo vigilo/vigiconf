@@ -4,25 +4,37 @@
 # Copyright (C) 2011-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-from vigilo.vigiconf.lib.confclasses.test import Test
+from __future__ import unicode_literals
 
+from vigilo.vigiconf.lib.confclasses.validators import arg, String, Port
+from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class HTTP_url(Test):
     """Check if the HTTP service is up for a given url"""
 
-    def add_test(self, service, port=80, url="/"):
-        """
-        @param service: Le nom du service à utiliser dans Nagios.
-        @type  service: C{str}
-        @param port:    Le port sur lequel le serveur web écoute
-                        (80 par défaut).
-        @type  port:    C{int}
-        @param url:     L'URL à demander au serveur web.
-        @type url:      C{str}
-        """
-        port = self.as_int(port)
+    @arg(
+        'service', String,
+        l_('Display name'),
+        l_("""
+            Name to display in the GUI.
 
+            This setting also controls the name of the service
+            created in Nagios (service_description).
+        """)
+    )
+    @arg(
+        'port', Port,
+        l_('Port number'),
+        l_('Port number the web server is listening on')
+    )
+    @arg(
+        'url', String,
+        l_('URL'),
+        l_("URL to request from the server")
+    )
+    def add_test(self, service, port=80, url="/"):
         # remove http://
         if url.startswith("http://"):
             url = url[7:]

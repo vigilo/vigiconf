@@ -8,12 +8,9 @@ from vigilo.vigiconf.lib.confclasses.test import Test
 
 
 class SSH(Test):
-    """Check if the SSH service is up"""
+    """Check the availability of the device's SSH service"""
 
     def add_test(self):
-        """
-        Teste la présence d'un service SSH opérationnel sur la machine.
-        """
         self.add_external_sup_service("SSH", "check_ssh")
 
 

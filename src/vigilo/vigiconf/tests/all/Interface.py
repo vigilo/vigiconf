@@ -5,9 +5,13 @@
 
 import re # for the detect_snmp function
 import string
+
+from vigilo.vigiconf.lib.confclasses.validators import (
+    arg, Integer, Bool, Enum, List, String, OrderedDict
+)
 from vigilo.vigiconf.lib.confclasses.test import Test
 from vigilo.vigiconf.lib.exceptions import ParsingError
-from vigilo.common.gettext import translate
+from vigilo.common.gettext import translate, l_
 _ = translate(__name__)
 
 
@@ -16,68 +20,135 @@ class Interface(Test):
 
     oids = [".1.3.6.1.2.1.25.1.6.0"]
 
+    @arg(
+        'warn', List(types=Integer, min=0, max=6, step=2),
+        l_('WARNING thresholds'),
+        l_("""
+            A list containing either 0, 2, 4 or 6 values,
+            representing the thresholds for the WARNING state.
+
+            The thresholds apply (in order) to:
+                -   Incoming traffic (in bits/s)
+                -   Outgoing traffic (in bits/s)
+                -   Discards on incoming traffic
+                -   Discards on outgoing traffic
+                -   Errors on incoming traffic
+                -   Errors on outgoing traffic
+
+            Note: the number of WARNING and CRITICAL thresholds
+            must be the same.
+
+            Note: sub-interfaces (VLANs) do not support SNMP requests
+            on the discards and errors counters.
+        """)
+    )
+    @arg(
+        'crit', List(types=Integer, min=0, max=6, step=2),
+        l_('CRITICAL thresholds'),
+        l_("""
+            A list containing either 0, 2, 4 or 6 values,
+            representing the thresholds for the WARNING state.
+
+            The thresholds apply (in order) to:
+                -   Incoming traffic (in bits/s)
+                -   Outgoing traffic (in bits/s)
+                -   Discards on incoming traffic
+                -   Discards on outgoing traffic
+                -   Errors on incoming traffic
+                -   Errors on outgoing traffic
+
+            Note: the number of WARNING and CRITICAL thresholds
+            must be the same.
+
+            Note: sub-interfaces (VLANs) do not support SNMP requests
+            on the discards and errors counters.
+        """)
+    )
+    @arg('label', String,
+        l_('Display name'),
+        l_("""
+            A short label used to customized the names of the services
+            created in relation with the network interface.
+        """))
+    @arg('staticindex', Bool,
+        l_('Use a static index'),
+        l_("""
+            When true, indicates that the interface name
+            actually refers to the interface's static SNMP index.
+
+            This is sometimes necessary as some operating systems
+            (eg. Microsoft Windows) may assign the same name to
+            several interfaces.
+        """)
+    )
+    @arg('ifname', String,
+        l_('Interface name'),
+        l_("""
+            SNMP name for the interface.
+            An index number may be used instead if static indexes are enabled.
+        """)
+    )
+    @arg('max', Integer(min=0), 'Maximum bandwidth',
+        l_("Maximum bandwidth available for this interface, in bits/s")
+    )
+    @arg('teststate', Bool,
+        l_('Test state'),
+        l_("""
+            This setting can be used to disable the interface state check.
+            This is useful when you only want to graph usage statistics.
+        """)
+    )
+    @arg('errors', Bool,
+        l_('Graph errors'),
+        l_("""
+            When true, indicates that a graph should be created for errors
+            and discards.
+
+            Please note that sub-interfaces (VLANs) do not support
+            SNMP queries for the discard and error counters.
+        """)
+    )
+    @arg('counter32', Bool,
+        l_('Use 32-bit counters'),
+        l_("""
+            Query the 32-bit counters instead of the 64-bit ones
+            for this interface. This is sometimes necessary on older
+            devices where 64-bit interface counters are not available.
+        """)
+    )
+    @arg('admin',
+        Enum(OrderedDict((
+            ("i", l_("Ignore")),
+            ("w", l_("WARNING alarm")),
+            ("c", l_("CRITICAL alarm")),
+        ))),
+        l_('Admin state handling'),
+        l_("""
+            Indicates how to handle network interfaces which have been
+            disabled by an administrator.
+
+            You may either ignore this condition or generate
+            a WARNING or CRITICAL alarm.
+        """)
+    )
+    @arg('dormant',
+        Enum(OrderedDict((
+            ("i", l_("Ignore")),
+            ("w", l_("WARNING alarm")),
+            ("c", l_("CRITICAL alarm")),
+        ))),
+        l_('Dormant state handling'),
+        l_("""
+            Indicates how to handle network interfaces which are seen
+            as dormant by the device.
+
+            You may either ignore this condition or generate
+            a WARNING or CRITICAL alarm.
+        """)
+    )
     def add_test(self, label, ifname, max=None,
                  errors=True, staticindex=False, warn=None, crit=None,
                  counter32=False, teststate=True, admin="i", dormant="c" ):
-        """
-        The parameters L{warn} and L{crit} must be tuples in the form of
-        strings separated by commas, for example: C{max_in,max_out} (in
-        bits/s).
-
-        If warn and crit contain 4 or 6 values, the next values will be applied
-        in order to Discards and Errors if they are not None.
-        Please note that sub-interfaces (VLANs) do not support SNMP queries
-        for the discard and error counters.
-
-        @param label: Label to display
-        @type  label: C{str}
-        @param ifname: SNMP name for the interface
-        @type  ifname: C{str}
-        @param max: the maximum bandwidth available through this interface, in
-            bits/s
-        @type  max: C{int}
-        @param errors: create a graph for interface errors
-        @type  errors: C{bool}
-        @param staticindex: consider the ifname as the static SNMP index instead
-            of the interface name. It's not recommanded, but it can be
-            necessary as some OS (Windows among others) assign the same name to
-            different interfaces.
-        @type  staticindex: C{bool}
-        @param warn: WARNING threshold. See description for the format.
-        @type  warn: C{list}
-        @param crit: CRITICAL threshold. See description for the format.
-        @type  crit: C{list}
-        @param counter32: Query the 32-bit counters instead of the 64-bit ones
-            for this interface.
-        @type  counter32: C{bool}
-        @param teststate: Used to deactivate the interface state control. (When
-            you only need statistics.)
-        @type  teststate: C{bool}
-        @param admin: Indique l'état à retourner pour une interface
-            marquée comme "désactivée par l'administrateur". Les valeurs
-            possibles sont "i" (ignorer / l'interface est vue comme étant
-            dans l'état "OK"), "w" (l'interface est vue comme étant dans
-            l'état "WARNING") ou bien "c" (l'interface est vue comme étant
-            dans l'état "CRITICAL"). La valeur par défaut est "i".
-        @type  admin: C{str}
-        @param dormant: Indique l'état à retourner pour une interface
-            marquée comme "dormante". Les valeurs possibles sont "i"
-            (ignorer / l'interface est vue comme étant dans l'état "OK"),
-            "w" (l'interface est vue comme étant dans l'état "WARNING")
-            ou bien "c" (l'interface est vue comme étant dans l'état
-            "CRITICAL"). La valeur par défaut est "c".
-        @type  dormant: C{str}
-        """
-        errors = self.as_bool(errors)
-        staticindex = self.as_bool(staticindex)
-        counter32 = self.as_bool(counter32)
-        teststate = self.as_bool(teststate)
-        DHCIf = self.host.get_attribute("DisableHighCapacityInterface", False)
-        if DHCIf is None:
-            DHCIf = True
-        DHCIf = self.as_bool(DHCIf)
-
-
         snmp_oids = {
             # using by default High Capacity (64Bits) COUNTER for in and out
             # http://www.ietf.org/rfc/rfc2233.txt
@@ -97,25 +168,7 @@ class Interface(Test):
                 "outErrs": "Output errors",
                 }
 
-        special_states = ('i', 'w', 'c')
-
-        if admin not in special_states:
-            raise ParsingError(_('Invalid value "%(value)s" for %(param)s. '
-                                 'Expected one of: %(candidates)s.') % {
-                                     'value': admin,
-                                     'param': 'admin',
-                                     'candidates': ', '.join(special_states),
-                                })
-
-        if dormant not in special_states:
-            raise ParsingError(_('Invalid value "%(value)s" for %(param)s. '
-                                 'Expected one of: %(candidates)s.') % {
-                                     'value': dormant,
-                                     'param': 'dormant',
-                                     'candidates': ', '.join(special_states),
-                                })
-
-        if DHCIf or counter32 :
+        if counter32 :
             # using Low Capacity (32Bits) COUNTER for in and out
             snmp_oids["in"]  = ".1.3.6.1.2.1.2.2.1.10"
             snmp_oids["out"] = ".1.3.6.1.2.1.2.2.1.16"
@@ -127,7 +180,7 @@ class Interface(Test):
                                          "directValue", [],
                                          [ "GET/%s.%s" % (snmpoid, ifname) ],
                                          "COUNTER", snmp_labels[snmpname],
-                                         max_value=max)
+                                         max_value=max or None)
         else:
             collector_function = "ifOperStatus"
             for snmpname, snmpoid in snmp_oids.iteritems():
@@ -136,9 +189,9 @@ class Interface(Test):
                                          [ "WALK/%s" % snmpoid,
                                            "WALK/.1.3.6.1.2.1.2.2.1.2"],
                                          "COUNTER", snmp_labels[snmpname],
-                                         max_value=max)
+                                         max_value=max or None)
 
-        if teststate is True:
+        if teststate:
             self.add_collector_service("Interface %s" % label, collector_function,
                 [ifname, label, admin, dormant],
                 ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
@@ -205,11 +258,13 @@ class Interface(Test):
         tests = []
         alphanum = string.letters + string.digits
         for intfid in intfids:
-            # SNMP name: use IF-MIB::ifDescr and sanitize it
-            ifname = oids[ ".1.3.6.1.2.1.2.2.1.2."+intfid ]
+            # SNMP name: use IF-MIB::ifDescr and sanitize
+            # label: start with ifname
+            ifname = oids[ ".1.3.6.1.2.1.2.2.1.2." + intfid ]
             ifname = re.sub("; .*", "; .*", ifname)
             if ifname == "lo": # Don't monitor the loopback
                 continue
+
             # label: start with ifname and sanitize
             label = ifname
             label = re.sub("; .*", "", label)
@@ -221,7 +276,8 @@ class Interface(Test):
             # autres caractères spéciaux (#882).
             ifpattern = []
             ifname = ifname.decode('ascii', 'replace'
-                            ).encode('ascii', 'replace')
+                          ).encode('ascii', 'replace')
+
             for c in ifname:
                 # Les caractères > 127 sont remplacés par un '?'.
                 if c == '?':
@@ -234,7 +290,7 @@ class Interface(Test):
             ifname = ''.join(ifpattern)
 
             try:
-                label.decode("ascii")
+                label = label.decode("ascii")
             except UnicodeDecodeError:
                 # On essaye utf8 et latin1, sinon on remplace par des "?".
                 try:
@@ -244,6 +300,7 @@ class Interface(Test):
                         label = label.decode("iso8859-1")
                     except UnicodeDecodeError:
                         label = label.decode("ascii", "replace")
+
             tests.append({"label": label, "ifname": ifname})
         return tests
 

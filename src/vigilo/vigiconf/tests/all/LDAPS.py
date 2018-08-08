@@ -3,21 +3,36 @@
 # Copyright (C) 2011-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-from vigilo.vigiconf.lib.confclasses.test import Test
+from __future__ import unicode_literals
 
+from vigilo.vigiconf.lib.confclasses.validators import arg, String, Bool
+from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class LDAPS(Test):
     """Vérifie la disponibilité d'un serveur LDAP en utilisant SSL/TLS"""
 
+    @arg(
+        'base', String,
+        l_('Starting point'),
+        l_("Starting point for the search inside the directory")
+    )
+    @arg(
+        'starttls', Bool,
+        l_('Use STARTTLS'),
+        l_("""
+            Specifies how the encrypted session is established.
+
+            When enabled, a plain connection is first established
+            and the STARTTLS extension is then used to negotiate
+            the encryption.
+
+            Otherwise, an SSL/TLS session is negotiated directly
+            as part of the connection process.
+        """)
+    )
     def add_test(self, base, starttls=False):
-        """
-        @param  base:       Base de recherche dans l'annuaire.
-        @type   base:       C{str}
-        @param  starttls:   Indique si le mécanisme STARTTLS est utilisé ou non.
-        @type   starttls:   C{bool}
-        """
-        starttls = self.as_bool(starttls)
         if starttls:
             service = "LDAPS-STARTTLS"
             check = "check_ldaps"

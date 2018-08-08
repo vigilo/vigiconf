@@ -7,7 +7,7 @@ from vigilo.vigiconf.lib.confclasses.test import Test
 
 
 class Swap(Test):
-    """Graph the swap usage (no supervision test)"""
+    """Graph the device's swap usage (no supervision test)"""
 
     # .1.3.6.1.2.1.25.2.3.1.3 hrStorageDescr
     # .1.3.6.1.2.1.25.2.3.1.4 hrStorageAllocationUnits
@@ -16,9 +16,6 @@ class Swap(Test):
     oids = [".1.3.6.1.2.1.25.2.3.1.3"]
 
     def add_test(self):
-        """
-        Teste la quantité de Swap utilisée.
-        """
         self.add_collector_metro("Swap", "m_table_mult",
                 ["[Ss]wap [Ss]pace"],
                 ["WALK/.1.3.6.1.2.1.25.2.3.1.4",

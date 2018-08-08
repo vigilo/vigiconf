@@ -12,6 +12,7 @@ import os
 import imp
 import inspect
 import sys
+import warnings
 
 from pkg_resources import working_set
 
@@ -148,6 +149,11 @@ class Test(object):
         @return: Booléen obtenu après la conversion.
         @rtype: C{bool}
         """
+        mod = 'vigilo.vigiconf.lib.confclasses.test'
+        warnings.warn(
+            _('Use the Bool validator inside %s instead') % mod,
+            warnings.DeprecationWarning, 2)
+
         # S'il s'agissait déjà d'un booléen, on ne fait rien.
         if isinstance(value, bool):
             return value
@@ -173,6 +179,10 @@ class Test(object):
         @return: Nombre entier obtenu après la conversion.
         @rtype: C{int}
         """
+        mod = 'vigilo.vigiconf.lib.confclasses.test'
+        warnings.warn(
+            _('Use the Integer validator inside %s instead') % mod,
+            warnings.DeprecationWarning, 2)
         try:
             return int(value)
         except (TypeError, ValueError):
@@ -192,6 +202,10 @@ class Test(object):
         @return: Nombre flottant obtenu après la conversion.
         @rtype: C{float}
         """
+        mod = 'vigilo.vigiconf.lib.confclasses.test'
+        warnings.warn(
+            _('Use the Float validator inside %s instead') % mod,
+            warnings.DeprecationWarning, 2)
         try:
             return float(value)
         except (TypeError, ValueError):

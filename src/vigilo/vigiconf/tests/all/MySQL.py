@@ -3,26 +3,41 @@
 # Copyright (C) 2017-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import unicode_literals
+
+from vigilo.vigiconf.lib.confclasses.validators import arg, String, Bool
 from vigilo.vigiconf.lib.confclasses.test import Test
-from vigilo.common.gettext import translate
+from vigilo.common.gettext import translate, l_
 _ = translate(__name__)
 
 
 class MySQL(Test):
-    """Vérifie la connectivité d'un serveur MySQL"""
+    """
+    Test a MySQL server's availability and collect statistics
+    about its current resource usage and lock conflicts.
+    """
 
+    @arg(
+        'login', String,
+        l_('Login'),
+        l_("""
+            Login to use during the connection to the server.
+
+            Note: both a login and a password must be defined
+            for this setting to have any effect.
+        """)
+    )
+    @arg(
+        'password', String,
+        l_('Password'),
+        l_("""
+            Password.to use during the connection.
+
+            Note: both a login and a password must be defined
+            for this setting to have any effect.
+        """)
+    )
     def add_test(self, login=None, password=None):
-        """
-        Teste la connectivité d'un serveur MySQL et récupère
-        des informations sur les ressources utilisées et les
-        échecs d'obtention de verrous sur les tables.
-
-        @param login: Nom d'utilisateur nécessaire à la connexion
-        @type login: C{str}
-        @param password: Mot de passe nécessaire à la connexion
-        @type password: C{str}
-        """
-
         if not login or password is None:
             self.add_external_sup_service("MySQL", "check_mysql")
         else:

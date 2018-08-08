@@ -16,15 +16,15 @@ class CollectorGeneratorTestCase(GeneratorBaseTestCase):
     def test_basic(self):
         """Collector: fonctionnement nominal"""
         test_list = self.testfactory.get_test("all.Interface")
-        self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0"})
+        self.host.add_tests(test_list, {"label": u"eth0", "ifname": u"eth0"})
         self._generate()
         self._validate()
 
     def test_unicode(self):
         """Collector: caractères unicode"""
         test_list = self.testfactory.get_test("all.Interface")
-        self.host.add_tests(test_list, {"label":u"aàeéècç",
-                                        "ifname":u"aàeéècç"})
+        self.host.add_tests(test_list, {"label": u"aàeéècç",
+                                        "ifname": u"aàeéècç"})
         self._generate()
         self._validate()
         cfgfile = os.path.join(self.basedir, "localhost", "collector",

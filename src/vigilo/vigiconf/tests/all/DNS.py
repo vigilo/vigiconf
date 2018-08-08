@@ -9,15 +9,9 @@ _ = translate(__name__)
 
 
 class DNS(Test):
-    """Vérifie la disponibilité d'un serveur DNS"""
+    """Test a DNS server's availability"""
 
     def add_test(self):
-        """
-        Teste la disponibilité d'un serveur DNS et lève une
-        alarme dont la gravité dépend du temps de réponse
-        du serveur.
-        """
-
         # On passe une chaîne vide en tant que requête,
         # ce qui permet de tester simplement le temps de réponse du serveur,
         # sans faire de suppositions sur les enregistrements qu'il contient.

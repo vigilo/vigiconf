@@ -3,8 +3,11 @@
 # Copyright (C) 2006-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-from vigilo.vigiconf.lib.confclasses.test import Test
+from __future__ import unicode_literals
 
+from vigilo.vigiconf.lib.confclasses.validators import arg, List, Threshold
+from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class InterrCS(Test):
@@ -12,16 +15,31 @@ class InterrCS(Test):
 
     oids = [".1.3.6.1.4.1.2021.11.59.0", ".1.3.6.1.4.1.2021.11.60.0"]
 
-    def add_test(self, warn=None, crit=None):
-        """
-        The parameters L{warn} and L{crit} must be tuples C{(max_interrupts,
-        max_context_switches)}.
+    @arg(
+        'warn', List(min=0, max=2, types=Threshold),
+        l_('WARNING threshold'),
+        l_("""
+            A list containing up to 2 thresholds for the WARNING state.
+            The first threshold applies to interrupts.
+            The second threshold applies to context switches.
 
-        @param warn: WARNING threshold
-        @type  warn: C{list}
-        @param crit: CRITICAL threshold
-        @type  crit: C{list}
-        """
+            Note: the number of WARNING and CRITICAL thresholds
+            must be the same.
+        """)
+    )
+    @arg(
+        'crit', List(min=0, max=2, types=Threshold),
+        l_('CRITICAL threshold'),
+        l_("""
+            A list containing up to 2 thresholds for the CRITICAL state.
+            The first threshold applies to interrupts.
+            The second threshold applies to context switches.
+
+            Note: the number of WARNING and CRITICAL thresholds
+            must be the same.
+        """)
+    )
+    def add_test(self, warn=None, crit=None):
         # Metrology
         self.add_collector_metro("Interrupts", "directValue", [],
                     [ "GET/.1.3.6.1.4.1.2021.11.59.0" ], "COUNTER")
@@ -29,6 +47,7 @@ class InterrCS(Test):
                     [ "GET/.1.3.6.1.4.1.2021.11.60.0" ], "COUNTER")
         self.add_graph("Interrupts and C.S.", [ "Interrupts","Context Switches" ],
                     "lines", "occurences", group="Performance")
+
         # Services
         if warn is not None and crit is not None:
             if warn[0] is not None and crit[0] is not None:

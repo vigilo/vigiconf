@@ -180,7 +180,8 @@ class Host(object):
         try:
             inst.add_test(**args)
         except TypeError:
-            spec = inspect.getargspec(inst.add_test)
+            test = getattr(inst.add_test, 'wrapped_func', inst.add_test)
+            spec = inspect.getargspec(test)
             # On récupère la liste des arguments obligatoires,
             # en prenant soin de supprimer l'argument "self".
             defaults = spec[3]
@@ -190,7 +191,7 @@ class Host(object):
                 args = spec[0][1:-len(defaults)]
             hclass = test_class.__module__.rsplit('.', 2)[-2]
             message = _('Test "%(class)s.%(test)s" on "%(host)s" needs the '
-                        'following arguments: %(args)s (and only those)') \
+                        'following arguments: %(args)s') \
                       % {'class': hclass,
                          'test': str(test_class.__name__),
                          'host': self.name,

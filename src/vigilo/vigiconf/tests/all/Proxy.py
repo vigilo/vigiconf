@@ -3,25 +3,24 @@
 # Copyright (C) 2006-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-from vigilo.vigiconf.lib.confclasses.test import Test
+from __future__ import unicode_literals
 
+from vigilo.vigiconf.lib.confclasses.validators import arg, String, Port, Bool
+from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class Proxy(Test):
     """Check if the HTTP proxy works as expected"""
 
+    @arg(
+        'port', Port,
+        l_('Port number'),
+        l_("TCP port used by the HTTP proxy")
+    )
+    @arg('url', String, l_('URL to check'))
+    @arg('auth', Bool, l_('Use authentication'))
     def add_test(self, port=8080, url="http://www.google.com", auth=False):
-        """
-        @param port:  TCP port used by the HTTP proxy
-        @type  port:  C{int}
-        @param url:   URL to check
-        @type  url:   C{str}
-        @param auth:  Whether to use authentication or not
-        @type  auth:  C{bool}
-        """
-        port = self.as_int(port)
-        auth = self.as_bool(auth)
-
         if url.startswith("http://"):
             if auth:
                 checkname = "check_proxy_auth"

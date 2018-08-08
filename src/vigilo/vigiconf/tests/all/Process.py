@@ -3,8 +3,13 @@
 # Copyright (C) 2006-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
-from vigilo.vigiconf.lib.confclasses.test import Test
+from __future__ import unicode_literals
 
+from vigilo.vigiconf.lib.confclasses.validators import (
+    arg, String, Enum, Threshold
+)
+from vigilo.vigiconf.lib.confclasses.test import Test
+from vigilo.common.gettext import l_
 
 
 class Process(Test):
@@ -12,20 +17,38 @@ class Process(Test):
 
     oids = [".1.3.6.1.2.1.25.4.2.1.2"]
 
+    @arg('warn', Threshold, l_('WARNING threshold'))
+    @arg('crit', Threshold, l_('CRITICAL threshold'))
+    @arg(
+        'label', String,
+        l_('Display name'),
+        l_("""
+            Name to display in the GUI. Defaults to the process name.
+
+            This settings also controls the name of the service
+            created in Nagios (service_description).
+        """)
+    )
+    @arg('processname', String, l_('Process name'))
+    @arg('section', Enum({
+            'name': l_("Process names"),
+            'path': l_("Full executable path"),
+            'params': l_("Process parameters"),
+        }),
+        l_('Section'),
+        l_("""
+            Section in the SNMP table where the process will be looked for.
+
+            Note: some processes may alter their name during their execution.
+            In that case, the new name actually replaces the full
+            executable's path.
+
+            Note: on some operating systems, the executable path
+            may be truncated (eg. to 15 characters on Linux).
+        """)
+    )
     def add_test(self, processname, section="name", label=None, warn="", crit="@0"):
-        """
-        @param processname: the name of the process
-        @type  processname: C{str}
-        @param section: the section to search in the SNMP table
-        @type  section: C{str}
-        @param label:   the label to display
-        @type  label:   C{str}
-        @param warn:    WARNING threshold
-        @type  warn:    C{threshold}
-        @param crit:    CRITICAL threshold
-        @type  crit:    C{threshold}
-        """
-        if label is None:
+        if not label:
             label = processname
         oids = {"name": ".1.3.6.1.2.1.25.4.2.1.2",
                 "path": ".1.3.6.1.2.1.25.4.2.1.4",

@@ -3,7 +3,11 @@
 # Copyright (C) 2006-2018 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
+from __future__ import unicode_literals
+
+from vigilo.vigiconf.lib.confclasses.validators import arg, Float
 from vigilo.vigiconf.tests.all.RAM import RAM as all_RAM
+from vigilo.common.gettext import l_
 
 
 class RAM(all_RAM):
@@ -11,16 +15,9 @@ class RAM(all_RAM):
 
     oids = [".1.3.6.1.4.1.2021.4"]
 
+    @arg('warn', Float, l_('WARNING threshold'))
+    @arg('crit', Float, l_('CRITICAL threshold'))
     def add_test(self, warn=80, crit=90):
-        """
-        @param warn: WARNING threshold
-        @type  warn:    C{float}
-        @param crit: CRITICAL threshold
-        @type  crit:    C{float}
-        """
-        warn = self.as_float(warn)
-        crit = self.as_float(crit)
-
         # Calcul de l'espace réellement utilisé :
         # memTotalReal - memAvailReal - memBuffer - memCached
         rpn_formula = [

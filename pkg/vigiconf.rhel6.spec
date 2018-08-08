@@ -28,6 +28,7 @@ Requires:   net-snmp-utils
 Requires:   sqlite >= 3
 Requires:   python-initgroups
 Requires:   python-netifaces
+Requires:   python-ordereddict
 
 Requires(pre): shadow-utils
 

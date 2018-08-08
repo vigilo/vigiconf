@@ -110,11 +110,13 @@ def write_autodoc():
         # Détermine les noms des paramètres
         # obligatoires et optionnels du test
         # pour cette classe d'équipements.
-        specs = list(inspect.getargspec(test.add_test))
-        specs[0] = specs[0][1:] # "self" est toujours présent.
-        optional = isinstance(specs[3], tuple) and len(specs[3]) or 0
-        optional = specs[0][-optional:]
-        required = specs[0][:-len(optional)]
+        func = getattr(test.add_test, 'wrapped_func', test.add_test)
+        specs = list(inspect.getargspec(func))
+        specs[0] = specs[0][1:]
+        required = (isinstance(specs[3], tuple) and len(specs[3]) or 0)
+        required = len(specs[0]) - required
+        optional = specs[0][required:]
+        required = specs[0][:required]
 
         # Prépare la liste des paramètres obligatoires/optionnels
         params = dict()
@@ -147,7 +149,6 @@ def write_autodoc():
             # Si un paramètre inconnu est documenté...
             argname = field.arg()
             if field.tag() in ('param', 'type') and argname not in params:
-                print(repr(field))
                 unknown.append(str(argname))
                 continue
 
