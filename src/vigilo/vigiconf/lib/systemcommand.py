@@ -9,6 +9,7 @@ Wrapper for system commands
 from __future__ import absolute_import
 
 import os
+import locale
 import subprocess
 
 from . import VigiConfError
@@ -67,9 +68,26 @@ class SystemCommand(object):
         """Executes the command"""
         if self.simulate:
             return self.getCommand()
+
         newenv = os.environ.copy()
+        language, encoding = locale.getdefaultlocale()
+
+        # SVN génère une erreur si on positionne la locale de LC_CTYPE à "C"
+        # et que le message de commit contient des diacritiques.
+        # Malheureusement, on ne peut pas juste se contenter de définir
+        # LC_ALL à "C" et surcharger ensuite "LC_CTYPE". A la place,
+        # il faut redéfinir toutes les variables séparément.
+        locale_vars = (
+            'NUMERIC', 'TIME', 'COLLATE', 'MONETARY', 'PAPER', 'NAME',
+            'ADDRESS', 'TELEPHONE', 'MEASUREMENT', 'IDENTIFICATION', 'MESSAGES'
+        )
+        if "LC_ALL" in newenv:
+            del newenv["LC_ALL"]
+        for var in locale_vars:
+            newenv["LC_%s" % var] = "C"
         newenv["LANG"] = "C"
-        newenv["LC_ALL"] = "C"
+        newenv["LC_CTYPE"] = "%s.UTF8" % (language if language else "en_US")
+
         try:
             self.process = subprocess.Popen(self.getCommand(),
                                             stdout=subprocess.PIPE,
