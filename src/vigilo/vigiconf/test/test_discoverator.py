@@ -145,9 +145,11 @@ class DiscoveratorLinux(DiscoveratorBaseTest, unittest.TestCase):
                 continue
             args.append(testdict["args"])
         goodargs = [[
+                        ("counter32", "False"),
                         ("ifname", "eth0"),
                         ("label", "eth0"),
                     ], [
+                        ("counter32", "False"),
                         ("ifname", "eth1"),
                         ("label", "eth1"),
                    ]]

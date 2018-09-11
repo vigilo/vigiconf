@@ -301,19 +301,12 @@ class Interface(Test):
                     except UnicodeDecodeError:
                         label = label.decode("ascii", "replace")
 
-            tests.append({"label": label, "ifname": ifname})
+            counter32 = (".1.3.6.1.2.1.31.1.1.1.6.%s" % intfid) not in oids
+            tests.append({
+                "label": label,
+                "ifname": ifname,
+                "counter32": str(counter32),
+            })
         return tests
-
-
-    @classmethod
-    def detect_attribute_snmp(cls, oids):
-        """Detection method for the host attribute used in this test.
-        See the documentation in the main Test class for details"""
-        # Search if HighCapacity Counter must be disabled
-        for oid in oids.keys():
-            if oid.startswith(".1.3.6.1.2.1.31.1.1.1.6."):
-                return None
-        return {"DisableHighCapacityInterface": "yes"}
-
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
