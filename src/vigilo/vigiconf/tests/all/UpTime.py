@@ -36,7 +36,7 @@ class UpTime(Test):
             specified threshold.
         """)
     )
-    def add_test(self, warn=900, crit=400):
+    def add_test(self, warn="900:", crit="400:"):
         self.add_collector_service("UpTime", "sysUpTime", [crit, warn],
                             ["GET/.1.3.6.1.2.1.1.3.0"])
         self.add_collector_metro("sysUpTime", "m_sysUpTime", [],

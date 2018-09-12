@@ -64,7 +64,7 @@ class Partition(Test):
             Otherwise, they represent the minimum free space expected in bytes.
         """)
     )
-    def add_test(self, label, partname, max=None, warn=80, crit=95, percent=True):
+    def add_test(self, label, partname, max=None, warn="~:80", crit="~:95", percent=True):
         self.add_collector_service("Partition %s" % label, "storage",
                     [partname, warn, crit, int(percent)],
                     ["WALK/.1.3.6.1.2.1.25.2.3.1.3",
