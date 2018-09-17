@@ -421,9 +421,15 @@ class TestFactory(object):
         Retourne C{True} si l'objet passé en argument est une classe Python
         décrivant un test de supervision ou C{False} dans le cas contraire.
         """
-        return type(obj) == type(Test) and \
-                issubclass(obj, Test) and \
-                obj != Test
+        if type(obj) != type(Test):
+            return False
+        if not issubclass(obj, Test):
+            return False
+        if not hasattr(obj, 'add_test'):
+            return False
+        if obj.add_test.im_func is Test.add_test.im_func:
+            return False
+        return True
 
     def load_tests(self):
         """
