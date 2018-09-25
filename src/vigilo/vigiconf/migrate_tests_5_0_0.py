@@ -50,9 +50,14 @@ def _convert_tests(tree, hclasses):
             if not test:
                 continue
 
+            if not hasattr(test.add_test, 'wrapped_func'):
+                func = test.add_test
+            else:
+                func = test.add_test.wrapped_func
+
             # Récupère la liste des arguments connus pour ce test
             # (et cette classe) à partir de la signature de add_test().
-            known_args = list(inspect.getargspec(test.add_test))[0][1:]
+            known_args = list(inspect.getargspec(func))[0][1:]
             new_elem = deepcopy(xml_test)
             new_elem.set('name', "%s.%s" % (cls, testname))
 
