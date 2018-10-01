@@ -448,9 +448,9 @@ class Threshold(Validator):
             tmp = tmp[1:]
         start, sep_, end = tmp.partition(':')
         if start is not None and start != '~':
-            start = int(start)
+            start = float(start)
         if end is not None and end != '':
-            end = int(end)
+            end = float(end)
         return value
 
     def export(self):
