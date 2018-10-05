@@ -1059,15 +1059,13 @@ class HostFactory(object):
                     dtarget = get_attrib(elem, 'target')
                     dvalue = get_text(elem)
 
-                    # directive nagios générique pour un hôte ou sur
-                    # l'ensemble des services (suivant la target)
                     if test_name is None:
-                        cur_host.add_nagios_directive(dname, dvalue,
-                                                      target=dtarget)
-                        continue
-
-                    # directive nagios spécifique à un service
-                    test_directives[dname] = dvalue
+                        # directive nagios générique pour un hôte ou sur
+                        # l'ensemble des services (suivant la target)
+                        directives[(dname, dtarget)] = dvalue
+                    else:
+                        # directive nagios spécifique à un service
+                        test_directives[dname] = dvalue
 
                 elif elem.tag == "group":
                     group_name = get_text(elem)
@@ -1150,6 +1148,10 @@ class HostFactory(object):
                     # On applique tous les templates dans l'ordre :
                     # des parents aux enfants (en excluant l'hôte = None).
                     for template in nodes[:-1]:
+                        # Le template "default" est déjà appliqué
+                        # lorsqu'on tombe sur la balise ouvrante <host>.
+                        if template == 'default':
+                            continue
                         self.hosttemplatefactory.apply(cur_host, template)
 
                     # On ré-applique les attributs après les templates, au cas
@@ -1174,8 +1176,9 @@ class HostFactory(object):
                     if cur_host.get_attribute("force-passive"):
                         cur_host.add_nagios_directive("use", "generic-passive-host")
 
-                    for (dname, dvalue) in directives.iteritems():
-                        cur_host.add_nagios_directive(dname, dvalue)
+                    for ((dname, dtarget), dvalue) in directives.iteritems():
+                        cur_host.add_nagios_directive(dname, dvalue,
+                                                      target=dtarget)
 
                     for (service, tagname, tagvalue) in tags:
                         cur_host.add_tag(service, tagname, tagvalue)
