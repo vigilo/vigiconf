@@ -82,6 +82,7 @@ def _main(args):
         print("Usage: %s <input file> [output file]" % sys.argv[0])
         sys.exit(1)
 
+    print("Migrating '%s'" % (args[0], ))
     tree = etree.parse(args[0])
     xpath_hosts = etree.XPath("(//host|//template)")
     for host in xpath_hosts(tree):
