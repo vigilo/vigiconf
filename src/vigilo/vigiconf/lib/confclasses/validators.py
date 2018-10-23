@@ -620,7 +620,14 @@ class arg(object):
                     continue
 
                 validator = func.args[name][0]
-                new_args[name] = validator.convert(name, kw[name])
+                try:
+                    new_args[name] = validator.convert(name, kw[name])
+                except ParsingError as e:
+                    raise ParsingError(_('Error in test "%(test)s" on host "%(host)s": %(error)s') % {
+                                             'test': instance.get_fullname(),
+                                             'host': instance.host.name,
+                                             'error': unicode(e),
+                                         })
 
             # Make sure the method is bound to the instance.
             bound = func.__get__(instance)
