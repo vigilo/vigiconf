@@ -85,7 +85,7 @@ def get_data_files():
 
 
 setup(name='vigilo-vigiconf',
-        version='5.0.1',
+        version='5.1.0dev',
         author='Vigilo Team',
         author_email='contact.vigilo@c-s.fr',
         url='https://www.vigilo-nms.com/',
