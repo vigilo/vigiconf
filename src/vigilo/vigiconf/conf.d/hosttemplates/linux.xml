@@ -22,7 +22,7 @@
     <test name="ucd.DiskIO"/>
     <test name="ucd.RAM"/>
     <test name="ucd.Load"/>
-    <test name="linux.CPU"/>
+    <test name="ucd.CPU"/>
     <test name="linux.RAID"/>
 </template>
 </templates>
