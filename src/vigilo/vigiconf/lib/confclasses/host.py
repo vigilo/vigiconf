@@ -75,6 +75,7 @@ class Host(object):
                 "netflow"        : {},
                 "graphGroups"    : {},
                 "reports"        : {},
+                "snmpTransport"  : "udp",
                 "snmpVersion"    : "2",
                 "snmpCommunity"  : "public",
                 "snmpPort"       : 161,
