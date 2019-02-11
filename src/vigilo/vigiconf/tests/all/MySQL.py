@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #pylint: disable-msg=C0301,C0111,W0232,R0201,R0903,W0221
-# Copyright (C) 2017-2018 CS-SI
+# Copyright (C) 2017-2019 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 from __future__ import unicode_literals

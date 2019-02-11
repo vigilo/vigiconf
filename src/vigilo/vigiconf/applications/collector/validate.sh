@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2007-2018 CS-SI
+# Copyright (C) 2007-2019 CS-SI
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 export BASE=$1
