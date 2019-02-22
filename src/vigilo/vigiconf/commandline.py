@@ -11,6 +11,7 @@ from __future__ import absolute_import, print_function
 import sys
 import os
 import pwd
+import json
 import argparse
 import warnings
 from pkg_resources import working_set
@@ -180,6 +181,29 @@ def server(user, args):
     dispatchator.server_status(args.server, args.status, args.no_deploy)
 
 
+def get_config(user, args):
+    conf.load_general_conf(['general'])
+    # @FIXME: Ce serait mieux de ne pas dupliquer du code de conf.py
+    # Pour le moment, c'est difficilement évitable (les clés contenant
+    # de la configuration ne sont pas exposées par conf.py).
+    conf_keys = (
+        'apps',
+        'apps_conf',
+        'confid',
+        'appsGroupsByServer',
+        'appsGroupsBackup',
+    )
+    dumpable_conf = {}
+    for key in conf_keys:
+        if hasattr(conf, key):
+            dumpable_conf[key] = getattr(conf, key)
+            # Le module "json" de Python ne peut pas dumper des set()
+            # et on ne veut pas écrire un encodeur juste pour ça.
+            if isinstance(dumpable_conf[key], set):
+                dumpable_conf[key] = list(dumpable_conf[key])
+    print(json.dumps(dumpable_conf, indent=2 if args.pretty else None))
+
+
 def parse_args(): # pragma: no cover
     """Parses the commandline and starts the requested actions"""
     common_args_parser = argparse.ArgumentParser()
@@ -342,6 +366,16 @@ def parse_args(): # pragma: no cover
     parser_server.add_argument("server", nargs="+",
                                help=N_("Server name(s) to enable/disable"))
 
+    # get-config
+    parser_config = subparsers.add_parser('get-config',
+                        add_help=False,
+                        parents=[common_args_parser],
+                        help=N_("Retrieve various information about VigiConf's configuration"))
+    parser_config.add_argument("-p", "--pretty", action="store_true",
+                        default=False,
+                        help=N_("Output the configuration in a pretty way."))
+    parser_config.set_defaults(func=get_config)
+
     return parser.parse_args()
 
 
@@ -422,7 +456,7 @@ def main(): # pragma: no cover
 
     # Pour les commandes basiques qui ne font pas d'écritures,
     # il n'est pas nécessaire de poser un verrou.
-    if args.func not in (list_tests, discover):
+    if args.func not in (list_tests, discover, get_config):
         lockfile = settings["vigiconf"].get("lockfile",
                             "/var/lock/subsys/vigilo-vigiconf/vigiconf.token")
         lock_result = grab_lock(lockfile)
