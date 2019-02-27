@@ -6,7 +6,7 @@ Cette classe contient des validateurs chargés de convertir et valider
 les arguments des tests.
 """
 
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals
 
 import re
 import sys
@@ -25,7 +25,6 @@ from vigilo.vigiconf.lib.exceptions import ParsingError
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
-
 __all__ = (
     'Validator',
     'String',
@@ -39,6 +38,7 @@ __all__ = (
     'Time',
     'Port',
     'arg',
+    'str_types',
 )
 
 
@@ -46,6 +46,7 @@ if sys.version_info[0] < 3:
     str_types = (str, unicode)
 else:
     str_types = (str, bytes)
+
 
 class Validator(object):
     """Base class for argument validators."""
@@ -71,12 +72,12 @@ class String(Validator):
     """
     A validator that expects a string as its input.
 
-    >>> String().convert('foobar')
-    'foobar'
-    >>> String().convert(['foobar'])
+    >>> String().convert('arg1', 'foobar')
+    u'foobar'
+    >>> String().convert('arg1', ['foobar'])
     Traceback (most recent call last):
         ...
-    ValueError: ['foobar']
+    ParsingError: Invalid value for 'arg1': [u'foobar']
     """
 
     epytype = 'C{str}'
@@ -110,18 +111,18 @@ class Bool(Validator):
     """
     A validator that expects a boolean as its input.
 
-    >>> Bool().convert('true')
+    >>> Bool().convert('arg1', 'true')
     True
-    >>> Bool().convert('false')
+    >>> Bool().convert('arg1', 'false')
     False
-    >>> Bool().convert(['false'])
+    >>> Bool().convert('arg1', ['false'])
     Traceback (most recent call last):
         ...
-    ValueError: ['false']
-    >>> Bool().convert('foobar')
+    ParsingError: Invalid value for 'arg1': [u'false']
+    >>> Bool().convert('arg1', 'foobar')
     Traceback (most recent call last):
         ...
-    ValueError: foobar
+    ParsingError: Invalid value for 'arg1': u'foobar'
     """
 
     epytype = 'C{bool}'
@@ -145,22 +146,22 @@ class Integer(Validator):
     A validator that expects an integer as its input.
     A range of valid values can also be specified.
 
-    >>> Integer().convert('42')
+    >>> Integer().convert('arg1', '42')
     42
-    >>> Integer().convert('foobar')
+    >>> Integer().convert('arg1', 'foobar')
     Traceback (most recent call last):
         ...
-    ValueError: invalid literal for int() with base 10: 'foobar'
-    >>> Integer(min=0, max=100).convert('100')
+    ParsingError: Invalid value for 'arg1': u'foobar'
+    >>> Integer(min=0, max=100).convert('arg1', '100')
     100
-    >>> Integer(min=0, max=100).convert('101')
+    >>> Integer(min=0, max=100).convert('arg1', '101')
     Traceback (most recent call last):
         ...
-    ValueError: 101
-    >>> Integer(min=0, max=100, max_incl=False).convert('100')
+    ParsingError: Invalid value for 'arg1': 101
+    >>> Integer(min=0, max=100, max_incl=False).convert('arg1', '100')
     Traceback (most recent call last):
         ...
-    ValueError: 100
+    ParsingError: Invalid value for 'arg1': 100
     """
 
     numeric_type = 'int'
@@ -182,13 +183,15 @@ class Integer(Validator):
         self.max_cmp = operator.__le__ if max_incl else operator.__lt__
         self.step = step
 
-    @classmethod
-    def _convert(cls, value):
-        return int(value)
+    def _convert(self, arg, value):
+        try:
+            return int(value)
+        except ValueError:
+            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
 
     def convert(self, arg, value):
         try:
-            value = self._convert(value)
+            value = self._convert(arg, value)
         except ValueError:
             raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
 
@@ -220,29 +223,31 @@ class Float(Integer):
     A range of valid values can also be specified.
 
 
-    >>> Float().convert('4.2')
-    4.2
-    >>> Float().convert('foobar')
+    >>> Float().convert('arg1', '4.0')
+    4.0
+    >>> Float().convert('arg1', 'foobar')
     Traceback (most recent call last):
         ...
-    ValueError: could not convert string to float: 'foobar'
-    >>> Float(min=0, max=100).convert('100')
+    ParsingError: Invalid value for 'arg1': u'foobar'
+    >>> Float(min=0, max=100).convert('arg1', '100')
     100.0
-    >>> Float(min=0, max=100).convert('101')
+    >>> Float(min=0, max=100).convert('arg1', '101')
     Traceback (most recent call last):
         ...
-    ValueError: 101.0
-    >>> Float(min=0, max=100, max_incl=False).convert('100')
+    ParsingError: Invalid value for 'arg1': 101.0
+    >>> Float(min=0, max=100, max_incl=False).convert('arg1', '100')
     Traceback (most recent call last):
         ...
-    ValueError: 100.0
+    ParsingError: Invalid value for 'arg1': 100.0
     """
 
     numeric_type = 'float'
 
-    @classmethod
-    def _convert(cls, value):
-        return float(value)
+    def _convert(self, arg, value):
+        try:
+            return float(value)
+        except ValueError:
+            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
 
 
 class Port(Integer):
@@ -261,26 +266,26 @@ class List(Validator):
     to constrain the items' type based on their position
     inside the list. See L{Struct} for that use case.
 
-    >>> List().convert( () )
+    >>> List(types=String).convert('arg1',  () )
     ()
-    >>> List().convert('foobar')
+    >>> List().convert('arg1', 'foobar')
     Traceback (most recent call last):
         ...
-    ValueError: foobar
-    >>> List(min=2).convert( ('foo', ) )
+    ValueError: At least one type must be given
+    >>> List(min=2, types=String).convert('arg1',  ('foo', ) )
     Traceback (most recent call last):
         ...
-    ValueError: too few values
-    >>> List(max=1).convert( ('foo', 'bar') )
+    ParsingError: Invalid value for 'arg1': (u'foo',)
+    >>> List(max=1, types=String).convert('arg1',  ('foo', 'bar') )
     Traceback (most recent call last):
         ...
-    ValueError: too many values
-    >>> List(types=Integer).convert( ('23', '42') )
+    ParsingError: Invalid value for 'arg1': (u'foo', u'bar')
+    >>> List(types=Integer).convert('arg1',  ('23', '42') )
     (23, 42)
-    >>> List(types=Integer).convert( ('foo', ) )
+    >>> List(types=Integer).convert('arg1',  ('foo', ) )
     Traceback (most recent call last):
         ...
-    ValueError: foo
+    ParsingError: Invalid value for 'arg1': u'foo'
     """
 
     epytype = 'C{tuple}'
@@ -350,30 +355,30 @@ class Struct(Validator):
     A validator that expects a fixed-size list of values as its input.
     The types of the elements in the list can then be restricted.
 
-    >>> Struct().convert( () )
+    >>> Struct().convert('arg1',  () )
     ()
-    >>> Struct(Integer).convert( ('42', ) )
+    >>> Struct(Integer).convert('arg1',  ('42', ) )
     (42,)
-    >>> Struct(Integer, (Integer, String)).convert( ('42', '23') )
+    >>> Struct(Integer, (Integer, String)).convert('arg1',  ('42', '23') )
     (42, 23)
-    >>> Struct(Integer, (Integer, String)).convert( ('42', 'foo') )
-    (42, 'foo')
-    >>> Struct().convert('foobar')
+    >>> Struct(Integer, (Integer, String)).convert('arg1',  ('42', 'foo') )
+    (42, u'foo')
+    >>> Struct().convert('arg1', 'foobar')
     Traceback (most recent call last):
         ...
-    ValueError: foobar
-    >>> Struct().convert( ('foo', ) )
+    ParsingError: Invalid value for 'arg1': u'foobar'
+    >>> Struct().convert('arg1',  ('foo', ) )
     Traceback (most recent call last):
         ...
-    ValueError: too many values
-    >>> Struct(String).convert( () )
+    ParsingError: Invalid value for 'arg1': (u'foo',)
+    >>> Struct(String).convert('arg1',  () )
     Traceback (most recent call last):
         ...
-    ValueError: too many values
-    >>> Struct(Integer).convert( ('foo', ) )
+    ParsingError: Invalid value for 'arg1': ()
+    >>> Struct(Integer).convert('arg1',  ('foo', ) )
     Traceback (most recent call last):
         ...
-    ValueError: foo
+    ParsingError: Invalid value for 'arg1': (u'foo',)
     """
 
     epytype = 'C{tuple}'
@@ -420,20 +425,20 @@ class Threshold(Validator):
     A validator that expects a Nagios threshold specification
     as its input.
 
-    >>> Threshold().convert('10')
-    '10'
-    >>> Threshold().convert('10:')
-    '10:'
-    >>> Threshold().convert('~:10')
-    '~:10'
-    >>> Threshold().convert('10:20')
-    '10:20'
-    >>> Threshold().convert('@10:20')
-    '@10:20'
-    >>> Threshold().convert('@')
+    >>> Threshold().convert('arg1', '10')
+    u'10'
+    >>> Threshold().convert('arg1', '10:')
+    u'10:'
+    >>> Threshold().convert('arg1', '~:10')
+    u'~:10'
+    >>> Threshold().convert('arg1', '10:20')
+    u'10:20'
+    >>> Threshold().convert('arg1', '@10:20')
+    u'@10:20'
+    >>> Threshold().convert('arg1', '@')
     Traceback (most recent call last):
         ...
-    ValueError: invalid literal for int() with base 10: ''
+    ParsingError: Invalid value for 'arg1': u'@'
     """
 
     epytype = 'C{str}'
@@ -447,10 +452,19 @@ class Threshold(Validator):
         if tmp.startswith('@'):
             tmp = tmp[1:]
         start, sep_, end = tmp.partition(':')
+
         if start is not None and start != '~':
-            start = float(start)
+            try:
+                start = float(start)
+            except ValueError:
+                raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+
         if end is not None and end != '':
-            end = float(end)
+            try:
+                end = float(end)
+            except ValueError:
+                raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+
         return value
 
     def export(self):
@@ -460,20 +474,20 @@ class Threshold(Validator):
 class Enum(Validator):
     """
     A validator that restricts valid values
-    based on a list of possible choices.
+    based on a dictionary of possible choices.
 
-    >>> Enum('blue', 'red', 'yellow').convert('yellow')
-    'yellow'
-    >>> Enum('blue', 'red', 'yellow').convert('green')
+    >>> Enum(blue=1, red=2, yellow=3).convert('arg1', 'yellow')
+    u'yellow'
+    >>> Enum(blue=1, red=2, yellow=3).convert('arg1', 'green')
     Traceback (most recent call last):
         ...
-    ValueError: green
-    >>> Enum(yes="I agree", no="I disagree"}).convert('yes')
-    'yes'
-    >>> Enum(yes="I agree", no="I disagree"}).convert('maybe')
+    ParsingError: Invalid value for 'arg1': u'green'
+    >>> Enum(yes="I agree", no="I disagree").convert('arg1', 'yes')
+    u'yes'
+    >>> Enum(yes="I agree", no="I disagree").convert('arg1', 'maybe')
     Traceback (most recent call last):
         ...
-    ValueError: maybe
+    ParsingError: Invalid value for 'arg1': u'maybe'
     """
 
     epytype = 'C{str}'
@@ -495,22 +509,22 @@ class Time(Validator):
     """
     A validator that expects a time in 24h format.
 
-    >>> Time().convert('13:37')
-    '13:37'
-    >>> Time().convert('0:00')
-    '00:00'
-    >>> Time().convert('abc')
+    >>> Time().convert('arg1', '13:37')
+    u'13:37'
+    >>> Time().convert('arg1', '0:00')
+    u'00:00'
+    >>> Time().convert('arg1', 'abc')
     Traceback (most recent call last):
         ...
-    ValueError: abc
-    >>> Time().convert('0:0')
+    ParsingError: Invalid value for 'arg1': u'abc'
+    >>> Time().convert('arg1', '0:0')
     Traceback (most recent call last):
         ...
-    ValueError: 0:0
-    >>> Time().convert('0')
+    ParsingError: Invalid value for 'arg1': u'0:0'
+    >>> Time().convert('arg1', '0')
     Traceback (most recent call last):
         ...
-    ValueError: 0
+    ParsingError: Invalid value for 'arg1': u'0'
     """
 
     epytype = 'C{str}'
