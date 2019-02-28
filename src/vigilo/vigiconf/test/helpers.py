@@ -58,17 +58,18 @@ def setup_db():
     #settings["database"]["sqlalchemy_url"] = "sqlite:///%s/vigilo.db" % tmpdir
     transaction.abort()
 
-    # La vue GroupPath dépend de Group et GroupHierarchy.
-    # SQLAlchemy ne peut pas détecter correctement la dépendance.
-    # On crée le schéma en 2 fois pour contourner ce problème.
-    # Idem pour la vue UserSupItem (6 dépendances).
-    from vigilo.models.tables.grouppath import GroupPath
-    from vigilo.models.tables.usersupitem import UserSupItem
+    # On crée les tables, puis les vues.
     mapped_tables = metadata.tables.copy()
-    del mapped_tables[GroupPath.__tablename__]
-    del mapped_tables[UserSupItem.__tablename__]
+    views = {}
+    for tablename in mapped_tables:
+        info = mapped_tables[tablename].info or {}
+        if info.get('vigilo_view'):
+            views[tablename] = mapped_tables[tablename]
+    for view in views:
+        del mapped_tables[view]
+
     metadata.create_all(tables=mapped_tables.itervalues())
-    metadata.create_all(tables=[GroupPath.__table__, UserSupItem.__table__])
+    metadata.create_all(tables=views.values())
 
     DBSession.add(StateName(statename=u'OK', order=1))
     DBSession.add(StateName(statename=u'UNKNOWN', order=2))
