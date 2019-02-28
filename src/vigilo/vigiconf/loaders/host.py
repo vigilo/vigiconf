@@ -615,16 +615,25 @@ class PDSLoader(DBLoader):
 
     def load_conf(self):
         datasources = conf.hostsConf[self.host.name]['dataSources']
+
+        # Prépare la liste des facteurs des perfdatasources en amont,
+        # pour ne pas re-parcourir ces données pour chaque métrique de l'hôte.
+        factors = {}
+        for graphdata in conf.hostsConf[self.host.name]['graphItems'].values():
+            factors.update(graphdata['factors'])
+
         for dsname, dsdata in datasources.iteritems():
             pds = dict(idhost=self.host.idhost, name=unicode(dsname),
                        type=unicode(dsdata["dsType"]),
-                       label=unicode(dsdata['label']))
-            if "max" in dsdata and dsdata["max"] is not None:
+                       label=unicode(dsdata['label']),
+                       factor=float(factors.get(dsname, 1)))
+            if dsdata.get("max") is not None:
                 pds["max"] = float(dsdata["max"])
-            for graphdata in conf.hostsConf[self.host.name]\
-                                                ['graphItems'].values():
-                if graphdata['factors'].get(dsname, None) is not None:
-                    pds["factor"] = float(graphdata['factors'][dsname])
+            else:
+                # Force la réinitialisation du maximum si une ancienne valeur
+                # se trouvait en base de données et que le test à appliquer
+                # n'en spécifie pas (cf. #1874).
+                pds["max"] = None
             self.add(pds)
 
 
@@ -663,8 +672,8 @@ class GraphLoader(DBLoader):
                conf.hostsConf[self.host.name]['graphItems'].iteritems())
         pds_in_host_conf = set(itertools.chain(*pds))
 
-        # On positionne self.has_new_pds à True si de nouvelles métriques
-        # ont été insérées.
+        # On positionne self.has_new_pds à True si des métriques
+        # ont été ajoutées ou supprimées.
         self.has_new_pds = pds_in_host_db != pds_in_host_conf
 
     def _list_db(self):
