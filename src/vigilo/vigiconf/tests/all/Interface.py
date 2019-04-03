@@ -146,9 +146,24 @@ class Interface(Test):
             a WARNING or CRITICAL alarm.
         """)
     )
+    @arg('alarmondown',
+         Enum(OrderedDict((
+             ("i", l_("Ignore")),
+             ("w", l_("WARNING alarm")),
+             ("c", l_("CRITICAL alarm")),
+         ))),
+         l_('Down state handling'),
+         l_("""
+             Indicates how to handle the down state of the interface.
+
+             You may either ignore this condition or generate
+             a WARNING or CRITICAL alarm.
+         """)
+    )
     def add_test(self, label, ifname, max=None,
                  errors=True, staticindex=False, warn=None, crit=None,
-                 counter32=False, teststate=True, admin="i", dormant="c" ):
+                 counter32=False, teststate=True, admin="i", dormant="c",
+                 alarmondown="c"):
         snmp_oids = {
             # using by default High Capacity (64Bits) COUNTER for in and out
             # http://www.ietf.org/rfc/rfc2233.txt
@@ -193,7 +208,7 @@ class Interface(Test):
 
         if teststate:
             self.add_collector_service("Interface %s" % label, collector_function,
-                [ifname, label, admin, dormant],
+                [ifname, label, admin, dormant, alarmondown],
                 ["WALK/.1.3.6.1.2.1.2.2.1.2", "WALK/.1.3.6.1.2.1.2.2.1.7",
                  "WALK/.1.3.6.1.2.1.2.2.1.8", "WALK/.1.3.6.1.2.1.31.1.1.1.18"])
 

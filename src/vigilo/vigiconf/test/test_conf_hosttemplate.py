@@ -49,7 +49,7 @@ class HostTemplates(unittest.TestCase):
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertTrue(conf.hostsConf["testserver1"]["SNMPJobs"]
                 [('Interface Loopback', 'service')]["params"]
-                == ["lo", "Loopback", "i", "c"],
+                == ["lo", "Loopback", "i", "c", "c"],
                 "add_test does not work with test args")
 
     def test_add_group_simple(self):
@@ -190,4 +190,3 @@ class HostTemplates(unittest.TestCase):
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertEqual("passive",
                 conf.hostsConf["testserver1"]["services"]["HTTP"]["type"])
-

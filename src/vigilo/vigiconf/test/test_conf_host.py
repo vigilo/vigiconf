@@ -115,7 +115,7 @@ class HostMethods(unittest.TestCase):
                 conf.hostsConf["testserver1"]["SNMPJobs"]\
                     [ ("Interface eth0", "service") ]['params'],
                 # 'c' correspond à la valeur par défaut de "dormant".
-                ['eth0', 'eth0', value, 'c'])
+                ['eth0', 'eth0', value, 'c', 'c'])
 
         # Les autres valeurs doivent être rejetées.
         self.assertRaises(ParsingError, self.host.add_tests,
@@ -133,11 +133,29 @@ class HostMethods(unittest.TestCase):
                 conf.hostsConf["testserver1"]["SNMPJobs"]\
                     [ ("Interface eth0", "service") ]['params'],
                 # 'i' correspond à la valeur par défaut de "admin".
-                ['eth0', 'eth0', 'i', value])
+                ['eth0', 'eth0', 'i', value, 'c'])
 
         # Les autres valeurs doivent être rejetées.
         self.assertRaises(ParsingError, self.host.add_tests,
             test_list, {"label":"eth0", "ifname":"eth0", "dormant": ''})
+
+    def test_invalid_INTF_alarmondown_value(self):
+        """Valeurs autorisées pour le paramètre 'alarmondown' du test Interface."""
+        test_list = self.testfactory.get_test("all.Interface")
+
+        # Les valeurs i/w/c doivent être acceptées.
+        for value in ('i', 'w', 'c'):
+            self.host.add_tests(test_list, {"label":"eth0", "ifname":"eth0",
+                                            "alarmondown": value})
+            self.assertEqual(
+                conf.hostsConf["testserver1"]["SNMPJobs"]\
+                    [ ("Interface eth0", "service") ]['params'],
+                # 'i' correspond à la valeur par défaut de "admin".
+                ['eth0', 'eth0', 'i', 'c', value])
+
+        # Les autres valeurs doivent être rejetées.
+        self.assertRaises(ParsingError, self.host.add_tests,
+            test_list, {"label":"eth0", "ifname":"eth0", "alarmondown": ''})
 
     def test_add_tag_hosts(self):
         """Test for the add_tag method on hosts"""
