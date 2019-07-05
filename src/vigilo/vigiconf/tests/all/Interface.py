@@ -47,7 +47,7 @@ class Interface(Test):
         l_('CRITICAL thresholds'),
         l_("""
             A list containing either 0, 2, 4 or 6 values,
-            representing the thresholds for the WARNING state.
+            representing the thresholds for the CRITICAL state.
 
             The thresholds apply (in order) to:
                 -   Incoming traffic (in bits/s)
