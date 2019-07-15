@@ -248,7 +248,7 @@ class HostTemplateFactory(object):
             if not os.path.exists(pathdir):
                 continue
             for root, dirs, files in os.walk(pathdir):
-                for f in files:
+                for f in sorted(files):
                     if not f.endswith(".xml") or f.startswith("__"):
                         continue
                     tplfile = os.path.join(root, f)
