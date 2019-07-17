@@ -313,7 +313,7 @@ class List(Validator):
         self.step = step
 
     def convert(self, arg, value):
-        if not isinstance(value, tuple):
+        if not isinstance(value, (tuple, list)):
             raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
 
         vlen = len(value)
