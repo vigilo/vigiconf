@@ -65,14 +65,6 @@ class Test(object):
     def add_collector_metro(self, *args, **kwargs):
         self.host.add_collector_metro(*args, **kwargs)
 
-    def add_collector_service_and_metro(self, *args, **kwargs):
-        self._inject_defaults(kwargs)
-        self.host.add_collector_service_and_metro(*args, **kwargs)
-
-    def add_collector_service_and_metro_and_graph(self, *args, **kwargs):
-        self._inject_defaults(kwargs)
-        self.host.add_collector_service_and_metro_and_graph(*args, **kwargs)
-
     def add_graph(self, *args, **kwargs):
         self.host.add_graph(*args, **kwargs)
 
@@ -539,7 +531,6 @@ class TestFactory(object):
         @param testclass: the test class to get the host class from
         @type  testclass: L{Test}
         """
-        
         return testclass.__module__.rsplit('.', 2)[-2]
 
     def load_hclasses_checks(self):

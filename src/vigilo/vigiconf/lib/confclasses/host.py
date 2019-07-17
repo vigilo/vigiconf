@@ -43,7 +43,6 @@ class Host(object):
     @ivar name: the hostname
     @type name: C{str}
     """
-
     def __init__(self, hosts, filename, name, address, servergroup):
         self.hosts = hosts
         self.name = name
@@ -425,68 +424,6 @@ class Host(object):
                                          'vars': variables,
                                          'reRouteFor': reroutefor,
                                          } )
-
-    def add_collector_service_and_metro(self, name, label, supfunction,
-                    supparams, supvars, metrofunction, metroparams, metrovars,
-                    dstype, reroutefor=None, directives=None):
-        """
-        Helper function for L{add_collector_service}() and
-        L{add_collector_metro}().
-        @param name: the service and datasource name
-        @type  name: C{str}
-        @param label: the service and datasource display label
-        @type  label: C{str}
-        @param supfunction: the Collector function to use for supervision
-        @type  supfunction: C{str}
-        @param supparams: the parameters for the Collector supervision function
-        @type  supparams: C{list}
-        @param supvars: the variables for the Collector supervision function
-        @type  supvars: C{list}
-        @param metrofunction: the Collector function to use for metrology
-        @type  metrofunction: C{str}
-        @param metroparams: the parameters for the Collector metrology function
-        @type  metroparams: C{list}
-        @param metrovars: the variables for the Collector metrology function
-        @type  metrovars: C{list}
-        @param dstype: datasource type
-        @type  dstype: "GAUGE" or "COUNTER", see RRDtool documentation
-        @param reroutefor: service routing information
-        @type  reroutefor: C{dict} with "host" and "service" as keys
-        @param directives: A dictionary of directives to be passed on
-            to Nagios.
-        @type  directives: C{dict}
-        """
-        self.add_collector_service(name, supfunction, supparams, supvars,
-                        reroutefor=reroutefor, directives=directives)
-        self.add_collector_metro(name, metrofunction, metroparams, metrovars,
-                                 dstype, label=label, reroutefor=reroutefor)
-
-    def add_collector_service_and_metro_and_graph(self, name, label, oid,
-            th1, th2, dstype, template, vlabel, supcaption=None,
-            supfunction="thresholds_OID_simple", metrofunction="directValue",
-            group="General", reroutefor=None, directives=None):
-        """
-        Helper function for L{add_collector_service}(),
-        L{add_collector_metro}() and L{add_graph}(). See those methods for
-        argument details
-        """
-        if not label:
-            label = name
-        if supcaption is None:
-            supcaption = "%s: %%s" % label
-        self.add_collector_service_and_metro(name, label, supfunction,
-                    [th1, th2, supcaption], ["GET/%s"%oid], metrofunction,
-                    [], [ "GET/%s"%oid ], dstype,
-                    reroutefor=reroutefor,
-                    directives=directives)
-        if reroutefor != None:
-            target = reroutefor['host']
-            name = reroutefor['service']
-        else:
-            target = self.name
-        graph = Graph(self.hosts, unicode(label), [ unicode(name) ],
-                      unicode(template), unicode(vlabel), group=unicode(group))
-        graph.add_to_host(target)
 
     def add_graph(self, title, dslist, template, vlabel, group="General",
                   factors=None, last_is_max=False, min=None, max=None):

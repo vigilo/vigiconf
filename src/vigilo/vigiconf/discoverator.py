@@ -36,6 +36,34 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
     return [int(text) if text.isdigit() else text.lower()
             for text in re.split(_nsre, s)]
 
+
+class DisplayNameRetriever(object):
+    """
+    Mock the behaviour of vigilo.vigiconf.lib.confclasses.host.Host,
+    to intercept calls to methods that add new collector services.
+    This is used to retrieve a potential display name for the tests.
+    """
+    # This attribute is used during the tests when a validation error occurs.
+    name = None
+
+    def __init__(self, testname):
+        self.names = []
+        self.testname = testname
+
+    def add_collector_service(self, label, *args, **kw):
+        self.names.append("%s (%s)" % (label, self.testname))
+
+    def add_collector_metro(self, *args, **kw):
+        pass
+
+    def add_graph(self, *args, **kw):
+        pass
+
+    def get_names(self):
+        """Retrieve candidates display names."""
+        return self.names
+
+
 class Discoverator(object):
     """
     Scan a host or file containing the hosts' SNMP walk to find the host
@@ -208,6 +236,29 @@ class Discoverator(object):
         self.find_attributes()
         self.deduplicate_tests()
 
+    def _build_test_conf(self, cls, args):
+        """
+        Build the configuration for some detected test,
+        including a suggested display name.
+        """
+        name = cls.get_fullname()
+        dummy = DisplayNameRetriever(name)
+        display = []
+        try:
+            cls(dummy, {}).add_test(**dict(args))
+            display.extend(dummy.get_names())
+        except TypeError:
+            pass
+
+        display.append(name)
+        return {
+            "class": cls,
+            "name": name,
+            "args": args,
+            "display_name": display[0],
+        }
+
+
     def find_tests(self, tests=None, hclasses=None):
         """
         Find the applicable tests using the test's detect() function
@@ -223,16 +274,12 @@ class Discoverator(object):
             detected = test.detect(self.oids)
             if detected:
                 if detected is True:
-                    self.tests.append({"class": test,
-                                       "name": test.get_fullname(),
-                                       "args": [],
-                                      })
+                    self.tests.append(self._build_test_conf(test, []))
                 elif isinstance(detected, list):
                     for arglist in detected:
-                        self.tests.append({"class": test,
-                                           "name": test.get_fullname(),
-                                           "args": sorted(arglist.items()),
-                                          })
+                        self.tests.append(self._build_test_conf(
+                            test, sorted(arglist.items())))
+
 
     def find_hclasses(self):
         hclasses  = self.find_hclasses_sysdescr()
@@ -366,6 +413,7 @@ class Discoverator(object):
             else:
                 _attr.text = val
         for testdict in self.tests:
+            decl.append(ET.Comment(testdict["display_name"]))
             _test = ET.SubElement(decl, "test")
             _test.set("name", testdict["name"])
             for arg, val in testdict["args"]:
