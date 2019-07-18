@@ -67,6 +67,9 @@ class Validator(object):
         """
         raise NotImplementedError('Override this method in subclasses')
 
+    def raise_error(self, arg, value):
+        raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+
 
 class String(Validator):
     """
@@ -93,9 +96,9 @@ class String(Validator):
 
     def convert(self, arg, value):
         if not isinstance(value, str_types):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
         if self.pattern_re and not self.pattern_re.match(value):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
         return value
 
     def export(self):
@@ -129,13 +132,13 @@ class Bool(Validator):
 
     def convert(self, arg, value):
         if not isinstance(value, str_types):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
         value = value.lower()
         if value in ('0', 'off', 'no', 'false'):
             return False
         if value in ('1', 'on', 'yes', 'true'):
             return True
-        raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+        self.raise_error(arg, value)
 
     def export(self):
         return {"type": "bool"}
@@ -187,22 +190,22 @@ class Integer(Validator):
         try:
             return int(value)
         except ValueError:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
     def convert(self, arg, value):
         try:
             value = self._convert(arg, value)
         except ValueError:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         if self.min is not None and not self.min_cmp(value, self.min):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         if self.max is not None and not self.max_cmp(value, self.max):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         if self.step is not None and value % self.step:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         return value
 
@@ -247,7 +250,7 @@ class Float(Integer):
         try:
             return float(value)
         except ValueError:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
 
 class Port(Integer):
@@ -314,15 +317,15 @@ class List(Validator):
 
     def convert(self, arg, value):
         if not isinstance(value, (tuple, list)):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         vlen = len(value)
         if vlen < self.min:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
         if self.max is not None and vlen > self.max:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
         if vlen % self.step:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         res = []
         for item in value:
@@ -333,7 +336,7 @@ class List(Validator):
                 except:
                     pass
             else:
-                raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+                self.raise_error(arg, value)
         return tuple(res)
 
     def export(self):
@@ -393,9 +396,9 @@ class Struct(Validator):
 
     def convert(self, arg, value):
         if not isinstance(value, tuple):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
         if len(value) != len(self.types):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         res = []
         for index, item in enumerate(value):
@@ -406,7 +409,7 @@ class Struct(Validator):
                 except:
                     pass
             else:
-                raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+                self.raise_error(arg, value)
         return tuple(res)
 
     def export(self):
@@ -456,13 +459,13 @@ class Threshold(Validator):
             try:
                 start = float(start)
             except ValueError:
-                raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+                self.raise_error(arg, value)
 
         if end is not None and end != '':
             try:
                 end = float(end)
             except ValueError:
-                raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+                self.raise_error(arg, value)
 
         return value
 
@@ -497,7 +500,7 @@ class Enum(Validator):
 
     def convert(self, arg, value):
         if not value in self.choices:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
         return value
 
     def export(self):
@@ -531,18 +534,18 @@ class Time(Validator):
     def convert(self, arg, value):
         hours, sep_, minutes = value.partition(':')
         if len(minutes) != 2:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         try:
             hours = int(hours)
             minutes = int(minutes)
         except ValueError:
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         if not (0 <= hours <= 23):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
         if not (0 <= minutes <= 59):
-            raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
+            self.raise_error(arg, value)
 
         return "%02d:%02d" % (hours, minutes)
 
