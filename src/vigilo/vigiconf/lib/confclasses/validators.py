@@ -331,7 +331,6 @@ class List(Validator):
                     res.append(typ.convert(arg, item))
                     break
                 except:
-                    raise
                     pass
             else:
                 raise ParsingError(self.errmsg % {'arg': arg, 'value': value})
