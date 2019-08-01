@@ -5,7 +5,7 @@
     <nagios>
         <!-- Nagios host template -->
         <directive name="use">generic-active-host</directive>
-        <!-- Nagios host availablility check -->
+        <!-- Nagios host availability check -->
         <directive name="check_command">check-host-alive</directive>
     </nagios>
 
