@@ -67,14 +67,13 @@ class Partition(Test):
         for partid in partids:
             # SNMP name: use HOST-RESOURCES-MIB::hrStorageDescr (device)
             partname = oids[ ".1.3.6.1.2.1.25.2.3.1.3." + partid ]
-            # sanitize it
-            partname = re.sub(" .*", " .*", partname)
-            partname = partname.replace(r"\ ", "") # Windows drive letters
+            # Sanitize Windows drive letters and other weird volume names.
+            # Eg. replace "C:\ Label:SYS  Serial Number d102f9f0" with "C:.*".
+            partname = re.sub(":\\\\ .*", ":.*", partname)
             label = cls._get_label(partid, oids)
             if not label:
-                # No mountpoint found: maybe Windows ? Use partname
-                label = oids[ ".1.3.6.1.2.1.25.2.3.1.3." + partid ]
-                label = label.replace("\\", "") # Windows drive letters
+                # Derive a label from partname
+                label = partname.replace(".*", "")
             tests.append({"label": label, "partname": partname})
         return tests
 
