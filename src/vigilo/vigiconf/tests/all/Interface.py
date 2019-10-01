@@ -264,7 +264,11 @@ class Interface(Test):
             ifname = re.sub("; .*", "; .*", ifname)
             if ifname == "lo": # Don't monitor the loopback
                 continue
-
+            # @HACK Windows adds a trailing "\0" to the interface name,
+            #       which then gets represented as "." by net-snmp,
+            #       and makes the subsequent regex matching fail.
+            if ifname.endswith('.'):
+                ifname = ifname[:-1]
             # label: start with ifname and sanitize
             label = ifname
             label = re.sub("; .*", "", label)
