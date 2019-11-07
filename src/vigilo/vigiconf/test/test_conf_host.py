@@ -415,11 +415,11 @@ class HostFactoryMethods(unittest.TestCase):
         (et donc, en réinitialisant la valeur à "public").
         """
         default = HostTemplate("default")
-        default.add_attribute("snmpCommunity", "public")
+        default.add_attribute("snmpCommunity", u"public")
         self.hosttemplatefactory.register(default)
 
         tpl1 = HostTemplate("testtpl1")
-        tpl1.add_attribute("snmpCommunity", "not-public")
+        tpl1.add_attribute("snmpCommunity", u"not-public")
         self.hosttemplatefactory.register(tpl1)
 
         tpl2 = HostTemplate("testtpl2")

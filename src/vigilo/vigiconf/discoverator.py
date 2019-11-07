@@ -405,6 +405,7 @@ class Discoverator(object):
         for attr, val in self.attributes.iteritems():
             _attr = ET.SubElement(decl, "attribute")
             _attr.set("name", attr)
+            _attr.set("xml:space", "preserve")
             if isinstance(val, list):
                 for item in val:
                     if item:
@@ -424,8 +425,10 @@ class Discoverator(object):
                         if item:
                             _arg_item = ET.SubElement(_arg, "item")
                             _arg_item.text = item
+                            _arg_item.set("xml:space", "preserve")
                 else:
                     _arg.text = val
+                    _arg.set("xml:space", "preserve")
         #tree = ET.ElementTree(decl)
         return decl
 

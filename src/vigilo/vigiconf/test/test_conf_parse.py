@@ -413,7 +413,7 @@ class ParseHost(unittest.TestCase):
         </host>""")
         self.host.close()
         htpl = HostTemplate("linux")
-        htpl.add_attribute("snmpCommunity", "public")
+        htpl.add_attribute("snmpCommunity", u"public")
         htpl.add_group("Linux servers")
         self.hosttemplatefactory.register(htpl)
         self.hostfactory._loadhosts(os.path.join(self.tmpdir, "hosts",
@@ -559,6 +559,16 @@ class ParseHostTemplate(unittest.TestCase):
         <templates>
             <template name="test">
                 <attribute name="testattr">testattrvalue</attribute>
+
+                <attribute name="defaultattr" xml:space="default"> a\r\nb\tc  d </attribute>
+                <attribute name="defaultattr2">
+                    <item xml:space="default"> a\r\nb\tc  d </item>
+                </attribute>
+
+                <attribute name="preserveattr" xml:space="preserve"> a\r\nb\tc  d </attribute>
+                <attribute name="preserveattr2">
+                    <item xml:space="preserve"> a\r\nb\tc  d </item>
+                </attribute>
             </template>
         </templates>""")
         self.ht.close()
@@ -567,12 +577,58 @@ class ParseHostTemplate(unittest.TestCase):
         self.assertTrue("testattr" in attrs and
                 attrs["testattr"] == "testattrvalue",
                 "The \"attribute\" tag is not properly parsed")
+        print(repr(attrs))
+
+        # Support de xml:space = "default"
+        # - dans les valeurs simples
+        self.assertTrue("defaultattr" in attrs and
+                type(attrs["defaultattr"]) is type(u'') and
+                attrs["defaultattr"] == "a b c d",
+                "\"xml:space\" (default) is not properly parsed (string)")
+
+        # - dans les listes
+        self.assertTrue("defaultattr2" in attrs and
+                isinstance(attrs["defaultattr2"], list) and
+                attrs["defaultattr2"][0] == "a b c d",
+                "\"xml:space\" (default) is not properly parsed (list)")
+
+        # Support de xml:space = "preserve"
+        # - dans les valeurs simples
+        self.assertTrue("preserveattr" in attrs and
+                type(attrs["preserveattr"]) is type(u'') and
+                attrs["preserveattr"] == " a\nb\tc  d ",
+                "\"xml:space\" (preserve) is not properly parsed (string)")
+
+        # - dans les listes
+        self.assertTrue("preserveattr2" in attrs and
+                isinstance(attrs["preserveattr2"], list) and
+                attrs["preserveattr2"][0] == " a\nb\tc  d ",
+                "\"xml:space\" (preserve) is not properly parsed (list)")
+
 
     def test_test(self):
         self.ht.write("""<?xml version="1.0"?>
         <templates>
         <template name="test">
             <test name="TestTest"/>
+
+            <test name="DefaultTest">
+                <arg name="defaultattr" xml:space="default"> a\r\nb\tc  d </arg>
+            </test>
+            <test name="DefaultTest2">
+                <arg name="defaultattr2" xml:space="default">
+                    <item xml:space="default"> a\r\nb\tc  d </item>
+                </arg>
+            </test>
+
+            <test name="PreserveTest">
+                <arg name="preserveattr" xml:space="preserve"> a\r\nb\tc  d </arg>
+            </test>
+            <test name="PreserveTest2">
+                <arg name="preserveattr2" xml:space="preserve">
+                    <item xml:space="preserve"> a\r\nb\tc  d </item>
+                </arg>
+            </test>
         </template>
         </templates>""")
         self.ht.close()
@@ -583,6 +639,20 @@ class ParseHostTemplate(unittest.TestCase):
         self.assertEqual("TestTest",
                self.hosttemplatefactory.templates["test"]["tests"][0]["name"],
                "The \"test\" tag is not properly parsed")
+        # Support de xml:space = "default"
+        self.assertEquals("a b c d",
+               self.hosttemplatefactory.templates["test"]["tests"][1]["args"]["defaultattr"],
+               "The \"xml:space\" attribute (default) is not properly parsed")
+        self.assertEquals( ("a b c d", ),
+               self.hosttemplatefactory.templates["test"]["tests"][2]["args"]["defaultattr2"],
+               "The \"xml:space\" attribute (default) is not properly parsed")
+        # Support de xml:space = "preserve"
+        self.assertEquals(" a\nb\tc  d ",
+               self.hosttemplatefactory.templates["test"]["tests"][3]["args"]["preserveattr"],
+               "The \"xml:space\" attribute (preserve) is not properly parsed")
+        self.assertEquals( (" a\nb\tc  d ", ),
+               self.hosttemplatefactory.templates["test"]["tests"][4]["args"]["preserveattr2"],
+               "The \"xml:space\" attribute (preserve) is not properly parsed")
 
     def test_test_args(self):
         """The \"test\" tag with arguments must be properly parsed"""

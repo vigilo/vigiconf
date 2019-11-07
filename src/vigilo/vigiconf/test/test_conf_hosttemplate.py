@@ -177,7 +177,7 @@ class HostTemplates(unittest.TestCase):
         """
         Les attributs doivent se faire surcharger dans l'ordre d'héritage
         """
-        self.tpl.add_attribute("snmpCommunity", "comm1")
+        self.tpl.add_attribute("snmpCommunity", u"comm1")
         self.hosttemplatefactory.apply(self.host, "testtpl1")
         self.assertEqual(conf.hostsConf['testserver1']['snmpCommunity'],
                 "comm1", "La communauté SNMP doit être celle du dernier "

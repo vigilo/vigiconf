@@ -472,14 +472,72 @@ Les types reconnus sont :
     la valeur ``True`` ou bien ``0``, ``false``, ``off`` ou ``no`` pour la
     valeur ``False``).
 
-Vous pouvez également, de façon optionnelle, définir des paramètres spécifiques
-pour la supervision à l'aide de la balise ``nagios``, qui contiendra une ou
-plusieurs directives adressées au moteur de supervision Nagios. Voir la section
-ci-dessous pour plus d'informations.
-
 ..  note::
     Si le même argument est défini deux fois, seule la dernière valeur sera
     utilisée.
+
+Par défaut, les valeurs données aux arguments sont normalisées :
+les successions de caractères blancs (espace, tabulation, saut de ligne,
+retour charriot) sont remplacées par un seul espace et les blancs en début
+et en fin de valeur sont supprimés.
+
+Les 2 fragments de configuration suivants sont donc équivalents :
+
+..  sourcecode:: xml
+
+    <test name="Interface">
+        <arg name="ifname">eth0</arg>
+    </test>
+
+..  sourcecode:: xml
+
+    <test name="Interface">
+        <arg name="ifname">
+            eth0     </arg>
+    </test>
+
+Pour désactiver la normalisation des espaces, utilisez l'attribut ``xml:space``
+avec la valeur ``preserve``.
+
+Sur certains équipements du fabricant Nortel par exemple, les noms
+des interfaces réseau contiennent des espaces.
+La supervision des interfaces de cet équipement est donc possible en utilisant
+la syntaxe suivante :
+
+..  sourcecode:: xml
+
+    <test name="Interface">
+        <!-- Ici, l'espace à la fin de la valeur fait partie du nom
+             de l'interface réseau et doit être conservé. -->
+        <arg name="ifname" xml:space="preserve">eth0 </arg>
+
+        <!-- On change le libellé pour obtenir quelque chose qui soit
+             exploitable et compatible avec le moteur de collecte. -->
+        <arg name="label">eth0</arg>
+    </test>
+
+L'attribut ``xml:space`` peut également être utilisé avec les listes
+de valeurs :
+
+..  sourcecode:: xml
+
+    <test name="ma_classe.MonTest">
+        <arg name="indexes">
+            <item xml:space="preserve">foo </item>
+            <item xml:space="preserve"> bar</item>
+        </arg>
+    </test>
+
+..  note::
+
+    L'attribut ``xml:space`` n'est pas hérité de la balise ``arg`` lorsqu'il
+    est utilisé avec une liste de valeurs et doit donc être appliqué sur
+    chacune des balises ``item`` pour lesquelles il est pertinent.
+
+Vous pouvez également, de façon optionnelle, définir des paramètres spécifiques
+pour la supervision à l'aide de la balise ``nagios``, qui contiendra une ou
+plusieurs directives adressées au moteur de collecte Nagios. Voir la section
+ci-dessous pour plus d'informations.
 
 
 .. _nagiostag:

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+<xs:import namespace="http://www.w3.org/XML/1998/namespace"
+    schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+
 <xs:element name="nagios">
     <xs:complexType>
         <xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -31,9 +34,18 @@
                         <xs:element name="attribute">
                             <xs:complexType mixed="true">
                                 <xs:sequence>
-                                    <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="xs:string"/>
+                                    <xs:element minOccurs="0" maxOccurs="unbounded" name="item">
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute ref="xml:space" use="optional" default="default"/>
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
+                                    </xs:element>
                                 </xs:sequence>
                                 <xs:attribute name="name" use="required" type="xs:string"/>
+                                <xs:attribute ref="xml:space" use="optional" default="default"/>
                             </xs:complexType>
                         </xs:element>
 
@@ -56,9 +68,18 @@
                                     <xs:element maxOccurs="unbounded" minOccurs="0" name="arg">
                                         <xs:complexType mixed="true">
                                             <xs:sequence>
-                                                <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="xs:string"/>
+                                                <xs:element minOccurs="0" maxOccurs="unbounded" name="item">
+                                                    <xs:complexType>
+                                                        <xs:simpleContent>
+                                                            <xs:extension base="xs:string">
+                                                                <xs:attribute ref="xml:space" use="optional" default="default"/>
+                                                            </xs:extension>
+                                                        </xs:simpleContent>
+                                                    </xs:complexType>
+                                                </xs:element>
                                             </xs:sequence>
                                             <xs:attribute name="name" type="xs:string"/>
+                                            <xs:attribute ref="xml:space" use="optional" default="default"/>
                                         </xs:complexType>
                                     </xs:element>
 
