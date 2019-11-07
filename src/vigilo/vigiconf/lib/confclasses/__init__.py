@@ -6,12 +6,9 @@
 This module contains the classes used in the configuration system.
 """
 
-from vigilo.common import parse_path
-
 __all__ = [
     'get_text',
     'get_attrib',
-    'parse_path',
 ]
 
 def get_text(elem):

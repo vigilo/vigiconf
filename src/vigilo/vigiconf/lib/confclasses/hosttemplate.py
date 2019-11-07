@@ -14,9 +14,10 @@ import networkx as nx
 
 from vigilo.common.conf import settings
 
-from . import get_text, get_attrib, parse_path
+from . import get_text, get_attrib
 from .. import ParsingError
 
+from vigilo.common import parse_path
 from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
 N_ = translate_narrow(__name__)

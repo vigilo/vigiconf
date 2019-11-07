@@ -20,8 +20,9 @@ from vigilo.common.gettext import translate, translate_narrow
 _ = translate(__name__)
 N_ = translate_narrow(__name__)
 
-from . import get_text, get_attrib, parse_path
+from . import get_text, get_attrib
 from .graph import Graph, Cdef
+from vigilo.common import parse_path
 from vigilo.vigiconf.lib import ParsingError, VigiConfError
 from vigilo.vigiconf.lib import SNMP_ENTERPRISE_OID
 
