@@ -17,7 +17,7 @@ On y trouve notamment les répertoires principaux suivants :
   :file:`/etc/vigilo/vigiconf/conf.d/templates/`
 
 La documentation sur la syntaxe des fichiers de configuration XML est disponible
-dans le :ref:`manuel utilisateur de VigiConf <manuel_util>`.
+dans le :ref:`manuel administrateur de VigiConf <manuel_admin>`.
 Le lecteur s'y référera au besoin.
 
 Les fichiers XML sont parcourus par VigiConf.

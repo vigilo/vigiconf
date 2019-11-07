@@ -1,8 +1,8 @@
-..  _`manuel_util`:
+..  _`manuel_admin`:
 
-******************
-Manuel utilisateur
-******************
+*********************
+Manuel administrateur
+*********************
 
 
 Installation
