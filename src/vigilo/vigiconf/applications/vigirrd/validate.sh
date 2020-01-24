@@ -6,7 +6,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 export PATH
 
 if [ "$2" == "local" ]; then
-    if [ ! which '%%(httpd_bin)s' >/dev/null 2>&1 ]; then
+    if ! which '%%(httpd_bin)s' >/dev/null 2>&1; then
         exit 1
     fi
 fi
