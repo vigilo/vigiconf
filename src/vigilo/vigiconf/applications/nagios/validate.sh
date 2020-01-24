@@ -4,14 +4,17 @@
 
 BASEDIR=$1
 
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export PATH
+
 if [ "$2" = "local" ]; then
-    if [ ! -e '%%(nagios_bin)s' ]; then
+    if ! which '%%(nagios_bin)s' > /dev/null 2>&1; then
         echo "Nagios is not installed"
         exit 1
     fi
 fi
 
-if [ ! -e '%%(nagios_bin)s' ]; then
+if ! which '%%(nagios_bin)s' > /dev/null 2>&1; then
     echo "Nagios is not installed. Aborting validation."
     exit 0
 fi
