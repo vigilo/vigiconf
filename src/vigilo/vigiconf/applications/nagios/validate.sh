@@ -19,7 +19,7 @@ if ! which '%%(nagios_bin)s' > /dev/null 2>&1; then
     exit 0
 fi
 
-if [ ! -d "$BASEDIR/nagios" ]; then
+if [ ! -f "$BASEDIR/nagios/nagios.cfg" ]; then
     echo "Nagios configuration is not available. Aborting validation."
     exit 0
 fi
