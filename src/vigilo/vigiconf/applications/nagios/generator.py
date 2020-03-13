@@ -33,6 +33,12 @@ class NagiosGen(FileGenerator):
         # pylint: disable-msg=W0201
         self._files = {}
         self._graph = None
+        # Force the creation of a configuration directory.
+        # That way, Nagios won't refuse to start due to a non-existing
+        # directory appearing in the main configuration file (cfg_dir).
+        for vserver in self.ventilation.keys():
+            self.createDirIfMissing(os.path.join(
+                self.baseDir, vserver, "nagios", "nagios.cfg"))
         super(NagiosGen, self).generate()
 
     def generate_host(self, hostname, vserver):
