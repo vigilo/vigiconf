@@ -107,25 +107,33 @@ class NagiosGen(FileGenerator):
     def __fillgroups(self, hostname, newhash):
         """Fill the groups in the configuration file"""
         h = conf.hostsConf[hostname]
-        if h.get("otherGroups", None):
-            newhash['hostGroups'] = "%s %s" % \
-                    ("hostgroups".ljust(self.pad), ','.join(h['otherGroups']))
-            # builds a list of all groups memberships
-            for i in h['otherGroups']:
-                if i not in self._files[self.fileName]:
-                    self._files[self.fileName][i] = 1
-                    # @TODO: réfléchir à la gestion des groupes Nagios.
-                    # L'ancien code a été conservé ci-dessous.
-                    self.templateAppend(self.fileName,
-                                    self.templates["hostgroup"],
-                                    {'hostgroupName': i,
-                                     'hostgroupAlias': i})
+        if "otherGroups" not in h:
+            return
+
+        # Déclaration des groupes d'hôtes à la volée pour pouvoir ensuite
+        # les associer à la machine.
+        for i in h['otherGroups']:
+            if i not in self._files[self.fileName]:
+                self._files[self.fileName][i] = 1
+                # @TODO: réfléchir à la gestion des groupes Nagios.
+                # L'ancien code a été conservé ci-dessous.
+                self.templateAppend(self.fileName,
+                                self.templates["hostgroup"],
+                                {'hostgroupName': i,
+                                 'hostgroupAlias': i})
 #                    self.templateAppend(self.fileName,
 #                                    self.templates["hostgroup"],
 #                                    {"hostgroupName": i,
 #                                     "hostgroupAlias": conf.hostsGroups[i]})
-        else:
-            newhash['hostGroups'] = "# no hostgroups defined"
+
+        # Les groupes sont ajoutés aux directives génériques.
+        # Cela permet de fusionner ces groupes avec des groupes qui auraient
+        # été ajoutés manuellement dans la configuration (cf. #2002).
+        hdirectives = newhash['nagiosDirectives'].setdefault('host', {})
+        hgroups = ','.join(h['otherGroups'])
+        if 'hostgroups' in hdirectives:
+            hgroups = '%s,%s' % (hgroups, hdirectives['hostgroups'])
+        hdirectives['hostgroups'] = hgroups
 
     def _build_topology(self):
         """
