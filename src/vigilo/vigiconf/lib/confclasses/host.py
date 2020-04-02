@@ -282,6 +282,9 @@ class Host(object):
         if directives is None:
             directives = {}
 
+        if service:
+            service = service.strip()
+
         if service and service not in self.hosts[self.name]["services"]:
             self.add_custom_service(service, "passive")
 
@@ -347,6 +350,8 @@ class Host(object):
             service = reroutefor['service']
             reroutedby = {'host': self.name, 'service': label, }
 
+        service = service.strip()
+
         if directives is None:
             directives = {}
         for (dname, dvalue) in directives.iteritems():
@@ -410,6 +415,8 @@ class Host(object):
             target = reroutefor['host']
             service = reroutefor['service']
 
+        service = service.strip()
+
         # Add the RRD datasource (rerouting-dependant)
         self.add(target, "dataSources", service, {
             'dsType': dstype,
@@ -452,14 +459,19 @@ class Host(object):
         @type  max: C{float}
 
         """
+        datasources = []
         for ds in dslist:
             if isinstance(ds, Cdef):
+                datasources.append(ds)
                 ds = ds.name
+            else:
+                ds = ds.strip()
+                datasources.append(ds)
             if ds not in self.hosts[self.name]["dataSources"]:
                 raise VigiConfError(_("host '%(host)s': wrong datasource in "
-                    "graph '%(graph)s': %(ds)s")
+                    "graph '%(graph)s': '%(ds)s'")
                     % {"graph": title, "ds": ds, "host": self.name})
-        graph = Graph(self.hosts, title, dslist, template, vlabel,
+        graph = Graph(self.hosts, title, datasources, template, vlabel,
                       group=group, factors=factors, last_is_max=last_is_max,
                       min=min, max=max)
         graph.add_to_host(self.name)
@@ -494,6 +506,8 @@ class Host(object):
             to Nagios.
         @type  directives: C{dict}
         """
+        name = name.strip()
+
         if directives is None:
             directives = {}
         for (dname, dvalue) in directives.iteritems():
@@ -527,6 +541,8 @@ class Host(object):
             to Nagios.
         @type  directives: C{dict}
         """
+        name = name.strip()
+
         if directives is None:
             directives = {}
         for (dname, dvalue) in directives.iteritems():
@@ -597,6 +613,8 @@ class Host(object):
             use a default template.
         @type  rra_template: C{str}
         """
+        service = service.strip()
+
         # Add the RRD
         self.add_perfdata(name, label, dstype=dstype, reroutefor=reroutefor,
                 max_value=max_value, min_value=min_value,
@@ -631,7 +649,9 @@ class Host(object):
         """
         # Ajout du service Nagios
         self.add_custom_service(servicename, "passive", directives=directives)
+
         # Ajout des seuils pour le connector-metro.
+        servicename = servicename.strip()
         self.add(self.name, "metro_services", metroname, {
             'servicename': servicename,
             'warning': warn,
@@ -652,6 +672,8 @@ class Host(object):
             to Nagios.
         @type  directives: C{dict}
         """
+        servicename = servicename.strip()
+
         # Précaution contre les écrasements.
         if servicename == "General":
             raise VigiConfError(_("Cannot override general configuration."))

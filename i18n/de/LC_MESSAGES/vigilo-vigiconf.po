@@ -525,7 +525,7 @@ msgstr ""
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:520
 #, python-format
-msgid "host '%(host)s': wrong datasource in graph '%(graph)s': %(ds)s"
+msgid "host '%(host)s': wrong datasource in graph '%(graph)s': '%(ds)s'"
 msgstr ""
 
 #: src/vigilo/vigiconf/lib/confclasses/host.py:544
