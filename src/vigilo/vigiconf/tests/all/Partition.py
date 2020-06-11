@@ -49,7 +49,7 @@ class Partition(Test):
     @arg(
         'partname', String,
         l_('Partition name'),
-        l_("SNMP name for the partition (eg. C{/var})")
+        l_('Partition name as it appears in the SNMP MIB (eg. "/var")')
     )
     @arg(
         'max', Integer(min=0),

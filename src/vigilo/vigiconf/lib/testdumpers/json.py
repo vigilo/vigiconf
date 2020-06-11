@@ -7,7 +7,6 @@ from __future__ import absolute_import, print_function
 import sys, os, inspect
 import json
 import logging
-from epydoc.markup import epytext
 
 try:
     from collections import OrderedDict
@@ -20,6 +19,29 @@ LOGGER = get_logger(__name__)
 from vigilo.common.gettext import translate
 _ = translate(__name__)
 
+
+def parse_docstring(s):
+    s = s.strip()
+    if type(s) != type(u''):
+        s = s.decode('utf-8')
+
+    res = []
+    for line in s.splitlines():
+        line = line.strip()
+
+        # Enumerations and empty lines
+        if not line or line[0] in (u'-', u'*'):
+            res.append(line)
+            continue
+
+        # Start of a new line
+        if not res or res[-1][-1:] in (u".", u"", u":"):
+            res.append(line)
+        # Line continuation
+        else:
+            res[-1] += u" " + line
+    return u'\n'.join(res)
+
 def format(testfactory, hclasses, available_hclasses):
     """
     Formatte la liste des tests et classes de tests disponibles
@@ -29,17 +51,15 @@ def format(testfactory, hclasses, available_hclasses):
     res = {}
     for test in testfactory.get_tests(hclasses):
         testname = test.get_fullname()
-        test_doc = test.__doc__ or ""
 
-        errors = []
-        test_doc = epytext.parse_docstring(test_doc, errors)
-        if errors:
+        try:
+            test_doc = parse_docstring(test.__doc__ or "")
+        except UnicodeDecodeError:
             LOGGER.error(_("Could not parse documentation about '%s'") % testname)
             continue
 
         data = {
-            'description': test_doc.to_plaintext(None)
-                            .strip().replace('\n', ' ')
+            'description': test_doc.replace(u'\n', u' ')
         }
 
         # Si le wrapper n'est pas présent, cela signifie que le test
@@ -70,8 +90,9 @@ def format(testfactory, hclasses, available_hclasses):
         for argname in reversed(testargs):
             validator, display_name, description = testargs[argname]
 
-            description = epytext.parse_docstring(description, errors)
-            if errors:
+            try:
+                description = parse_docstring(description)
+            except UnicodeDecodeError:
                 LOGGER.error(_("Could not parse documentation about argument "
                                "'%(arg)s' for test '%(test)s'") % {
                                     'arg': argname,
@@ -79,9 +100,8 @@ def format(testfactory, hclasses, available_hclasses):
                                })
                 continue
 
-
             args[argname] = {
-                'description': description.to_plaintext(None).strip(),
+                'description': description,
                 'display_name': display_name,
                 'validation': validator.export(),
             }
