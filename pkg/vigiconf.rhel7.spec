@@ -21,6 +21,7 @@ Requires:   perl
 Requires:   subversion >= 1.5.6
 Requires:   tar
 Requires:   libxml2
+Requires:   xml-common
 Requires:   python-argparse
 Requires:   vigilo-models
 Requires:   vigilo-common
