@@ -41,7 +41,7 @@ class UpTime(Test):
                             ["GET/.1.3.6.1.2.1.1.3.0"])
         self.add_collector_metro("sysUpTime", "m_sysUpTime", [],
                             ["GET/.1.3.6.1.2.1.1.3.0"], 'GAUGE', label="UpTime")
-        self.add_graph("UpTime", [ "sysUpTime" ], "lines", "jours",
+        self.add_graph("UpTime", [ "sysUpTime" ], "lines", "days",
                             factors={"sysUpTime": round(1.0/86400, 10)})
 
 
