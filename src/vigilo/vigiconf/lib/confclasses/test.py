@@ -96,33 +96,6 @@ class Test(object):
     def add_netflow(self, *args, **kwargs):
         self.host.add_netflow(*args, **kwargs)
 
-    def _get_inc_graph_prefix(self, prefix):
-        """
-        Génère un préfixe de nom de graphe incrémental
-        à partir d'un préfixe statique.
-
-        @param prefix: Préfixe statique du nom du graphe.
-        @type prefix: C{str}
-        @return: Préfixe de nom de graphe incrémenté.
-        @rtype: C{str}
-        """
-        graph_prefix = prefix
-        current_graphs = self.host.hosts[self.host.name]["graphItems"].keys()
-        i = 1
-        while True:
-            # Si l'un des graphes actuels contient déjà ce préfixe,
-            # alors on va en générer un nouveau.
-            for title in current_graphs:
-                if title.startswith(graph_prefix):
-                    break
-            # Sinon, le préfixe actuel peut être utilisé librement.
-            else:
-                break
-            i += 1
-            graph_prefix = "%s (%d)" % (prefix, i)
-        return graph_prefix
-
-
     @classmethod
     def as_bool(cls, value):
         """
