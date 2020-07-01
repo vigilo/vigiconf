@@ -318,18 +318,6 @@ La balise *host* peut contenir les balises suivantes :
 - ``tag`` (0 ou plus)
 - ``group`` (1 ou plus)
 
-Balise "``class``"
-^^^^^^^^^^^^^^^^^^
-Syntaxe:
-
-..  sourcecode:: xml
-
-    <class>nom de la classe</class>
-
-Indique la ou les classes d'équipements auxquelles l'hôte appartient. En
-fonction de ces classes, des tests spécifiques peuvent être disponibles afin
-d'obtenir des informations plus précises sur l'état de l'équipement.
-
 Balise "``template``"
 ^^^^^^^^^^^^^^^^^^^^^
 Syntaxe:
@@ -380,39 +368,53 @@ informations sont extraites automatiquement des équipements par une
 interrogation SNMP (voir à ce sujet le chapitre « :ref:`discover` »).
 
 Les noms d'attributs utilisables dépendent des tests de supervision installés
-avec VigiConf. Par défaut, les attributs suivants sont disponibles :
+avec VigiConf. Les attributs suivants sont disponibles :
 
 - "``collectorTimeout``" : délai d'attente utilisé lors de la récupération
   des données SNMP de l'hôte ;
-- "``cpulist``" : la liste des identifiants des processeurs sur l'équipement ;
-- "``fans``" : la liste des identifiants des ventilateurs sur l'équipement ;
 - "``snmpCommunity``" : la communauté pour l'accès SNMP à l'équipement ;
 - "``snmpPort``" : le port SNMP à utiliser (par défaut, le port 161 est
   utilisé) ;
 - "``snmpVersion``" : la version SNMP à utiliser (par défaut, la version 2 est
   utilisée) ;
-- "``tempsensors``" : la liste des noms des sondes de température présentes
-  sur l'équipement.
+- "``snmpOIDsPerPDU``" : le nombre d'éléments qui peuvent être regroupés
+  dans une seule requête SNMP. Il s'agit d'un paramètre avancé qui ne
+  nécessite généralement pas d'être modifié ;
+- "``snmpContext``" : le contexte à interroger pour les échanges basés
+  sur SNMP v3. Par défaut, le contexte par défaut est interrogé. Il s'agit
+  d'un paramètre avancé qui ne nécessite généralement pas d'être modifié ;
+- "``snmpSecLevel``" : le niveau de sécurité attendu pour les échanges
+  basés sur SNMPv3 (``noAuthNoPriv``, ``authNoPriv`` ou ``authPriv``) ;
+- "``snmpAuthProto``" : l'algorithme d'authentification (``MD5`` ou ``SHA1``)
+  pour les échanges basés sur SNMPv3 ;
+- "``snmpPrivProto``" : l'algorithme de chiffrement (``DES`` ou ``AES``)
+  pour les échanges basés sur SNMPv3 ;
+- "``snmpSecname``" : le nom d'utilisateur pour les échanges basés sur SNMPv3 ;
+- "``snmpAuthpass``" : la clé d'authentification pour les échanges
+  basés sur SNMPv3 ;
+- "``snmpPrivpass``" : la clé de chiffrement pour les échanges basés sur SNMPv3.
 
 ..  only:: enterprise
 
     La version enterprise de Vigilo contient les attributs supplémentaires
     suivants :
 
-    - "``oxe_login``": le nom d'utilisateur permettant de se connecter à l'hôte
-      en utilisant le protocole Telnet;
-    - "``oxe_password``": le mot de passe allant de paire avec le nom
-      d'utilisateur permettant de se connecter à l'hôte en utilisant le
-      protocole Telnet ;
-    - "``QOS_mainClassName``": la liste des classes de services utilisées pour
+    - "``prompt_timeout``" : délai d'attente pour l'obtention d'une invite
+      de saisie lors de l'établissement des connexions Telnet ;
+    - "``QOS_mainClassName``" : la liste des classes de services utilisées pour
       la qualité de service. Pour chaque classe, il est possible de définir le
       libellé affiché dans les graphes, en utilisant la syntaxe
-      "nom_de_la_classe|libellé".
-    - "``QOS_subClassName``": la liste des sous-classes de services utilisées
+      "nom_de_la_classe|libellé" ;
+    - "``QOS_subClassName``" : la liste des sous-classes de services utilisées
       pour la qualité de service. Pour chaque sous-classe, il est possible de
       définir le libellé affiché dans les graphes, en utilisant la syntaxe
-      "nom_de_la_sous_classe|libellé".
-    - "``timeout``": délai d'attente utilisé lors des connexions Telnet
+      "nom_de_la_sous_classe|libellé" ;
+    - "``telnetLogin``" : le nom d'utilisateur permettant de se connecter à l'hôte
+      en utilisant le protocole Telnet ;
+    - "``telnetPassword``" : le mot de passe allant de paire avec le nom
+      d'utilisateur permettant de se connecter à l'hôte en utilisant le
+      protocole Telnet ;
+    - "``timeout``" : délai d'attente utilisé lors des connexions Telnet
       à l'hôte.
 
 
@@ -424,7 +426,7 @@ Syntaxe:
 
 ..  sourcecode:: xml
 
-    <test name="nom du test">
+    <test name="nom_de_classe.nom du test">
       <arg name="nom_argument_1">valeur argument 1</arg>
       <arg name="nom_argument_2">valeur argument 2</arg>
       ...
@@ -438,8 +440,14 @@ Syntaxe:
 
 La balise ``test`` permet d'ajouter un test de supervision à l'hôte. Elle
 possède un attribut ``name`` obligatoire qui désigne le test de supervision
-à appliquer (par exemple : "``CPU``" pour superviser l'état du processeur d'un
-équipement).
+à appliquer (par exemple : "``all.UpTime``" pour superviser la durée de la
+disponibilité d'un équipement). Chaque test dispose d'un nom de classe
+représentant le type d'équipement ou de modèle d'équipement et un nom de test
+qui décrit l'élément à superviser (mémoire, processeur, etc.).
+La liste des classes et de leurs tests peut être obtenue en exécutant
+la commande suivante ::
+
+    vigiconf list-tests
 
 Un test accepte généralement zéro, un ou plusieurs arguments, qui doivent être
 passés dans l'ordre lors de la déclaration du test, à l'aide de la balise
@@ -449,7 +457,7 @@ la sous-balise ``item`` doit être utilisée, comme dans l'extrait suivant :
 
 ..  sourcecode:: xml
 
-    <test name="ACL">
+    <test name="my_firewall.ACL">
         <arg name="policy">whitelist</arg>
         <!--
             L'argument "addresses" est une liste d'adresses IP,
@@ -697,16 +705,6 @@ Exemple:
 
     <group>AIX servers</group>
 
-Balise "``class``"
-^^^^^^^^^^^^^^^^^^
-Un bloc de données ``class`` contient une simple chaîne de caractère.
-
-Exemple:
-
-..  sourcecode:: xml
-
-    <class>aix</class>
-
 Balise "``test``"
 ^^^^^^^^^^^^^^^^^
 
@@ -722,21 +720,11 @@ Un bloc de données ``test`` contient les blocs suivants, dans l'ordre :
 Reportez-vous à la documentation sur la `configuration des tests d'un hôte`_
 pour plus d'information sur les attributs et blocs acceptés par cette balise.
 
-..  only:: not enterprise
-
     Exemple:
-
-..  only:: enterprise
-
-    Exemples:
-
-    ..  sourcecode:: xml
-
-        <test name="Errpt"/>
 
 ..  sourcecode:: xml
 
-    <test name="Proc">
+    <test name="all.Process">
       <arg name="label">aixmibd</arg>
       <arg name="processname">.*aixmibd .*</arg>
       <nagios> ... </nagios>
@@ -1281,7 +1269,7 @@ Le rôle de chacun de ces attributs est précisé ci-dessous :
 
     ..  sourcecode:: xml
 
-        <test name="VigiloDatabase">
+        <test name="all.VigiloDatabase">
           <arg name="command">
             psql -Anqt -c "%s" "user=vigilo dbname=vigilo host=localhost"
           </arg>
@@ -1396,7 +1384,7 @@ affiche la sortie suivante:
 
 ..  sourcecode:: bash
 
-    usage : vigiconf [-h] [--debug] {info,server-status,discover,deploy} ...
+    usage : vigiconf [-h] [--debug] {info,server-status,list-tests,discover,deploy} ...
 
     Gestionnaire de configuration Vigilo
 
@@ -1407,6 +1395,7 @@ affiche la sortie suivante:
     Sous-commandes: {info,server-status,discover,deploy}
 
     info           Affiche un résumé de la configuration actuelle.
+    list-tests     Liste les tests disponibles pour les classes d'hôtes données.
     deploy         Déploie la configuration sur chaque serveur si la
                    configuration a changé.
     discover       Découvrir les services disponibles sur un serveur
@@ -1457,6 +1446,7 @@ doivent être affichés en passant simplement leur nom comme argument de la
 commande.
 
 ..  note::
+
     Toutes les valeurs sont à 0 lors d'une nouvelle installation (car aucun
     des serveurs n'a encore été configuré).
 
@@ -1508,24 +1498,23 @@ présente le résultat d'une telle analyse:
     <?xml version="1.0"?>
     <host address="127.0.0.1" name="localhost.localdomain">
       <group>Servers</group>
-      <class>ucd</class>
-      <test name="Users" />
-      <test name="Partition">
+      <test name="all.Users" />
+      <test name="all.Partition">
         <arg name="partname">/home</arg>
         <arg name="label">/home</arg>
       </test>
-      <test name="Partition">
+      <test name="all.Partition">
         <arg name="partname">/</arg>
         <arg name="label">/</arg>
       </test>
-      <test name="TotalProcesses" />
-      <test name="Swap" />
-      <test name="CPU" />
-      <test name="Load" />
-      <test name="RAM" />
-      <test name="UpTime" />
-      <test name="TCPConn" />
-      <test name="InterrCS" />
+      <test name="all.TotalProcesses" />
+      <test name="all.Swap" />
+      <test name="ucd.CPU" />
+      <test name="ucd.Load" />
+      <test name="ucd.RAM" />
+      <test name="all.UpTime" />
+      <test name="all.TCPConn" />
+      <test name="ucd.InterrCS" />
     </host>
 
 Le résultat de cette commande peut être enregistré directement dans un fichier
@@ -1590,24 +1579,22 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
     ..  sourcecode:: xml
 
         <host name="_HOSTNAME_" address="X.X.X.X">
-          <class>cisco_ios</class>
-          <attribute name="QOS_mainClassName">
-            <item>mpls-RealTime|RT</item>
-            <item>class-default|DE</item>
-            <item>mpls-Brocade|BR</item>
-            <item>mpls-Bulk|BU</item>
-            <item>mpls-BestEffort|BE</item>
-          </attribute>
-
-          <test name="Interface">
+          <test name="all.Interface">
             <arg name="ifname">TenGigabitEthernet4/0/0</arg>
             <arg name="label">Te4/0/0 - QOS</arg>
           </test>
 
-          <test name="QOS_Interface">
+          <test name="cisco_ios.QOS_Interface">
             <arg name="ifname">TenGigabitEthernet4/0/0</arg>
             <arg name="label">Te4/0/0 - QOS</arg>
             <arg name="direction">OUT</arg>
+            <arg name="mainClassName">
+              <item>mpls-RealTime|RT</item>
+              <item>class-default|DE</item>
+              <item>mpls-Brocade|BR</item>
+              <item>mpls-Bulk|BU</item>
+              <item>mpls-BestEffort|BE</item>
+            </arg>
           </test>
           <group>/Servers/Linux servers</group>
         </host>
@@ -1618,72 +1605,28 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
     ..  sourcecode:: xml
 
         <host name="_HOSTNAME_" address="X.X.X.X">
-          <class>cisco_ios</class>
           <attribute name="snmpCommunity">_SNMP_COMMUNITY_</attribute>
 
-          <attribute name="QOS_mainClassName">
-            <item>Groupe_1|GR1</item>
-            <item>Groupe_2|GR2</item>
-            <item>Groupe_3|GR3</item>
-          </attribute>
-
-          <attribute name="QOS_subClassName">
-            <item>class-default</item>
-            <item>telephonie</item>
-            <item>Video_Bufferisee</item>
-            <item>Video&amp;Donnees_Contraintes</item>
-            <item>Services_Reseaux</item>
-          </attribute>
-
-          <test name="Interface">
+          <test name="all.Interface">
             <arg name="ifname">GigabitEthernet0/0</arg>
             <arg name="label">GE0/0</arg>
           </test>
 
-          <test name="QOS_Interface">
+          <test name="cisco_ios.QOS_Interface">
             <arg name="ifname">GigabitEthernet0/0</arg>
             <arg name="label">GE0/0</arg>
             <arg name="direction">OUT</arg>
-          </test>
-          <group>/Servers/Linux servers</group>
-        </host>
-
-    Classes de Service (une interface utilise les classes de service par
-    défaut, l'autre a une définition spécifique des classes de service)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-    ..  sourcecode:: xml
-
-        <host name="_HOSTNAME_" address="X.X.X.X">
-          <class>cisco_ios</class>
-          <attribute name="snmpCommunity">_SNMP_COMMUNITY_</attribute>
-
-          <attribute name="QOS_mainClassName">
-            <item>Groupe_1|GR1</item>
-            <item>Groupe_2|GR2</item>
-            <item>Groupe_3|GR3</item>
-          </attribute>
-
-          <test name="Interface">
-            <arg name="ifname">GigabitEthernet0/0</arg>
-            <arg name="label">GE0/0</arg>
-          </test>
-          <test name="Interface">
-            <arg name="ifname">GigabitEthernet0/1</arg>
-            <arg name="label">GE0/1</arg>
-          </test>
-
-          <test name="QOS_Interface">
-            <arg name="ifname">GigabitEthernet0/0</arg>
-            <arg name="label">GE0/0</arg>
-          </test>
-          <test name="QOS_Interface">
-            <arg name="ifname">GigabitEthernet0/1</arg>
-            <arg name="label">GE0/1</arg>
-            <arg name="QOS_mainClassName">
-                <item>Groupe_4|GR4</item>
-                <item>Groupe_5|GR5</item>
-                <item>Groupe_6|GR6</item>
+            <arg name="mainClassName">
+              <item>Groupe_1|GR1</item>
+              <item>Groupe_2|GR2</item>
+              <item>Groupe_3|GR3</item>
+            </arg>
+            <arg name="subClassName">
+              <item>class-default</item>
+              <item>telephonie</item>
+              <item>Video_Bufferisee</item>
+              <item>Video&amp;Donnees_Contraintes</item>
+              <item>Services_Reseaux</item>
             </arg>
           </test>
           <group>/Servers/Linux servers</group>
@@ -1695,18 +1638,17 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
     ..  sourcecode:: xml
 
         <host name="_HOSTNAME_" address="X.X.X.X">
-          <class>toip</class>
-          <attribute name="oxe_login">gcharbon</attribute>
-          <attribute name="oxe_password">toor</attribute>
+          <attribute name="telnetLogin">gcharbon</attribute>
+          <attribute name="telnetPassword">toor</attribute>
           <attribute name="timeout">10</attribute>
           <attribute name="prompt_timeout">5</attribute>
 
-          <test name="Interface">
+          <test name="all.Interface">
             <arg name="label">eth0</arg>
             <arg name="ifname">eth0</arg>
           </test>
 
-          <test name="Autocoms">
+          <test name="toip.Autocoms">
             <!-- Identifiants des cristaux. -->
             <arg name="crystals">
                 <item>42</item>
@@ -1719,7 +1661,7 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             </arg>
           </test>
 
-          <test name="TrunkAverage">
+          <test name="toip.TrunkAverage">
             <!-- Identifiants des cristaux. -->
             <arg name="crystals">
                 <item>205</item>
@@ -1735,7 +1677,7 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             <arg name="crit">42</arg>
           </test>
 
-          <test name="TrunkPlatinium">
+          <test name="toip.TrunkPlatinium">
             <!-- Identifiants des cristaux. -->
             <arg name="crystals">
                 <item>27</item>
@@ -1753,7 +1695,7 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             <arg name="crit">42</arg>
           </test>
 
-          <test name="OxeCard">
+          <test name="toip.OxeCard">
             <!-- Identifiants des cristaux. -->
             <arg name="crystals">
                 <item>42</item>
@@ -1768,17 +1710,17 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             </arg>
           </test>
 
-          <test name="FreePosCard">
+          <test name="toip.FreePosCard">
             <arg name="hour">15:55:00</arg>
           </test>
 
-          <test name="MevoCapacity">
+          <test name="toip.MevoCapacity">
             <arg name="crit">42</arg>
           </test>
 
-          <test name="TrunkState"/>
-          <test name="IpPhones"/>
-          <test name="CcdaLicences"/>
+          <test name="toip.TrunkState"/>
+          <test name="toip.IpPhones"/>
+          <test name="toip.CcdaLicences"/>
           <group>/Servers/Linux servers</group>
         </host>
 
@@ -1792,7 +1734,7 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             Application d'un test sur l'uptime de l'agent SNMP
             en utilisant l'interrogation SNMP standard (GET).
           -->
-          <test name="UpTime"/>
+          <test name="all.UpTime"/>
 
           <!--
             Traitement des traps SNMP pour accélérer la détection
@@ -1800,14 +1742,14 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             Note : le service qui sera mis à jour est celui correspondant
                    au test "UpTime" déclaré ci-dessus.
           -->
-          <test name="Trap">
+          <test name="all.Trap">
             <arg name="trap">warmStart</arg>
             <arg name="state">WARNING</arg>
             <arg name="service">UpTime</arg>
             <arg name="message">La configuration de l'agent a été rechargée</arg>
           </test>
 
-          <test name="Trap">
+          <test name="all.Trap">
             <arg name="trap">coldStart</arg>
             <arg name="state">CRITICAL</arg>
             <arg name="service">UpTime</arg>
@@ -1819,7 +1761,7 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             utiliser des conditions et inclure des variables du trap SNMP
             dans le message.
           -->
-          <test name="Trap">
+          <test name="all.Trap">
             <arg name="trap">EXAMPLE-MIB::exampleTrap</arg>
             <arg name="state">OK</arg>
             <arg name="service">exampleTrap</arg>
@@ -1830,7 +1772,7 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             </arg>
           </test>
 
-          <test name="Trap">
+          <test name="all.Trap">
             <arg name="trap">EXAMPLE-MIB::exampleTrap</arg>
             <arg name="state">WARNING</arg>
             <arg name="service">exampleTrap</arg>
@@ -1841,7 +1783,7 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             </arg>
           </test>
 
-          <test name="Trap">
+          <test name="all.Trap">
             <arg name="trap">EXAMPLE-MIB::exampleTrap</arg>
             <arg name="state">CRITICAL</arg>
             <arg name="service">exampleTrap</arg>
@@ -1851,37 +1793,6 @@ VigiConf a été lancé depuis le  compte "``root``" (super-utilisateur). Utilis
             </arg>
           </test>
         </host>
-
-    NetFlow
-    ^^^^^^^
-
-    ..  sourcecode:: xml
-
-        <host name="_HOSTNAME_" address="X.X.X.X">
-          <class>linux</class>
-          <class>netflow</class>
-          <template>linux</template>
-          <test name="Interface">
-            <arg name="label">eth0</arg>
-            <arg name="ifname">eth0</arg>
-          </test>
-          <test name="CollectNetflow">
-            <arg name="addresses">
-                <item>X.X.X.X/24</item>
-                <item>Y.Y.Y.Y/24</item>
-                <item>Z.Z.Z.Z/24</item>
-            </arg>
-          </test>
-          <test name="GraphNetflow">
-            <arg name="addresses">
-                <item>X.X.X.X/24</item>
-                <item>Y.Y.Y.Y/24</item>
-                <item>Z.Z.Z.Z/24</item>
-            </arg>
-          </test>
-          <group>/Servers/Linux servers</group>
-        </host>
-
 
 Glossaire - Terminologie
 ------------------------

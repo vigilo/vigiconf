@@ -14,6 +14,9 @@ import unittest
 
 from vigilo.common.conf import settings
 
+from vigilo.models import tables
+from vigilo.models.session import DBSession
+
 from vigilo.vigiconf.lib.server.local import ServerLocal
 
 from .helpers import setup_tmpdir, LoggingCommand
@@ -83,8 +86,11 @@ class ServerTest(unittest.TestCase):
         Les fonctions enable et disable doivent être disponibles (#797)
         """
         assert isinstance(self.server, ServerLocal)
+        vs = tables.VigiloServer(name=self.server.name)
+        DBSession.add(vs)
+        DBSession.flush()
         try:
             self.server.disable()
             self.server.enable()
-        except AttributeError as e:
+        except Exception as e:
             self.fail(str(e))

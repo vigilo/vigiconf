@@ -13,6 +13,8 @@ import glob
 import re
 
 from vigilo.common.conf import settings
+from vigilo.models import tables
+from vigilo.models.session import DBSession
 
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
@@ -77,9 +79,6 @@ class Server(object):
         @rtype: C{bool}
         """
         return self.revisions["deployed"] != self.revisions["installed"]
-
-    def is_enabled(self): # pylint: disable-msg=R0201
-        raise NotImplementedError
 
     # external references
     def getBaseDir(self): # pylint: disable-msg=R0201
@@ -265,11 +264,66 @@ class Server(object):
             state += "\n    " + _("disabled").upper()
         return state
 
-    # Disponible dans Vigilo Enterprise Edition
+    def is_enabled(self):
+        """
+        @return: L'état d'activation du serveur (C{True} pour actif, C{False}
+            pour inactif)
+        """
+        server_db = tables.VigiloServer.by_vigiloserver_name(
+                            unicode(self.name))
+        if server_db is None:
+            # pas en base, donc pas désactivé (peut-être qu'il vient
+            # d'être ajouté)
+            return True
+        if server_db.disabled:
+            return False
+        else:
+            return True
+
     def disable(self):
-        LOGGER.warning(_("Server %s cannot be disabled"), self.name)
+        """
+        Désactive ce serveur Vigilo
+        """
+        vserver = tables.VigiloServer.by_vigiloserver_name(unicode(self.name))
+        if vserver is None:
+            raise VigiConfError(_("The Vigilo server %s does not exist")
+                                % self.name)
+        if vserver.disabled:
+            raise VigiConfError(_("The Vigilo server %s is already disabled")
+                                % self.name)
+        vserver.disabled = True
+        DBSession.flush()
+
     def enable(self):
-        LOGGER.warning(_("Server %s cannot be enabled"), self.name)
+        """
+        Active ce serveur Vigilo
+        """
+        vserver = tables.VigiloServer.by_vigiloserver_name(unicode(self.name))
+        if vserver is None:
+            raise VigiConfError(_("The Vigilo server %s does not exist")
+                                % self.name)
+        if not vserver.disabled:
+            raise VigiConfError(_("The Vigilo server %s is already enabled")
+                                % self.name)
+        # On efface les associations précédentes
+        prev_ventil = DBSession.query(
+                    tables.Ventilation.idapp, tables.Ventilation.idhost
+                ).filter(
+                    tables.Ventilation.idvigiloserver == vserver.idvigiloserver
+                ).all()
+        for idapp, idhost in prev_ventil:
+            temp_ventils = DBSession.query(tables.Ventilation
+                ).filter(
+                    tables.Ventilation.idapp == idapp
+                ).filter(
+                    tables.Ventilation.idhost == idhost
+                ).filter(
+                    tables.Ventilation.idvigiloserver != vserver.idvigiloserver
+                ).all()
+            for temp_ventil in temp_ventils:
+                DBSession.delete(temp_ventil)
+        vserver.disabled = False
+        DBSession.flush()
 
 
 # vim:set expandtab tabstop=4 shiftwidth=4:
