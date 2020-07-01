@@ -54,7 +54,4 @@ class ServerLocal(Server):
                                     'error': e.value,
                                 })
 
-    def is_enabled(self): # pylint: disable-msg=R0201
-        return True
-
 # vim:set expandtab tabstop=4 shiftwidth=4:
