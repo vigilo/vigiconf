@@ -13,6 +13,11 @@ import inspect
 from lxml import etree
 from vigilo.common.nx import networkx as nx
 
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
+
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -181,22 +186,29 @@ class Host(object):
         try:
             inst.add_test(**args)
         except TypeError:
+            # On récupère les arguments valides via la signature du test.
             test = getattr(inst.add_test, 'wrapped_func', inst.add_test)
             spec = inspect.getargspec(test)
-            # On récupère la liste des arguments obligatoires,
-            # en prenant soin de supprimer l'argument "self".
-            defaults = spec[3]
-            if defaults is None:
-                args = spec[0][1:]
-            else:
-                args = spec[0][1:-len(defaults)]
+            known_args = OrderedDict()
+            spec_args = spec[0][1:]
+            opt = len(spec_args)
+            if spec[3] is not None:
+                opt -= len(spec[3])
+            for i, arg in enumerate(spec_args, 1):
+                known_args[arg] = _('optional') if i > opt else _('mandatory')
+
+            invalid = ', '.join(sorted(set(args) - set(known_args)))
+            valid = ', '.join('%s (%s)' % (arg, known_args[arg])
+                              for arg in sorted(known_args))
             hclass = test_class.__module__.rsplit('.', 2)[-2]
-            message = _('Test "%(class)s.%(test)s" on "%(host)s" needs the '
-                        'following arguments: %(args)s') \
-                      % {'class': hclass,
+            message = _('Invalid argument(s) for "%(class)s.%(test)s" '
+                        'on "%(host)s": %(invalid)s. Valid argument(s): '
+                        '%(valid)s') % {
+                         'class': hclass,
                          'test': str(test_class.__name__),
                          'host': self.name,
-                         'args': ', '.join(args),
+                         'valid': valid,
+                         'invalid': invalid,
                         }
             raise VigiConfError(message)
 
