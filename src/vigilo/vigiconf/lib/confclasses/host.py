@@ -13,11 +13,6 @@ import inspect
 from lxml import etree
 from vigilo.common.nx import networkx as nx
 
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ordereddict import OrderedDict
-
 from vigilo.common.logging import get_logger
 LOGGER = get_logger(__name__)
 
@@ -189,11 +184,11 @@ class Host(object):
             # On récupère les arguments valides via la signature du test.
             test = getattr(inst.add_test, 'wrapped_func', inst.add_test)
             spec = inspect.getargspec(test)
-            known_args = OrderedDict()
-            spec_args = spec[0][1:]
+            known_args = {}
+            spec_args = spec.args[1:] # On élimine "self" de la liste
             opt = len(spec_args)
-            if spec[3] is not None:
-                opt -= len(spec[3])
+            if spec.defaults is not None:
+                opt -= len(spec.defaults)
             for i, arg in enumerate(spec_args, 1):
                 known_args[arg] = _('optional') if i > opt else _('mandatory')
 
@@ -201,16 +196,17 @@ class Host(object):
             valid = ', '.join('%s (%s)' % (arg, known_args[arg])
                               for arg in sorted(known_args))
             hclass = test_class.__module__.rsplit('.', 2)[-2]
-            message = _('Invalid argument(s) for "%(class)s.%(test)s" '
-                        'on "%(host)s": %(invalid)s. Valid argument(s): '
-                        '%(valid)s') % {
+
+            messages = [_('Valid argument(s) for "%(class)s.%(test)s" '
+                        'on "%(host)s": %(valid)s.') % {
                          'class': hclass,
                          'test': str(test_class.__name__),
                          'host': self.name,
                          'valid': valid,
-                         'invalid': invalid,
-                        }
-            raise VigiConfError(message)
+                        }]
+            if invalid:
+                messages.append(_('Invalid argument(s): %s') % invalid)
+            raise VigiConfError(' '.join(messages))
 
 
 #### Access the global dicts ####
