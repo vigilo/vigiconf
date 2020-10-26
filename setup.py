@@ -8,11 +8,18 @@ from platform import python_version_tuple
 from glob import glob
 from setuptools import setup, find_packages
 
-sysconfdir = os.getenv("SYSCONFDIR", "/etc")
-localstatedir = os.getenv("LOCALSTATEDIR", "/var")
-cronext = os.getenv("CRONEXT", ".cron")
+cmdclass = {}
+try:
+    from vigilo.common.commands import install_data
+except ImportError:
+    pass
+else:
+    cmdclass['install_data'] = install_data
 
-install_requires=[
+os.environ.setdefault('SYSCONFDIR', '/etc')
+os.environ.setdefault('LOCALSTATEDIR', '/var')
+
+install_requires = [
     # order is important
     "setuptools",
     "lxml",
@@ -20,13 +27,7 @@ install_requires=[
     "vigilo-models",
     "networkx",
     "netifaces",
-    ]
-if tuple(python_version_tuple()) < ('2', '6'):
-    install_requires.append("multiprocessing")
-if tuple(python_version_tuple()) < ('2', '7'):
-    install_requires.append("initgroups")
-    install_requires.append("argparse")
-    install_requires.append("ordereddict")
+]
 
 tests_require = [
     'coverage',
@@ -61,26 +62,23 @@ def find_data_files(basedir, srcdir):
         if subdir.startswith("/"):
             subdir = subdir[1:]
         data_files.append( (os.path.join(basedir, subdir),
-                           [os.path.join(root, name) for name in files]) )
+                           [os.path.join(root, name) for name in files
+                            if not name.endswith( ('.pyc', '.pyo') )]) )
     return data_files
 
 def get_data_files():
-    files = find_data_files(
-                os.path.join(sysconfdir, "vigilo/vigiconf/conf.d.example"),
-                "src/vigilo/vigiconf/conf.d")
+    example = os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf", "conf.d.example/")
+    files = find_data_files(example, "src/vigilo/vigiconf/conf.d")
     # filter those out
-    files = [f for f in files if f[0] != "/etc/vigilo/vigiconf/conf.d.example/"]
+    files = [f for f in files if f[0] != example]
     # others
-    files.append( (os.path.join(sysconfdir, "vigilo/vigiconf/conf.d"), []) )
-    files.append( (os.path.join(sysconfdir, "vigilo/vigiconf"),
-                ["settings.ini", "src/vigilo/vigiconf/conf.d/README.post-install"]) )
-    files.append( (os.path.join(sysconfdir, "vigilo/vigiconf/plugins"), []) )
-    files.append((os.path.join(sysconfdir, 'cron.d'), ["pkg/vigilo-vigiconf%s" % cronext]))
-    files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/deploy"), []))
-    files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/revisions"), []))
-    files.append((os.path.join(localstatedir, "lib/vigilo/vigiconf/tmp"), []))
-    files.append((os.path.join(localstatedir, "lock/subsys"), []))
-    files.append((os.path.join(localstatedir, "lock/subsys/vigilo-vigiconf"), []))
+    files.append( (os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf"),
+        ["settings.ini.in", "src/vigilo/vigiconf/conf.d/README.post-install"]) )
+    files.append( (os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf", "conf.d"), []) )
+    files.append( (os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf", "conf.d.example", "filetemplates", "nagios"), []) )
+    files.append( (os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf", "plugins"), []) )
+    for d in ("deploy", "revisions", "tmp"):
+        files.append( (os.path.join("@LOCALSTATEDIR@", "lib", "vigilo", "vigiconf", d), []) )
     return files
 
 
@@ -127,6 +125,8 @@ setup(name='vigilo-vigiconf',
         },
         package_dir={'': 'src'},
         include_package_data = True,
+        test_suite='nose.collector',
+        cmdclass=cmdclass,
         data_files=get_data_files() +
             install_i18n("i18n", os.path.join(sys.prefix, 'share', 'locale')),
         )

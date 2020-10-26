@@ -5,6 +5,7 @@
 import os
 import shutil
 
+os.environ['VIGILO_SETTINGS'] = 'settings_tests.ini'
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 

@@ -9,6 +9,7 @@ import shutil
 import tempfile
 import stat
 
+os.environ['VIGILO_SETTINGS'] = 'settings_tests.ini'
 from vigilo.common.conf import settings
 settings.load_module(__name__)
 

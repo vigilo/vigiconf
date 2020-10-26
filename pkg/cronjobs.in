@@ -1,4 +1,0 @@
-# Lance vigiconf a intervalles reguliers pour prendre en compte toute
-# modification dans la configuration.
-#
-#42 * * * *	vigiconf	@BINDIR@/vigiconf deploy > /dev/null 2>&1
