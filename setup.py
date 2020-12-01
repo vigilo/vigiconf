@@ -8,16 +8,7 @@ from platform import python_version_tuple
 from glob import glob
 from setuptools import setup, find_packages
 
-cmdclass = {}
-try:
-    from vigilo.common.commands import install_data
-except ImportError:
-    pass
-else:
-    cmdclass['install_data'] = install_data
-
-os.environ.setdefault('SYSCONFDIR', '/etc')
-os.environ.setdefault('LOCALSTATEDIR', '/var')
+setup_requires = ['vigilo-common'] if not os.environ.get('CI') else []
 
 install_requires = [
     # order is important
@@ -67,18 +58,18 @@ def find_data_files(basedir, srcdir):
     return data_files
 
 def get_data_files():
-    example = os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf", "conf.d.example/")
+    example = os.path.join("@sysconfdir@", "vigilo", "vigiconf", "conf.d.example/")
     files = find_data_files(example, "src/vigilo/vigiconf/conf.d")
     # filter those out
     files = [f for f in files if f[0] != example]
     # others
-    files.append( (os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf"),
+    files.append( (os.path.join("@sysconfdir@", "vigilo", "vigiconf"),
         ["settings.ini.in", "src/vigilo/vigiconf/conf.d/README.post-install"]) )
-    files.append( (os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf", "conf.d"), []) )
-    files.append( (os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf", "conf.d.example", "filetemplates", "nagios"), []) )
-    files.append( (os.path.join("@SYSCONFDIR@", "vigilo", "vigiconf", "plugins"), []) )
+    files.append( (os.path.join("@sysconfdir@", "vigilo", "vigiconf", "conf.d"), []) )
+    files.append( (os.path.join("@sysconfdir@", "vigilo", "vigiconf", "conf.d.example", "filetemplates", "nagios"), []) )
+    files.append( (os.path.join("@sysconfdir@", "vigilo", "vigiconf", "plugins"), []) )
     for d in ("deploy", "revisions", "tmp"):
-        files.append( (os.path.join("@LOCALSTATEDIR@", "lib", "vigilo", "vigiconf", d), []) )
+        files.append( (os.path.join("@localstatedir@", "lib", "vigilo", "vigiconf", d), []) )
     return files
 
 
@@ -92,6 +83,7 @@ setup(name='vigilo-vigiconf',
         long_description="This program generates and pushes the "
                          "configuration for the applications used in Vigilo.",
         zip_safe=False,
+        setup_requires=setup_requires,
         install_requires=install_requires,
         namespace_packages=['vigilo'],
         packages=find_packages("src"),
@@ -126,7 +118,16 @@ setup(name='vigilo-vigiconf',
         package_dir={'': 'src'},
         include_package_data = True,
         test_suite='nose.collector',
-        cmdclass=cmdclass,
+        vigilo_build_vars={
+            'sysconfdir': {
+                'default': '/etc',
+                'description': "installation directory for configuration files",
+            },
+            'localstatedir': {
+                'default': '/var',
+                'description': "local state directory",
+            },
+        },
         data_files=get_data_files() +
             install_i18n("i18n", os.path.join(sys.prefix, 'share', 'locale')),
         )

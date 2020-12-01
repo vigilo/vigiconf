@@ -1,20 +1,20 @@
 [vigiconf]
 
 # Dossier contenant la configuration du parc supervisé.
-confdir = @SYSCONFDIR@/vigilo/vigiconf/conf.d
+confdir = @sysconfdir@/vigilo/vigiconf/conf.d
 
 # Dossier de travail pour la génération des fichiers de configuration.
-libdir = @LOCALSTATEDIR@/lib/vigilo/vigiconf
+libdir = @localstatedir@/lib/vigilo/vigiconf
 
 # Dossier final des fichiers de configuration
 # sur les serveurs de supervision.
-targetconfdir = @SYSCONFDIR@/vigilo/vigiconf
+targetconfdir = @sysconfdir@/vigilo/vigiconf
 
 # Dossier contenant des modules complémentaires pour VigiConf.
-pluginsdir = @SYSCONFDIR@/vigilo/vigiconf/plugins
+pluginsdir = @sysconfdir@/vigilo/vigiconf/plugins
 
 # Emplacement du fichier contenant le verrou de VigiConf.
-lockfile = @LOCALSTATEDIR@/lock/subsys/vigilo-vigiconf/vigiconf.token
+lockfile = @localstatedir@/lock/subsys/vigilo-vigiconf/vigiconf.token
 
 # Emplacement du dépôt SVN contenant l'historique
 # de la configuration du parc supervisé.
