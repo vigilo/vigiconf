@@ -1,6 +1,6 @@
 # vim:set fileencoding=utf-8 expandtab tabstop=4 shiftwidth=4:
 # pylint: disable-msg=C0301,C0111,W0232,R0201,R0903,W0221
-# Copyright (C) 2006-2020 CS GROUP - France
+# Copyright (C) 2006-2021 CS GROUP - France
 # License: GNU GPL v2 <http://www.gnu.org/licenses/gpl-2.0.html>
 
 from __future__ import unicode_literals
